@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Leetcode题目总结2-双指针 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 首尾双指针将两个指针分布在首尾，特别针对排序数组。  167 两数之和II-输入有序数组给定一个已按照升序排列 的有序数组，找到两个数使得它们相加之和等于目标数。 12输入: numbers &#x3D; [2, 7, 11, 15], target &#x3D; 9输出: [1,2]  解答： 这道题在二分法那一篇中已经讲过了，现在我们改为用双指针。注意：使用双指针之前一定要确保排序。 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode题目总结2-双指针">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;19&#x2F;Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%932-%E5%8F%8C%E6%8C%87%E9%92%88&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 首尾双指针将两个指针分布在首尾，特别针对排序数组。  167 两数之和II-输入有序数组给定一个已按照升序排列 的有序数组，找到两个数使得它们相加之和等于目标数。 12输入: numbers &#x3D; [2, 7, 11, 15], target &#x3D; 9输出: [1,2]  解答： 这道题在二分法那一篇中已经讲过了，现在我们改为用双指针。注意：使用双指针之前一定要确保排序。 1">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191013121537.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191013201120.png">
+<meta property="article:published_time" content="2019-12-19T13:13:27.000Z">
+<meta property="article:modified_time" content="2019-12-19T16:14:28.930Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191013121537.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Leetcode题目总结2-双指针" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/19/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%932-%E5%8F%8C%E6%8C%87%E9%92%88/" class="article-date">
+  <time datetime="2019-12-19T13:13:27.000Z" itemprop="datePublished">2019-12-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Leetcode题目总结2-双指针
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-首尾双指针"><a href="#1-首尾双指针" class="headerlink" title="1. 首尾双指针"></a>1. 首尾双指针</h1><p>将两个指针分布在首尾，特别针对<strong>排序数组</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191013121537.png" alt="img"></p>
+<h2 id="167-两数之和II-输入有序数组"><a href="#167-两数之和II-输入有序数组" class="headerlink" title="167 两数之和II-输入有序数组"></a>167 两数之和II-输入有序数组</h2><p>给定一个已按照<strong>升序排列</strong> 的有序数组，找到两个数使得它们相加之和等于目标数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: numbers &#x3D; [2, 7, 11, 15], target &#x3D; 9</span><br><span class="line">输出: [1,2]</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>这道题在二分法那一篇中已经讲过了，现在我们改为用双指针。注意：使用双指针之前一定<strong>要确保排序</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; twoSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; numbers, <span class="keyword">int</span> target) &#123;</span><br><span class="line">    <span class="keyword">int</span> l =<span class="number">0</span>,r=numbers.size()<span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span>(numbers.size()==<span class="number">0</span>) <span class="keyword">return</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;<span class="number">-1</span>,<span class="number">-1</span>&#125;;</span><br><span class="line">    <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(numbers[l]+numbers[r]==target)</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;l+<span class="number">1</span>,r+<span class="number">1</span>&#125;;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(numbers[l]+numbers[r]&lt;target)</span><br><span class="line">            l++;</span><br><span class="line">        <span class="keyword">else</span>    </span><br><span class="line">            r--;       </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;<span class="number">-1</span>,<span class="number">-1</span>&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="015-三数之和"><a href="#015-三数之和" class="headerlink" title="015 三数之和"></a>015 三数之和</h2><p>给定一个包含 n 个整数的数组 <code>nums</code>，判断 <code>nums</code> 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？找出所有满足条件且不重复的三元组。注意：答案中不可以包含重复的三元组。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">例如, 给定数组 nums &#x3D; [-1, 0, 1, 2, -1, -4]，</span><br><span class="line">满足要求的三元组集合为：</span><br><span class="line">[</span><br><span class="line">  [-1, 0, 1],</span><br><span class="line">  [-1, -1, 2]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>这道题不太一样，它需要收集所有的可能结果，并且要排除重复结果。而且要<strong>注意它本身无序，所以要排序</strong>。</p>
+<p>最简单的办法是利用<code>std::set</code>的去重特性来做，不要忘了<code>if(nums[i]+nums[l]+nums[r]==0)</code>也要做<code>l++</code>和<code>r--</code>，否则会死循环。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; threeSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; s;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; res;</span><br><span class="line">    sort(nums.begin(),nums.end());</span><br><span class="line">    <span class="keyword">if</span> (nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span> res;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;nums.size()<span class="number">-1</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> l=i+<span class="number">1</span>,r=nums.size()<span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(nums[i]+nums[l]+nums[r]==<span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; tmp=&#123;nums[i],nums[l],nums[r]&#125;;</span><br><span class="line">                s.insert(tmp);</span><br><span class="line">                l++;r--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(nums[i]+nums[l]+nums[r]&lt;<span class="number">0</span>) l++;</span><br><span class="line">            <span class="keyword">else</span>  r--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;        </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> x:s)</span><br><span class="line">        res.push_back(x);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这种办法慢得离谱，酌情使用。常规做法是去重。要注意对i去重是<strong>用过了再去</strong>，因为可能出现<code>[-1,-1,2]</code>这种情况，如果按照<code>if(nums[i] == nums[i + 1]) continue;</code>就会导致结果不全。</p>
+<p>对<code>l</code>和<code>r</code>去重时要注意，<code>l++</code>和<code>r--</code><strong>用两次</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; threeSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">    sort(nums.begin(), nums.end());</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; res;</span><br><span class="line">    <span class="keyword">if</span> (nums.size() &lt; <span class="number">2</span>) <span class="keyword">return</span> res;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.size() - <span class="number">2</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//对i去重</span></span><br><span class="line">        <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>])</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">int</span> l = i + <span class="number">1</span>, r = nums.size() - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span> - nums[i];</span><br><span class="line">        <span class="keyword">while</span> (l &lt; r)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[l] + nums[r] == sum)</span><br><span class="line">            &#123;</span><br><span class="line">                res.push_back(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&#123;nums[i], nums[l], nums[r]&#125;);</span><br><span class="line">                <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[l] == nums[l + <span class="number">1</span>]) l++;</span><br><span class="line">                <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[r] == nums[r - <span class="number">1</span>]) r--;</span><br><span class="line">                l++;</span><br><span class="line">                r--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (nums[l] + nums[r] &lt; sum)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[l] == nums[l + <span class="number">1</span>]) l++;</span><br><span class="line">                l++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[r] == nums[r - <span class="number">1</span>]) r--;</span><br><span class="line">                r--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="016-最接近的三数之和"><a href="#016-最接近的三数之和" class="headerlink" title="016 最接近的三数之和"></a>016 最接近的三数之和</h2><p>给定一个包括 <em>n</em> 个整数的数组 <code>nums</code> 和 一个目标值 <code>target</code>。找出 <code>nums</code> 中的三个整数，使得它们的和与 <code>target</code> 最接近。返回这三个数的和。假定每组输入只存在唯一答案。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，给定数组 nums &#x3D; [-1，2，1，-4], 和 target &#x3D; 1.</span><br><span class="line">与 target 最接近的三个数的和为2. (-1 + 2 + 1 &#x3D; 2).</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>相较于上一题，不用去除重复。需要加一个<code>closest</code>，表示最接近的数。每次循环都比较<strong>更新维护</strong>这个数。要注意<code>closet</code>不能设为<code>INT_MAX</code>，后面可能会溢出。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">threeSumClosest</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size() &lt; <span class="number">3</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    sort(nums.begin(),nums.end());</span><br><span class="line">    <span class="keyword">int</span> closet = accumulate(nums.begin(),nums.begin()+<span class="number">3</span>,<span class="number">0</span>);  </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;nums.size()<span class="number">-2</span>;i++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> l=i+<span class="number">1</span>,r=nums.size()<span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> sum=nums[l]+nums[r]+nums[i];</span><br><span class="line">            <span class="keyword">if</span>(sum==target) <span class="keyword">return</span> sum;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">abs</span>(sum-target)&lt;<span class="built_in">abs</span>(closet-target))</span><br><span class="line">                closet=sum;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(sum&lt;target) l++;</span><br><span class="line">            <span class="keyword">else</span> r--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> closet;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="018-四数之和"><a href="#018-四数之和" class="headerlink" title="018 四数之和"></a>018 四数之和</h2><p>给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">给定数组 nums &#x3D; [1, 0, -1, 0, -2, 2]，和 target &#x3D; 0。</span><br><span class="line">满足要求的四元组集合为：</span><br><span class="line">[</span><br><span class="line">  [-1,  0, 0, 1],</span><br><span class="line">  [-2, -1, 1, 2],</span><br><span class="line">  [-2,  0, 0, 2]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>更015一样，多一层即可</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; fourSum(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; res;</span><br><span class="line">    <span class="keyword">if</span>(nums.size()&lt;<span class="number">4</span>) <span class="keyword">return</span> res;</span><br><span class="line">    sort(nums.begin(),nums.end());</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;nums.size()<span class="number">-3</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(i!=<span class="number">0</span>&amp;&amp;nums[i]==nums[i<span class="number">-1</span>]) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=i+<span class="number">1</span>;j&lt;nums.size()<span class="number">-2</span>;j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(j!=i+<span class="number">1</span>&amp;&amp;nums[j]==nums[j<span class="number">-1</span>]) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">int</span> l=j+<span class="number">1</span>,r=nums.size()<span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">int</span> sum12=nums[i]+nums[j];</span><br><span class="line">            <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">int</span> sum34=nums[l]+nums[r];</span><br><span class="line">                <span class="keyword">if</span>(sum12+sum34==target)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; tmp&#123;nums[i],nums[j],nums[l],nums[r]&#125;;</span><br><span class="line">                    res.push_back(tmp);</span><br><span class="line">                    <span class="keyword">while</span>(l&lt;r&amp;&amp;nums[l]==nums[l+<span class="number">1</span>]) l++;</span><br><span class="line">                    <span class="keyword">while</span>(l&lt;r&amp;&amp;nums[r]==nums[r<span class="number">-1</span>]) r--;</span><br><span class="line">                    l++;</span><br><span class="line">                    r--;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(sum12+sum34&lt;target)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">while</span>(l&lt;r&amp;&amp;nums[l]==nums[l+<span class="number">1</span>]) l++;</span><br><span class="line">                    l++;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[r] == nums[r - <span class="number">1</span>]) r--;</span><br><span class="line">                    r--;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="011-乘最多水的容器"><a href="#011-乘最多水的容器" class="headerlink" title="011 乘最多水的容器"></a>011 乘最多水的容器</h2><p>图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191013201120.png" alt="img" style="zoom:50%;" />
+
+<p><strong>解答：</strong></p>
+<p>面积=最短边*距离，要提高面积就有两种办法：增大最短边，保持长距离。让两边较小者往内移动，这样最有可能找到最大面积。同时，我们需要维护一个<code>maxarea</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">maxArea</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> l=<span class="number">0</span>,r=height.size()<span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">int</span> maxarea = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(l&lt;r)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> area = min(height[l],height[r])*(r-l);</span><br><span class="line">        maxarea=max(maxarea,area);</span><br><span class="line">        <span class="keyword">if</span>(height[l]&lt;height[r]) l++;</span><br><span class="line">        <span class="keyword">else</span> r--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> maxarea;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="075-颜色分类"><a href="#075-颜色分类" class="headerlink" title="075 颜色分类"></a>075 颜色分类</h2><p>给定一个包含红色、白色和蓝色，一共 n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: [2,0,2,1,1,0]</span><br><span class="line">输出: [0,0,1,1,2,2]</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>典型的快排。采用了三指针，<strong>两个放首尾，<code>index</code>放中间</strong>。要保证<code>index</code>以前的都是有序的，我们构建两个标志<code>zerotail</code>和<code>twohead</code>分别表示<strong>最后一个0的下一个和第一个2的前一个</strong>，比如<code>[0,1,1,2]</code>，<code>zerotail=1</code>，<code>twohead=2</code>。</p>
+<p>注意：当<code>nums[index] == 2</code>交换时，<code>index</code><strong>不能盲目前进</strong>，因为不知道被换过来的是1还是2，需要放到下一轮进行检验。（由于我们保证了index以前都是有序的，所以和0做交换是安全的）</p>
+<p>注意：去重时，必须要判断<code>twohead &gt;= 0</code>和<code>zerotail &lt; nums.size()</code>，不然会溢出。比如<code>[2]</code>，使得<code>twohead=-1</code>，下一次while就会导致<code>nums[twohead]</code>溢出。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sortColors</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> zerotail = <span class="number">0</span>, twohead = nums.size() - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (zerotail &lt; nums.size() &amp;&amp; nums[zerotail] == <span class="number">0</span>) zerotail++;</span><br><span class="line">    <span class="keyword">while</span> (twohead &gt;= <span class="number">0</span> &amp;&amp; nums[twohead] == <span class="number">2</span>) twohead--;</span><br><span class="line">    <span class="keyword">int</span> index = zerotail;</span><br><span class="line">    <span class="keyword">while</span> (index &lt;= twohead)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[index] == <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">std</span>::swap(nums[zerotail++], nums[index++]);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (nums[index] == <span class="number">2</span>)</span><br><span class="line">            <span class="built_in">std</span>::swap(nums[twohead--], nums[index]);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            index++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-同向双指针"><a href="#2-同向双指针" class="headerlink" title="2. 同向双指针"></a>2. 同向双指针</h1><p>也可以称为<strong>滑动窗口法</strong>，使用滑动窗口时考虑三个问题：初始化窗口范围、终止条件、移动条件。</p>
+<h2 id="003-无重复字符的最长子串"><a href="#003-无重复字符的最长子串" class="headerlink" title="003 无重复字符的最长子串"></a>003 无重复字符的最长子串</h2><p>给定一个字符串，请你找出其中不含有重复字符的 <strong>最长子串</strong> 的长度。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: &quot;abcabcbb&quot;</span><br><span class="line">输出: 3 </span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;abc&quot;，所以其长度为 3。</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>利用双指针<code>l</code>和<code>r</code>维护一个set，遇到不一样的就加进来，遇到一样的删尾巴。起始条件<code>r=l=0</code>，终止条件<code>r==s.size()</code></p>
+<p>当遇到重复时，并没有将前面的全部擦除，而是一个一个擦，这样很慢，但set没办法，它的迭代器不支持加减运算符。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">char</span>&gt; cache;</span><br><span class="line">    <span class="keyword">int</span> l=<span class="number">0</span>,r=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> maxlen=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(r&lt;s.size())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(cache.find(s[r])==cache.end())</span><br><span class="line">        &#123;</span><br><span class="line">            cache.insert(s[r++]);</span><br><span class="line">            maxlen=max(maxlen,r-l);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            cache.erase(s[l++]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> maxlen;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="209-长度最小的子数组"><a href="#209-长度最小的子数组" class="headerlink" title="209 长度最小的子数组"></a>209 长度最小的子数组</h2><p>给定一个含有 <strong>n</strong> 个正整数的数组和一个正整数 <strong>s ，</strong>找出该数组中满足其和 <strong>≥ s</strong> 的长度最小的连续子数组<strong>。</strong>如果不存在符合条件的连续子数组，返回 0。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: s &#x3D; 7, nums &#x3D; [2,3,1,2,4,3]</span><br><span class="line">输出: 2</span><br><span class="line">解释: 子数组 [4,3] 是该条件下的长度最小的连续子数组</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>注意右边的边界，一定要加双判断，不然要越界。是<code>while (sum &lt; s &amp;&amp; right &lt; len)</code>不是if，所以可能会月结，不要搞晕了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">minSubArrayLen</span><span class="params">(<span class="keyword">int</span> s, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.empty())</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> left = <span class="number">0</span>, right = <span class="number">0</span>, sum = <span class="number">0</span>, len = nums.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">int</span> res = INT_MAX;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (right &lt; len)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span> (sum &lt; s &amp;&amp; right &lt; len)</span><br><span class="line">            sum += nums[right++];</span><br><span class="line">        <span class="keyword">while</span> (sum &gt;= s)</span><br><span class="line">        &#123;</span><br><span class="line">            res = <span class="built_in">min</span>(res, right - left);</span><br><span class="line">            sum -= nums[left++];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res == INT_MAX ? <span class="number">0</span> : res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-其他双指针"><a href="#3-其他双指针" class="headerlink" title="3. 其他双指针"></a>3. 其他双指针</h1><h2 id="028-实现strStr"><a href="#028-实现strStr" class="headerlink" title="028 实现strStr()"></a>028 实现strStr()</h2><p>给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回 -1。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: haystack &#x3D; &quot;hello&quot;, needle &#x3D; &quot;ll&quot;</span><br><span class="line">输出: 2</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>这道题本质上应该用KMP算法，但一道easy级别的题目这么搞显然不合理。所以就用笨一点的分离双指针遍历好了。</p>
+<p>两个指针，一个负责<code>haystack</code>搜索，找到合适的起始位置后，另一个也启动在<code>needle</code>和<code>haystack</code>一起搜索。</p>
+<p>为空时，返回0，为了和C语言以及java中的API相对应。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">strStr</span><span class="params">(<span class="built_in">string</span> haystack, <span class="built_in">string</span> needle)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (needle == <span class="string">""</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (; i &lt; haystack.size(); i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (haystack[i] != needle[<span class="number">0</span>]) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (; j &lt; needle.size(); j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (haystack[i + j] != needle[j])</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (j == needle.size()) <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="088-合并两个有序数组"><a href="#088-合并两个有序数组" class="headerlink" title="088 合并两个有序数组"></a>088 合并两个有序数组</h2><p>给定两个有序整数数组 <em>nums1</em> 和 <em>nums2*，将 *nums2</em> 合并到 <em>nums1</em> 中<em>，</em>使得 <em>num1</em> 成为一个有序数组。初始化 nums1 和 nums2 的元素数量分别为 m 和 n。你可以假设 nums1 有足够的空间（空间大小大于或等于 m + n）来保存 nums2 中的元素。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入:</span><br><span class="line">nums1 &#x3D; [1,2,3,0,0,0], m &#x3D; 3</span><br><span class="line">nums2 &#x3D; [2,5,6],       n &#x3D; 3</span><br><span class="line"></span><br><span class="line">输出: [1,2,2,3,5,6]</span><br></pre></td></tr></table></figure>
+
+<p><strong>解答：</strong></p>
+<p>从后往前遍历，维护三个指针：<code>i</code>负责<code>nums1</code>的有效位置，<code>j</code>负责<code>nums2</code>，<code>index</code>负责插入位置。</p>
+<p>i和j必须要双检查，防止越界。最后要<strong>把剩余的j补上去。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="keyword">int</span> m, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i=m<span class="number">-1</span>,j=n<span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">int</span> len=nums1.size()<span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">while</span>(i&gt;=<span class="number">0</span>&amp;&amp;j&gt;=<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(nums1[i]&gt;nums2[j])</span><br><span class="line">            nums1[len--]=nums1[i--];</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            nums1[len--]=nums2[j--];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(j&gt;=<span class="number">0</span>) nums1[len--]=nums2[j--];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/19/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%932-%E5%8F%8C%E6%8C%87%E9%92%88/" data-id="ck4o2turj000ou4vyc2rw1fun" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/19/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Leetcode题目总结3-动态规划
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/19/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%931-%E4%BA%8C%E5%88%86%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Leetcode题目总结1-二分法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

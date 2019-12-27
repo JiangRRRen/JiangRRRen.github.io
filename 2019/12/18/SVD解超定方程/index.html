@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>SVD解超定方程 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 奇异值分解原理1.1 特征值的数学含义对角矩阵$M$作用在任何一个向量上：$$\begin{bmatrix}3&amp;0\0&amp;1 \end{bmatrix}\begin{bmatrix}x\y \end{bmatrix}&#x3D;\begin{bmatrix}3x\y \end{bmatrix}$$换言之这个变换让$x$方向拉伸了3倍，$y$方向保持不变，对角矩阵起到作用是将水平垂直网格作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SVD解超定方程">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 奇异值分解原理1.1 特征值的数学含义对角矩阵$M$作用在任何一个向量上：$$\begin{bmatrix}3&amp;0\0&amp;1 \end{bmatrix}\begin{bmatrix}x\y \end{bmatrix}&#x3D;\begin{bmatrix}3x\y \end{bmatrix}$$换言之这个变换让$x$方向拉伸了3倍，$y$方向保持不变，对角矩阵起到作用是将水平垂直网格作">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190815150921.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190815151022.png">
+<meta property="article:published_time" content="2019-12-18T15:21:49.000Z">
+<meta property="article:modified_time" content="2019-12-18T15:30:53.207Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190815150921.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SVD解超定方程" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" class="article-date">
+  <time datetime="2019-12-18T15:21:49.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SVD解超定方程
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-奇异值分解原理"><a href="#1-奇异值分解原理" class="headerlink" title="1. 奇异值分解原理"></a>1. 奇异值分解原理</h1><h2 id="1-1-特征值的数学含义"><a href="#1-1-特征值的数学含义" class="headerlink" title="1.1 特征值的数学含义"></a>1.1 特征值的数学含义</h2><p><strong>对角矩阵</strong>$M$作用在任何一个向量上：<br>$$<br>\begin{bmatrix}3&amp;0\0&amp;1 \end{bmatrix}<br>\begin{bmatrix}x\y \end{bmatrix}<br>=<br>\begin{bmatrix}3x\y \end{bmatrix}<br>$$<br>换言之这个变换让$x$方向拉伸了3倍，$y$方向保持不变，<strong>对角矩阵起到作用是将水平垂直网格作水平拉伸（或者反射后水平拉伸）的线性变换</strong>。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815150921.png" alt="img" style="zoom:67%;" />
+
+<p>对于一个<strong>一般矩阵</strong>$M=\begin{bmatrix}1&amp;1\0&amp;1 \end{bmatrix}$，我们可以找到一组网格，然后通过<strong>旋转+拉伸</strong>的方法保证变换后的网格依旧互相垂直。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815151022.png" alt="img" style="zoom:67%;" />
+
+<p><strong>特征向量</strong>的几何含义为：<strong>对于任何的一个矩阵，我们要找到一组两两正交单位向量序列，使得矩阵作用在此向量序列上后得到新的向量序列保持两两正交</strong>。特征值的几何含义为：拉伸<br>$$<br>A=W\Sigma W^{-1}<br>$$<br>其中$W$是这$n$个特征向量张成的$n$维矩阵，一般而言我们会把$W$的这$n$个特征向量标准化，即:<br>$$<br>||w_i||_2=w_i^Tw_i=1<br>$$<br>此时$W$就变为了<strong>标准正交基</strong>，满足：<br>$$<br>W^TW=I,\ W^T=W^{-1}<br>$$<br>这样我们的特征分解表达式可以写成：<br>$$<br>A=W\Sigma W^{T}<br>$$</p>
+<h2 id="2-2-奇异值的含义"><a href="#2-2-奇异值的含义" class="headerlink" title="2.2 奇异值的含义"></a>2.2 奇异值的含义</h2><p><strong>特征值需要方阵</strong>，对于一个非方阵而言我们可以通过$M=AA^T$将它变为方阵，对变换后的方阵$M$求特征值的结果就是奇异值。</p>
+<p>若$AA^T$的特征值为：<br>$$<br>\lambda <em>{1} \geq \lambda _{2} \geq … \geq \lambda _{r} &gt; \lambda _{r+1} = \cdots = \lambda</em>{m} = 0<br>$$<br>则称$\sigma _{i}=\sqrt {\lambda _{i}}  \quad (i=1, 2, …, r)$为矩阵$A$的<strong>奇异值</strong>（注意这里只有r个）。</p>
+<p>存在$m$阶酉矩阵$U$和$n$阶酉矩阵$V$，使得：<br>$$<br>A=UDV^{T}=U<br>    \left[<br>          \begin{matrix}<br>           \Sigma                   &amp;  0_{r \times (n-r)}        \<br>           0_{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \<br>          \end{matrix}<br>    \right]<br>    V^{T}<br>    \其中, \quad<br>\Sigma =<br>    \left[<br>          \begin{matrix}<br>           \sigma_{1} &amp;                      &amp;                &amp;                          \<br>                             &amp;   \sigma_{2}  &amp;                &amp;                           \<br>                             &amp;                      &amp;   \ddots  &amp;                           \<br>                             &amp;                      &amp;                &amp;   \sigma_{r}       \<br>          \end{matrix}<br>    \right]<br>$$<br>上式中 <strong>D的对角元叫做 A 的奇异值</strong>，<strong>U 中的列向量称为 A 的左奇异向量</strong>，<strong>V 中的列向量称为 A 的右奇异向量</strong>。</p>
+<h1 id="2-奇异值分解解线性方程"><a href="#2-奇异值分解解线性方程" class="headerlink" title="2. 奇异值分解解线性方程"></a>2. 奇异值分解解线性方程</h1><h2 id="2-1-解非齐次线性方程组-Ax-b"><a href="#2-1-解非齐次线性方程组-Ax-b" class="headerlink" title="2.1 解非齐次线性方程组($Ax=b$)"></a>2.1 解非齐次线性方程组($Ax=b$)</h2><p>若矩阵的行数大于列数，则为超定方程，需要求最小二乘解，即使得$||Ax-b||<em>{2}$<strong>最小时</strong>的$x$，由2-范数具有酉不变性，有：<br>$$<br>||Ax-b||</em>{2} =<br>   \left| \left|<br>    U<br>    \left[<br>          \begin{matrix}<br>           \Sigma                   &amp;  0_{r \times (n-r)}        \<br>           0_{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \<br>          \end{matrix}<br>    \right]<br>    V^{T} x-b<br>    \right| \right|<br>    \=<br>   \left| \left|<br>    \left[<br>          \begin{matrix}<br>           \Sigma                   &amp;  0_{r \times (n-r)}        \<br>           0_{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \<br>          \end{matrix}<br>    \right]<br>    V^{T} x-U^{T}b<br>    \right| \right|<br>$$</p>
+<blockquote>
+<p>如果范数满足$║A║=║UAV║$对任何矩阵$A$以及酉矩阵$(U,V)$成立，则此范数为酉不变范数。2-范数是酉不变范数。</p>
+</blockquote>
+<p>要让上述二范数最小，<strong>让里面的内容等于0即可</strong>。所以$Ax=b$的最小二乘解为$\left[         \begin{matrix}            \Sigma                   &amp;  0_{r \times (n-r)}        \            0_{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \                     \end{matrix}   \right]   V^{T}x = U^{T}b$的最小二乘解。</p>
+<p>令$y=V^{H}x，c=U^{H}b$，则原方程可亦表示为:<br>$$<br>\left[<br>      \begin{matrix}<br>           \Sigma                   &amp;  0_{r \times (n-r)}        \<br>           0_{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \<br>          \end{matrix}<br>\right]<br>y = c<br>$$<br>表达成<strong>矩阵形式</strong>如下：<br>$$<br>\left[<br>          \begin{array}{cccc:c}<br>           \sigma_{1} &amp;                      &amp;               &amp;                       &amp;    \<br>                             &amp;   \sigma_{2}  &amp;               &amp;                       &amp;    \<br>                             &amp;                      &amp;   \ddots  &amp;                       &amp;  0_{r \times (n-r)}  \<br>                             &amp;                      &amp;                &amp;   \sigma_{r}   &amp;     \<br>                             \hdashline<br>                             &amp;                     &amp;  0_{(m-r) \times r}      &amp;    &amp;  0_{(m-r) \times (n-r)}<br>          \end{array}<br>    \right]<em>{m \times n}<br>    \cdot<br>     \left[<br>          \begin{matrix}<br>          y</em>{1}     \<br>          y_{2}     \<br>          \vdots  \<br>          y_{r}      \<br>          \hdashline<br>           \mathcal{Y_{(n-r) \times 1}}     \<br>          \end{matrix}<br>    \right]<em>{n \times 1}<br>    =<br>     \left[<br>          \begin{matrix}<br>          c</em>{1}     \<br>          c_{2}     \<br>          \vdots  \<br>          c_{r}      \<br>          \hdashline<br>           \mathcal{C_{(m-r) \times 1}}     \<br>          \end{matrix}<br>    \right]<em>{m \times 1}<br>$$<br>所以$Dy=c$的最小二乘解为：<br>$$<br>y=[\frac{c</em>{1}}{\sigma <em>{1}}, \frac{c</em>{2}}{\sigma <em>{2}}, \cdots, \frac{c</em>{r}}{\sigma <em>{r}}, \underbrace{0, \cdots, 0}</em>{n-r} ]^{T}<br>$$<br><strong>原方程组</strong>的最小二乘解为：<br>$$<br>x=V^{T}y<br>$$</p>
+<h2 id="2-2-解齐次线性方程组-Ax-0"><a href="#2-2-解齐次线性方程组-Ax-0" class="headerlink" title="2.2 解齐次线性方程组($Ax=0$)"></a>2.2 解齐次线性方程组($Ax=0$)</h2><p>2.1的情况是让$||Ax-b||<em>{2}$的值最小，但2.2由于$b=0$所以是让$||Ax||</em>{2}$最小，由于$x=0$是方程的解，而我们一般不想要这个解，所以<strong>增加一个约束</strong>$||x||<em>2=1$，这样问题就变成了：<br>$$<br>min(||Ax||</em>{2})，||x||<em>{2}=1<br>$$<br>又因为：<br>$$<br>||Ax||=||UDV^{T}x||=||DV^{T}x||<br>$$<br>令$y=V^{T}x$，则问题变为：<br>$$<br>min(||Dy||), ||y||=1<br>$$<br>展开以后得到：<br>$$<br>\left[<br>          \begin{array}{cccc:c}<br>           \sigma</em>{1} &amp;                      &amp;               &amp;                       &amp;    \<br>                             &amp;   \sigma_{2}  &amp;               &amp;                       &amp;    \<br>                             &amp;                      &amp;   \ddots  &amp;                       &amp;  0_{r \times (n-r)}  \<br>                             &amp;                      &amp;                &amp;   \sigma_{r}   &amp;     \<br>                             \hdashline<br>                             &amp;                     &amp;  0_{(m-r) \times r}      &amp;    &amp;  0_{(m-r) \times (n-r)}<br>          \end{array}<br>    \right]<em>{m \times n}<br>    \cdot<br>     \left[<br>          \begin{matrix}<br>          y</em>{1}     \<br>          y_{2}     \<br>          \vdots  \<br>          y_{r}      \<br>          \hdashline<br>           \mathcal{Y_{(n-r) \times 1}}     \<br>          \end{matrix}<br>    \right]<em>{n \times 1}<br>    =<br>     \left[<br>          \begin{matrix}<br>          0     \<br>          0     \<br>          \vdots  \<br>          0      \<br>          \hdashline<br>           \mathcal{0</em>{(m-r) \times 1}}     \<br>          \end{matrix}<br>    \right]_{m \times 1}<br>$$<br>因为对角阵$D$的对角元素（奇异值）按递减顺序排列，所以最优解为$y=[0, 0, \cdots, 1]^{T}$（考虑到约束条件）,又因为$x=Vy$，所以最优解是最小奇异值对应的$V$的列向量(<strong>右奇异向量</strong>)，<strong>也就是$V$的最右边一列</strong>。比如下面的结果就是$[a_3,b_3,c_3]^T$<br>$$<br>V=\begin{bmatrix}a_1&amp;a_2&amp;a_3\<br>b_1&amp;b_2&amp;b_3\<br>c_1&amp;c_2&amp;c_3\end{bmatrix}<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" data-id="ck4o2tus20017u4vy3oro4rdp" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/ROS%E5%9F%BA%E7%A1%80/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ROS基础
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/Sim3%E5%8F%98%E6%8D%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Sim3变换</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;page&#x2F;4&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-ORB-SLAM2源码解析-LoopClosing回环检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-18T14:53:13.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/">ORB_SLAM2源码解析-LoopClosing回环检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><h2 id="1-1-回环检测的意义"><a href="#1-1-回环检测的意义" class="headerlink" title="1.1 回环检测的意义"></a>1.1 回环检测的意义</h2><p>在Slam14讲中提到过，回环检测可以显著减小累计误差的影响，但具体的作用机理并没有讲清楚，这里做一个补充。</p>
+<p>由于机器移动过程中，误差会逐步累积导致其<strong>计算路径偏离实际路径</strong>（误差最明显的是尺度漂移），我们希望能将计算路径修正。</p>
+<p>当检测出回环帧，确认路径闭环时，我们可以认为当前帧和回环帧应该是<strong>重合</strong>的。而实际情况却不相同，这中间差了一个<strong>相似变换矩阵</strong>S=[sRt01]S=[sRt01]，通过计算当前帧和回环帧的信息，我们能求出这个矩阵。再通过<strong>位姿传播原理</strong>，对之前所有的计算路径进行修正，最终再全局BA得到最优结果。</p>
+<p>可以看到，如果不进行回环检测，画出的地图非常糟糕：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828163958.png" alt="img" style="zoom: 67%;" />
+
+<p>而通过回环检测，能有效提高地图效果：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828164033.png" alt="img" style="zoom:67%;" />
+
+<h2 id="1-2-总体结构"><a href="#1-2-总体结构" class="headerlink" title="1.2 总体结构"></a>1.2 总体结构</h2><p>回环检测的过程就是一个不断筛选择优的过程，总的来说主要的筛选条件有：<strong>词袋相似度检测</strong>，<strong>孤点检测</strong>，<strong>连续性检测</strong>，<strong>词袋特征点匹配检测</strong>，<strong>Sim3匹配检测</strong>，<strong>重投影匹配检测</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829154803.png" alt="img"></p>
+<h1 id="2-检测回环DetectLoop"><a href="#2-检测回环DetectLoop" class="headerlink" title="2. 检测回环DetectLoop"></a>2. 检测回环DetectLoop</h1><p>这一步我们准确地检测出回环帧，检测的办法就是通过不断的筛选。筛选的过程可以分为两类：单帧对单帧的筛选，多帧对多帧的筛选。</p>
+<p>前者是要筛选出和<strong>当前帧</strong>有可能回环关系的候选帧，包括二者的相似性，候选帧是否孤立等等。后者是一系列帧的比较，主要是检测连续性。</p>
+<h2 id="2-1-总体步骤"><a href="#2-1-总体步骤" class="headerlink" title="2.1 总体步骤"></a>2.1 总体步骤</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829094727.png" alt="img"></p>
+<ol>
+<li><p><strong>取出一帧</strong></p>
+<p>先从<code>mlpLoopKeyFrameQueue</code>队列中取一帧，这个队列是在LocalMapping的最后插入的关键帧。</p>
+</li>
+<li><p><strong>检测与上一次回环的距离</strong></p>
+<p>如果距离上次闭环没多久（小于10帧），或者map中关键帧总共还没有10帧，则不进行闭环检测</p>
+</li>
+<li><p><strong>计算当前帧与共视帧的Bow得分</strong></p>
+<p>这一步需要遍历所有共视关键帧呢，计算他们之间的Bow相似度得分，并得到最低得分<code>minScore</code></p>
+</li>
+<li><p><strong>找出闭环备选帧</strong></p>
+<p>和当前关键帧具有回环关系的关键帧,不应该低于当前关键帧的相邻关键帧的最低的相似度，且候选帧不应该孤立</p>
+</li>
+<li><p><strong>连续性检测</strong></p>
+<p>实现多帧与多帧的闭环</p>
+</li>
+</ol>
+<h2 id="2-2-找出闭环备选帧"><a href="#2-2-找出闭环备选帧" class="headerlink" title="2.2 找出闭环备选帧"></a>2.2 找出闭环备选帧</h2><p>这一步为了在闭环检测中找到与该关键帧可能闭环的关键帧。筛选时有两个阈值：<strong>最大共词数，最大组得分</strong>。最大共词数用于筛选那些和当前帧长得不像的候选帧，最大组得分用于筛选长得像但孤立的候选帧。</p>
+<ol>
+<li><p><strong>找出和当前帧具有公共单词的所有关键帧</strong></p>
+<p>需要排除与当前帧链接的关键帧，把找到的候选帧放入<code>lKFsSharingWords</code>，同时记录当前帧与候选帧具有相同word的个数<code>mnLoopWords</code></p>
+</li>
+<li><p><strong>统计候选帧中的最大共词数</strong></p>
+<p>在上一步中所有闭环候选帧与当前帧的共次数都存在了<code>mnLoopWords</code>，遍历然后找到最大共词数。</p>
+</li>
+<li><p><strong>挑选共次数合格的候选帧并计算得分</strong></p>
+<p>程序设定的条件是，共词数大于0.8最大共词数。然后调用DBoW2自带的<code>score</code>函数计算得分。将合格的候选帧和得分组成pair放入<code>lScoreAndMatch</code></p>
+</li>
+<li><p><strong>计算组得分去除孤立点</strong></p>
+<p>单单计算当前帧和某一关键帧的相似性是不够的，这里将与关键帧相连归为一组，计算累计得分。具体做法是：</p>
+<ol>
+<li><p><strong>构建组</strong></p>
+<p>利用<code>pKFi-&gt;GetBestCovisibilityKeyFrames(10)</code>得到最佳共视的10帧放入容器<code>vpNeighs</code>中形成一组。</p>
+</li>
+<li><p><strong>计算组得分</strong></p>
+<p>遍历组，如果组中的帧满足上面步骤3的条件，则将它的分数累加。</p>
+</li>
+<li><p><strong>记录最高得分</strong></p>
+<p>将所有组中的得分最高组的分数记录下来，作为阈值</p>
+</li>
+<li><p><strong>组筛选</strong></p>
+<p>排除分数低于0.75倍最高分数的组。将筛选后的候选帧插入<code>vpLoopCandidates</code></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="2-3-连续性检测"><a href="#2-3-连续性检测" class="headerlink" title="2.3 连续性检测"></a>2.3 连续性检测</h2><p>需要实现多帧与多帧闭环，所以要做连续性检测。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829104457.png" alt="img" style="zoom:50%;" />
+
+<p>如图所示，在闭环候选帧中，紫色那一帧连续被三个当前帧匹配到，所以它通过了合格性检测，可以被作为良好的候选帧。这种检测方法是<strong>将一系列当前帧和一系列闭环候选帧比较</strong>，所以是多帧对多帧闭环。</p>
+<p>这里的”匹配”非常特殊，因为闭环候选帧不是连续的，他们的拓扑结构是这样：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829105758.png" alt="img" style="zoom:50%;" />
+
+<p>彩色三角代表候选帧，蓝色圆形则为普通帧。我们将候选帧和与他有良好共视关系的普通帧圈起来，组成<strong>子候选组</strong>，后面比较连续性就是以<strong>组</strong>为单位比较。</p>
+<p>检测时，当前帧如果和某一子候选组发生关系(和组员有良好共视关系)，那么这一子候选组连续性+1，并<strong>传递到下一个当前帧</strong>。如果当前帧没有和某子候选组发生关系，则此候选组<strong>连续性直接清零</strong>。如果能连续通过3次考验，则就算通过连续性检测。</p>
+<h1 id="3-Sim3计算ComputeSim3"><a href="#3-Sim3计算ComputeSim3" class="headerlink" title="3. Sim3计算ComputeSim3"></a>3. Sim3计算ComputeSim3</h1><p>该函数计算相似变换，从<code>mvpEnoughConsistentCandidates</code>中找出真正的闭环帧<code>mpMatchedKF</code>。</p>
+<p>这个部分要达成两个目的：第一，准确计算Sim变换矩阵，为后面的校正做铺垫；第二，进一步筛选闭环帧。</p>
+<p>筛选分为三个阶段：阶段一利用词袋匹配的办法剔除，阶段二利用Sim3匹配剔除，阶段三利用重投影匹配剔除。</p>
+<h3 id="Step1-一次筛选"><a href="#Step1-一次筛选" class="headerlink" title="Step1 一次筛选"></a><strong>Step1 一次筛选</strong></h3><ol>
+<li><p>从闭环候选帧容器中取出一帧</p>
+<p>之前通过连续性检测的结果都放在<code>mvpEnoughConsistentCandidates</code>，从这里面取出一帧。</p>
+</li>
+<li><p>当前帧与候选帧匹配</p>
+<p>通过bow加速得到mpCurrentKF与pKF之间的匹配特征点，调用函数<code>SearchByBoW</code>，如果匹配的特征点少于20个，<code>vbDiscarded[i]</code>打上标记。</p>
+</li>
+<li><p>构造Sim3求解器</p>
+<p>Ransac参数：迭代300次，至少20个内点才能通过。结束后重复执行1。</p>
+</li>
+</ol>
+<h3 id="Step2-二次筛选"><a href="#Step2-二次筛选" class="headerlink" title="Step2 二次筛选"></a><strong>Step2 二次筛选</strong></h3><ol>
+<li><p>从候选帧容器取出一帧</p>
+<p>如果<code>vbDiscarded</code>有标记，则放弃此帧，再取一帧。</p>
+</li>
+<li><p>求解Sim3</p>
+<p>Step1.3构造的求解器存储在<code>vpSim3Solvers[i]</code>中，取出来，求解，迭代5次。如果得不到好的结果，打上discard标记。</p>
+</li>
+<li><p>Sim3弥补漏匹配</p>
+<p>在Step1.2中进行了一次匹配，但由于尺度误差，很多特征点没有进行有效匹配，现在成功计算出了相似变换矩阵，用它进行弥补。调用函数<code>SearchBySim3</code></p>
+</li>
+<li><p>Sim3优化</p>
+<p>引入弥补后的匹配点，调用<code>OptimizeSim3</code>进行优化。如果优化得到的内点数大于20，则表示通过考验，此帧就是闭环帧。然后立马break。结束后重复执行1。</p>
+</li>
+<li><p>清理垃圾</p>
+<p>如果把候选帧容器都遍历完了，依然没有任何一帧被确立为回环帧，则说明当前帧没有发生回环。清除<code>mvpEnoughConsistentCandidates</code></p>
+</li>
+</ol>
+<h3 id="Step3-三次筛选"><a href="#Step3-三次筛选" class="headerlink" title="Step3 三次筛选"></a><strong>Step3 三次筛选</strong></h3><ol>
+<li><p>提取闭环帧的相连关键帧</p>
+<p>把相连关键帧的所有MapPoint放入<code>mvpLoopMapPoints</code></p>
+</li>
+<li><p>投影到当前帧匹配</p>
+<p>调用<code>SearchByProjection</code>，统计匹配成功的点数</p>
+</li>
+<li><p>清理候选帧容器</p>
+<p>如果匹配成功的点数<code>nTotalMatches</code>大于40，说明完成了最后的考验，返回true，清空容器<code>mvpEnoughConsistentCandidates</code>；若小于40，则表示闭环失败，清空容器，返回false。</p>
+</li>
+</ol>
+<h1 id="4-回环校正CorrectLoop"><a href="#4-回环校正CorrectLoop" class="headerlink" title="4. 回环校正CorrectLoop"></a>4. 回环校正CorrectLoop</h1><p>通过前面的操作我们得到了最终的回环帧和Sim变换矩阵，现在要利用这些条件，进行全局校正。</p>
+<p>校正之前需要先停止LocalMapping线程，停止全局BA。</p>
+<h2 id="4-1-主要步骤"><a href="#4-1-主要步骤" class="headerlink" title="4.1 主要步骤"></a>4.1 主要步骤</h2><ol>
+<li><p><strong>更新连接</strong></p>
+<p>回环检测和Sim3计算需要消耗一定时间，这时候机器人依然在移动，依然有关键帧传输进来，因此在这一步需要重新更新一下帧与帧之间的共视关系。</p>
+</li>
+<li><p><strong>Sim3优化位姿和地图点</strong></p>
+<p>主要是通过位姿传播原理，通过相对位姿关系，可以确定这些相连的关键帧与世界坐标系之间的Sim3变换。这一 步开始遍历相连关键帧</p>
+</li>
+<li><p><strong>检查地图点冲突</strong></p>
+<p>检查<strong>当前帧</strong>与<strong>闭环帧</strong>的MapPoints是否存在冲突，对冲突的MapPoints进行替换或填补。有的时候可能会产生<strong>一个特征点对应两个地图点</strong>的情况，需要用Step3匹配的结果替换当前帧的结果。和下面不同的是：这里并没有做投影匹配，只是调用<code>replace</code>函数将重复的地图点踢掉了。</p>
+</li>
+<li><p><strong>地图点融合</strong></p>
+<p>这一步跟上一步有点像，不同的是融合的对象是闭环时所有<strong>相连关键帧</strong>对应的地图点<code>mvpLoopMapPoints</code>。此处调用了<code>Fuse</code>函数，它通过投影作用，将<code>mvpLoopMapPoints</code>投影到校正后的当前帧，在阈值为4的范围内搜索。如果MapPoint能匹配关键帧的特征点，并且该点<strong>有对应的MapPoint</strong>，那么将两个MapPoint<strong>合并</strong>（选择观测数多的）。如果如果MapPoint能匹配关键帧的特征点，并且该点<strong>没有对应的MapPoint</strong>，那么为该点<strong>添加MapPoint</strong>。</p>
+</li>
+<li><p><strong>更新连接</strong></p>
+<p>与第一步不同的是，这一步更新是因为闭环校正，第一步是因为新插入了关键帧。调用<code>UpdateConnections</code>后得到了新的连接关系，然后删除之前存在的一级连接关系和二级连接关系（防止冲突）</p>
+</li>
+<li><p><strong>优化</strong></p>
+<ol>
+<li><p>EssentialGraph优化</p>
+<p>对形成闭环后新生成的重要的关键帧的Sim3位姿进行优化。回环边不参与优化。调用<code>OptimizeEssentialGraph</code>优化，采用g2o方案</p>
+</li>
+<li><p>全局BA优化</p>
+<p>上一步没有优化回环边，这里添加进去。新建了一个线程执行全局BA。</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="4-2-Sim3传播优化"><a href="#4-2-Sim3传播优化" class="headerlink" title="4.2 Sim3传播优化"></a>4.2 Sim3传播优化</h2><p>针对第二步Sim3优化位姿和地图点进行详细分析。</p>
+<ol>
+<li><p><strong>传播计算Sim3</strong></p>
+<p>位姿传播公式PoselPosec=SimlSimcPoselPosec=SimlSimc，我们只需要得到回环帧的位姿，当前帧的位姿，回环帧的Sim矩阵，就可以求出当前帧的Sim矩阵，把计算后的结果放在<code>CorrectedSim3</code>(这里只算出来，还没有校正)</p>
+</li>
+<li><p><strong>修正MapPoint</strong></p>
+<p>利用Sim修正的结果计算地图点</p>
+</li>
+<li><p><strong>校正关键帧位姿</strong></p>
+<p>将Sim3转换为SE3才能更新位姿</p>
+</li>
+<li><p><strong>更新连接</strong></p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-id="ck4o2turo000uu4vy7wx0bw4e" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ORB-SLAM2源码解析-LocalMapping建图" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" class="article-date">
+  <time datetime="2019-12-18T14:49:04.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/">ORB_SLAM2源码解析-LocalMapping建图</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h1><h2 id="1-1-图的概念"><a href="#1-1-图的概念" class="headerlink" title="1.1 图的概念"></a>1.1 图的概念</h2><p><strong>Convisibility Graph</strong></p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095715.png" alt="img" style="zoom:67%;" />
+
+<p>顶点：所有pose；边：pose-pose有共视关系(共视点大于15个)</p>
+<p>换言之，将所有共视关系大于15的pose点连接起来，连接的edge的权重就是共视点的个数。图中绿色即为edge，红色为局部地图点，红色+黑色为全局地图点。</p>
+<p><strong>Spanning Tree</strong></p>
+<p>图论的概念，无向图能产生不同的生成树(spanning tree)，通过边能遍历所有节点。而所有边的权重加起来最小的生成树就是最小生成树。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095915.png" alt="img" style="zoom:67%;" />
+
+<p>这里的spanning tree是在无向图convisibility graph的基础上，<strong>以共视点最多为筛选标准</strong>形成的最小生成树。这里面同时还包含了 loop closure edges(红色)</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100039.png" alt="img" style="zoom:67%;" />
+
+<p><strong>Essential Graph</strong></p>
+<p>包含了spanning tree以及convisibility graph中具有<strong>极佳共视关系(&gt;100)</strong>的边</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100448.png" alt="img" style="zoom:67%;" />
+
+<h2 id="1-2-总体结构"><a href="#1-2-总体结构" class="headerlink" title="1.2 总体结构"></a>1.2 总体结构</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827114449.png" alt="img"></p>
+<p>最后剔除冗余关键帧的条件有两个：</p>
+<ol>
+<li>90%以上的MapPoints能被至少3个其他关键帧观测到。</li>
+<li>他们都处在同一尺度下</li>
+</ol>
+<h1 id="2-处理关键帧ProcessNewKeyFrame"><a href="#2-处理关键帧ProcessNewKeyFrame" class="headerlink" title="2. 处理关键帧ProcessNewKeyFrame"></a>2. 处理关键帧ProcessNewKeyFrame</h1><p>处理要达成四个目的：</p>
+<ul>
+<li>计算该关键帧特征点的Bow映射关系</li>
+<li>处理新匹配上的MapPoints</li>
+<li>更新关键帧间的连接关系</li>
+<li>将该关键帧插入到地图中</li>
+</ul>
+<h2 id="2-1-处理过程"><a href="#2-1-处理过程" class="headerlink" title="2.1 处理过程"></a>2.1 处理过程</h2><p>LocalMapping中有一个成员变量<code>std::list mlNewKeyFrames</code>是等待处理的关键帧列表。在tracking线程中，调用了<code>void LocalMapping::InsertKeyFrame(KeyFrame *pKF)</code>函数，向<code>mlNewKeyFrames</code>链表插入了元素。因此在处理关键帧前，要首先调用<code>bool LocalMapping::CheckNewKeyFrames()</code><strong>检查等待关键帧链表是否为空</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826105847.png" alt="img"></p>
+<p>处理时调用<code>void LocalMapping::ProcessNewKeyFrame()</code>，步骤如下:</p>
+<ol>
+<li><p><strong>从链表取出一帧</strong></p>
+<p>分三步：锁线程，取元素，删除顶部元素</p>
+</li>
+<li><p><strong>计算关键帧特征点Bow映射关系</strong></p>
+</li>
+<li><p><strong>MapPoints和当前关键帧绑定</strong></p>
+<p>MapPoints分为两种情况：在tracking过程跟踪到的MapPoints；创建关键帧时创建的MapPoints。<strong>前者很可靠</strong>，直接为他们添加属性（添加观测者，平均观测方向和观测距离范围，更新最佳描述子），<strong>后者不可靠</strong>需要放到<code>mlpRecentAddedMapPoints</code>等待进一步检测。</p>
+</li>
+<li><p><strong>更新关键帧间的连接关系</strong></p>
+<p>包括Covisibility图和生成树</p>
+</li>
+<li><p><strong>插入关键帧到地图</strong></p>
+</li>
+</ol>
+<h2 id="2-2-更新连接关系UpdateConnections"><a href="#2-2-更新连接关系UpdateConnections" class="headerlink" title="2.2 更新连接关系UpdateConnections"></a>2.2 更新连接关系UpdateConnections</h2><p>更新的目的是更新Covisibility图和生成树。步骤如下：</p>
+<ol>
+<li><p><strong>统计共视关系</strong></p>
+<p>共视关系保存在<code>map KFcounter</code>中，这个成员key是关键帧，value是权重（权重为其它关键帧与当前关键帧共视3d点的个数)，结构如下：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826115353.png" alt="img" style="zoom:80%;" />
+
+<p>计算的方法借助了<code>std::map mObservations</code>，它记录了<strong>观测到该MapPoint的KF和该MapPoint在KF中的索引</strong>，是MapPoint的成员变量。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826114902.png" alt="img" style="zoom: 80%;" />
+
+<p>因为MapPoint是属于当前帧的，所以只需要执行<code>KFcounter[obervation-&gt;first]++;</code>就可以统计和当前关键帧共视的其他关键帧，以及共视点个数。</p>
+</li>
+<li><p><strong>记录有良好共视关系的关键帧</strong></p>
+<p>搜索<code>KFcounter</code>中<strong>共视点个数大于阈值</strong><code>th</code>(15)的关键帧，将他们放入<code>vector &gt; vPairs</code>容器中（将关键帧的权重写在前面，关键帧写在后面方便后面排序）。同时<strong>记录有最多共视点的关键帧</strong>，如果没有发现任何大于阈值的帧，就用最多共视点关键帧建立连接。</p>
+<p>记录完后<code>sort</code>排序，按共视点个数从大到小。</p>
+</li>
+<li><p><strong>更新图连接</strong></p>
+<p>更新与该关键帧连接的关键帧与权重<code>mConnectedKeyFrameWeights = KFcounter;</code>，将排序的<code>vPairs</code>拆开，容器<code>mvpOrderedConnectedKeyFrames</code>记录排序后的关键帧，容器<code>mvOrderedWeights</code>记录排序后的共视点个数（权重）</p>
+<p>然后更新生成树，父节点为共视程度最高的那个关键帧<code>mpParent = mvpOrderedConnectedKeyFrames.front();</code>，并且父节点将本帧添加为子节点(建立双向连接关系)<code>mpParent-&gt;AddChild(this);</code></p>
+</li>
+</ol>
+<h1 id="3-检查剔除地图点MapPointCulling"><a href="#3-检查剔除地图点MapPointCulling" class="headerlink" title="3. 检查剔除地图点MapPointCulling"></a>3. 检查剔除地图点MapPointCulling</h1><p>对上一函数获取到的最新加入的局部地图点(创建关键帧时创建的MapPoints)<code>mlpRecentAddedMapPoints</code>进行<strong>检查</strong>，该地图点被创建后的三个关键帧里必须要经过严格的测试，这样保证其能被正确的跟踪和三角化。</p>
+<p>删除过程调用<code>SetBadFlag()</code>干两件事情：删除点与帧的观测关系<code>mObservations.clear()</code>，删除帧与点的对应关系</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="built_in">map</span>&lt;KeyFrame*,<span class="keyword">size_t</span>&gt;::iterator mit=obs.<span class="built_in">begin</span>(), mend=obs.<span class="built_in">end</span>(); mit!=mend; mit++)</span><br><span class="line">    &#123;</span><br><span class="line">        KeyFrame* pKF = mit-&gt;first;</span><br><span class="line">        pKF-&gt;EraseMapPointMatch(mit-&gt;second);<span class="comment">// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="built_in">map</span>&lt;KeyFrame*,<span class="keyword">size_t</span>&gt;::iterator mit=obs.begin(), mend=obs.end(); mit!=mend; mit++)</span><br><span class="line">    &#123;</span><br><span class="line">        KeyFrame* pKF = mit-&gt;first;</span><br><span class="line">        pKF-&gt;EraseMapPointMatch(mit-&gt;second);<span class="comment">// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Copy</p>
+<p>删除条件如下:</p>
+<ol>
+<li><p><strong>已经是坏点</strong></p>
+<p><code>pMP-&gt;isBad()==true</code></p>
+</li>
+<li><p><strong>IncreaseFound / IncreaseVisible &lt; 25%</strong></p>
+<p>在<code>SearchLocalMap</code>（TrackLocalMap第二步），通过<code>isInFrustum</code>判断，就调用<code>IncreaseVisible()</code>。在TrackLocalMap中，通过优化，得到了内点和外点，如果点不是外点，说明这个点<strong>不仅能被观测，还能和特征点对应上</strong>，调用<code>IncreaseFound()</code>。<br><strong>跟踪到</strong>该MapPoint的Frame数相比<strong>可观测到</strong>该MapPoint的Frame数的比例需大于25%</p>
+</li>
+<li><p><strong>小于观测阈值</strong></p>
+<p>从该点建立开始，到现在已经<strong>过了不小于2个关键帧</strong>，且观测数<code>pMP-&gt;Observations()&lt;=cnThObs</code>，其中<code>cnThObs</code>是针对不同类型相机设置的阈值单目为2，双目为3。</p>
+</li>
+</ol>
+<p>如果这个点<strong>已经过了3个关键帧而没有被剔除</strong>，则认为是质量高的点，因此没有<code>SetBadFlag()</code>，仅从队列中删除，放弃继续对该MapPoint的检测。</p>
+<h1 id="4-创建地图点CreateNewMapPoints"><a href="#4-创建地图点CreateNewMapPoints" class="headerlink" title="4. 创建地图点CreateNewMapPoints"></a>4. 创建地图点CreateNewMapPoints</h1><h2 id="4-1-创建地图点一般步骤"><a href="#4-1-创建地图点一般步骤" class="headerlink" title="4.1 创建地图点一般步骤"></a>4.1 创建地图点一般步骤</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827094230.png" alt="img"></p>
+<ol>
+<li><p><strong>找到共视程度最高的n帧</strong></p>
+<p>寻找与当前关键帧拥有最多共视点的n帧，n取值与相机有关，单目要求会高一些。</p>
+</li>
+<li><p><strong>遍历共视关键帧</strong></p>
+<ol>
+<li><p><strong>如果有新关键帧需要处理就处理新的</strong></p>
+</li>
+<li><p><strong>判断关键帧间距是否足够长</strong></p>
+<p>对于双目而言，间距需要大于双目相机本身的基线；对于单目而言，间距与场景深度中值之比小于0.01</p>
+</li>
+<li><p><strong>特征匹配</strong></p>
+<p>通过极线约束限制匹配时的搜索范围，进行特征点匹配。所谓极线约束就是说同一个点在两幅图像上的映射，已知左图映射点PLPL，那么右图映射点PRPR 一定在相对于PLPL的极线上，这样可以减少待匹配的点数量。最后得到的匹配结果放在<code>vector &gt; vMatchedIndices;</code>中。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827092840.png" alt="img"></p>
+</li>
+<li><p><strong>三角化生成地图点</strong></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="4-2-三角化"><a href="#4-2-三角化" class="headerlink" title="4.2 三角化"></a>4.2 三角化</h2><p>一般来说单目相机没有深度信息，需要依靠三角化获得，双目相机能自己获得深度信息。如果点太远，用相机模型获取深度就不是很合适。</p>
+<p>如图所示，如果zz的值很大，则视差dd就会变得很小，误差的影响就非常大，所以这时候同样也需要三角化计算深度。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806151141.png" alt="img"></p>
+<p>由相似三角形可知：<br>$$<br>z=\frac{fb}{d},  \ d=u_l-u_r<br>$$</p>
+<p>三角化解法：</p>
+<p>假设一个点在三维空间的坐标是$P=[X,Y,Z,1]^T$，其中$p,p’$是匹配好的特征点，他们在不同位姿相机坐标系下:<br>$$<br>sp=TP\<br>s’p’=T’P<br>$$</p>
+<p>其中$T$可以表示为：<br>$$<br>T=\begin{bmatrix}<br>t_1&amp;t_2&amp;t_3&amp;t_4&amp;\<br>t_5&amp;t_6&amp;t_7&amp;t_8&amp;\<br>t_9&amp;t_{10}&amp;t_{11}&amp;t_{12}&amp;\<br>\end{bmatrix}<br>=\begin{bmatrix}<br>\mathbf{t}<em>{0[4\times1]}\<br>\mathbf{t}</em>{1[4\times1]}\<br>\mathbf{t}_{2[4\times1]}<br>\end{bmatrix}<br>$$</p>
+<p>左边叉乘$p_1,p_2$($z$已被归一化为1)：<br>$$<br>\begin{bmatrix}<br>y\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x\mathbf{t}_2\<br>x\mathbf{t}_1-y\mathbf{t}_0\<br>\end{bmatrix}P=0<br>$$</p>
+<p>将两个式子合并（第三个等式没有有效的约束）：<br>$$<br>AP=\begin{bmatrix}<br>y\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x\mathbf{t}_2\<br>y’\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x’\mathbf{t}_2\<br>\end{bmatrix}P=0<br>$$</p>
+<p>四个有效方程，P中含有三个未知数，这是一个<strong>超定方程</strong>，对矩阵AA奇异值分解SVD求最小二乘解。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><p><strong>提取匹配特征点</strong></p>
+<p>从<code>vMatchedIndices</code>中提取</p>
+</li>
+<li><p><strong>计算视差角</strong></p>
+<p>视差角需要计算两个：第一个是当前帧和参考帧的视差夹角，第二个是双目相机左镜头和右镜头的视差夹角。</p>
+<p>对于帧与帧的视差角，利用匹配点反投影可以得到方向向量，利用直线夹角计算公式$\theta=\frac{\vec{n_1}\vec{n_2}}{|\vec{n_1}||\vec{n_1}|}$即可算得。对于左右镜头视差角利用近似的几何关系算得。$\theta=\arctan(\frac{1}{2}B/Z)$</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827101343.png" alt="img"></p>
+</li>
+<li><p><strong>计算3D点</strong></p>
+<p>单目相机采用三角化的办法，双目相机如果物点距离很远也采用三角化，距离很近直接采用深度（判断距离远近比较两个视差角）</p>
+</li>
+<li><p><strong>检查3D点</strong></p>
+<p>检测生成的3D点是否在相机前方，检测重投影误差是否在可接受范围，检查尺度连续性</p>
+</li>
+<li><p><strong>将3D点构造成MapPoint</strong></p>
+<p>老生常谈了，调用构造函数，然后添加属性</p>
+</li>
+<li><p><strong>加入检测队列</strong></p>
+<p>这些MapPoints都会经过MapPointCulling函数的检验</p>
+</li>
+</ol>
+<h1 id="5-融合地图点SearchInNeighbors"><a href="#5-融合地图点SearchInNeighbors" class="headerlink" title="5. 融合地图点SearchInNeighbors"></a>5. 融合地图点SearchInNeighbors</h1><p>前面通过新加入的关键帧建立了一些地图点，然而这些地图点和以前建立的可能有重复，所以这一步需要剔除重复。</p>
+<p>步骤:</p>
+<ol>
+<li><p><strong>获得最佳共视关系的邻接关键帧</strong></p>
+<p>找到当前帧一级相邻与二级相邻关键帧。一级邻接是指和当前帧有最佳共视关系的那些帧，数量根据单双目情况，有所不同。二级关键帧是和一级关键帧有良好共视关系的（程序中是最好的5帧）</p>
+</li>
+<li><p><strong>正向融合</strong></p>
+<p>融合时有两个参数：帧，地图点。若存在重复，则删除；若不重复，添加属性成为正式的地图点，当然也要检查是否具有匹配关系。正向融合的帧是<strong>一二级邻接关键帧</strong>（遍历），地图点是<strong>当前关键帧产生的地图点</strong>。</p>
+</li>
+<li><p><strong>反向融合</strong></p>
+<p>反向融合帧是<strong>当前关键帧</strong>，地图点是<strong>所有一二级关键帧对应的地图点</strong>（遍历）。</p>
+</li>
+<li><p><strong>更新</strong></p>
+<p>更新当前帧MapPoints的最佳描述子，平均深度，平均观测主方向等属性。同时更新covisibility图，更新当前帧的MapPoints后更新与其它帧的连接关系。</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-id="ck4o2turn000tu4vy5t2052dc" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ORB-SLAM2源码解析-Tracking追踪" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" class="article-date">
+  <time datetime="2019-12-18T14:40:29.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/">ORB_SLAM2源码解析-Tracking追踪</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>程序分为两种模式：<strong>SLAM模式</strong>和<strong>Localization模式</strong>，由变量<code>mbOnlyTracking</code>标记。SLAM模式中，三个线程全部都在工作，即在定位也在建图。而Localization模式中，只有Tracking线程在工作，即只定位，输出追踪结果（姿态），不会更新地图和关键帧。Localization模式主要用于已经有场景地图的情况下（在SLAM模式下完成建图后可以无缝切换到Localization模式）。Localization模式下追踪方法涉及到的关键函数是一样的，只是策略有所不同。</p>
+<p>tracking中包含了<strong>5种状态</strong>：</p>
+<ul>
+<li><strong>SYSTEM_NOT_READY</strong> 系统没有准备好的状态（启动后加载配置文件和词典时）</li>
+<li><strong>NO_IMAGES_YET</strong> 当前无图像（图像复位、或者第一次运行时）</li>
+<li><strong>NOT_INITIALIZED</strong> 有图像但是没有完成初始化</li>
+<li><strong>OK</strong> 正常时候的工作状态</li>
+<li><strong>LOST</strong> 系统已经跟丢了的状态（TrackLocalMap时匹配成功的MapPoint太少）</li>
+</ul>
+<p>tracking线程的<strong>目的</strong>有三个：<strong>获取精确的位姿，设置地图点，设置关键帧</strong>。程序中所有的内容都紧紧围绕这三个目的展开。</p>
+<p>从流程上说，整个程序分为四大部分：初始化，初始追踪，精确追踪(TrackLocalMap)，加入关键帧。</p>
+<p>整体流程如下图所示（深色表示后面有详细分析）：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823162051.png" alt="img"></p>
+<h1 id="2-初始化"><a href="#2-初始化" class="headerlink" title="2. 初始化"></a>2. 初始化</h1><h2 id="2-1-双目初始化"><a href="#2-1-双目初始化" class="headerlink" title="2.1 双目初始化"></a>2.1 双目初始化</h2><p>双目初始化包括了双目相机和RGBD相机（都把他们认为双目），双目初始化的目的是：设定初始位姿，获得初始关键帧，构造初始3D地图点。整个模块都是调用<code>void Tracking::StereoInitialization()</code>初始化。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190825091340.png" alt="img"></p>
+<ol>
+<li><p><strong>设定初始位姿</strong></p>
+<p>需要先加一个判断<code>if(mCurrentFrame.N&gt;500)</code>整个函数只有在当前帧的特征点超过500的时候才会进行。初始位姿由<code>Mat::eye</code>构造，是单位变换矩阵。</p>
+</li>
+<li><p><strong>构造初始关键帧</strong></p>
+<p>构造的时候需要用参数<code>mCurrentFrame</code>，<code>mpMap</code>，<code>mpKeyFrameDB</code>（关键帧数据库用于重定位和回环）。构造完成后需要将关键帧添加到<code>mpMap</code>地图中。</p>
+</li>
+<li><p><strong>特征点构造地图点</strong></p>
+<ol>
+<li><p><strong>判断是否具有正深度</strong></p>
+</li>
+<li><p><strong>反投影获得特征点三维坐标</strong></p>
+</li>
+<li><p><strong>将3D点构造成地图点</strong></p>
+<p>3D点是<code>Mat</code>类需要转化为<code>MapPoint*</code></p>
+</li>
+<li><p><strong>为构造的地图点MapPoint添加属性</strong></p>
+<p>观测到该MapPoint的关键帧；该MapPoint的最佳描述子；该MapPoint的平均观测方向和深度范围</p>
+</li>
+<li><p><strong>向地图中添加MapPoint</strong></p>
+</li>
+<li><p><strong>为关键帧添加特征点和地图点的对应关系</strong></p>
+<p>将地图点和特征点序号添加到关键帧，并构建对应关系（哪个特征点可以观测到哪个3D点），f和e使用了同一个函数<code>AddMapPoint</code>但使用对象不同，e是对地图使用，f是对关键帧使用</p>
+</li>
+</ol>
+</li>
+<li><p><strong>在局部地图中添加该初始关键帧</strong></p>
+<p>除了使用<code>InsertKeyFrame</code>函数插入关键帧以外，每次添加关键帧还需做一些额外操作。</p>
+<ol>
+<li>首先需要将当前帧变上一帧（上一帧=当前帧，上一关键帧ID=当前帧ID，上一关键帧=当前帧）</li>
+<li>然后需要添加到局部关键帧集合和局部地图点集合，并设置参考关键帧（关键帧的参考关键帧就是自己）</li>
+<li>把当前（最新的）局部MapPoints作为ReferenceMapPoints（画图用）</li>
+</ol>
+</li>
+</ol>
+<h2 id="2-2-单目初始化"><a href="#2-2-单目初始化" class="headerlink" title="2.2 单目初始化"></a>2.2 单目初始化</h2><p>单目的SLAM系统需要进行初始化，因为单帧图像数据并不能获取深度信息，也不能生成初始的地图。</p>
+<p>早期的MonoSLAM，系统初始化利用<strong>一个已知尺寸的平面矩形实现</strong>，将相机摆放在该矩形前已知距离的地方，利用平面矩形的四个角点计算初始位姿。</p>
+<p>单目SLAM地图初始化的目标是构建初始的三维点云。由于不能仅仅从单帧得到深度信息，因此需要从图像序列中<strong>选取两帧以上的图像</strong>，估计摄像机姿态并重建出初始的三维点云。</p>
+<p>在ORB-SLAM中，作者<strong>并行计算</strong>基本矩阵和单应矩阵（用<strong>RANSAC</strong>方法），并评估两种方法的对称传输误差来选择合适的模型。完成之后，就会进行适当的分解，恢复出相机的位姿，并三角化生成初始地图点，最后通BA调整优化地图。如果选择的模型导致跟踪质量差，或者图像上的特征匹配较少，初始化就会迅速被系统丢弃，重新进行初始化，这保证了初始化的可靠性。</p>
+<h3 id="2-2-1-初始化的基本流程"><a href="#2-2-1-初始化的基本流程" class="headerlink" title="2.2.1 初始化的基本流程"></a>2.2.1 初始化的基本流程</h3><p>Track线程中的<code>Tracking::MonocularInitialization()</code>，这个函数完成了单目的初始化，并且初始化了地图。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821135014.png" alt="img"></p>
+<ol>
+<li><p><strong>构建初始器，并选择初始器的第一关键帧</strong></p>
+<p>如果初始器还未生成，则开始构建初始器。否则进入第二步。构建初始器：选取一帧提取到的<strong>特征点大数目于100</strong>的图像帧，构建初始器<code>Initializer</code>,并将当前帧图像设为初始化的第一帧，<strong>返回</strong>等待下一帧图像；</p>
+</li>
+<li><p><strong>搜索第二关键帧</strong></p>
+<p>搜索当前帧如果特征点大于100个，就构建为初始化的第二帧，否则需要重新构造初始器(连续两帧大于100才算成功)</p>
+</li>
+<li><p><strong>两帧匹配</strong></p>
+<p>调用匹配器<code>matcher</code>，如果初始化的两帧之间的匹配点太少，重新初始化</p>
+</li>
+<li><p><strong>求取单应矩阵和基本矩阵</strong></p>
+<p>进入初始化器中的<code>Initialize()</code>的过程(主要在initialize.cpp中实现)，完成<code>H</code>矩阵和<code>F</code>矩阵的构建。构建的过程中会判断是构建H矩阵还是F矩阵，并根据构建的矩阵的质量判断是否初始化成果。如果矩阵的质量不好，那么就判断初始化失败，返回第二步，重新寻找初始化的第二帧。</p>
+</li>
+<li><p><strong>删除无法三角化的点</strong></p>
+<p>无法三角化是指三角化的结果差的重投影差的离谱</p>
+</li>
+<li><p><strong>位姿和坐标确定</strong></p>
+<p>删除那些无法进行三角化的匹配点。计算变换矩阵，将初始化的第一帧作为世界坐标系。</p>
+</li>
+<li><p><strong>生成初始地图</strong></p>
+<p>初始化完成R,T还有三角化完成的3D点。接下来就是先删除无法进行三角化的点，然后将第一帧的位姿设为世界坐标的位姿，最后将将三角化得到的3D点包装成MapPoints，加入到新建立的地图<code>CreateInitialMapMonocular()</code>。</p>
+</li>
+</ol>
+<h3 id="2-2-2-单目三角化点包装成地图点"><a href="#2-2-2-单目三角化点包装成地图点" class="headerlink" title="2.2.2 单目三角化点包装成地图点"></a>2.2.2 单目三角化点包装成地图点</h3><p>无论是单目还是双目，将<strong>特征点包装成地图点</strong><code>MapPoint</code>都是必不可少的。区别在于双目镜头可以直接得到特征点的深度信息，因此包装的过程比较简单，所以直接放在初始化函数中<code>StereoInitialization()</code>，而单目的包装过程非常复杂，因此单独拿出来作为一个函数<code>Tracking::CreateInitialMapMonocular()</code></p>
+<p>首先就是用3D点构造MapPoint，之后为初始化用到的这两帧构建连接关系(双目只用到了一帧所以没有这一步)，最后需要对MapPoint的深度归一化。</p>
+<ol>
+<li><p><strong>3D点构造MapPoint</strong></p>
+<p>这一步跟双目构造大同小异</p>
+<ol>
+<li><strong>利用3D点创建一个</strong><code>MapPoint</code></li>
+<li><strong>为<code>MapPoint</code>添加属性</strong>(观测到的关键帧，最佳描述子，平均观测方向，深度范围)</li>
+<li><strong>向地图中添加<code>MapPoint</code></strong></li>
+</ol>
+</li>
+<li><p><strong>更新关键帧间的连接关系</strong></p>
+<p>这里调用<code>KeyFrame::UpdateConnections</code>。在3D点和关键帧之间建立边，每个边有一个权重，边的权重是该关键帧与当前帧公共3D点的个数。</p>
+</li>
+<li><p><strong>BA优化</strong></p>
+<p>优化的对象是当前地图<strong>mpMap</strong>，使用的是全局优化函数<code>Optimizer::GlobalBundleAdjustemnt</code></p>
+</li>
+<li><p><strong>深度归一化</strong></p>
+<ol>
+<li><p><strong>计算归一化系数</strong></p>
+<p>首先计算MapPoint的平均深度，调用<code>KeyFrame::ComputeSceneMedianDepth</code>，然后求倒数</p>
+</li>
+<li><p><strong>判断可行条件</strong></p>
+<p>平均深度大于0||当前帧观测到的地图点大于100，否则Reset</p>
+</li>
+<li><p><strong>归一化变化矩阵</strong></p>
+<p>提取变换矩阵<code>Tc2w</code>的第三列，乘以归一化系数，将两帧之间的变换归一化到平均深度1的尺度下。</p>
+</li>
+<li><p><strong>归一化地图点</strong></p>
+<p>把地图点的尺度也归一化到1，直接将点的世界坐标乘以归一化系数</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>深度归一化的步骤是：首先求得所有MapPoint的深度（相机坐标系下Z的大小）的中位数，再将所有点的深度除以中值深度。这样最后得到的点所有深度的平均深度（中值深度）就为1。</p>
+<p>变换矩阵如下所示，只需要提取$R$的第三行，乘以点的世界坐标就可以得到点在相机坐标系下的深度，再加上平移量$t$，即可求得点的深度。<br>$$<br>\begin{bmatrix} a_1\a_2\a_3\end{bmatrix}<br>=<br>\begin{bmatrix} e_1^T e_1’ &amp; e_1^T e_2’ &amp; e_1^T e_3’\e_2^T e_1’&amp;e_2^T e_2’&amp;e_1^T e_3’\e_3^T e_1’&amp;e_3^T e_2’&amp;e_3^T e_3’\end{bmatrix}<br>\begin{bmatrix} a_1’\a_2’\a_3’\end{bmatrix}<br>=Ra<br>$$</p>
+<h1 id="3-追踪模型"><a href="#3-追踪模型" class="headerlink" title="3. 追踪模型"></a>3. 追踪模型</h1><p>初始化完成后，对于相机获取当前图像mCurrentFrame，通过跟踪匹配上一帧mLastFrame特征点的方式，可以获取一个<strong>相机位姿的初始值</strong>；为了兼顾计算量和跟踪鲁棒性，处理了三种模型：</p>
+<ol>
+<li>TrackWithMotionModel 恒速模型</li>
+<li>TrackReferenceKeyFrame 关键帧模型</li>
+<li>Relocalization 重定位模型</li>
+</ol>
+<p>这三种跟踪模型都是为了获取相机位姿一个粗略的初值，后面会通过跟踪局部地图TrackLocalMap<strong>对位姿进行BA优化</strong>。在使用三大追踪模型前我们需要更新上一帧的地图点。</p>
+<h2 id="3-1-TrackWithMotionModel"><a href="#3-1-TrackWithMotionModel" class="headerlink" title="3.1 TrackWithMotionModel"></a>3.1 TrackWithMotionModel</h2><p>该模型根据两帧之间的约束关系来求解估算位姿。假设物体处于<strong>匀速运动</strong>，那么可以用上一帧的位姿和速度来估计当前帧的位姿（认为这两帧之间的相对运动和之前两帧间相对运动相同）。上一帧的速度可以通过前面几帧的位姿计算得到。这个模型适用于运动速度和方向比较一致、没有大转动的情形。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820164010.png" alt="img"></p>
+<p>如果是静止状态或者运动模型匹配效果不佳（运用恒速模型后反投影发现LastFrame的地图点和CurrentFrame的特征点匹配很少），通过增大参考帧的地图点反投影匹配范围，获取较多匹配后，计算当前位姿；而对于运动比较随意的目标，上述操作失效的。</p>
+<p>在执行恒速模型前需要先判断一下：<strong>速度是否为空</strong>。速度为空意味着刚完成重定位，这时候只能采用关键帧模型。</p>
+<h3 id="3-1-1-更新地图点-UpdateLastFrame"><a href="#3-1-1-更新地图点-UpdateLastFrame" class="headerlink" title="3.1.1 更新地图点 UpdateLastFrame"></a>3.1.1 更新地图点 UpdateLastFrame</h3><p>如果采用关键帧参考模型或重定位模型，参考的帧是关键帧，则其记录了足够丰富的地图点MapPoint信息，<strong>运动模型参考的上一帧可能是普通帧</strong>，包含的地图点信息非常少(<code>mvpMapPoints</code>包含的对应关系特别少)，这样不利于优化，所以我们需要为上一帧添加一些<strong>临时地图点</strong>用于优化（这些点之后会被删除）。这一步<strong>只针对于双目和RGBD相机</strong>（单目为什么不需要目前不清楚）</p>
+<ol>
+<li><p><strong>更新上一帧位姿</strong></p>
+<p>将上一帧的位姿设为参考关键帧的位姿(与上一帧有最多共视关系的参考帧)</p>
+</li>
+<li><p><strong>获取上一帧具有正深度的特征点</strong><br>如果特征点的深度为负，说明根本不在视野范围内，无法重投影。</p>
+</li>
+<li><p><strong>将特征点按深度从小到大排列</strong></p>
+</li>
+<li><p><strong>将距离较近的特征点包装为MapPoint</strong></p>
+<p>如果这个特征点已经是MapPoint了就不管，如果还不是，则需要创建并添加属性。<strong>满足两个条件时</strong>，更新结束：1.当前的点的深度已经超过了远点的阈值<code>mThDepth</code>(<strong>分割远近点的阈值=基线长度*比例系数/焦距)</strong>；2.已经拥有100个MapPoint</p>
+</li>
+</ol>
+<h3 id="3-1-2-整体思路"><a href="#3-1-2-整体思路" class="headerlink" title="3.1.2 整体思路"></a>3.1.2 整体思路</h3><p>步骤如下：</p>
+<ol>
+<li><p><strong>更新地图点</strong></p>
+</li>
+<li><p><strong>根据前两帧速度计算当前位姿</strong><br>$$<br>v=\frac{T_{n-2}<em>T_{n-1}}{t}\ T_{n}=v</em>t*T_{n-1}​<br>$$</p>
+</li>
+</ol>
+<p>   前两帧算速度，然后将速度乘以当前帧的前一帧计算粗略位姿。</p>
+<ol start="3">
+<li><p><strong>重投影追踪</strong></p>
+<p>预设一个搜索半径<code>th</code> ，根据上一帧特征点对应的3D点投影的位置缩小特征点匹配范围，计算符合要求的特征点数目。实现方法在<code>ORBmatcher.cpp</code>中。如果得到跟踪点太少，则<strong>扩大搜索半径再来一次</strong>。如果还是不行则认为跟踪失败。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>调用<code>Optimizer::PoseOptimization</code>优化</p>
+</li>
+<li><p><strong>剔除outlier的关键点</strong></p>
+<p>在优化时，将区域分为outliers和inliers，我们将<strong>非常不可能</strong>的测量值（根据测量模型）称为<strong>外点（outlier）</strong>。在优化的过程中就有了对这些外点的标记，outlier不参与下次优化。具体检测方法有RANSAC和卡方分布法。</p>
+</li>
+<li><p><strong>返回ture、false标志</strong></p>
+<p>如果成功匹配到的地图点数目（剔除外点后）数目大于等于10，则返回true，否则返回false</p>
+</li>
+</ol>
+<h2 id="3-2-TrackReferenceKeyFrame"><a href="#3-2-TrackReferenceKeyFrame" class="headerlink" title="3.2 TrackReferenceKeyFrame"></a>3.2 TrackReferenceKeyFrame</h2><p>假如motion model已经失效（返回false），那么首先可以尝试<strong>和最近一个关键帧去做匹配</strong>。毕竟当前帧和上一个关键帧的距离还不是很远。作者利用了bag of words（BoW）来加速匹配。首先，计算当前帧的BoW，并设定初始位姿为上一帧的位姿；其次，根据位姿和BoW词典来寻找特征匹配。</p>
+<blockquote>
+<p>添加到地图中的帧称为关键帧(KeyFrame)，它构建在帧(Frame)的基础上，与地图(Map)关联。换句话说关键帧是对建图和定位比较重要的帧</p>
+</blockquote>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821144145.png" alt="img"></p>
+<p>步骤如下:</p>
+<ol>
+<li><p><strong>将当前帧的描述子转化为BoW向量</strong></p>
+</li>
+<li><p><strong>通过特征点的BoW加快当前帧与参考帧之间的特征点匹配</strong></p>
+<p>由<code>ORBmatcher</code>提供方法，采用<code>SearchByBoW()</code>专门计算，由<code>vpMapPointMatches</code>存储匹配关系。<strong>参考关键帧就是里当前帧最近的关键帧</strong>。如果匹配数目不够就退出，采用重定位模式。</p>
+</li>
+<li><p><strong>将上一帧的位姿态作为当前帧位姿的初始值</strong></p>
+<p>这里需要拷贝两个东西：把上一帧的位姿<code>mLastFrame.mTcw</code>设置为本帧的位姿（不是上一个关键帧）。另外需要将与关键帧匹配得到的路标点<code>vpMapPointMatches</code>复制到<code>mCurrentFrame.mvpMapPoints</code>中。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>优化3D-2D的重投影误差，依然是<code>Optimizer.cpp</code>内容</p>
+</li>
+<li><p><strong>剔除outlier</strong></p>
+</li>
+<li><p><strong>返回true、false标志</strong></p>
+</li>
+</ol>
+<h2 id="3-3-Relocalization"><a href="#3-3-Relocalization" class="headerlink" title="3.3 Relocalization"></a>3.3 Relocalization</h2><p>假如当前帧与最近邻关键帧的匹配也失败了，意味着此时<strong>当前帧已经丢失</strong>，无法确定其真实位置。此时，只有去<strong>和所有关键帧匹配</strong>，看能否找到合适的位置。</p>
+<p>重定位的方法是利用词袋模型，在关键帧数据库中找到<strong>与当前图像帧相似</strong>的候选关键帧(与回环检测过程不同，回环检测使用参考关键帧去寻找闭环候选帧，这里使用普通帧去寻找候选）。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821154729.png" alt="img"></p>
+<p>步骤如下:</p>
+<ol>
+<li><p><strong>将当前帧的描述子转化为BoW向量</strong></p>
+</li>
+<li><p><strong>初次筛选找到与当前帧相似的候选关键帧</strong></p>
+<p>通过<code>KeyFrameDB.cc</code>中的<code>DetectRelocalizationCandidates</code>进行候选，存储一个容器中<code>vector</code>，筛选的条件比较复杂</p>
+</li>
+<li><p><strong>Bow二次筛选候选帧</strong></p>
+<p>这一步想要确定出<strong>满足进一步要求的候选关键帧</strong>并且为其创建pnp优化器。首先通过BoW进行匹配，筛选条件是单词匹配数，匹配数太小直接放弃此帧，如果合格就初始化PnPsolver。</p>
+</li>
+<li><p><strong>遍历关键帧</strong></p>
+<p>通过Bow二次筛选，我们得到了一个小范围的候选帧。接下来对这些候选帧进行分析。后面每次操作都会判断内点数量<code>nGood</code>有没有超过50，超过了就直接<code>bMatch=true</code>，然后跳出，证明匹配成功</p>
+<ol>
+<li><p><strong>EPnP估算姿态</strong></p>
+<p>估算可以得到位姿和内点数，如果RANSAC迭代后发现效果不好，直接踢掉此帧</p>
+</li>
+<li><p><strong>存入所有内点</strong></p>
+<p>将上一次筛选得到的关键帧的内点<code>vbInliers</code>存入<code>mCurrentFrame.mvpMapPoints</code>和<code>sFound</code>，这个<code>sFound</code>是一个set类型，表示找到地图点的集合。<strong>后续重投影搜索有用</strong>。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>如果优化后内点太少，踢掉</p>
+</li>
+<li><p><strong>删除外点更新地图</strong></p>
+</li>
+<li><p><strong>如果内点比较少，一系列骚操作</strong></p>
+<p>这里骚操作实在太多，结构见上图。总的来说就是不断重复：投影找额外点，然后让原本的内点加上额外点一起优化，再投影找额外点，再次共同优化。最后看结果内点有没有超过50，超过了就表示顺利匹配上了，否则说明这个候选帧不行，再选一个从a做起。值得注意的是，不管怎样，<strong>都要在最后检测<code>nGood&gt;50</code></strong></p>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="4-局部地图匹配-TrackLocalMap"><a href="#4-局部地图匹配-TrackLocalMap" class="headerlink" title="4. 局部地图匹配 TrackLocalMap"></a>4. 局部地图匹配 TrackLocalMap</h1><h2 id="4-1-总体思路"><a href="#4-1-总体思路" class="headerlink" title="4.1 总体思路"></a>4.1 总体思路</h2><p>上面的三个跟踪模型得到的位姿和地图点是粗略的。下面需要<strong>进一步优化地图和位姿</strong>。我们还需要通过TrackLocalMap判断我们追踪的结果怎么样，<strong>有没有跟丢</strong>。</p>
+<p>姿态优化部分的主要思路是在当前帧和（局部）地图之间<strong>寻找尽可能多的对应关系</strong>，来优化当前帧的位姿。实际程序中，作者选取了非常多的关键帧和地图点。在跑Euroc数据集MH_01_easy时，几乎有一半以上的关键帧和地图点（后期&gt;3000个）会在这一步被选中。然而，每一帧中只有200~300个地图点可以在当前帧上找到特征匹配点。这一步保证了非关键帧姿态估计的精度和鲁棒性。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820142102.png" alt="img"></p>
+<p>匹配的步骤如下:</p>
+<ol>
+<li><p><strong>更新局部关键帧和局部地图点</strong></p>
+<p>更新局部关键帧<code>mvpLocalKeyFrames</code>和局部地图点<code>mvpLocalMapPoints</code></p>
+</li>
+<li><p><strong>进一步筛选局部地图点</strong></p>
+<p>投影范围超出相机画面、观测视角和地图点平均观测方向相差60°以上、特征点的尺度和地图点的尺度不匹配。</p>
+</li>
+<li><p><strong>再次优化</strong></p>
+<p>通过更新和抛弃，再次调用<code>Optimizer::PoseOptimization</code>优化得到位姿</p>
+</li>
+<li><p><strong>更新当前帧的MapPoints被观测程度</strong></p>
+<p>通过优化我们得到了<strong>精确的位姿</strong>和<strong>当前帧对应的地图点</strong>。判断<code>mvpMapPoints</code>是不是外点（主要针对单目），如果不是外点，说明能被观测到，被观测统计量<code>Found</code>+1，匹配内点数<code>mnMatchesInliers</code>+1。这些参数用于判别是否跟踪成功。</p>
+</li>
+<li><p><strong>判别是否跟踪成功</strong></p>
+<p>如果最近刚刚发生了重定位,那么至少跟踪上了50个点<code>mnMatchesInliers</code>我们才认为是跟踪上了。如果是正常的状态话只要跟踪的地图点大于30个我们就认为成功了。</p>
+</li>
+</ol>
+<h2 id="4-2-更新局部关键帧和局部地图点"><a href="#4-2-更新局部关键帧和局部地图点" class="headerlink" title="4.2 更新局部关键帧和局部地图点"></a>4.2 更新局部关键帧和局部地图点</h2><p>首先第一步更新局部关键帧和局部地图点的目的是为了<strong>给优化提供样本</strong>。</p>
+<p>局部地图包括：当前帧POS3，与当前帧有共视关系的关键帧POS2，与POS2有密切关系的关键帧POS1；局部关键帧对应的所有地图点X1X2。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819141906.png" alt="img"></p>
+<h3 id="4-2-1-更新局部关键帧"><a href="#4-2-1-更新局部关键帧" class="headerlink" title="4.2.1 更新局部关键帧"></a>4.2.1 更新局部关键帧</h3><p>在论文里作者定义局部地图关键帧的方式如下。简单来说局部关键帧包含了两个集合(set)：第一，<strong>与当前帧</strong>有共视关系(share map points)的关键帧，记作集合K1；第二，<strong>与集合K1</strong>在共视图中(covisibility graph)有良好共视关系的帧（具体见下），记作K2。</p>
+<blockquote>
+<p>作者原文：This local map contains the set of keyframes <strong>K1</strong>, that share map points with the current frame, and a set <strong>K2</strong> with neighbors to the keyframes K1 in the covisibility graph.</p>
+</blockquote>
+<p>K1比较好理解，凡是和当前帧有共同的MapPoint的关键帧都可以被归为这一集合。K2比较麻烦，总体来说是和K1比较密切的帧的集合。这里的密切有三种条件：</p>
+<ul>
+<li>与K1有良好共视关系的子关键帧(作者选取了最佳共视的10帧)</li>
+<li>K1中元素的子关键帧</li>
+<li>K1中元素的父关键帧</li>
+</ul>
+<p><strong>满足其中一种条件</strong>的关键帧都可以被归为K2集合。</p>
+<p>在处理完<strong>局部关键帧</strong>后，还需要添加<strong>参考关键帧</strong>。<strong>与当前帧共视程度最高</strong>（有最多share map points）的关键帧作为参考关键帧。</p>
+<h3 id="4-2-2-更新局部地图点"><a href="#4-2-2-更新局部地图点" class="headerlink" title="4.2.2 更新局部地图点"></a>4.2.2 更新局部地图点</h3><p>比较简单。上一步得到了所有的局部关键帧，这一步只需要<strong>把局部关键帧中对应的<code>MapPoints</code>全部添加到<code>mvpLocalMapPoints</code>中</strong>即可。注意，在添加之前需要将<code>mvpLocalMapPoints</code>清空才行。</p>
+<h2 id="4-3-进一步筛选局部地图点"><a href="#4-3-进一步筛选局部地图点" class="headerlink" title="4.3 进一步筛选局部地图点"></a>4.3 进一步筛选局部地图点</h2><p>4.2得到了一大堆局部地图点，这些点有很多是不能用的，所以需要进一步做筛选。</p>
+<ol>
+<li><p><strong>遍历当前帧mvpMapPoints</strong></p>
+<p>MapPoint一定是没有问题的，是我们可以用来做优化样本的，所以在这一步标记一下，之后不参与判断，默认放行。需要注意的是：MapPoint是地图点，在tracking三大模型中经过层层筛选得到的，一帧有很多特征点，只有少数才能被遴选为MapPoint。因此<strong>除了MapPoint，当前帧还有很多特征点和其他帧有共视关系</strong>，这就是我们需要在这一步筛选的。</p>
+</li>
+<li><p><strong>将所有局部地图点投影到当前帧，判断是否在视野内</strong></p>
+<ol>
+<li>检查这个地图点在当前帧的相机坐标系下，是否有正的深度。如果是负的，就说明它在当前帧下不在相机视野中。</li>
+<li>将MapPoint投影到当前帧, 并判断是否在图像内（即是否在图像边界中）</li>
+<li>MapPoint到相机中心的距离是否在范围内。如果里的太远或者太近这个点就不合适。</li>
+<li>计算当前视角和平均视角夹角的余弦值, 需要小于60°才能合格</li>
+</ol>
+<p>经过4个关卡的重重考验后，这些MapPoint被认为能够作为最后优化的样本。然后为他们添加一些信息：点到光心的距离；置位标记（true表示要被投影）；这个点在图像中的投影坐标；当前视角和平均视角夹角的余弦值。</p>
+</li>
+<li><p><strong>为合格的地图点确立投影匹配关系</strong></p>
+<p>要先设立一个阈值th，如果匹配关系落在阈值内就表示匹配成功，正式成为优化样本一员。</p>
+</li>
+</ol>
+<h2 id="4-4-优化"><a href="#4-4-优化" class="headerlink" title="4.4 优化"></a>4.4 优化</h2><p>这里采用的是g2o优化器优化，顶点是当前位姿和合格地图点，需要进行4次优化。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823130955.png" alt="img"></p>
+<p>优化图如上所示，顶点有<strong>当前帧位姿</strong>和<strong>所有的合格地图点</strong>，其中地图点<strong>固定</strong>。这里采用的是<code>EdgeSE3ProjectXYZOnlyPose</code>和<code>EdgeStereoSE3ProjectXYZOnlyPose</code>类型，这是g2o中提供的模板，用于优化位姿，地图点默认固定。</p>
+<p>优化结束后就进行信息记录和判别是否追踪成功，具体内容见4.1总体思路部分。</p>
+<h1 id="5-创建新的关键帧"><a href="#5-创建新的关键帧" class="headerlink" title="5. 创建新的关键帧"></a>5. 创建新的关键帧</h1><p>ORB-SLAM中关键帧的加入是比较密集的，这样确保了定位的精度，同时在LocalMapping线程最后会进行关键帧的剔除，确保了关键帧的数量不会无限增加，不会对large scale的场景造成计算负担。</p>
+<p>以下条件必须同时满足，才可以加入关键帧：</p>
+<ul>
+<li>距离上一次重定位距离至少1S</li>
+<li>当前帧跟踪至少50个点，保证精度</li>
+<li>当前帧跟踪到LocalMap中参考帧的地图点数量少于90%，确保关键帧之间有明显的视觉变化</li>
+<li>局部地图线程空闲 或者 距离上一次加入关键帧过去了20帧(如果需要关键帧插入过了20帧。而LocalMapping线程忙，则发送信号给线程，停止局部地图优化，使得新的关键帧可以被及时处理)</li>
+</ul>
+<p>调用函数创建完成后，将关键帧传递到LocalMapping线程。</p>
+<blockquote>
+<p><strong>注意</strong>：这里只是判断是否需要将当前帧创建为关键帧，并没有真的加入全局地图，因为Tracking线程的主要功能是局部定位，而处理地图中的关键帧、地图点，包括如何加入、如何删除的工作是在LocalMapping线程完成的，Tracking负责localization，LocalMapping负责Mapping。</p>
+</blockquote>
+<h2 id="5-1-是否需要加入关键帧"><a href="#5-1-是否需要加入关键帧" class="headerlink" title="5.1 是否需要加入关键帧"></a>5.1 是否需要加入关键帧</h2><p>首先是<code>NeedNewKeyFrame()</code>判断是否加入关键帧：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820154412.png" alt="img"></p>
+<ol>
+<li><p><strong>判断是否重定位</strong></p>
+<p>由于插入关键帧过程中会生成MapPoint，因此用户选择重定位后地图上的点云和关键帧都不会再增加。</p>
+</li>
+<li><p><strong>判断局部地图是否被闭环检测使用</strong></p>
+<p>如果局部地图被闭环检测使用，则不插入关键帧</p>
+</li>
+<li><p><strong>获取参考关键帧跟踪到的MapPoints数量</strong></p>
+<p>在 UpdateLocalKeyFrames 函数中会将与当前关键帧共视程度最高的关键帧设定为当前帧的参考关键帧</p>
+</li>
+<li><p><strong>查询localMapper是否繁忙</strong></p>
+</li>
+<li><p><strong>统计可以添加和跟踪到地图中的的MapPoint数量</strong></p>
+</li>
+<li><p><strong>决策是否插入关键帧</strong>（必须满足a-e所有条件）</p>
+<ol>
+<li><p><strong>长时间没有插入关键帧</strong></p>
+</li>
+<li><p><strong>localMapper处于空闲状态</strong></p>
+</li>
+<li><p><strong>地图点匹配数目和跟踪成功比例很小，即将撑不下去</strong></p>
+<p>radio=被关键帧观测到的mappoints数/总共可以添加的mappoints数(如果是近点,并且这个特征点的深度合法,就可以被添加到地图中)；这个radio比例太小，说明track is weak</p>
+</li>
+<li><p><strong>与之前的参考帧重复度不高</strong></p>
+<p>共视的地图点不是很多</p>
+</li>
+<li><p><strong>如果localMapper繁忙，等待队列等待数需要小于3</strong></p>
+<p>前面判断localMapper是否繁忙，用的是<code>mpLocalMapper-&gt;AcceptKeyFrames()</code>也就是说是否接受关键帧。这里判断的是关键帧等待队列是否阻塞严重(&gt;3)</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="5-2-创建关键帧"><a href="#5-2-创建关键帧" class="headerlink" title="5.2 创建关键帧"></a>5.2 创建关键帧</h2><p>之后利用<code>CreateNewKeyFrame()</code>创建关键帧</p>
+<ol>
+<li><p><strong>构造关键帧</strong></p>
+</li>
+<li><p><strong>当前关键帧设置为当前帧的参考关键帧</strong></p>
+<p>关键帧的参考关键帧就是他自己。</p>
+</li>
+<li><p><strong>根据Tcw计算额外矩阵</strong></p>
+<p>普通帧为了节省计算量，只计算了TcwTcw相机坐标到世界坐标的转化（也就是相机变换矩阵或者相机姿态），而关键帧由于在很多地方有特殊用途所以还需要额外计算一些矩阵。</p>
+<ol>
+<li><strong>mRcw</strong> 旋转矩阵</li>
+<li><strong>mRwc</strong> 旋转矩阵的逆</li>
+<li><strong>mtcw</strong> 平移向量</li>
+<li><strong>mOw</strong> 光心在世界坐标系下的坐标</li>
+</ol>
+</li>
+<li><p><strong>获取正深度特征点</strong></p>
+<p>用于重新构建<code>MapPoint</code></p>
+</li>
+<li><p><strong>按照深度从小到大排序</strong></p>
+</li>
+<li><p><strong>将距离比较近的点包装成MapPoints</strong></p>
+<p>如果当前帧中无这个地图点，或者是刚刚创立（观测者<code>Observations&lt;1</code>），就在全局地图中创建地图点。每次创建MapPoint都需要添加属性。如果当前已经处理了超过100个点且深度已超过阈值，就停止。</p>
+</li>
+<li><p><strong>插入关键帧</strong></p>
+<p>执行插入关键帧的操作,其实也是在列表中等待。同时需要然后现在允许局部建图器停止，并且让当前帧成为新的关键帧。</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" data-id="ck4o2turr000vu4vyhsfh7czx" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-PNP与EPNP" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/PNP%E4%B8%8EEPNP/" class="article-date">
+  <time datetime="2019-12-18T13:47:08.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/PNP%E4%B8%8EEPNP/">PNP与EPNP</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-PNP算法"><a href="#1-PNP算法" class="headerlink" title="1. PNP算法"></a>1. PNP算法</h1><p>对极几何和单应矩阵都是解决2D-2D的问题，现在假设我们知道<strong>n 个 3D 空间点以及它们的投影位置时</strong>，如何估计相机所在的位姿。</p>
+<p>PnP（Perspective-n-Point）是求解 3D 到 2D 点对运动的方法。它描述了当我们知道 <strong>n 个 3D 空间点以及它们的投影位置时</strong>，如何估计相机所在的位姿。，如果两张图像中，其中一张特征点的 3D 位置已知，那么最少只需三个点对（需要至少一个额外点验证结果）就可以估计相机运动。</p>
+<p>特征点的 3D 位置可以由 RGB-D 相机的深度图确定。因此，在双目或 RGB-D 的视觉里程计中， 我们可以直接使用 PnP 估计相机运动。</p>
+<p>PnP估计方法有很多种，下面介绍P3P方法。</p>
+<p>P3P还需要使用一对验证点，以从可能的解出选出正确的那一 个（类似于对极几何情形）。记验证点对为 D−d。</p>
+<p>我们知道的是 A,B,C 在<strong>世界坐标系中的坐标</strong>，而不是在<strong>相机坐标系中的坐标</strong>。一旦 3D 点在相机坐标系 下的坐标能够算出，我们就得到了 3D-3D 的对应点，把 PnP 问题转换为了 ICP 问题。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807130816.png" alt="img"><br>$$<br>OA^2 + OB^2 - 2OA \cdot OB \cdot \cos(a,b) = AB^2 \ OB^2 + OC^2 - 2OB \cdot OC \cdot \cos(b,c) = BC^2 \ OA^2 + OC^2 - 2OA \cdot OC \cdot \cos(a,c) = AC^2<br>$$<br>记$x=\dfrac{OA}{OC}，y=\dfrac{OB}{OC}$，因为ABC在<strong>相机坐标系</strong>的位置未知，所以$x,y$也未知。另外记$u=\dfrac{BC^2}{AB^2},w=\dfrac{AC^2}{AB^2}$，由于ABC的<strong>世界坐标</strong>是已知的，所以$u,w$可以求出。通过转化可以得到：<br>$$<br>(1-u)y^2-ux^2-\cos(b,c)y+2uxy \cos(a,b) +1 = 0 \ (1-w)x^2-wy^2-\cos(a,c)x+2wxy \cos(a,b) +1 = 0<br>$$<br>由于我们知道了2D点在图像的位置，三个余弦角是已知的。该方程组是关于$x,y$的一个<strong>二元二次方程</strong>，最多可能得到四个解，因此在三个点之外还需要<strong>一组匹配点进行验证</strong>。</p>
+<h1 id="2-EPNP算法"><a href="#2-EPNP算法" class="headerlink" title="2. EPNP算法"></a>2. EPNP算法</h1><p>PnP是利用已知匹配点对以及相机内参来求解相机位姿的算法，而EPnP则是针对$n≥3$情况下相机位姿求解的$O(n)$时间的算法。它描述了当我们<strong>知道 n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿</strong>。</p>
+<h2 id="2-1-基本原理"><a href="#2-1-基本原理" class="headerlink" title="2.1 基本原理"></a>2.1 基本原理</h2><p>上图表示场景中的平面π在两相机的成像，设平面π在第一个相机坐标系下的单位法向量为$N$，其到第一个相机中心（坐标原点）的距离为d，则平面π可以表示为：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815162750.png" alt="img"></p>
+<p>其中，世界坐标系中的点$p_i^w$可以表示为：<br>$$<br>p_i^w=\sum_{j=1}^{4} \alpha <em>{ij} c_j^w , \ \ \ \ with \sum</em>{j=1}^{4}\alpha <em>{ij}=1<br>$$<br>对于相机坐标系中的点$ p_i^c$,有：<br>$$<br>p_i^c=\sum</em>{j=1}^{4} \alpha <em>{ij} c_j^c , \ \ \ with \sum</em>{j=1}^{4}\alpha _{ij}=1<br>$$<br>对于上面的公式来说，首先需要说明的是$ \alpha _{ij}$确实存在，因为$c_j^w$构成的方程组是非正定的，所以一定存在解。理论上来说，控制点可以随便选择，这里选择<strong>控制点为参考点的中心</strong>，其他的点在<strong>主方向的单位长度处</strong>，从而提高算法的稳定性。</p>
+<h2 id="2-2-控制点在相机坐标系下的坐标"><a href="#2-2-控制点在相机坐标系下的坐标" class="headerlink" title="2.2 控制点在相机坐标系下的坐标"></a>2.2 控制点在相机坐标系下的坐标</h2><p>首先需要求解4个控制点在世界坐标系下的坐标，按照上述说法，就是找到点云的重心和点云的三个主方向，可以参考<strong>主成分分析PCA</strong>。</p>
+<p>根据投影方程得到世界坐标系中参考点坐标和相机坐标系中参考点的约束关系：<br>$$<br>\forall i, w_i\left[\matrix{u_i \cr v_i \cr 1 \cr}\right]=A p_i^c=A\sum_{j=1}^{4}\alpha <em>{ij}c_j^c<br>$$<br>写成矩阵的形式为：<br>$$<br>\forall i, w_i\left[\matrix{u_i \cr v_i \cr 1 \cr}\right]=\left[\matrix{f_u &amp; 0 &amp; u_c \cr 0 &amp; f_v &amp; v_c \cr 0 &amp; 0 &amp; 1 \cr}\right] \sum</em>{j=1}^{4} \alpha <em>{ij} \left[\matrix{x_j^c \cr y_j^c \cr z_j^c \cr}\right]<br>$$<br>将等式拆解，从第三行得到：<br>$$<br>w_i=\sum _{j=1}^{4} \alpha</em>{ij} z_j^c<br>$$<br>将$w_i$代入一二行，可以得到如下等式：<br>$$<br>\matrix{<br>\sum_{j=1}^{4} \alpha <em>{ij} f_u x_j^c + \alpha _{ij} (u_c-u_i)z_j^c =0 \cr<br>\sum</em>{j=1}^{4} \alpha <em>{ij} f_v y_j^c + \alpha _{ij} (v_c-v_i)z_j^c =0 \cr<br>}<br>$$<br>因此，可以得到如下线性方程组：<br>$$<br>MX=0<br>$$<br>上面的方程中，四个控制点总共12个未知变量，$M$为$2n \times 12 $的矩阵。因此，x为<strong>矩阵M的右奇异向量</strong>，可以通过SVD得到。<br>$$<br>x=\sum</em>{i=1}^{N} \beta _i v_i<br>$$<br>$\beta$是分解得到的奇异值，个数为1-4个。</p>
+<p>说明：使用$M^TM$比使用M计算量更小，因为$M^TM$的求解是常数复杂度，而$M$求逆是$O(n^3)$的复杂度，但是计算$M^TM$的复杂度是$O(n)$的。</p>
+<h2 id="2-3-计算R和t"><a href="#2-3-计算R和t" class="headerlink" title="2.3 计算R和t"></a>2.3 计算R和t</h2><p>通过前面的就算可以求出控制点在相机坐标系下的位置，下面就需要<strong>恢复出参考点在相机坐标系中的坐标</strong>。剩下的工作就是<strong>已知一组点云在两个坐标系中的坐标，求两个坐标系的位姿变换</strong>。</p>
+<p>首先计算质心坐标：<br>$$<br>p_c^c={\sum p_c^i \over N}\<br>\ p_w^c={\sum p_w^i \over N}<br>$$<br>然后计算去质心坐标：<br>$$<br>q_c^i=p_c^i-p_c^c\<br>q_w^i=p_w^i-p_w^c<br>$$<br>之后计算矩阵：<br>$$<br>H=\sum_{i=1}^{N}q_c^i q_w^{iT}<br>$$<br>最后进行SVD分解计算$R$和$T$：<br>$$<br>H=U \Sigma V^T\<br>\<br>R=VU^T\<br>t=P_c^c -R P_w^c<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/PNP%E4%B8%8EEPNP/" data-id="ck4o2turt000yu4vy3vvpbd7w" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-单应矩阵与对极几何" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" class="article-date">
+  <time datetime="2019-12-18T13:01:49.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/">单应矩阵与对极几何</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>围绕F、E、H这三个矩阵展开</p>
+<h1 id="1-对极几何原理"><a href="#1-对极几何原理" class="headerlink" title="1. 对极几何原理"></a>1. 对极几何原理</h1><p>假设相机1运动到了相机2，两个相机的中心分别是$O_1,O_2$，成像得到了图像$I_1,I_2$。图像1中有一个特征点$p_1$，在图像2中对应了$p_2$（根据特征匹配的结果）。</p>
+<p>也就是说通过<strong>两个图像的像素位置</strong>来估计相机的运动。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218130654.png" style="zoom:67%;" />
+
+<p>连线$\vec{O_1p_1}$和连线$\vec{O_1p_1}$在三维空间中交于点P，通过$O_1O_2P$这三个点可以形成一个平面，称之为<strong>极平面</strong>（Epipolar plane）,$O_1O_2$被称为<strong>基线</strong>(Baseline)，基线与图像平面的交点为$e_1e_2$记作<strong>极点</strong>(Epipoles)，$l_1l_2$称之为<strong>极线</strong>(Epipolar line)</p>
+<p>假设第一个相机的P点的相机坐标系<strong>$P=[X,Y,Z]$</strong>。由于第一个相机的中心作为世界坐标系的原点，也就是说第一个相机没有旋转和平移，通过小孔相机模型可得：<br>$$<br>p_1 = KP，p_2=K(RP+t)<br>$$<br>从$p_1 = KP$可以得到$P=K^{-1}p_1$，带入第二个式子可以得到：<br>$$<br>p_2=K(RK^{-1}p_1 + t)<br>$$<br>两边同时左乘$K^{-1}$，可以得到<br>$$<br>K^{-1}p_2=RK^{-1}p_1 + t<br>$$<br>假设$x_1=K^{-1}p_1,x_2=K^{-1}p_2$，尝试带入可得：<br>$$<br>x_2=Rx_1+t<br>$$<br>左右两边同时乘以反对称矩阵$t^{\land}$，<strong>由于</strong>$t^{\land}t=0$，所以：<br>$$<br>t^{\land}x_2=t^{\land}Rx_1<br>$$<br>两边再同时左乘$x_2^T$<br>$$<br>x_2^Tt^{\land}x_2=x_2^Tt^{\land}Rx_1<br>$$<br><strong>由于$t^\land x_2$是向量$t$和向量$x_2$的叉积</strong>，得到的结果同时垂直于两向量，所以左边等于0，于是：<br>$$<br>x_2^Tt^{\land}Rx_1=0<br>$$<br>替换掉$x$:<br>$$<br>p_2^TK^{-T}t^{\land}RK^{-1}p_1=0<br>$$<br>这就是<strong>对极约束</strong>。令$F$来表示中间的<strong>基础矩阵</strong>：<br>$$<br>p_2^TFp_1 = 0 ,  其中 F=K^{-T}t^{\land}RK^{-1}<br>$$<br>由于相机内参已知，所以实际上我们可以用<strong>本质矩阵</strong>$E$来表示我们要求的对象：<br>$$<br>E = t^{\land}R<br>$$</p>
+<h1 id="2-单应矩阵"><a href="#2-单应矩阵" class="headerlink" title="2. 单应矩阵"></a>2. 单应矩阵</h1><p><strong>单应(Homography)</strong>是射影几何中的概念，又称为射影变换。它<strong>把一个射影平面上的点(三维齐次矢量)映射到另一个射影平面上</strong>，并且把直线映射为直线。换句话说，单应是关于三维齐次矢量的一种线性变换，可以用一个3×3的非奇异矩阵$H$表示：<br>$$<br>x_1=Hx_2<br>$$<br>假设已经取得了两图像之间的单应，则可以通过单应矩阵H将两幅图关联起来：<br>$$<br>\left(\begin{array}{c}u_1\v_1\1\end{array}\right) = H\left(\begin{array}{c}u_2\v_2\1\end{array}\right)<br>$$<br>假设使用同一相机在不同的位姿拍摄同一平面，如下图：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816092611.png" alt="img" style="zoom: 67%;" />
+
+<p>上图表示场景中的平面π在两相机的成像，设平面π在第一个相机坐标系下的单位法向量为$N$，其到第一个相机中心（坐标原点）的距离为$d$，则平面$π$可以表示为：<br>$$<br>N^TX_1 = d \<br>\frac{1}{d}N^TX_1 = 1,\forall X_1 \in \pi<br>$$<br>其中，$X_1$是三维点$P$在第一相机坐标系下的坐标，其在第二个相机坐标系下的坐标为$X_2$，</p>
+<h2 id="2-1-平移-旋转"><a href="#2-1-平移-旋转" class="headerlink" title="2.1 平移+旋转"></a>2.1 平移+旋转</h2><p>假设，<br>$$<br>X_2 = RX_1 + T<br>$$<br>将他们结合起来：<br>$$<br>X_2 = RX_1 + T\frac{1}{d}N^TX_1\<br> =(R+T\frac{1}{d}N^T)X_1=H’X_1<br>$$<br>因此就得到了同一个平面两个不同坐标系的单应矩阵：<br>$$<br>H’ = R+T\frac{1}{d}N^T<br>$$<br>上述的单应矩阵在相机坐标系下，将它转化为像素坐标：<br>$$<br>x_1 = KX_1,x_2 = KX_2\<br>H = K(R+T\frac{1}{d}N^T)K^{-1}<br>$$<br>这个公式和对极几何非常像，本质上也是利用了对极几何的约束性质，基础矩阵的另一种表现形式。<br>$$<br>\begin{align<em>}<br>X_2&amp;=RX_1+T\<br>\<br>E_1 &amp;= T^{\land}R\<br>E_2 &amp;= R+T\frac{1}{d}N^T<br>\end{align</em>}<br>$$</p>
+<h2 id="2-2-只有旋转"><a href="#2-2-只有旋转" class="headerlink" title="2.2 只有旋转"></a>2.2 只有旋转</h2><p>由于没有平移，所以<strong>点在相机坐标系下的三维坐标没有变</strong>：<br>$$<br>p_1 = KP \ ,p_2 = KRP\<br>P=K^{-1}p_1,p_2 = KRK^{-1}p_1<br>$$<br>最后结果为：<br>$$<br>H = KRK^{-1}<br>$$<br>在相机只有旋转而没有平移的情况下，两视图的<strong>对极约束</strong>就不再适用，这时可以使用单应矩阵$H$来描述两个图像像点的对应关系。</p>
+<p>在这种情况下，不存在参数$d$，也就是说两图像点的<strong>匹配不依赖于三维点的深度信息</strong>，无法使用三角法重构出三维点在世界坐标系中的三维坐标。</p>
+<h1 id="3-基础矩阵解法"><a href="#3-基础矩阵解法" class="headerlink" title="3. 基础矩阵解法"></a>3. 基础矩阵解法</h1><h2 id="3-1-八点法"><a href="#3-1-八点法" class="headerlink" title="3.1 八点法"></a>3.1 八点法</h2><p>考虑它的<strong>尺度等价性</strong>(按比例表示即可，不需要具体数值)，因此这个约束条件可以减少一个未知数，只需要8对匹配的点对就可以求解出两视图的基础矩阵$F$，这就是<strong>八点法</strong></p>
+<p>假设一对匹配的像点$p_1=[u_1,v_1,1]^T,p_2=[u_2,v_2,1]^T$，带入式子：<br>$$<br>[u_1,v_1,1]\left[\begin{array}{ccc}f_1&amp;f_2&amp;f_3\f_4&amp;f_5&amp;f_6\f_7&amp;f_8&amp;f_9\end{array}\right]<br>\left[\begin{array}{c}u_2\v_2\1\end{array}\right] = 0<br>$$<br>把基础矩阵F的各个元素当作一个向量处理:<br>$$<br>f = [f_1,f_2,f_3,f_4,f_5,f_6,f_7,f_8,f_9]<br>$$<br>就可以改写为：<br>$$<br>[u_1u_2,u_1v_2,u_1,v_1u_2,v_1v_2,v_1,u_2,v_2,1]\cdot f = 0<br>$$</p>
+<p>$$<br>\left[<br>\begin{array}{ccccccccc}<br>u_1^1u_2^1&amp;u_1^1v_2^1&amp;u_1^1&amp;v_1^1u_2^1&amp;v_1^1v_2^1&amp;v_1^1&amp;u_2^1&amp;v_2^1&amp;1\<br>u_1^2u_2^2&amp;u_1^2v_2^2&amp;u_1^2&amp;v_1^2u_2^2&amp;v_1^2v_2^2&amp;v_1^2&amp;u_2^2&amp;v_2^2&amp;1\<br>u_1^3u_2^3&amp;u_1^3v_2^3&amp;u_1^3&amp;v_1^3u_2^1&amp;v_1^3v_2^1&amp;v_1^3&amp;u_2^3&amp;v_2^3&amp;1\<br>\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots \<br>u_1^8u_2^8&amp;u_1^8v_2^8&amp;u_1^8&amp;v_1^8u_2^8&amp;v_1^8v_2^8&amp;v_1^8&amp;u_2^8&amp;v_2^8&amp;1<br>\end{array}<br>\right]<br>\left[<br>\begin{array}{c}<br>f_1\f_2\f_3\f_4\f_5\f_6\f_7\f_8\f_9<br>\end{array}<br>\right]=0<br>$$</p>
+<p>求解上面的方程组就可以得到基础矩阵各个元素了。</p>
+<p><strong>求得本质矩阵$E$的解以后</strong>，需要得到$R$和$t$，这个过程使用奇异值分解(SVD)：<br>$$<br>E=U\varSigma V^{T}<br>$$<br>其中$U$和$V$都是正交矩阵，$\Sigma$为对角矩阵。解出来的结果有四种情况：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190810141856.png" alt="img" style="zoom:67%;" />
+
+<p>只有第一种解中，P 在两个相机中都具有正的深度。因此，只要把任意一点代入四种解中，检测该点在两个相机下的深度，就可以确定哪个解是正确的了。</p>
+<h2 id="3-2-RANSAC法"><a href="#3-2-RANSAC法" class="headerlink" title="3.2 RANSAC法"></a>3.2 RANSAC法</h2><p>RANSAC做出了如下基本假设：</p>
+<ol>
+<li>数据是由<strong>局内点</strong>组成，例如：数据的分布可以用一些模型参数来解释；</li>
+<li><strong>局外点</strong>是不能适应该模型的数据；</li>
+<li>除此之外的数据属于噪声。</li>
+</ol>
+<p>局外点产生的原因有：噪声的极值；错误的测量方法；对数据的错误假设。</p>
+<p>一个简单的例子就是从一组观测数据中找出合适的二维直线。假设观测数据中包含局内点和局外点，其中局内点近似的被直线所通过，而局外点远离直线。</p>
+<p>简单的最小二乘法不能找到适应于局内点的直线，原因是最小二乘法尽量去适应包括局外点在内的所有点。相反，RANSAC能得出一个仅仅利用局内点计算出模型，并且概率还足够高。但是，RANSAC并不能保证结果一定正确，为了保证算法有足够高的合理概率，我们必须小心的选择算法的参数。图示如下所示：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816100908.png" alt="img" style="zoom:80%;" />
+
+<p>具体步骤如下：</p>
+<ol>
+<li>有一个模型适应于假设的局内点，即所有的未知参数都能从假设的局内点计算得出；</li>
+<li>用1中得到的模型去测试所有的其他数据，如果某个点适应于估计的模型，认为它也是局内点。</li>
+<li>如果有足够多的点被归类于假设的局内点，那么估计的模型就足够合理；</li>
+<li>然后，<strong>用所有假设的局内点去重新估计模型</strong>，因为它仅仅被初始的假设局内点估计过；</li>
+<li>最后，通过估计局内点与模型的错误率来评估模型。</li>
+</ol>
+<p>优缺点：</p>
+<ul>
+<li>优点：能鲁棒的估计模型参数。例如，它能从包含大量局外点的数据集中估计出高精度的参数。</li>
+<li>缺点：计算参数的迭代次数没有上限，如果设置迭代次数的上限，得到的结果可能不是最优的结果，甚至可能得到错误的结果。</li>
+</ul>
+<hr>
+<p>将RANSAC应用于基础矩阵的求解中，我们知道：<br>$$<br>\left(\begin{array}{c}x_2\y_2\1\end{array}\right)=\left(\begin{array}{ccc}H_{11}&amp;H_{12}&amp;H_{13}\H_{21}&amp;H_{22}&amp;H_{23}\H_{31}&amp;H_{32}&amp;H_{33}\end{array}\right)\left(\begin{array}{c}x_1\y_1\1\end{array}\right)\Leftrightarrow p_2= Hp_1<br>$$<br>RANSAC算法从匹配数据集中<strong>随机抽取四个样本</strong>并保证这四个样本之间不共线。计算出单应性矩阵，然后利用这个模型测试所有数据，并计算满足这个<strong>模型数据点的个数和投影误差（即代价函数）</strong>若此模型为最优模型，则对应的代价函数最小：<br>$$<br>\sum_{i=1}^{n}((x_i^{}{h_{11}x_i+h_{12}y_i+h_{13} \over h_{31}x_i+h_{32}y_i+h_{33} })^2+(y_i^{}{h_{21}x_i+h_{22}y_i+h_{23} \over h_{31}x_i+h_{32}y_i+h_{33} })^2)<br>$$<br>结果如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816102143.png" alt="img"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" data-id="ck4o2tus6001du4vyaace3vmg" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-详解BA" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E8%AF%A6%E8%A7%A3BA/" class="article-date">
+  <time datetime="2019-12-18T11:24:35.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/%E8%AF%A6%E8%A7%A3BA/">详解BA</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-投影模型与BA优化函数"><a href="#1-投影模型与BA优化函数" class="headerlink" title="1. 投影模型与BA优化函数"></a>1. 投影模型与BA优化函数</h1><p><strong>BA</strong>(Bundle Adjustment)，又称<strong>光束法平差</strong>（平差就是抹平误差）。<strong>BA的本质是一个优化模型，其目的是最小化重投影误差</strong>。</p>
+<p>所谓重投影误差就是二次投影与一次投影之间产生的误差。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812113856.png" alt="img"></p>
+<p><strong>第一次投影</strong>指的就是相机在拍照的时候三维空间点投影到图像上第一次投影在相机平面产生了特征点$p_1$，我们可以计算出$P$的坐标位置。</p>
+<p>之后相机进行了运动，通过一些方法我们得到这个运动的数值，进而得到了它的位姿。由于我们现在知道<strong>相机的位姿</strong>（计算估计得来）和$P$<strong>的世界坐标</strong>，因此可以计算$P$在第二幅图下的投影，这就是所谓的<strong>第二次投影</strong>。</p>
+<p>此时在相机平面产生了特征点$p_2$，而通过特征匹配我们能够知道特征点$p_2’$的真实位置，两者会产生误差，这就是所谓的<strong>重投影误差</strong>。换句话说，重投影误差是指的<strong>真实三维空间点在图像平面上的投影</strong>（也就是图像上的像素点）和重投影（其实是用我们的<strong>计算值得到的虚拟的像素点</strong>）的差值。</p>
+<p>给定$N$个两张图中完成匹配的点，记作：<br>$$<br>{z_1} = \left{ {z_1^1,z_1^2, \ldots ,z_1^N} \right},{z_2} = \left{ {z_2^1,z_2^2, \ldots ,z_2^N} \right}<br>$$<br>已知相机的内参矩阵为$K$，求解相机的运动$R,t$，注意字符$z$的上标表示第几个点。则：<br>$$<br>z_i^j=[u,v]<em>i^j<br>$$<br>根据投影关系：<br>$$<br>\begin{equation} {\lambda _1}\left[ \begin{array}{l} z_1^j\ 1 \end{array} \right] = K{P^j},\quad {\lambda _2}\left[ \begin{array}{l} z_2^j\ 1 \end{array} \right] = K\left( {R{P^j} + t} \right) \end{equation}<br>$$<br>采用最小二乘法优化：<br>$$<br>\begin{equation} \mathop {\min }\limits</em>{P^j,R,t} {\left| {K{P^j} - {\left[ {z_1^j,1} \right]}^T} \right|^2} + {\left| {K\left( {R{P^j} + t} \right) - {\left[ {z_2^j,1} \right]}^T} \right|^2} \end{equation}<br>$$<br><strong>简化形式</strong>，已知观测方程为$z=h(x,y)$其中$x$表示位姿，$y$表示路标。观测误差就可以表示为：<br>$$<br>e=z-h(\xi,p)<br>$$<br>$z$表示一次投影得到的特征点位置，$h(\xi,p)$表示二次投影的结果，$h$就是投影函数（这里用李代数表示，$p$表示三维点）。如果把所有观测结果考虑进来，给误差添加一个下标：$z_{ij}$表示位姿$\xi_i$处观测路标$p_i$产生的数据，最后就得到了需要优化的函数：<br>$$<br>\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||e_{ij}||^2=\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||z_{ij}-h(\xi_i,p_j)||^2<br>$$</p>
+<h1 id="2-求解BA"><a href="#2-求解BA" class="headerlink" title="2. 求解BA"></a>2. 求解BA</h1><h2 id="2-1-迭代求解"><a href="#2-1-迭代求解" class="headerlink" title="2.1 迭代求解"></a>2.1 迭代求解</h2><p>这不是一个线性函数，所以可以通过第六章的非线性优化的方法来求解。根据非线性优化的思想，我们应该从某个的初始值开始，不断地寻找下降方向 $\Delta x$ 来找到目标函数的最优解，即不断地求解增量方程中的增量$\Delta x$。</p>
+<p>首先需要把所有自变量定义成待优化变量：<br>$$<br>x=[\xi_1,…,\xi_m,p_1,…,p_n]^T<br>$$<br>相应的，增量方程中的$\Delta x$则是对整体自变量的增量。在这个意义下，当我们给自变量一个增量时，目标函数变为：<br>$$<br>\frac{1}{2}|f(\boldsymbol{x}+\Delta \boldsymbol{x})|^{2} \approx \frac{1}{2} \sum_{i=1}^{m} \sum_{i=1}^{n}\left|\boldsymbol{e}<em>{i j}+\boldsymbol{F}</em>{i j} \Delta \boldsymbol{\xi}<em>{i}+\boldsymbol{E}</em>{i j} \Delta \boldsymbol{p}<em>{j}\right|^{2}<br>$$<br>其中$F</em>{ij}$表示整个代价函数在当前状态下对相机姿态的偏导数，$E_{ij}$表示该函数对路标点位置的偏导。把相机的位姿变量和空间点变量放在一起：<br>$$<br>x_c=[\xi_1,\xi_2,…,\xi_m]^T\<br>x_p=[p_1,p_2,…,p_n]^T<br>$$<br>最后待求式子就可以被化简为：<br>$$<br>\frac{1}{2}||f(x+\Delta x)||^2=\frac{1}{2}||e+F\Delta x_c+E\Delta x_p||^2<br>$$<br>通过GN或者LM方法，最后可以得到增量线性方程：<br>$$<br>H\Delta x=g<br>$$<br>由于我们把变量分为了位姿和空间点两种，所以雅克比矩阵还需要被分块：<br>$$<br>J=[F\ E]<br>$$<br>以GN为例，H矩阵表示为：<br>$$<br>H=J^TJ=\begin{bmatrix} F^TF&amp;F^TE\<br>E^TF&amp; E^TE<br>\end{bmatrix}<br>$$<br>因为考虑了所有的优化变量，这 个线性方程的维度将非常大，包含了所有的相机位姿和路标点。如果直接对 H 求逆来计算增量方程，由于<strong>矩阵求逆是复杂度为 O(n3) 的操作</strong> ，这是非常消耗计算资源的。 幸运地是，这里的 H 矩阵是有一定的特殊结构的。利用这个特殊结构，我们可以加速求解过程。</p>
+<h2 id="2-3-稀疏性与边缘化"><a href="#2-3-稀疏性与边缘化" class="headerlink" title="2.3 稀疏性与边缘化"></a>2.3 稀疏性与边缘化</h2><p>先举个例子，如下图相机$C_1$能够观测到路标$P_{1,2,3,4}$而相机$C_2$能观测到路标$P_{3,4,5,6}$</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812135939.png" alt="img"></p>
+<p>该场景下的BA优化函数为:<br>$$<br>\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||e_{ij}||^2=\frac{1}{2}(||e_{11}||^2+||e_{12}||^2\+||e_{13}||^2+||e_{14}||^2+||e_{23}||^2+||e_{24}||^2\+||e_{25}||^2+||e_{26}||^2)<br>$$<br>此时$x=[\xi_1,\xi_2,p_1,…,p_6]^T$可知：<br>$$<br>J_{11}=\frac{\partial e_{11}}{\partial x}=(\frac{\partial e_{11}}{\xi_1},\frac{\partial e_{11}}{\xi_2},\frac{\partial e_{11}}{p_1},\frac{\partial e_{11}}{p_2},\frac{\partial e_{11}}{p_3},\frac{\partial e_{11}}{p_4},\frac{\partial e_{11}}{p_5},\frac{\partial e_{11}}{p_6})<br>$$<br>由于这里描述的是$C_1$观测到$P_1$所以<strong>只有两项不为0</strong>：<br>$$<br>J_{11}=\frac{\partial e_{11}}{\partial x}=(\frac{\partial e_{11}}{\xi_1},0_{2\times6},\frac{\partial e_{11}}{p_1},0_{2\times3},0_{2\times3},0_{2\times3},0_{2\times3},0_{2\times3})<br>$$<br>用图案表示如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812140853.png" alt="img"></p>
+<p>$H$矩阵和$C,P$关系图之间，除了对角线元素以外，有明显的关联性：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812141438.png" alt="img" style="zoom: 80%;" />
+
+<p>现在考虑更<strong>一般</strong>的情况，假如我们有 m 个相机位姿，n 个路标点。由于通常路标数量远远会比相机多，于是有 n ≫ m。由上面推理可知，实际当中的 H 矩阵会像下图所示的那样。它的左上角块显得非常小，而右下角的对角块占据了大量地方。除此之外，非对角部分则分布着散乱的观测数据。这就是<strong>镐形矩阵</strong>（箭头矩阵）。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812141745.png" alt="img" style="zoom:50%;" />
+
+<p>因此线性方程$H\Delta x=g$又可以表示为如下形式：<br>$$<br>\begin{bmatrix} B&amp;E\<br>E^T&amp; C<br>\end{bmatrix}<br>\begin{bmatrix} \Delta x_c\<br>\Delta x_p<br>\end{bmatrix}=<br>\begin{bmatrix} v\<br>w<br>\end{bmatrix}<br>$$<br><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812142315.png" alt="img"></p>
+<p>对于这个方程直接代入消元，先求$\Delta x_c$然后求$\Delta x_p$，得到的结果为：<br>$$<br>[B-EC^{-1}E^T]\Delta x_c=v-EC^{-1}w\<br>\Delta x_p=C^{-1}(w-E^T\Delta x_c)<br>$$<br>由于$C$是一个对角块矩阵，对角矩阵的逆矩阵非常好求（对角线上的元素不能为0）：<br>$$<br>\left[\begin{array}{ccccc}{a_{1}} &amp; {} &amp; {} &amp; {} &amp; {} \ {} &amp; {a_{2}} &amp; {} &amp; {} &amp; {} \ {} &amp; {} &amp; {\ddots} &amp; {} &amp; {} \ {} &amp; {} &amp; {} &amp; {a_{n}}\end{array}\right]^{-1}=\left[\begin{array}{ccccc}{a_{1}^{-1}} &amp; {} &amp; {} &amp; {} &amp; {} \ {} &amp; {a_{2}^{-1}} &amp; {} &amp; {} &amp; {} \ {} &amp; {} &amp; {a_{2}^{-1}} &amp; {} &amp; {} \ {} &amp; {} &amp; {} &amp; {\ddots} &amp; {} \ {} &amp; {} &amp; {} &amp; {a_{n}}\end{array}\right]<br>$$<br>因此边缘化的<strong>主要计算量在于求解</strong>$\Delta x_c$ 。从概率角度来看，我们称这一步为<strong>边缘化</strong>，是因为我们实际上把求 $(\Delta x_c,\Delta x_p)$的问题，转化成先求$\Delta x_c$，再求 $\Delta x_p$的过程。这一步相当于做了条件概率展开：<br>$$<br>P(x_c,x_p)=P(x_c)·P(x_p|x_c)<br>$$<br>结果是求<strong>出了关于$x_c$ 的边缘分布</strong>，故称边缘化。在上边讲的边缘化过程中，我们实际把所有的路标点都给边缘化了。</p>
+<h2 id="2-3-鲁棒核函数"><a href="#2-3-鲁棒核函数" class="headerlink" title="2.3 鲁棒核函数"></a>2.3 鲁棒核函数</h2><p>在前面的 BA 问题中，我们最小化误差项的二范数平方和，作为目标函数。<strong>当出现误匹配时，误差$e$就会很大</strong>，如果我们再使用平方，这个误差就会更大，算法将试图调整这条边所连接的节点的估计值，使它们顺应这条边的无理要求。由于这个边的误差真的很大，往往会抹平了其他正确边的影响，使优化算法专注于调整一个错误的值。</p>
+<p>出现这种问题的原因是，<strong>当误差很大时，二范数增长得太快了</strong>。于是就有了核函数的存在。<strong>核函数保证每条边的误差不会太大</strong>以至于掩盖掉其他的边。这种核函数称之为<strong>鲁棒核函数</strong>。</p>
+<p>最常用的鲁棒核函数有Huber核：<br>$$<br>H(e)=\begin{equation}<br>\left{<br>             \begin{array}{lr}<br>\frac{1}{2}e^2\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \text{if}\ |e|&lt;\delta ,\<br>\delta(|e|-\frac{1}{2}\delta) \ \ \ \  \text{otherwise}</p>
+<pre><code>\end{array}</code></pre><p>\right.<br>\end{equation}<br>$$<br>当误差 $e$ 大于某个阈值 $δ$ 后，<strong>函数增长由二次形式变成了一次形式</strong>，相当于限制了梯度的最大值。同时，Huber 核函数又是<strong>光滑</strong>的，可以很方便地求导。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812150126.png" alt="img" style="zoom: 80%;" />
+
+<h1 id="3-图优化"><a href="#3-图优化" class="headerlink" title="3. 图优化"></a>3. 图优化</h1><h2 id="3-1-BA中图的构建思路"><a href="#3-1-BA中图的构建思路" class="headerlink" title="3.1 BA中图的构建思路"></a>3.1 BA中图的构建思路</h2><p>在图优化中，<strong>顶点是待优化的量，边是误差</strong>。</p>
+<p>考虑重投影误差公式：</p>
+<p>$$<br>\begin{equation} \mathop {\min }\limits_{P^j,R,t} {\left| {K{P^j} - {\left[ {z_1^j,1} \right]}^T} \right|^2} + {\left| {K\left( {R{P^j} + t} \right) - {\left[ {z_2^j,1} \right]}^T} \right|^2} \end{equation}<br>$$<br>这里有两种思路：</p>
+<ol>
+<li>假设得到的所有世界坐标是真实可靠地，换言之，第一项<strong>没有重投影误差</strong>。那么第一个式子默认为0，我们只需要调整第二项中的$R，t$让整个函数达到极小值(局部最优解)。</li>
+<li>假设得到的世界坐标有误差，那么我们就需要将两个式子结合起来共同优化，优化的对象就变为了：$N$个特征点的世界坐标+变换矩阵，一共有$3N+12$个参数</li>
+</ol>
+<p>如果我们考虑第二种情况（<strong>既优化位姿又优化路标点</strong>），那么图就变成：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816163324.png" alt="img"></p>
+<h2 id="3-2-使用g2o优化"><a href="#3-2-使用g2o优化" class="headerlink" title="3.2 使用g2o优化"></a>3.2 使用g2o优化</h2><p>现在我们明确了<strong>顶点是位姿+路标点，边是重投影误差</strong>，如果使用g2o进行优化，我们需要完成：</p>
+<ul>
+<li>设置顶点和边</li>
+<li>构建优化图</li>
+<li>增添顶点和边</li>
+<li>执行优化</li>
+</ul>
+<p>然而在g2o里面专门为我们提供了位姿、路标、重投影误差模型，所以不需要自己设置顶点和边。</p>
+<h3 id="（1）构建图优化"><a href="#（1）构建图优化" class="headerlink" title="（1）构建图优化"></a>（1）构建图优化</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//矩阵块：位姿6个维度，路标3个维度</span></span><br><span class="line"><span class="keyword">typedef</span> g2o::BlockSolver&lt;g2o::BlockSolverTraits&lt;<span class="number">6</span>, <span class="number">3</span>&gt;&gt; Block;</span><br><span class="line"><span class="comment">// Step1 选择一个线性方程求解器</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Block::LinearSolverType&gt; linearSolver(<span class="keyword">new</span> g2o::LinearSolverCholmod&lt;Block::PoseMatrixType&gt;());</span><br><span class="line"><span class="comment">// Step2 选择一个稀疏矩阵块求解器</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Block&gt; solver_ptr(<span class="keyword">new</span> Block(<span class="built_in">std</span>::move(linearSolver)));</span><br><span class="line"><span class="comment">// Step3 选择一个梯度下降方法，从GN、LM、DogLeg中选</span></span><br><span class="line">g2o::OptimizationAlgorithmLevenberg *solver = <span class="keyword">new</span> g2o::OptimizationAlgorithmLevenberg(<span class="built_in">std</span>::move(solver_ptr));</span><br><span class="line"></span><br><span class="line">g2o::SparseOptimizer optimizer;</span><br><span class="line">optimizer.setAlgorithm(solver);</span><br><span class="line">optimizer.setVerbose(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）加顶点和边"><a href="#（2）加顶点和边" class="headerlink" title="（2）加顶点和边"></a>（2）加顶点和边</h3><p>这里采用了g2o提供的模板创建<code>VertexSE3Expmap</code>顶点和<code>VertexSBAPointXYZ</code>边</p>
+<p>特征点采用了归一化的方式，相机模型得到的$XYZ$值设为特征点初值。第一个位姿设为单位pose，第二个位姿设为和第一个一样，并<strong>固定第一个位姿</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">    g2o::VertexSE3Expmap *v = <span class="keyword">new</span> g2o::VertexSE3Expmap();</span><br><span class="line">    v-&gt;setId(i);</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">        v-&gt;setFixed(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    v-&gt;setEstimate(g2o::SE3Quat());</span><br><span class="line">    optimizer.addVertex(v);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加特征点作为节点</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.size(); i++) &#123;</span><br><span class="line">    g2o::VertexSBAPointXYZ *v = <span class="keyword">new</span> g2o::VertexSBAPointXYZ();</span><br><span class="line">    v-&gt;setId(<span class="number">2</span> + i);</span><br><span class="line">    <span class="comment">//深度未知，设为1，利用相机模型，相当于是在求归一化相机坐标</span></span><br><span class="line">    <span class="keyword">double</span> z = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">double</span> x = (pts1[i].x - cx) * z / fx;</span><br><span class="line">    <span class="keyword">double</span> y = (pts1[i].y - cy) * z / fy;</span><br><span class="line">    v-&gt;setMarginalized(<span class="literal">true</span>);</span><br><span class="line">    v-&gt;setEstimate(Eigen::Vector3d(x, y, z));</span><br><span class="line">    optimizer.addVertex(v);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//////////////////////////////////////</span></span><br><span class="line"><span class="comment">//添加第一帧中的边</span></span><br><span class="line"><span class="built_in">vector</span>&lt;g2o::EdgeProjectXYZ2UV *&gt; edges;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.size(); i++) &#123;</span><br><span class="line">    g2o::EdgeProjectXYZ2UV *edge = <span class="keyword">new</span> g2o::EdgeProjectXYZ2UV();</span><br><span class="line"></span><br><span class="line">    edge-&gt;setVertex(<span class="number">0</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>)));</span><br><span class="line">    edge-&gt;setVertex(<span class="number">1</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">0</span>)));</span><br><span class="line"></span><br><span class="line">    edge-&gt;setMeasurement(Eigen::Vector2d(pts1[i].x, pts1[i].y));</span><br><span class="line">    edge-&gt;setInformation(Eigen::Matrix2d::Identity());</span><br><span class="line">    edge-&gt;setParameterId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    edge-&gt;setRobustKernel(<span class="keyword">new</span> g2o::RobustKernelHuber());</span><br><span class="line"></span><br><span class="line">    optimizer.addEdge(edge);</span><br><span class="line">    edges.push_back(edge);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加第二帧中的边</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts2.size(); i++) &#123;</span><br><span class="line">    g2o::EdgeProjectXYZ2UV *edge = <span class="keyword">new</span> g2o::EdgeProjectXYZ2UV();</span><br><span class="line"></span><br><span class="line">    edge-&gt;setVertex(<span class="number">0</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>)));</span><br><span class="line">    edge-&gt;setVertex(<span class="number">1</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">1</span>)));</span><br><span class="line"></span><br><span class="line">    edge-&gt;setMeasurement(Eigen::Vector2d(pts2[i].x, pts2[i].y));</span><br><span class="line">    edge-&gt;setInformation(Eigen::Matrix2d::Identity());</span><br><span class="line">    edge-&gt;setParameterId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    edge-&gt;setRobustKernel(<span class="keyword">new</span> g2o::RobustKernelHuber());</span><br><span class="line">    optimizer.addEdge(edge);</span><br><span class="line">    edges.push_back(edge);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（3）执行优化"><a href="#（3）执行优化" class="headerlink" title="（3）执行优化"></a>（3）执行优化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"开始优化"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">chrono::steady_clock::time_point t1 = chrono::steady_clock::now();<span class="comment">//计时</span></span><br><span class="line">optimizer.initializeOptimization();</span><br><span class="line">optimizer.optimize(<span class="number">10</span>);</span><br><span class="line">chrono::steady_clock::time_point t2 = chrono::steady_clock::now();<span class="comment">//结束计时</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"优化完毕"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">chrono::duration&lt;<span class="keyword">double</span>&gt; time_used = chrono::duration_cast&lt;chrono::duration&lt;<span class="keyword">double</span>&gt;&gt;(t2 - t1);</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"solve time cost = "</span> &lt;&lt; time_used.count() &lt;&lt; <span class="string">" seconds. "</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出变换矩阵T</span></span><br><span class="line">g2o::VertexSE3Expmap *v = <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">1</span>));</span><br><span class="line">Eigen::Isometry3d pose = v-&gt;estimate();</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"Pose="</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; pose.matrix() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//优化后所有特征点的位置</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">    g2o::VertexSBAPointXYZ *v = <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>));</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"vertex id:"</span> &lt;&lt; i + <span class="number">2</span> &lt;&lt; <span class="string">",pos="</span>;</span><br><span class="line">    Eigen::Vector3d pos = v-&gt;estimate();</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; pos(<span class="number">0</span>) &lt;&lt; <span class="string">","</span> &lt;&lt; pos(<span class="number">1</span>) &lt;&lt; <span class="string">","</span> &lt;&lt; pos(<span class="number">2</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（4）结果分析"><a href="#（4）结果分析" class="headerlink" title="（4）结果分析"></a>（4）结果分析</h3><p>对于这两张图而言，可以看到相机只做了Y方向的运动，并没有发生旋转。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816160449.png" alt="img"></p>
+<p><strong>通过EPNP计算</strong>的结果如下，可以看出$R$非常接近单位矩阵（说明没有发生旋转），Y方向位移明显，其他方向位移不明显，我们将EPNP计算的结果试做标准结果，然后比对BA得到的结果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Epnp R:</span><br><span class="line">[0.9999996742857543, 0.0006346775733399234, -0.0004986108331204287;</span><br><span class="line"> -0.0006349112234142204, 0.9999996886585097, -0.0004685836340065393;</span><br><span class="line"> 0.0004983132783585473, 0.0004689000549962402, 0.9999997659082801]</span><br><span class="line">t:</span><br><span class="line">[-0.02433141053497313;</span><br><span class="line"> -0.9995135415375248;</span><br><span class="line"> -0.01951058032180258]</span><br></pre></td></tr></table></figure>
+
+<p><strong>通过BA计算</strong>的结果如下，位移量整体变小了约1/3，这是由于我们选取的坐标系不同导致。值得注意的是，未优化路标得到的位移量和上面的标准位移量不成很好的比例，而优化路标后的位移量与上面的比例大约为3.15，符合的很好。由此，我们认为<strong>优化路标是有必要的</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">未优化路标</span></span><br><span class="line">Pose=</span><br><span class="line">    0.999996  -0.00290451  0.000505124    -0.011841</span><br><span class="line">  0.00290592     0.999992  -0.00281963    -0.313892</span><br><span class="line">-0.000496931   0.00282108     0.999996  -0.00914159</span><br><span class="line">           0            0            0            1</span><br><span class="line"><span class="meta">#</span><span class="bash">优化路标</span></span><br><span class="line">Pose=</span><br><span class="line">           1  0.000308113 -0.000653462  -0.00758165</span><br><span class="line">-0.000308225            1 -0.000171787    -0.317904</span><br><span class="line"> 0.000653409  0.000171988            1   -0.0061968</span><br><span class="line">           0            0            0            1</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E8%AF%A6%E8%A7%A3BA/" data-id="ck4o2tus7001eu4vy7xexgoi6" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-自适应直方图均衡化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/" class="article-date">
+  <time datetime="2019-12-18T11:16:40.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/">自适应直方图均衡化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-普通的直方图均衡化"><a href="#1-普通的直方图均衡化" class="headerlink" title="1. 普通的直方图均衡化"></a>1. 普通的直方图均衡化</h1><p>直方图均衡化可以将灰度分布均匀化，调整对比度。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902104733.png" alt="img" style="zoom:50%;" />
+
+<p>自适应的直方图均衡(Adaptive histogram equalization, AHE)是一种用于<strong>提升图像对比度</strong>的计算机图像处理技术。和普通的直方图均衡算法不同的点在于: 它计算那些<strong>指定区域的直方图</strong>，并用这些值去重新分配图像亮度来改变图像的对比度。</p>
+<p>这种方法更适合<strong>改进图像的局部对比度</strong>和<strong>增强图像边缘</strong>来获得更多细节。</p>
+<p>直方图均衡化利用<strong>累计分布函数</strong>(Cumulative distribution function, CDF)进行均衡，参照wiki的例子：</p>
+<p>假设一个8×8的图像：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902105332.png" alt="img" style="zoom:67%;" />
+
+<p>该灰度图像的灰度值出现次数如下表所示，为了简化表格，出现次数为0的值已经被省略。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902105401.png" alt="img" style="zoom:67%;" />
+
+<p>累积分布函数计算可以得到：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902105617.png" alt="img" style="zoom:67%;" />
+
+<p>其中，灰度78的像素的累积分布函数为46，均衡化后灰度变化为：<br>$$<br>h(78)=round(\frac{46-1}{64-1}\times255)=round(0.714\times255)=182<br>$$<br>但是如果直方图存在明显的<strong>高峰</strong>，均衡化的结果就很不好。</p>
+<p>下图就是一个例子。这幅图画面比较统一，因此高峰非常明显（太高了被PhotoShop截取了部分）</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902110947.png" alt="img" style="zoom: 67%;" />
+
+<p>均衡化后：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902111059.png" alt="img" style="zoom:67%;" />
+
+<p>可以看到图像明显走样，对比度显得很不自然。</p>
+<p>为了改善这样的情况，我们可以将<strong>计算的范围从整体缩小为局部</strong> ，即每个像素通过其周围的一个矩形范围的像素直方图进行均衡化。这就是AHE的原理。</p>
+<h1 id="2-限制对比度的自适应直方图均衡化"><a href="#2-限制对比度的自适应直方图均衡化" class="headerlink" title="2. 限制对比度的自适应直方图均衡化"></a>2. 限制对比度的自适应直方图均衡化</h1><p>与AHE不同的是，CLAHE(Contrast Limited Adaptive Histogram Equalization )对每个小区域内的对比度都有限制。这主要是通过限制AHE的对比度提高程度来达到的。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902111946.png" alt="img"></p>
+<p>将局部直方图中超过阈值的部分<strong>截取</strong>，然后将它<strong>均匀分布</strong>到其他部分，可以保证整个直方图总面积不变。</p>
+<p>为了提升计算速度及去除分块处理导致的块边缘过渡不平衡等问题，可以使用插值方法。如下图所示，AHE后图像呈块状：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902112226.png" alt="img" style="zoom: 67%;" />
+
+<p>插值的方式是双线性插值，每个像素点出的值由它周围4个子块的映射函数值进行双线性插值得到，如下图：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902112503.png" alt="img"></p>
+<p>首先在 $x$ 方向进行线性插值：<br>$$<br>\begin{aligned} f\left(x, y_{1}\right) &amp; \approx \frac{x_{2}-x}{x_{2}-x_{1}} f\left(Q_{11}\right)+\frac{x-x_{1}}{x_{2}-x_{1}} f\left(Q_{21}\right) \ f\left(x, y_{2}\right) &amp; \approx \frac{x_{2}-x}{x_{2}-x_{1}} f\left(Q_{12}\right)+\frac{x-x_{1}}{x_{2}-x_{1}} f\left(Q_{22}\right) \end{aligned}<br>$$<br>然后在 $y$ 方向插值：<br>$$<br>f(x, y) \approx \frac{y_{2}-y}{y_{2}-y_{1}} f\left(x, y_{1}\right)+\frac{y-y_{1}}{y_{2}-y_{1}} f\left(x, y_{2}\right)<br>$$<br>现在我可以通过四个点的像素值来预测一个点的像素值，也就是很常见的<strong>四点插值法</strong> 。这样做的好处就是不需要计算连续的像素值。相当于多重网格中，将细网格下降到粗网格，然后减少计算量。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/" data-id="ck4o2tusb001iu4vye2620pnu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-光流法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E5%85%89%E6%B5%81%E6%B3%95/" class="article-date">
+  <time datetime="2019-12-18T10:40:38.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/%E5%85%89%E6%B5%81%E6%B3%95/">光流法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-光流法基本原理"><a href="#1-光流法基本原理" class="headerlink" title="1. 光流法基本原理"></a>1. 光流法基本原理</h1><p>光流是一种描述像素随时间在图像之间运动的方法，随着时间的流逝，同一个像素会在图像中运动,我们可以追踪他的运动。</p>
+<p>光流法应用的前提是<strong>灰度不变假设</strong>，也就是说$I(x_1,y_1,t_1)=I(x_2,y_2,t_2)$，虽然这是一个很苛刻的假设，但我们还是需要认为其在某些场景下具有合理性。</p>
+<p>假设在$t+dt$的时刻某个像素运动到了$(x+dx,y+dy)$，我们可以得到：<br>$$<br>I(x,y,t) = I(x+dx, y+dy,t+dt)<br>$$<br>如果对上式中右侧进行一阶泰勒展开：<br>$$<br>I(x+dx,y+dy,t+dt) \approx I(x,y,t)+\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt<br>$$<br>根据灰度不变假设可以得到：<br>$$<br>\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt = 0.<br>$$<br>两侧同时除以$dt$，可以得到：<br>$$<br>\frac{\partial I}{\partial x}\frac{dx}{dt} + \frac{\partial I}{\partial y}\frac{dy}{dt} = -\frac{\partial I}{\partial t}<br>$$<br>其中 $\frac{dx}{dt},\frac{dy}{dt}$ 为像素在$x,y$轴上的运动速度，将他们记为 $u,v$。同时 $\frac{\partial I }{\partial x},\frac{\partial I}{\partial y}$ 记为图像在$x,y$方向上的梯度，分别记为$I_x,I_y$，把图像灰度对于时间的变化量记为 $I_t$，上面的式子可以表示为：<br>$$<br>\begin{bmatrix}<br>I_x&amp;I_y<br>\end{bmatrix}<br>\begin{bmatrix}<br>u\<br>v<br>\end{bmatrix} = - I_t<br>$$<br>我们假设某个$W\times W$的窗口内的像素具有相同的运动，则：<br>$$<br>A=\left[\begin{array}{c}{\left[I_{x}, I_{y}\right]<em>{1}} \ {\vdots} \ {\left[I</em>{x}, I_{y}\right]<em>{k}}\end{array}\right], b=\left[\begin{array}{c}{I</em>{t 1}} \ {\vdots} \ {I_{t k}}\end{array}\right]<br>$$<br>简化后可得：<br>$$<br>A\left[\begin{array}{l}{u} \ {v}\end{array}\right]=-b<br>$$<br>这是一个超定方程(方程个数大于未知数个数)，可以使用最小二乘法求解：<br>$$<br>\begin{bmatrix}<br>u\<br>v<br>\end{bmatrix}^* = -(A^TA)^{-1}A^Tb<br>$$</p>
+<blockquote>
+<p>超定方程组是指方程个数大于未知量个数的方程组，在方程$Ax=b$两边乘以$A^T$，所以该方程有唯一解且为原方程的最小二乘解：<br>$$<br>\begin{equation}<br>\begin{split}<br>A^TAx=A^Tb<br>\end{split}<br>\<br>x=(A^TA)^{-1}A^Tb<br>\end{equation}<br>$$</p>
+</blockquote>
+<p>总结一下，光流法<strong>基于三个假设</strong>：</p>
+<ul>
+<li><strong>灰度不变</strong>，所以$I(x+dx,y+dy,t+dt) =I(x,y,t)$</li>
+<li><strong>小运动</strong>，所以我们可以取一阶泰勒展开</li>
+<li><strong>邻域内光流不变</strong>，所以我们可以取$W\times W$的小窗口</li>
+</ul>
+<h1 id="2-金字塔光流法"><a href="#2-金字塔光流法" class="headerlink" title="2. 金字塔光流法"></a>2. 金字塔光流法</h1><p>光流法重要前提是小运动，也就是说图像随时间变化缓慢，这样灰度才能求偏导，最理想的条件当然是相邻帧图片间隔1个像素。为了解决运动过快导致的误差较大问题，我们可以通过<strong>减少图像中物体的位移</strong>。</p>
+<p>缩小图像尺寸能有效减少位移，比如图像为400×400时，物体单位时间位移为[16,16]，那么当图像缩小为200×200时，位移变为[8,8]。缩小尺寸的办法可以使用<strong>金字塔分层</strong>。</p>
+<p>高斯金字塔的概念在SIFT特征检测中已经详细说明。通过高斯金字塔能形成<strong>组（Octave）和层（Level或Interval）</strong>。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218110333.png" style="zoom:50%;" />
+
+<p>下面开始公式推导，假设$I,J$是两幅相邻运动图像。图像$I$的点$(x,y)$对应了图像$J$的点$(x+dx,y+dy)$，也就是说：<br>$$<br>I(x,y)=J(x+dx,y+dy)<br>$$<br>当然这之间肯定会存在误差，写出一片领域下的误差函数：<br>$$<br>e=\sum_{x=u_{x}-\omega_{x}}^{u_{x}+\omega_{x}} \sum_{y=u_{y}-\omega_{y}}^{u_{y}+\omega_{y}}\left(I(x, y)-J\left(x+d_{x}, y+d_{y}\right)\right)^{2}<br>$$<br>假设图像的尺寸每次缩放为原来的一半，共缩放了$Lm$组，第0组误差为$e(d)$，则每组的光流计算结果为为：<br>$$<br>g(L)=\frac{g(0)}{2^L}<br>$$<br>这并不是准确的结果，还得加上残差：<br>$$<br>g(L)<em>{real}=g(L)+d(L)<br>$$<br>反馈到第$L-1$层：<br>$$<br>g(L-1)=2[g(L)+d(L)]<br>$$<br>对于每一层，我们都希望光流的计算基于邻域内所有点匹配误差和最小化：<br>$$<br>e(L)=\sum</em>{x=u_{x}^{L}-\omega_{x}}^{u_{x}^{L}+w_x} \sum_{y=u_{y}^{L}-\omega_{y}}^{u_{y}^{L}+\omega_{y}}\left(I^{L}(x, y)-J^{L}\left(x+g_{x}^{L}+d_{x}^{L}, y+g_{y}^{L}+d_{y}^{L}\right)\right)^{2}<br>$$<br>具体算法是：</p>
+<ol>
+<li>利用最小二乘法计算最顶层的最小光流</li>
+<li>更新光流$v=2*v$，将光流方向传递到下一层，计算最小光流</li>
+<li>持续传递，直到传递到原图像输出</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E5%85%89%E6%B5%81%E6%B3%95/" data-id="ck4o2tus5001bu4vy02hpc465" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SIFT特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-18T09:31:25.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/18/SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/">SIFT特征检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>SIFT全称Scale Invariant Feature Transform，即尺度不变特征变换。相较于Harris和Fast这两种<strong>角点特征检测</strong>手段，SIFT专注于那些<strong>尺度不变的特征</strong>。</p>
+<p>Harris算子不是尺度不变的，当图像变小时，检测结果的语义也会发生变化。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171729.png" style="zoom: 50%;" />
+
+<p>SIFT被设计出来的目的就是解决特征检测过程中经常遇到的<strong>尺度不变问题和旋转不变问题</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218093742.png" alt=""></p>
+<p>SIFT所查找到的关键点是一些十分突出，不会因光照，仿射变换和噪音等因素而变化的点，如角点、边缘点、暗区的亮点及亮区的暗点等。</p>
+<p>基本的算法流程是：</p>
+<ol>
+<li>尺度空间极值点检测</li>
+<li>关键点精确定位</li>
+<li>确定方向</li>
+<li>确定描述子</li>
+</ol>
+<h1 id="2-高斯金字塔与高斯差分金字塔"><a href="#2-高斯金字塔与高斯差分金字塔" class="headerlink" title="2. 高斯金字塔与高斯差分金字塔"></a>2. 高斯金字塔与高斯差分金字塔</h1><p>高斯金字塔和高斯差分金字塔如下图所示：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218094643.png" alt=""></p>
+<p>首先我们把输入的原图扩大一倍，由该图像进行高斯模糊的得到的第0组第0层图像设定为<strong>基准图像</strong>，设它的尺度为$\sigma_0$，称之为<strong>基准层尺度</strong>。则第0组第1层尺度为$k\sigma_0$，第0组第2层尺度为$k^2\sigma_0$，以此类推。</p>
+<p>那么第0组中的图像的尺度为：<br>$$<br>\sigma = k^r\sigma_0 ,r=0,1,…,s-2<br>$$<br>第1组的第0层图像<strong>倒数第三张图像</strong>采样得到，若令$k=2^\frac{1}{s}$，则其相对于输入图像来说，尺度为$2\sigma_0$。</p>
+<p>上述规律总结如下：</p>
+<p>第$o$组第$r$层图像相对于输入图像的尺度为：<br>$$<br>\sigma = 2^ok^r\sigma_0\ 其中，o = 0,1,2,…;r = 0,1,2,…,s+2<br>$$<br>该图像相对于本组中的基准图像的尺度为：<br>$$<br>\sigma  = k^r\sigma_0<br>$$<br>而差分金字塔(DOG)就比较简单了，直接<strong>同组相邻的图像相减即可</strong>。</p>
+<h1 id="3-算法流程"><a href="#3-算法流程" class="headerlink" title="3. 算法流程"></a>3. 算法流程</h1><h2 id="3-1-检测极值点"><a href="#3-1-检测极值点" class="headerlink" title="3.1 检测极值点"></a>3.1 检测极值点</h2><p>基本思路是在DOG金字塔中检测最大最小值点</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218095855.png" style="zoom: 67%;" />
+
+<p>具体检测思路是：</p>
+<ul>
+<li>检测点和周围8个邻域点比较是否为极值点</li>
+<li>检测点和尺度空间上下两层共计18个邻域点比较是否为极值点</li>
+</ul>
+<p>同时满足这两个条件才可以被初步认定为特征点。</p>
+<h2 id="3-2-关键点精确定位"><a href="#3-2-关键点精确定位" class="headerlink" title="3.2 关键点精确定位"></a>3.2 关键点精确定位</h2><p>我们之前找到的极值点也就是离散空间中的极值点，但是离散空间中的极值点并不是真实的连续空间中的极值点。所以需要对DoG空间进行拟合处理，以找到极值点的精确位置和尺度。</p>
+<p>我们得到的极值点是一个三维向量，包括它所在的尺度$\sigma$以及所在尺度图像中的位置坐标，即$X = (x,y,\sigma)$，泰勒展开即可得到<br>$$<br>f(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]) \approx f(\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]) + [\frac{\partial f}{\partial x}    \frac{\partial f}{\partial y} \frac{\partial f}{\partial \sigma}]\left(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]-\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]\right) + \\frac{1}{2}\left(\left[x \quad y \quad \sigma\right] - \left[x_0 \quad y_0 \quad \sigma_0\right]\right)\left[\begin{matrix}\frac{\partial^2 f}{\partial x \partial x} &amp; \frac{\partial^2 f}{\partial x \partial y} &amp; \frac{\partial^2 f}{\partial x \partial \sigma} \<br>\frac{\partial^2 f}{\partial x \partial y}&amp;\frac{\partial^2 f}{\partial y \partial y}&amp;\frac{\partial^2 f}{\partial y \partial \sigma}\<br>\frac{\partial^2 f}{\partial x \partial \sigma}&amp;\frac{\partial^2 f}{\partial y \partial \sigma}&amp;\frac{\partial^2 f}{\partial \sigma \partial \sigma}\end{matrix}\right]\left(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]-\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]\right)<br>$$<br>若写成矢量形式，则为：<br>$$<br>f(X) = f(X_0）+\frac{\partial f^T}{\partial X}(X- X_0)+\frac{1}{2}(X-X_0)^T\frac{\partial^2 f}{\partial X^2}(X-X_0)<br>$$<br>此处，$X_0$表示中心，$X$表示拟合后连续空间的差值坐标，设$\hat{X} = X - X_0$表示偏移量。令导数为0则有：<br>$$<br>\hat{X} = -\frac{\partial^2 f^{-1}}{\partial X^2}\frac{\partial f}{\partial X}<br>$$<br>带入原公式：<br>$$<br>f(\hat{X}) = f(X_0) + \frac{1}{2}\frac{\partial f^T}{\partial X} \hat{X}<br>$$<br>若上式得到的偏移量大于阈值，则把位置移动到拟合后的新位置继续进行迭代求偏移量，若迭代过一定次数后偏移量仍然大于阈值，则抛弃该点。</p>
+<hr>
+<p>有些极值点的位置是在图像的边缘位置的，因为图像的边缘点很难定位，同时也容易受到噪声的干扰，我们把这些点看做是不稳定的极值点，需要进行去除。</p>
+<p>判定办法和Harris的办法很相似，设图像某点处的黑塞矩阵为<br>$$<br>M=\left[ \begin{matrix} I_x^2&amp; I_xI_y \ I_xI_y &amp; I_y^2\end{matrix} \right] = \left[ \begin{matrix} A&amp; C\ C&amp; B\end{matrix} \right]<br>$$<br>则有：<br>$$<br>detM=\lambda_1 \lambda_2=AB-C^2\<br>traceM=\lambda_1 + \lambda_2 = A+B<br>$$<br>如果两个特征值相差特别大，就认为是边缘，排除。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165553.png" style="zoom:50%;" />
+
+<h2 id="3-3-方向计算"><a href="#3-3-方向计算" class="headerlink" title="3.3 方向计算"></a>3.3 方向计算</h2><p>选取半径为$r$的区域作为邻域，计算每个像素的梯度幅角：<br>$$<br>\theta(x,y) = arctan\left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)<br>$$<br>将 $2\pi$ 分为 $n$ 份，对应于直方图的 $n$ 个单位。比如分为6份，每个直方图代表 $60^o$：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218102653.png" style="zoom:50%;" />
+
+<p><strong>选取其中最高的一柱代表主方向</strong>。</p>
+<p>之后<strong>将每个特征点的方向调整至一致</strong>，这期间一般使用双线性差值的办法填补像素。</p>
+<h2 id="3-4-确定描述子"><a href="#3-4-确定描述子" class="headerlink" title="3.4 确定描述子"></a>3.4 确定描述子</h2><p><strong>步骤1</strong>：将$16\times16$区域作为一个patch，校正方向</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103335.png" style="zoom:67%;" />
+
+<p><strong>步骤2</strong>：按照3.3所述的办法计算每个像素的方向和幅度</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103500.png" style="zoom:67%;" />
+
+<p><strong>步骤3</strong>：将其分为$4\times4$的方框，计算每个方框的8方向直方图</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103606.png" style="zoom:67%;" />
+
+<p>最后就能得到128维描述向量（每个柱可用1-8的数字表示）</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103655.png" style="zoom:67%;" />
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-id="ck4o2turu000zu4vyh7mjavhf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Harris特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-17T16:42:45.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/">Harris特征检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本原理"><a href="#1-基本原理" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902141152.png" alt="img"></p>
+<p>当一个窗口在图像上移动，在平滑区域如图(a)，窗口在<strong>各个方向上没有变化</strong>。在边缘上如图(b)，窗口在<strong>边缘的方向上没有变化</strong>。在角点处如图(c)，窗口<strong>在各个方向上具有变化</strong>。</p>
+<p>假设图像窗口平移$[u,v]$产生的变化为$E(u,v)$则：<br>$$<br>E(u, v)=\sum_{x_{s}, y} w(x, y)[I(x+u, y+v)-I(x, y)]^{2}<br>$$<br>泰勒展开可得：<br>$$<br>I(x+u, y+v)=I(x, y)+I_{x} u+I_{y} v+O\left(u^{2}, v^{2}\right)<br>$$<br>这是单个像素的表达式，当发生微小位移时，忽略无穷小量。现在，我们考虑一个领域窗口内所有像素的移动情况，写成矩阵形式：<br>$$<br>E(u, v)=\sum_w[u, v]\left[\begin{array}{cc}{I_{x}^{2}} &amp; {I_{x} I_{y}} \ {I_{x} I_{y}} &amp; {I_{y}^{2}}\end{array}\right]\left[\begin{array}{l}{u} \ {v}\end{array}\right]=[u, v]M\left[\begin{array}{l}{u} \ {v}\end{array}\right]<br>$$<br>假设梯度坐标表示为$(I_X,I_Y)$，，这个和上面有区别。不同的纹理特征表现出来的梯度坐标分布不同：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165123.png" alt=""></p>
+<p>注意：样例图片并不是纯色，里面包含了很多的椒盐点，所以梯度分布才会出现散状。</p>
+<p>可以看出，均匀图像的灰度在 $x,y$ 方向几乎没有变化，类似一个<strong>圆</strong>；边缘图像在某一个轴方向变化剧烈，在另一个方向没有变化，近似为一个<strong>扁椭圆</strong>；角点在两个方向变化都很剧烈，近似为一个<strong>卵型</strong>。</p>
+<p>因此判断角点的条件就变为：<strong>长轴短轴都超过某一阈值</strong>，转化为矩阵语言就是$M$<strong>有两个大特征值</strong>。</p>
+<h1 id="2-计算方法"><a href="#2-计算方法" class="headerlink" title="2. 计算方法"></a>2. 计算方法</h1><p>由上可知，我们判断角点的依据就是特征值的大小</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165553.png" style="zoom:50%;" />
+
+<p>常规思路是进行SVD分解：<br>$$<br>M=X\Sigma X^T = X \left[ \begin{matrix} \lambda_1&amp; 0\ 0&amp; \lambda_2\end{matrix} \right] X^T<br>$$<br>但速度比较慢，难以做到视频中实时监测的需求（30帧每秒），所以我们可以采用近似的做法：<br>$$<br>M(x,y)=\Sigma_w \left[ \begin{matrix} I_x^2&amp; I_xI_y \ I_xI_y &amp; I_y^2\end{matrix} \right] = \left[ \begin{matrix} A&amp; C\ C&amp; B\end{matrix} \right]<br>$$<br>采用近似的形式，$\alpha$一般取0.04-0.06：<br>$$<br>R = detM-\alpha (traceM)^2\<br>detM=\lambda_1 \lambda_2=AB-C^2\<br>traceM=\lambda_1 + \lambda_2 = A+B<br>$$<br>此时判断条件变为：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170000.png" style="zoom:50%;" />
+
+<h1 id="3-性质"><a href="#3-性质" class="headerlink" title="3. 性质"></a>3. 性质</h1><p>一般来说计算的角点会呈块状分布</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170542.png" style="zoom:50%;" />
+
+<p>所以我们需要使用非极大抑制(Non-maxima suppression)处理，得到单个的角点：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170657.png" style="zoom:50%;" />
+
+<hr>
+<p>Harris角点对亮度和对比度的变化并不敏感</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170808.png" style="zoom: 67%;" />
+
+<p>对于亮度来说，整体的上升和下降，并不影响角点的检测。对于对比度来说，按比例拉伸曲线，<strong>并不改变Harris响应的极值点出现的位置</strong>，但是，由于阈值的选择，<strong>可能会影响角点检测的数量</strong>。</p>
+<hr>
+<p>Harris角点检测算子具有旋转不变性。Harris角点检测算子使用的是<strong>角点附近的区域灰度二阶矩矩阵</strong>。而二阶矩矩阵可以表示成一个椭圆，椭圆的长短轴正是二阶矩矩阵特征值平方根的倒数。<strong>当特征椭圆转动时，特征值并不发生变化</strong>，所以判断角点响应值也不发生变化，由此说明Harris角点检测算子具有旋转不变性。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171649.png" style="zoom:67%;" />
+
+<hr>
+<p>Harris角点不具有尺度不变性。当图被缩小时，在检测窗口尺寸不变的前提下，在窗口内所包含图像的内容是完全不同的。左侧的图像可能被检测为边缘或曲线，而右侧的图像则可能被检测为一个角点。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171729.png" style="zoom: 50%;" />
+
+<p>随着尺度的减小，能检测到角点数量也相应降低。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-id="ck4o2turb000fu4vy7ru03bl8" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>CPP泛型编程1-函数模板 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 基本概念函数模板的格式如下所示： 12345template&lt;typename T&gt; T max (T a, T b) &amp;#123;         return b &lt; a ? a : b; &amp;#125;  含义是一目了然的事情，但是需要注意：  传入的ab必须支持运算符&lt; ab必须是可以拷贝的，否则没法返回  具体的使用实例如下： 1234567891011121">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP泛型编程1-函数模板">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;27&#x2F;CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 基本概念函数模板的格式如下所示： 12345template&lt;typename T&gt; T max (T a, T b) &amp;#123;         return b &lt; a ? a : b; &amp;#125;  含义是一目了然的事情，但是需要注意：  传入的ab必须支持运算符&lt; ab必须是可以拷贝的，否则没法返回  具体的使用实例如下： 1234567891011121">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191227101000.png">
+<meta property="article:published_time" content="2019-12-27T09:57:34.000Z">
+<meta property="article:modified_time" content="2019-12-27T10:20:36.042Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191227101000.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-CPP泛型编程1-函数模板" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/" class="article-date">
+  <time datetime="2019-12-27T09:57:34.000Z" itemprop="datePublished">2019-12-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP泛型编程1-函数模板
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1. 基本概念"></a>1. 基本概念</h1><p>函数模板的格式如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line"><span class="function">T <span class="title">max</span> <span class="params">(T a, T b)</span> </span></span><br><span class="line"><span class="function"></span>&#123;     </span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>含义是一目了然的事情，但是需要注意：</p>
+<ul>
+<li>传入的ab必须支持运算符&lt;</li>
+<li>ab必须是可以拷贝的，否则没法返回</li>
+</ul>
+<p>具体的使用实例如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">max</span> <span class="params">(T a, T b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">42</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ::max(<span class="number">1</span>, i) &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">    <span class="keyword">double</span> f1 = <span class="number">3.14</span>;</span><br><span class="line">    <span class="keyword">double</span> f2 = <span class="number">-3.14</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ::max(f1, f2) &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> s1 = <span class="string">"mathematics"</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> s2 = <span class="string">"math"</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ::max(s1, s2) &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意两点：</p>
+<ul>
+<li>传入的参数类型必须一致，否则会报错，比如<code>::max(5.5,1)</code>，<strong>解决这个问题可以用<code>::max(5.5,1)</code>进行隐式转化</strong></li>
+<li>最好使用<code>::</code>标识符，确保函数<code>max()</code>是属于全局空间，避免和<code>std::max()</code>混淆</li>
+</ul>
+<hr>
+<p>我们在编译时，把模板<code>T</code>推导为<code>int</code>的过程叫做<strong>实例化(instantiation)</strong>，而<code>int</code>这个具体的类型就叫做<strong>模板的实例(instance)</strong>。</p>
+<p>同时需要注意<strong>void也是合法的模板参数</strong>之一！</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line"><span class="function">T <span class="title">foo</span><span class="params">(T*)</span> </span>&#123; &#125; </span><br><span class="line"><span class="keyword">void</span>* vp = <span class="literal">nullptr</span>; </span><br><span class="line">foo(vp);     <span class="comment">// OK: deduces void </span></span><br><span class="line">foo(<span class="keyword">void</span>*)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>另外一个很重要的点是模板的<strong>双重编译(Two-phase Translation)</strong>，实际上模板在编译检查时经历了两个阶段：</p>
+<ol>
+<li>在没有实例化时，称为<strong>定义时(definition time)</strong>。这时编译器会主要检查语法错误，未定义行为，静态声明等等问题。</li>
+<li><strong>实例化时(instantiation time)</strong>，编译器会将模板实例带入重新检查一遍是否合法。</li>
+</ol>
+<h1 id="2-参数推断"><a href="#2-参数推断" class="headerlink" title="2. 参数推断"></a>2. 参数推断</h1><p>这一部分原书讲的比较简单，其实”Effective Modern C++”讲的挺好的，我之前也做了笔记，这里我直接照搬那本书上的内容。</p>
+<p>在做之前我们先明确几个术语，下面的示范代码包含了：</p>
+<ul>
+<li>param，形参</li>
+<li>paramtype，形参的类型，这里是const T&amp;</li>
+<li>expr，实参，expression的缩写</li>
+<li>CV符，const，volatile</li>
+<li>引用符，&amp;</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> T&amp; param)</span></span>;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> expr = <span class="number">0</span>;</span><br><span class="line">f(expr); <span class="comment">// call f with an int</span></span><br></pre></td></tr></table></figure>
+
+<p>然后我们分几种情况讨论：</p>
+<p><strong>（1）左值引用</strong></p>
+<p>步骤：</p>
+<ol>
+<li>忽略expr中paramtype包含的部分得到T</li>
+<li>将T与paramtype配对的到param</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;       <span class="comment">// param is a reference</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;             <span class="comment">// x is an int </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;       <span class="comment">// cx is a const int </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;      <span class="comment">// rx is a reference to x as a const int</span></span><br><span class="line"></span><br><span class="line">f(x);     <span class="comment">// T is int, param's type is int&amp;</span></span><br><span class="line">f(cx);    <span class="comment">// T is const int,                     </span></span><br><span class="line">        <span class="comment">// param's type is const int&amp;</span></span><br><span class="line">f(rx);    <span class="comment">// T is const int,                     </span></span><br><span class="line">        <span class="comment">// param's type is const int&amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//////////////////////////////</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> T&amp; param)</span></span>;  <span class="comment">// param is now a ref-to-const</span></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;              <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;        <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;       <span class="comment">// as before</span></span><br><span class="line">f(x);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line">f(cx);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line">f(rx);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="comment">//指针也适用这个原则</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T* param)</span></span>;        </span><br><span class="line"><span class="comment">// param is now a pointer</span></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;                 <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *px = &amp;x;         <span class="comment">// px is a ptr to x as a const int</span></span><br><span class="line">f(&amp;x);    <span class="comment">// T is int, param's type is int*</span></span><br><span class="line">f(px);  <span class="comment">// T is const int,               </span></span><br><span class="line">        <span class="comment">// param's type is const int*</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）右值引用</strong></p>
+<p>步骤：</p>
+<ol>
+<li>如果expr是左值，T和param都被推为<strong>左值并加上引用</strong>(不管有没有统统加上引用符)</li>
+<li>如果是右值，T不变，<code>param</code>加上&amp;&amp;。</li>
+</ol>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;      </span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;              <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;        <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;       <span class="comment">// as before</span></span><br><span class="line">f(x);                   <span class="comment">// x is lvalue, so T is int&amp;, </span></span><br><span class="line">                        <span class="comment">// param's type is also int&amp;</span></span><br><span class="line">f(cx);                  <span class="comment">// cx is lvalue, so T is const int&amp;,   </span></span><br><span class="line">                        <span class="comment">// param's type is also const int&amp;</span></span><br><span class="line">f(rx);                  <span class="comment">// rx is lvalue, so T is const int&amp;,   </span></span><br><span class="line">                        <span class="comment">// param's type is also const int&amp;</span></span><br><span class="line">f(<span class="number">27</span>);                  <span class="comment">// 27 is rvalue, so T is int,           </span></span><br><span class="line">                        <span class="comment">// param's type is therefore int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）值传递</strong></p>
+<p>这就是最基本的值传递。意味着，<code>param</code>复制了一个传入的参数。他的哲学就是忽略忽略再忽略：</p>
+<ul>
+<li><strong>如果<code>expr</code>是引用</strong>，忽略引用的部分</li>
+<li><strong>如果忽略引用后</strong>，<code>expr</code>是<code>const</code>类型或<code>volatile</code>类型，忽略。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> </span><br><span class="line">f(T param);         <span class="comment">// param is now passed by value </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;          <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;    <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;   <span class="comment">// as before</span></span><br><span class="line">f(x);                <span class="comment">// T's and param's types are both int</span></span><br><span class="line">f(cx);               <span class="comment">// T's and param's types are again both int</span></span><br><span class="line">f(rx);               <span class="comment">// T's and param's types are still both int</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：<strong>只是忽略引用，指针还是不变</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;         </span><br><span class="line"><span class="comment">// param is still passed by value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> ptr =<span class="string">"Fun with pointers"</span>;  </span><br><span class="line"><span class="comment">// ptr is const pointer to const object  </span></span><br><span class="line">f(ptr);</span><br><span class="line"><span class="comment">//T is const char* const</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（4）退化</strong></p>
+<p><strong>数组类型和指针类型是完全不一样的</strong>(虽然他们在使用时可以混用)。由于C语言老祖宗的继承关系，C++依然保留了这些特性，导致很多人误以为数组和指针参数是一样的。在传递过程中，<strong>数组会退化为它第一个元素的指针</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> name[] = <span class="string">"J. P. Briggs"</span>;  <span class="comment">// name's type is const char[13]</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> * ptrToName = name;       <span class="comment">// array decays to pointer</span></span><br><span class="line"></span><br><span class="line">f(name); <span class="comment">// name is array, but T deduced as const char*</span></span><br></pre></td></tr></table></figure>
+
+<p>这种退化导致有用的信息(数组长度)丢失<strong>。然而声明引用，可以使得模板推断保留成数组的形式</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line">f(name);  <span class="comment">//deduce to const char[13]</span></span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中<code>T</code>被推导为<strong>const char[13]</strong>，<code>param</code>则被推导为<strong>const char(&amp;)[13]</strong>。<strong>如果改为<code>T&amp;&amp;</code>，</strong>则<code>T</code>和<code>param</code>都被推为<code>const char(&amp;)[13]</code></p>
+<p>讲完数组，再来讲讲函数。在C++中不止是数组会退化为指针，函数类型也会<strong>退化为一个函数指针</strong>，我们对于数组的全部讨论都可以应用到函数来：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">double</span>)</span></span>;  <span class="comment">// someFunc is a function;</span></span><br><span class="line">                             <span class="comment">// type is void(int, double)</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;     <span class="comment">// in f1, param passed by value</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;    <span class="comment">// in f2, param passed by ref</span></span><br><span class="line">f1(someFunc);               <span class="comment">// param deduced as ptr-to-func;</span></span><br><span class="line">                            <span class="comment">// type is void (*)(int, double)</span></span><br><span class="line">f2(someFunc);               <span class="comment">// param deduced as ref-to-func;</span></span><br><span class="line">                            <span class="comment">// type is void (&amp;)(int, double)</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="3-多模板参数"><a href="#3-多模板参数" class="headerlink" title="3. 多模板参数"></a>3. 多模板参数</h1><p>多模板参数的形式是简单的，但细节需要考究。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="function">T1 <span class="title">max</span> <span class="params">(T1 a, T2 b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> m = ::max(<span class="number">1</span>, <span class="number">3.14</span>); <span class="comment">// 返回类型由第一个实参决定</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子如果改为单模板参数则无法成功匹配。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191227101000.png" style="zoom: 67%;" />
+
+<p>而如果改为多模板参数，则<strong>调用过程发生了隐式转化，返回类型由第一个参数决定</strong>。如果我们把1和3.14调换位置，则返回的是double类型而不是int。</p>
+<p>我们可以通过<strong>指定返回参数模板</strong>来解决这个问题。这段代码我们用尖括号指定模板类型，对应的位置就是RT，这样我们就能顺利返回我们想要的类型了。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RT, <span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="function">RT <span class="title">max</span> <span class="params">(T1 a, T2 b)</span></span>;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">::max&lt;<span class="keyword">double</span>&gt;(<span class="number">1</span>, <span class="number">3.14</span>); <span class="comment">// 返回类型为double, T1和T2被推断</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>在现代CPP体系中，我们可以自动推导返回类型。下面这段代码展示了11和14的一些区别。当我们调用<code>::max(5, 1.2)</code>的时候，5被隐式转化为double类型，返回的结果也是double类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="comment">// FOR c++14</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">max</span> <span class="params">(T1 a, T2 b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//FOR c++11</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line">auto max (T1 a, T2 b) -&gt; decltype(b &lt; a ? a : b)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，有时候这有可能会<strong>导致返回引用类型</strong>，因为paramtype可能就写为引用类型，我们需要调用<code>decayed</code>去除引用符号（需要头文件<type_trait>）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line">auto max(T1 a, T2 b) -&gt; typename std::decay&lt;decltype(true ? a : b)&gt;::type</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>现代CPP中引入了Common Type这一概念，相当于最大兼容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">common_type&lt;<span class="keyword">int</span>, <span class="keyword">float</span>&gt;::type <span class="comment">// float，因为int可以转换成float</span></span><br><span class="line">common_type&lt;<span class="keyword">int</span>, <span class="keyword">float</span>, <span class="keyword">double</span>&gt;::type <span class="comment">// double，因为int, float都可以转换成double</span></span><br></pre></td></tr></table></figure>
+
+<p>利用这个特性，我们能够进一步改造模板。（注意一下14那个有_t，11那个没有）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// for C++14</span></span><br><span class="line"><span class="built_in">std</span>::<span class="keyword">common_type_t</span>&lt;T1,T2&gt; max(T1 a,T2 b)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> a&gt;b?a:b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// for C++11</span></span><br><span class="line"><span class="built_in">std</span>::common_type&lt;T1,T2&gt;::<span class="function">type <span class="title">max</span><span class="params">(T1 a,T2 b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a&gt;b?a:b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-函数模板的重载"><a href="#4-函数模板的重载" class="headerlink" title="4. 函数模板的重载"></a>4. 函数模板的重载</h1><p><strong>具有相同名称的非函数模板可以和函数模板共存</strong>，利用这个特性我们能实现模板函数的重载。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">max</span> <span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="comment">//共存</span></span><br><span class="line"><span class="function">T <span class="title">max</span> <span class="params">(T a, T b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b &lt; a ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ::max(<span class="number">1</span>, <span class="number">42</span>); <span class="comment">// 调用非模板的函数</span></span><br><span class="line">    ::max(<span class="number">1.0</span>, <span class="number">3.14</span>); <span class="comment">// 通过推断调用max&lt;double&gt;</span></span><br><span class="line">    ::max(<span class="string">'a'</span>, <span class="string">'b'</span>); <span class="comment">// 通过推断调用max&lt;char&gt;</span></span><br><span class="line">    ::max&lt;&gt;(<span class="number">1</span>, <span class="number">42</span>); <span class="comment">// 通过推断调用max&lt;int&gt;</span></span><br><span class="line">    ::max&lt;<span class="keyword">double</span>&gt;(<span class="number">1</span>, <span class="number">42</span>); <span class="comment">// 调用max&lt;double&gt;，不推断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码展示了编译器的特性：<strong>选择最优匹配的函数</strong>。</p>
+<p>重载模板的原则是需要保证<strong>只有一个合理匹配</strong>，否则会造成歧义，导致无法通过编译。下面的代码中，由于double可以被隐式转化为int，所以会导致歧义。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">max</span> <span class="params">(T1 a, T2 b)</span></span>&#123;<span class="keyword">return</span> b &lt; a ? a : b;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> RT, <span class="keyword">typename</span> T1, <span class="keyword">typename</span> T2&gt;</span><br><span class="line"><span class="function">RT <span class="title">max</span> <span class="params">(T1 a, T2 b)</span></span>&#123;<span class="keyword">return</span> b &lt; a ? a : b;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> a = ::max(<span class="number">1</span>, <span class="number">3.14</span>); <span class="comment">// 调用第一个模板</span></span><br><span class="line"><span class="keyword">auto</span> b = ::max&lt;<span class="keyword">long</span> <span class="keyword">double</span>&gt;(<span class="number">3.14</span>, <span class="number">1</span>); <span class="comment">// 调用第二个模板</span></span><br><span class="line"><span class="keyword">auto</span> c = ::max&lt;<span class="keyword">int</span>&gt;(<span class="number">1</span>, <span class="number">3.14</span>); <span class="comment">// 错误：两个模板都匹配</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/" data-id="ck4o2tuql0000u4vyah2qf5pv" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CPP泛型编程2-类模板
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CPP多线程总结4-并发数据结构设计实例</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

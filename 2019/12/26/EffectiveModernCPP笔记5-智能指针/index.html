@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>EffectiveModernCPP笔记5-智能指针 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="EffectiveModernCPP笔记5-智能指针描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担 Item 18:Use unique_ptr for exclusive-ownership resource management.先解释一下，exclusive ownersh">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记5-智能指针">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;26&#x2F;EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="EffectiveModernCPP笔记5-智能指针描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担 Item 18:Use unique_ptr for exclusive-ownership resource management.先解释一下，exclusive ownersh">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108103101.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108110927.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108111028.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108113130.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108113840.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108132318.png">
+<meta property="article:published_time" content="2019-12-26T11:34:53.000Z">
+<meta property="article:modified_time" content="2019-12-26T12:03:13.230Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191108103101.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-EffectiveModernCPP笔记5-智能指针" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" class="article-date">
+  <time datetime="2019-12-26T11:34:53.000Z" itemprop="datePublished">2019-12-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      EffectiveModernCPP笔记5-智能指针
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="EffectiveModernCPP笔记5-智能指针"><a href="#EffectiveModernCPP笔记5-智能指针" class="headerlink" title="EffectiveModernCPP笔记5-智能指针"></a>EffectiveModernCPP笔记5-智能指针</h1><p>描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担</p>
+<h1 id="Item-18-Use-unique-ptr-for-exclusive-ownership-resource-management"><a href="#Item-18-Use-unique-ptr-for-exclusive-ownership-resource-management" class="headerlink" title="Item 18:Use unique_ptr for exclusive-ownership resource management."></a>Item 18:Use unique_ptr for exclusive-ownership resource management.</h1><p>先解释一下，exclusive ownership是独占所有权的意思，顾名思义这一章的主要目的是介绍如何利用<code>unique_ptr</code>管理独占所有权的资源。</p>
+<p><code>std::unique_ptr</code>体现了显式所有权的语义：非空的<code>std::unique_ptr</code>总是拥有它指向的对象，换句话说我们只能<strong>通过移动转移所有权，而不允许复制</strong>。</p>
+<p>它的主要应用是在<strong>工厂模式</strong>。假设有一个基类和三个派生类，通过一个工厂函数来返回某个派生类的<code>std::unique_ptr</code>，这样调用方就不需要费心什么时候销毁返回的对象了：<code>std::unique_ptr</code>会负责这件事。</p>
+<blockquote>
+<p>工厂函数使用了C++<strong>多态</strong>的特性，将存在<strong>继承</strong>关系的类，通过一个<strong>工厂类创建</strong>对应的子类（派生类）对象。比如父类是Shoes，子类有Nike，LiNing，Adidas，假设有一个工厂函数，把生产鞋子的需求输入其中，他就能调用shoes父类下面的子类进行构造。</p>
+</blockquote>
+<p>我们做一个完整的例子，投资类下面有三个子类：股票、债券、期货，再带一个工厂函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;functional&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//类定义</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~Investment() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"investment destoryed\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">makeLogEntry</span><span class="params">(Investment* pInv)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"deleting investment on "</span> &lt;&lt; pInv &lt;&lt; <span class="string">"\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Stock</span> :</span> <span class="keyword">public</span> Investment &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Stock() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"make an invesetment on stock\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Stock() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"a stock investment destoryed,"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bond</span> :</span> <span class="keyword">public</span> Investment &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Bond() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"make an investmentt on bond\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Bond() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"a bond investment destroyed,"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RealEstate</span> :</span> <span class="keyword">public</span> Investment &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    RealEstate() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"make an investmentt on RealEstate\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~RealEstate() &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"a RealEstatend investment destroyed,"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">deleteAndLog</span><span class="params">(Investment* pInv)</span> </span>&#123;</span><br><span class="line">    makeLogEntry(pInv);</span><br><span class="line">    <span class="keyword">delete</span> pInv;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Ts&gt;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">auto</span> <span class="title">makeInvestment</span><span class="params">(Ts&amp;&amp;... params)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> delInvmt = [](Investment* pInv)</span><br><span class="line">    &#123;</span><br><span class="line">        makeLogEntry(pInv);</span><br><span class="line">        <span class="keyword">delete</span> pInv;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Investment, <span class="keyword">decltype</span>(delInvmt)&gt; InvestmentPtr;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>(InvestmentPtr) &lt;&lt; <span class="string">"\n"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">InvestmentPtr <span class="title">pInv</span><span class="params">(<span class="literal">nullptr</span>, delInvmt)</span></span>;</span><br><span class="line">    pInv.reset(<span class="keyword">new</span> T(<span class="built_in">std</span>::forward&lt;Ts&gt;(params)...));<span class="comment">//不能直接将裸指针赋值给一个unique_ptr，要使用reset</span></span><br><span class="line">    <span class="keyword">return</span> pInv;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>unique_ptr</code>默认的销毁方式是通过对<code>unique_ptr</code>中的裸指针进行<code>delete</code>操作，但是也可以在声明的时候指定销毁函数，在上面的代码中，通过<code>lambda</code>表达式置顶了一个打印日志函数，要在销毁指针的时候会打印日志。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> delLog = [](<span class="keyword">int</span>* pInv)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"See you !"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">delete</span> pInv;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;<span class="keyword">int</span>, <span class="keyword">decltype</span>(delLog)&gt; pInt(<span class="literal">nullptr</span>, delLog);</span><br><span class="line">pInt.reset(<span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">1</span>));</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; *pInt &lt;&lt; <span class="string">"\n"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>客户端的调用方法如下，这样会产生一个<code>unique_ptr</code>指针指向stock，只要这个程序不结束，那么他就不会调用销毁函数，反之当程序终止时调用函数销毁对象。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pInvestment = makeInvestment&lt;Stock&gt;();</span><br></pre></td></tr></table></figure>
+
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108103101.png" alt="img" style="zoom:67%;" />
+
+<p>我们还可以通过<code>move</code>的方式转移所有权，但不能调用拷贝构造，参见delete那一章。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pInvestment = makeInvestment&lt;Bond&gt;();</span><br><span class="line"><span class="keyword">auto</span> pInvestment2 = <span class="built_in">std</span>::move(pInvestment);</span><br></pre></td></tr></table></figure>
+
+<p>总结一下：</p>
+<ul>
+<li><code>delInvmt</code>是自定义的销毁器，在<code>std::unique_ptr</code>析构时，自定义的销毁器会来完成释放资源必需的操作。这里用lambda表达式来实现<code>delInvmt</code>，不仅更方便，性能还更好。</li>
+<li>自定义的销毁器的类型必须与<code>std::unique_ptr</code>的第二个模板参数相同，因此我们要用<code>decltype(delInvmt)</code>来声明<code>std::unique_ptr</code>。</li>
+<li><code>makeInvestment</code>的基本策略是创建一个空的<code>std::unique_ptr</code>，再令它指向合适的类型，再返回。其中我们把<code>delInvmt</code>作为第二个构造参数传给<code>std::unique_ptr</code>，从而将销毁器与<code>pInv</code>关联起来。</li>
+<li>无法将裸指针隐式转换为<code>std::unique_ptr</code>，需要用<code>reset</code>来修改<code>std::unique_ptr</code>持有的裸指针。</li>
+<li>我们在创建具体的对象时，使用了<code>std::forward</code>将<code>makeInvestment</code>的所有参数完美转发给对应的构造函数。</li>
+<li>注意<code>delInvmt</code>的参数是<code>Investment*</code>，而它的实际类型可能是派生类，因此需要基类<code>Investment</code>有一个虚的析构函数。</li>
+</ul>
+<h1 id="Item-19-Use-shared-ptr-for-shared-ownership-resource-management"><a href="#Item-19-Use-shared-ptr-for-shared-ownership-resource-management" class="headerlink" title="Item 19:Use shared_ptr for shared-ownership resource management."></a>Item 19:Use shared_ptr for shared-ownership resource management.</h1><p>很多语言都有GC(garbage collection)机制，但这种机制带来的是资源释放的不确定性，而原始的C语言有两种内存：<strong>栈上的内存</strong>（函数的局部变量等等，由操作系统释放），<strong>动态内存</strong>（依靠new，malloc等方式用户自己分配的内存，需要手动释放）。如果我们在程序中忘了释放这些动态内存，而程序又是会持续运行的服务进程，会导致内存占用越来越高，轻者致残影响系统性能，重者致命导致进程崩溃。下面举个例子：</p>
+<p>下面这一段程序按照规范合理释放内存，他的内存使用情况如下</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">int</span>* p = (<span class="keyword">int</span>*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">int</span>));</span><br><span class="line">    *p = i;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; *p &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">free</span>(p);        </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108110927.png" alt="img" style="zoom:67%;" />
+
+<p>然而如果我去掉了<code>free(p)</code>这一句，就会导致如下的情况，问题一目了然！有可能你的程序从70MB跑了一年跑到200MB了。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108111028.png" alt="img" style="zoom:67%;" />
+
+<p>以上介绍了<strong>不及时释放内存导致泄露</strong>的结果，下面就正式介绍C++是如何<strong>在保证手工管理内存的确定性和自动GC机制的便利性</strong>中做平衡的。现代CPP给出的方案是<code>shared_ptr</code>！</p>
+<p>从c++11开始引入的<code>shared_ptr</code>，用来表示指针对指向对象的“<strong>共享所有权</strong>”；一个对象可以被多个<code>shared_ptr</code>指向和访问，这些<code>shared_ptr</code>类型的指针共同享有该对象的所有权，<strong>当最后一个指向该对象的<code>shared_ptr</code>生命周期结束的时候，对象被销毁</strong>。</p>
+<p>下面介绍他的机制和特点：</p>
+<p><strong>（1）基于引用计数实现</strong></p>
+<p>他的机制和JVM的机制一样，基于引用计数实现，<code>shared_ptr</code>的构造将引用计数加1，销毁的时候引用计数减1，而赋值则将源指针引用计数加1，目标指针引用计数减1，例如<code>P1=P2</code>，<code>P1</code>指向对象的引用计数减1，<code>P2</code>指向对象的引用计数加1。当引用计数减1之后为0的时候，<code>shared_ptr</code>将会销毁指向的对象。<code>shared_ptr</code>的<strong>构造函数函数会增加引用计数</strong>，但是移动构造除外，因为<strong>移动构造并没有增加指向对象的引用计数，所以不需要改变引用计数</strong>；需要注意：</p>
+<ul>
+<li><code>std::shared_ptr</code>占用的内存空间是原生指针的两倍</li>
+<li>被指向对象的内存空间必须是<strong>动态分配</strong>的</li>
+<li>增加或者减少指针引用对象的操作必须是原子操作类型的，多线程操作时要谨慎使用<code>std::shared_ptr</code></li>
+</ul>
+<p><strong>（2）销毁器不是指针类型的一部分</strong></p>
+<p>与<code>unique_ptr</code>类似，<code>shared_ptr</code>同样也支持自定义销毁方法（默认是直接调用<code>delete</code>），<strong>与<code>unique_ptr</code>不同的是，销毁方式是<code>unique_ptr</code>类型的一部分，而<code>shared_ptr</code>的销毁方式却不是。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> loggingDel = [](Widget *pw)</span><br><span class="line">                  &#123;</span><br><span class="line">                      makeLogEntry(pw);</span><br><span class="line">                      <span class="keyword">delete</span> pw;</span><br><span class="line">                  &#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget, <span class="keyword">decltype</span>(loggingDel)&gt; upw(<span class="keyword">new</span> Widget, loggingDel);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw(<span class="keyword">new</span> Widget, loggingDel);</span><br></pre></td></tr></table></figure>
+
+<p>不把销毁方式作为<code>shared_ptr</code>类型的一部分可以带来更大的灵活性，因为这里不同的<code>shared_ptr</code>指针对象可能需要不同的销毁方式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> customDeleter1 = [](Widget *pw) &#123; … &#125;; <span class="comment">// custom deleters,</span></span><br><span class="line"><span class="keyword">auto</span> customDeleter2 = [](Widget *pw) &#123; … &#125;; <span class="comment">// each with adifferent type</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; pw1(<span class="keyword">new</span> Widget, customDeleter1);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; pw2(<span class="keyword">new</span> Widget, customDeleter2);</span><br><span class="line"><span class="comment">//由于有相同的结构，所以可以写成</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt;&gt;vpw&#123;pw1, pw2&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）包含一个控制块</strong></p>
+<p>与unique_ptr不同的是<strong>，自定义销毁方式并不会改变shared_ptr的size，shared_ptr的size始终是两倍的裸指针size，</strong>其内存布局是如下图所示：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113130.png" alt="img" style="zoom: 67%;" />
+
+<ul>
+<li>使用<code>std::make_shared</code>的时候<strong>总是</strong>分配控制块</li>
+<li><code>shared_ptr</code>由<code>unique_ptr</code>或裸指针构建时分配控制块</li>
+<li><code>shared_ptr</code>由其他<code>shared_ptr</code>或<code>weak_ptr</code>构建时不分配新的控制块，而是沿用既有智能指针的控制块</li>
+</ul>
+<p>这就会带来一个问题，当我们用一个裸指针构建多个shared_ptr时，会<strong>分配多个控制块</strong>，同一个对象确有多个引用计数（控制块），这就很容易<strong>导致一个对象被销毁多次</strong>，下面的代码描述了这种情况：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pw = <span class="keyword">new</span> Widget; <span class="comment">// pw 是原生指针</span></span><br><span class="line"><span class="comment">//…</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw1(pw, loggingDel); <span class="comment">// create control block for *pw</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw2(pw, loggingDel); <span class="comment">// create 2nd control block</span></span><br></pre></td></tr></table></figure>
+
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113840.png" alt="img" style="zoom:67%;" />
+
+<p>如何避免这个问题呢？尽可能<strong>避免使用裸指针来构建<code>shared_ptr</code>，使用<code>make_shared</code></strong>。</p>
+<p><strong>关于shared_ptr性能的讨论</strong></p>
+<p><code>shared_ptr</code>的控制块是动态生成的，尽管占用的空间并不大，但是控制块的实际实现比想象的要复杂，实现控制块<strong>使用到了继承和虚函数，同时引用计数的增减是原子操作</strong>也增加了性能上的代价，这些都导致了<code>shared_ptr</code>并不是管理所有动态资源的最好方案，使用<code>shared_ptr</code>解引用获取对象时会比直接使用裸指针的代价更高；</p>
+<p>然而，尽管<code>shared_ptr</code>有在性能上付出了一定的代价，其带来的收益是非常显著的，<code>shared_ptr</code>解决了动态分配资源的生命周期自动管理，大多数时候，在“共享所有权”的语义下，使用<code>shared_ptr</code>管理动态资源都是值得推荐的；而没有“共享所有权”语义的其他情况下，例如“独占所有权”，则可以使用<code>unique_ptr</code>来代替；</p>
+<p>另一个<code>shared_ptr</code>不能做的事情是管理数组，不能使用<code>std::shared_ptr</code>这样的类型，然而，c++ 11之后标准库已经引入了<code>std::array</code>，<code>shared_ptr</code>管理一个<code>std::array</code>类型的对象是可行的。</p>
+<h1 id="Item-20-Use-weak-ptr-for-shared-ptr-like-pointers-that-can-dangle"><a href="#Item-20-Use-weak-ptr-for-shared-ptr-like-pointers-that-can-dangle" class="headerlink" title="Item 20:Use weak_ptr for shared_ptr-like pointers that can dangle."></a>Item 20:Use weak_ptr for shared_ptr-like pointers that can dangle.</h1><p>虽然有了<code>std::shared_ptr</code>，但我们却并不知道指向的资源到底有没有被销毁，我们希望有一种智能指针能够追踪他什么时候空悬(dangle，即对象不存在)，解决方案就是采用<code>std::weak_ptr</code>。</p>
+<p>先，这个指针并不是单独存在的，他需要搭配<code>shared_ptr</code>一起使用。<code>std::weak_ptr</code>通常是由<code>std::shared_ptr</code>中创建而来。它们指向的地方与初始化它们的<code>std::shared_ptr</code>指向的地方相同，但它们<strong>不会影响指向对象的引用计数</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> spw = <span class="built_in">std</span>::make_shared&lt;Widget&gt;();  <span class="comment">// spw是std::shared_ptr&lt;Widget&gt;</span></span><br><span class="line">                                        <span class="comment">// 引用计数为1</span></span><br><span class="line">...</span><br><span class="line"><span class="built_in">std</span>::weak_ptr&lt;Widget&gt; wpw(spw); <span class="comment">// wpw指向spw指向的Widget，引用计数仍然为1</span></span><br><span class="line">...</span><br><span class="line">spw = <span class="literal">nullptr</span>;    <span class="comment">// 引用计数变成0，Widget被销毁，wpw现在变成空悬指针</span></span><br></pre></td></tr></table></figure>
+
+<p>如上所示，当<code>weak_ptr</code>变为空悬指针时，我们可以去检查它<code>if (wpw.expired())</code></p>
+<p>不过一般状况是：当你去检查<code>std::weak_ptr</code>是否过期，如果没有过期（即不是空悬），就要取得它指向的对象。</p>
+<p>因为<code>std::weak_ptr</code>没有解引用操作，所以没有办法写出解引用的代码。就算有这个操作，<strong>单独的检查操作和解引用操作会引出一个竞争条件</strong>：在调用检查操作和解引用操作之间，另一个线程重赋值或销毁最后一个指向对象的<code>std::shared_ptr</code>，因此导致对象被销毁，这样解引用就产生了未定义行为。</p>
+<p>因此需要原子操作来检查<code>shared_ptr</code>是否过期，通常情况我们使用<code>std::weak_ptr::lock</code>，如果<strong>不为空则返回对应的<code>shared_ptr</code>否则返回<code>nullptr</code></strong></p>
+<p><strong>（1）应用一：cache缓存</strong></p>
+<p>下面是一个使用<code>weak_ptr</code>和哈希表容器构建缓存的示例，由于<code>loadWidget</code>的操作可能是大开销函数，所以我们最好设计一个缓存，保存我们加载过的对象。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">const</span> Widget&gt; fastLoadWidget(WidgetID id)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">unordered_map</span>&lt;WidgetID, <span class="built_in">std</span>::weak_ptr&lt;<span class="keyword">const</span> Widget&gt;&gt; cache; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> objPtr = cache[id].lock(); <span class="comment">// objPtr是指向缓存对象的shared_ptr(否则为空)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!objPtr) &#123;                    <span class="comment">// 如果不在缓存中</span></span><br><span class="line">        objPtr = loadWidget(id);      <span class="comment">// 大开销函数加载它</span></span><br><span class="line">        cache[id] = objPtr;           <span class="comment">// 缓存它</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> objPtr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在局部变量前，加上关键字static，该变量就被定义成为一个静态局部变量。</p>
+<ul>
+<li>该变量在全局数据区分配内存；</li>
+<li>静态局部变量在程序执行到该对象的声明处时被首次初始化，即以后的函数调用不再进行初始化；</li>
+<li>静态局部变量一般在声明处初始化，如果没有显式初始化，会被程序自动初始化为0；</li>
+<li>其作用域为局部作用域</li>
+</ul>
+</blockquote>
+<p><strong>（2）应用二：观察者模式</strong></p>
+<p>这个设计模式的主要组成是subject（主题，即状态可能改变的对象）和observer（观察者，即出现状态改变时被通知的对象）。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108132318.png" alt="img"></p>
+<p>B是主题，AC为观察者，AC对B有共同使用权，他们都有指向B的<code>shared_ptr</code>用于接收B的改变。现在的问题是如果B要及时知道A是否被销毁，问号处应该使用什么指针？有三种选择：</p>
+<ul>
+<li>原生指针。若A被销毁，则B指向A的指针会空悬，B没有能力发现，B去解指针的引用时会发生未定义行为！</li>
+<li><code>shared_ptr</code>。A指向B且B指向A，形成循环。他们两抱团取暖，互相引用计数，形成闭环，即使其他数据不再指向AB，他们依然不会被销毁。从另一个角度来说，AB已经泄露：程序不能使用它们，资源无法回收。</li>
+<li><code>weak_ptr</code>。很好的解决了问题！尽管A和B在互指，B的指针也不会影响A对象的引用计数。如果A被销毁了，B的指针能知道它已经过期了。</li>
+</ul>
+<h1 id="Item-21-Prefer-std-make-unique-and-std-make-shared-to-direct-use-of-new"><a href="#Item-21-Prefer-std-make-unique-and-std-make-shared-to-direct-use-of-new" class="headerlink" title="Item 21:Prefer std::make_unique and std::make_shared to direct use of new"></a>Item 21:Prefer std::make_unique and std::make_shared to direct use of new</h1><p>为什么用make比用new好？直接上结论：</p>
+<p><strong>（1）不用重复类型</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">upw1</span><span class="params">(<span class="built_in">std</span>::make_unique&lt;Widget&gt;())</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Widget&gt; upw2(<span class="keyword">new</span> Widget);</span><br></pre></td></tr></table></figure>
+
+<p>上述代码通过make，我们只用写一遍<code>widget</code>，如果连续重复类型，有可能会导致dump</p>
+<p><strong>（2）异常安全</strong></p>
+<p>假设我们有这样的两个函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">processWidget</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw, <span class="keyword">int</span> priority)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">computePriority</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">processWidget(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), computePriority()); <span class="comment">// potential resource leak!</span></span><br></pre></td></tr></table></figure>
+
+<p>在<code>processWidget</code>的参数求值过程中，我们只能确定下面几点：</p>
+<ul>
+<li><code>new Widget</code>一定会执行，即一定会有一个<code>Widget</code>对象在堆上被创建。</li>
+<li><code>std::shared_ptr</code>的构造函数一定会执行。</li>
+<li><code>computePriority</code>一定会执行。</li>
+</ul>
+<p><code>new Widget</code>的结果是<code>std::shared_ptr</code>构造函数的参数，因此前者一定早于后者执行。除此之外，编译器不保证其它操作的顺序，即有可能执行顺序为：</p>
+<ol>
+<li><code>new Widget</code></li>
+<li>执行<code>computePriority</code></li>
+<li>构造<code>std::shared_ptr</code></li>
+</ol>
+<p><strong>如果第2步抛异常，第1步创建的对象还没有被<code>std::shared_ptr</code>管理，就会发生内存泄漏。</strong>如果这里我们用<code>std::make_shared</code>，就能<strong>保证<code>new Widget</code>和<code>std::shared_ptr</code>是一起完成</strong>的，中间不会有其它操作插进来，即不会有不受智能指针保护的裸指针出现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="built_in">std</span>::make_shared&lt;Widget&gt;(), computePriority()); <span class="comment">// no potential resource leak</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）更高效</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>:<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw(<span class="keyword">new</span> Widget);</span><br></pre></td></tr></table></figure>
+
+<p>这行代码中，我们以为只有一次内存分配，实际发生了两次，第二次是在分配<code>std::shared_ptr</code>控制块。如果用<code>std::make_shared</code>，它会把<code>Widget</code>对象和控制块合并为一次内存分配。</p>
+<hr>
+<p>但他也存在一些问题：</p>
+<ul>
+<li>无法传入自定义的销毁器。</li>
+<li>make函数初始化时使用了括号初始化，而不是花括号初始化，比如<code>std::make_unique&gt;(10, 20)</code>创建了一个有着20个值为10的元素的<code>vector</code>，而不是创建了<code>{10, 20}</code>这么两个元素的<code>vector</code></li>
+<li>对象和控制块分配在一块内存上，减少了内存分配的次数，但也导致对象和控制块占用的内存也要一次回收掉。即，如果还有<code>std::weak_ptr</code>存在，控制块就要在，对象占用的内存也没办法回收。如果对象比较大，且<code>std::weak_ptr</code>在对象析构后还可能长期存在，那么这种开销是不可忽视的。</li>
+</ul>
+<p>如果我们因为前面这三个缺点而不能使用<code>std::make_shared</code>，那么我们要保证<strong>，智能指针的构造一定要单独一个语句</strong>。回到之前<code>processWidget</code>的例子中，假设我们有个自定义的销毁器<code>void cusDel(Widget* ptr);</code>，因此不能使用<code>std::make_shared</code>，那么我们要这么写来保证异常安全性：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw(<span class="keyword">new</span> Widget, cusDel);</span><br><span class="line">processWidget(spw, computePriority());</span><br></pre></td></tr></table></figure>
+
+<p>当然我们还可以加上移动语义，让它更高效：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; spw(<span class="keyword">new</span> Widget, cusDel);</span><br><span class="line">processWidget(<span class="built_in">std</span>::move(spw), computePriority());</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-22-When-using-the-Pimpl-Idiom-define-special-member-functions-in-the-implementation-file"><a href="#Item-22-When-using-the-Pimpl-Idiom-define-special-member-functions-in-the-implementation-file" class="headerlink" title="Item 22:When using the Pimpl Idiom, define special member functions in the implementation file."></a>Item 22:When using the Pimpl Idiom, define special member functions in the implementation file.</h1><p><strong>什么是Pimpl？</strong></p>
+<p><code>Pimpl</code>(Pointer to implementation)特别用于减轻编译负担，这是一个C++编程的小技巧，通过它你能<strong>将一个类的数据成员打包放进一个具体的实现类或者结构体中，这些数据成员的访问能将通过指针间接访问</strong>。举个例子</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">class <span class="title">Widget</span><span class="params">()</span>      <span class="comment">//定义在头文件`widget.h`</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget();</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; data;</span><br><span class="line">    Gadget g1, g2, g3;  <span class="comment">//Gadget是用户自定义的类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我们改变<code>Gadget</code>类的时候，整个程序都需要重新编译，所以我们希望改变这种现状。现在我们使用智能指针实现一个Pimpl来解决这个问题：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span>       //在"<span class="title">Widget</span>.<span class="title">h</span>"中</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget();</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Impl</span>;</span>    <span class="comment">//声明一个 实现结构体</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Impl&gt; pImpl;   <span class="comment">//使用智能指针而不是原始指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现文件写为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"widget.h"</span>     <span class="comment">//以下代码均在实现文件 widget.cpp里</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"gadget.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Widget</span>:</span>:Impl     <span class="comment">//跟之前一样</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; data;</span><br><span class="line">    Gadget g1,g2,g3;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Widget::Widget(): pImpl(<span class="built_in">std</span>::make_unique&lt;Imple&gt;())&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码不会编译通过，因为我们<strong>没有给<code>Widget</code>实现自定义的析构函数</strong>，因此编译器为<code>Widget</code>准备了一个。这个析构函数会被放到<code>Widget</code>的定义体内，默认是内联的，因此会有一份实现在用户文件中。<code>~Widget</code>中只做一件事：析构<code>pImpl</code>，即析构一个<code>std::unique_ptr</code>。注意，<strong>我们隐藏了<code>Impl</code>的实现，在析构<code>std::unique_ptr</code>时编译器发现<code>Impl</code>还是个不完整类型</strong>，此时对它调用<code>delete</code>是危险的，因此编译器用<code>static_cast</code>禁止了这种行为。</p>
+<p>解决方案就是我们自己实现一个析构函数，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// widget.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget();</span><br><span class="line">    ~Widget();</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Impl</span></span></span><br><span class="line"><span class="class">    <span class="title">std</span>:</span>:<span class="built_in">unique_ptr</span>&lt;Impl&gt; pImpl;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// widget.cpp</span></span><br><span class="line">...</span><br><span class="line">Widget::Widget(): pImpl(<span class="built_in">std</span>::make_unique&lt;Impl&gt;())&#123;&#125;</span><br><span class="line"></span><br><span class="line">Widget::~Widget()&#123;&#125; = <span class="keyword">default</span>; <span class="comment">//参见item17</span></span><br></pre></td></tr></table></figure>
+
+<p>根据Item17，自定义的析构函数会阻止编译器生成移动构造函数和移动赋值函数，因此如果你想要<code>Widget</code>有移动的能力，就要自己实现（注意<strong>不要在这些特殊成员函数的声明后面加<code>= default</code></strong>，这样会重复上面析构函数的问题：会被内联，因此在用户代码中有一份实现，遇到不完整类型）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget();</span><br><span class="line">    ~Widget();</span><br><span class="line">    <span class="comment">//Widget(Widget&amp;&amp; rhs) = default; // right idea, wrong code!</span></span><br><span class="line">    <span class="comment">//Widget&amp; operator=(Widget&amp;&amp; rhs) = default;</span></span><br><span class="line">    Widget(Widget&amp;&amp; rhs) ; </span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(Widget&amp;&amp; rhs) ;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是复制构造函数和复制赋值函数了。我们用<code>std::unique_ptr</code>是为了更好的实现Pimpl方法，这也导致了<code>Widget</code>无法自动生成复制函数（<code>std::unique_ptr</code>不支持），但这并不意味着<code>Widget</code>就不能支持复制了，我们还可以自己定义两个复制函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// widget.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget(<span class="keyword">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs);</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// widget.cpp</span></span><br><span class="line">Widget::Widget(<span class="keyword">const</span> Widget&amp; rhs)</span><br><span class="line">    : pImpl(<span class="literal">nullptr</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (rhs.pImpl) &#123;</span><br><span class="line">        pImpl = <span class="built_in">std</span>::make_unique&lt;Impl&gt;(*rhs.pImpl);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!rhs.pImpl) &#123;</span><br><span class="line">        pImpl.reset();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!pImpl) &#123;</span><br><span class="line">        pImpl = <span class="built_in">std</span>::make_unique&lt;Impl&gt;(*rhs.pImpl);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        *pImpl = *rhs.pImpl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果你把<code>pImpl</code>的类型改为<code>std::shared_ptr</code>，你会发现上面所有这些注意事项，都不见了。你不需要手动实现析构函数、移动函数、构造函数，程序编译仍然是好的。所以这么多东西仅仅针对<code>unique_ptr</code>。<strong>这种差异来自于<code>std::unique_ptr</code>和<code>std::shared_ptr</code>对自定义销毁器的支持方式不同</strong>。</p>
+<p>对<code>std::unique_ptr</code>而言，<strong>销毁器的类型是<code>unique_ptr</code>的一部分</strong>，这让编译器有可能生成<strong>更小的运行时数据结构和更快的运行代码</strong>。 这种更高效率的后果之一就是<code>unique_ptr</code>指向的类型，在编译器的生成<strong>特殊成员函数被调用时(如析构函数，移动操作)时，必须已经是一个完成类型</strong>。 而对<code>std::shared_ptr</code>而言，销毁器的类型不是该智能指针的一部分，这让它会生成更大的运行时数据结构和稍微慢点的代码，但是当编译器生成的特殊成员函数被使用的时候，指向的对象不必是一个完成类型。</p>
+<p>对于<code>pImpl</code>惯用法而言，在<code>std::unique_ptr</code>和<code>std::shared_ptr</code>的特性之间，没有一个比较好的折中。 因为<strong>对于类<code>Widget</code>以及<code>Widget::Impl</code>而言，他们是独享占有权关系</strong>，这让<code>std::unique_ptr</code>使用起来很合适。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" data-id="ck4o2tur5000bu4vyctx1cl1t" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B06-%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E4%B8%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          EffectiveModernCPP笔记6-右值引用与移动语义
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">EffectiveModernCPP笔记3-现代CPP特性下</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

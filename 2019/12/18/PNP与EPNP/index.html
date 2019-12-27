@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>PNP与EPNP | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. PNP算法对极几何和单应矩阵都是解决2D-2D的问题，现在假设我们知道n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿。 PnP（Perspective-n-Point）是求解 3D 到 2D 点对运动的方法。它描述了当我们知道 n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿。，如果两张图像中，其中一张特征点的 3D 位置已知，那么最少只需三个点对（需要至少">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PNP与EPNP">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;PNP%E4%B8%8EEPNP&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. PNP算法对极几何和单应矩阵都是解决2D-2D的问题，现在假设我们知道n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿。 PnP（Perspective-n-Point）是求解 3D 到 2D 点对运动的方法。它描述了当我们知道 n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿。，如果两张图像中，其中一张特征点的 3D 位置已知，那么最少只需三个点对（需要至少">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190807130816.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190815162750.png">
+<meta property="article:published_time" content="2019-12-18T13:47:08.000Z">
+<meta property="article:modified_time" content="2019-12-18T14:06:15.530Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190807130816.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-PNP与EPNP" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/PNP%E4%B8%8EEPNP/" class="article-date">
+  <time datetime="2019-12-18T13:47:08.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      PNP与EPNP
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-PNP算法"><a href="#1-PNP算法" class="headerlink" title="1. PNP算法"></a>1. PNP算法</h1><p>对极几何和单应矩阵都是解决2D-2D的问题，现在假设我们知道<strong>n 个 3D 空间点以及它们的投影位置时</strong>，如何估计相机所在的位姿。</p>
+<p>PnP（Perspective-n-Point）是求解 3D 到 2D 点对运动的方法。它描述了当我们知道 <strong>n 个 3D 空间点以及它们的投影位置时</strong>，如何估计相机所在的位姿。，如果两张图像中，其中一张特征点的 3D 位置已知，那么最少只需三个点对（需要至少一个额外点验证结果）就可以估计相机运动。</p>
+<p>特征点的 3D 位置可以由 RGB-D 相机的深度图确定。因此，在双目或 RGB-D 的视觉里程计中， 我们可以直接使用 PnP 估计相机运动。</p>
+<p>PnP估计方法有很多种，下面介绍P3P方法。</p>
+<p>P3P还需要使用一对验证点，以从可能的解出选出正确的那一 个（类似于对极几何情形）。记验证点对为 D−d。</p>
+<p>我们知道的是 A,B,C 在<strong>世界坐标系中的坐标</strong>，而不是在<strong>相机坐标系中的坐标</strong>。一旦 3D 点在相机坐标系 下的坐标能够算出，我们就得到了 3D-3D 的对应点，把 PnP 问题转换为了 ICP 问题。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807130816.png" alt="img"><br>$$<br>OA^2 + OB^2 - 2OA \cdot OB \cdot \cos(a,b) = AB^2 \ OB^2 + OC^2 - 2OB \cdot OC \cdot \cos(b,c) = BC^2 \ OA^2 + OC^2 - 2OA \cdot OC \cdot \cos(a,c) = AC^2<br>$$<br>记$x=\dfrac{OA}{OC}，y=\dfrac{OB}{OC}$，因为ABC在<strong>相机坐标系</strong>的位置未知，所以$x,y$也未知。另外记$u=\dfrac{BC^2}{AB^2},w=\dfrac{AC^2}{AB^2}$，由于ABC的<strong>世界坐标</strong>是已知的，所以$u,w$可以求出。通过转化可以得到：<br>$$<br>(1-u)y^2-ux^2-\cos(b,c)y+2uxy \cos(a,b) +1 = 0 \ (1-w)x^2-wy^2-\cos(a,c)x+2wxy \cos(a,b) +1 = 0<br>$$<br>由于我们知道了2D点在图像的位置，三个余弦角是已知的。该方程组是关于$x,y$的一个<strong>二元二次方程</strong>，最多可能得到四个解，因此在三个点之外还需要<strong>一组匹配点进行验证</strong>。</p>
+<h1 id="2-EPNP算法"><a href="#2-EPNP算法" class="headerlink" title="2. EPNP算法"></a>2. EPNP算法</h1><p>PnP是利用已知匹配点对以及相机内参来求解相机位姿的算法，而EPnP则是针对$n≥3$情况下相机位姿求解的$O(n)$时间的算法。它描述了当我们<strong>知道 n 个 3D 空间点以及它们的投影位置时，如何估计相机所在的位姿</strong>。</p>
+<h2 id="2-1-基本原理"><a href="#2-1-基本原理" class="headerlink" title="2.1 基本原理"></a>2.1 基本原理</h2><p>上图表示场景中的平面π在两相机的成像，设平面π在第一个相机坐标系下的单位法向量为$N$，其到第一个相机中心（坐标原点）的距离为d，则平面π可以表示为：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815162750.png" alt="img"></p>
+<p>其中，世界坐标系中的点$p_i^w$可以表示为：<br>$$<br>p_i^w=\sum_{j=1}^{4} \alpha <em>{ij} c_j^w , \ \ \ \ with \sum</em>{j=1}^{4}\alpha <em>{ij}=1<br>$$<br>对于相机坐标系中的点$ p_i^c$,有：<br>$$<br>p_i^c=\sum</em>{j=1}^{4} \alpha <em>{ij} c_j^c , \ \ \ with \sum</em>{j=1}^{4}\alpha _{ij}=1<br>$$<br>对于上面的公式来说，首先需要说明的是$ \alpha _{ij}$确实存在，因为$c_j^w$构成的方程组是非正定的，所以一定存在解。理论上来说，控制点可以随便选择，这里选择<strong>控制点为参考点的中心</strong>，其他的点在<strong>主方向的单位长度处</strong>，从而提高算法的稳定性。</p>
+<h2 id="2-2-控制点在相机坐标系下的坐标"><a href="#2-2-控制点在相机坐标系下的坐标" class="headerlink" title="2.2 控制点在相机坐标系下的坐标"></a>2.2 控制点在相机坐标系下的坐标</h2><p>首先需要求解4个控制点在世界坐标系下的坐标，按照上述说法，就是找到点云的重心和点云的三个主方向，可以参考<strong>主成分分析PCA</strong>。</p>
+<p>根据投影方程得到世界坐标系中参考点坐标和相机坐标系中参考点的约束关系：<br>$$<br>\forall i, w_i\left[\matrix{u_i \cr v_i \cr 1 \cr}\right]=A p_i^c=A\sum_{j=1}^{4}\alpha <em>{ij}c_j^c<br>$$<br>写成矩阵的形式为：<br>$$<br>\forall i, w_i\left[\matrix{u_i \cr v_i \cr 1 \cr}\right]=\left[\matrix{f_u &amp; 0 &amp; u_c \cr 0 &amp; f_v &amp; v_c \cr 0 &amp; 0 &amp; 1 \cr}\right] \sum</em>{j=1}^{4} \alpha <em>{ij} \left[\matrix{x_j^c \cr y_j^c \cr z_j^c \cr}\right]<br>$$<br>将等式拆解，从第三行得到：<br>$$<br>w_i=\sum _{j=1}^{4} \alpha</em>{ij} z_j^c<br>$$<br>将$w_i$代入一二行，可以得到如下等式：<br>$$<br>\matrix{<br>\sum_{j=1}^{4} \alpha <em>{ij} f_u x_j^c + \alpha _{ij} (u_c-u_i)z_j^c =0 \cr<br>\sum</em>{j=1}^{4} \alpha <em>{ij} f_v y_j^c + \alpha _{ij} (v_c-v_i)z_j^c =0 \cr<br>}<br>$$<br>因此，可以得到如下线性方程组：<br>$$<br>MX=0<br>$$<br>上面的方程中，四个控制点总共12个未知变量，$M$为$2n \times 12 $的矩阵。因此，x为<strong>矩阵M的右奇异向量</strong>，可以通过SVD得到。<br>$$<br>x=\sum</em>{i=1}^{N} \beta _i v_i<br>$$<br>$\beta$是分解得到的奇异值，个数为1-4个。</p>
+<p>说明：使用$M^TM$比使用M计算量更小，因为$M^TM$的求解是常数复杂度，而$M$求逆是$O(n^3)$的复杂度，但是计算$M^TM$的复杂度是$O(n)$的。</p>
+<h2 id="2-3-计算R和t"><a href="#2-3-计算R和t" class="headerlink" title="2.3 计算R和t"></a>2.3 计算R和t</h2><p>通过前面的就算可以求出控制点在相机坐标系下的位置，下面就需要<strong>恢复出参考点在相机坐标系中的坐标</strong>。剩下的工作就是<strong>已知一组点云在两个坐标系中的坐标，求两个坐标系的位姿变换</strong>。</p>
+<p>首先计算质心坐标：<br>$$<br>p_c^c={\sum p_c^i \over N}\<br>\ p_w^c={\sum p_w^i \over N}<br>$$<br>然后计算去质心坐标：<br>$$<br>q_c^i=p_c^i-p_c^c\<br>q_w^i=p_w^i-p_w^c<br>$$<br>之后计算矩阵：<br>$$<br>H=\sum_{i=1}^{N}q_c^i q_w^{iT}<br>$$<br>最后进行SVD分解计算$R$和$T$：<br>$$<br>H=U \Sigma V^T\<br>\<br>R=VU^T\<br>t=P_c^c -R P_w^c<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/PNP%E4%B8%8EEPNP/" data-id="ck4o2turt000yu4vy3vvpbd7w" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ORB_SLAM2源码解析-Tracking追踪
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">单应矩阵与对极几何</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

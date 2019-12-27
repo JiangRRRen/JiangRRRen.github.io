@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>EffectiveModernCPP笔记8-并发API | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="写在前面：什么是同步函数与异步函数？  同步函数：当一个函数是同步执行时，那么当该函数被调用时不会立即返回，直到该函数所要做的事情全都做完了才返回。 异步函数：如果一个异步函数被调用时，该函数会立即返回尽管该函数规定的操作任务还没有完成。  具体来说，当一个线程调用同步函数时（例如读文件），如果函数没有完成操作，则此线程会被挂起，直到该函数完成了规定的操作，这个线程才会被重新调度。 相反，当一个线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记8-并发API">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;26&#x2F;EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="写在前面：什么是同步函数与异步函数？  同步函数：当一个函数是同步执行时，那么当该函数被调用时不会立即返回，直到该函数所要做的事情全都做完了才返回。 异步函数：如果一个异步函数被调用时，该函数会立即返回尽管该函数规定的操作任务还没有完成。  具体来说，当一个线程调用同步函数时（例如读文件），如果函数没有完成操作，则此线程会被挂起，直到该函数完成了规定的操作，这个线程才会被重新调度。 相反，当一个线">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-12-26T13:47:47.000Z">
+<meta property="article:modified_time" content="2019-12-26T14:24:21.602Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-EffectiveModernCPP笔记8-并发API" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API/" class="article-date">
+  <time datetime="2019-12-26T13:47:47.000Z" itemprop="datePublished">2019-12-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      EffectiveModernCPP笔记8-并发API
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="写在前面："><a href="#写在前面：" class="headerlink" title="写在前面："></a>写在前面：</h1><p><strong>什么是同步函数与异步函数？</strong></p>
+<ul>
+<li>同步函数：当一个函数是同步执行时，那么当该函数被调用时不会立即返回，直到该函数所要做的事情全都做完了才返回。</li>
+<li>异步函数：如果一个异步函数被调用时，该函数会立即返回尽管该函数规定的操作任务还没有完成。</li>
+</ul>
+<p>具体来说，当一个线程调用同步函数时（例如读文件），如果函数没有完成操作，则此<strong>线程会被挂起</strong>，直到该函数完成了规定的操作，这个线程才会被重新调度。</p>
+<p>相反，当一个线程调用异步函数时，该<strong>函数会立即返回</strong>，即使当前的任务并没有完成，这样线程就会<strong>执行此异步函数之后的下一条语句</strong>。<strong>异步函数没做完的工作会通过另一个线程完成</strong>（可能是异步函数中新创建的，也可能是系统中已经准备好的）</p>
+<p><strong>异步函数执行完毕后，如何通知线程？</strong></p>
+<p>调用线程需要使用<strong>等待函数</strong>来确定异步函数何时完成了任务。因此在线程调用异步函数之后立即调用一个“等待函数”挂起调用线程，一直等到异步函数执行完其所有的操作之后，再执行线程中的下一条指令。</p>
+<p><strong>异步调用与多线程的关系？</strong></p>
+<p>操作系统把 CPU 处理时间划分成许多短暂时间片，在时间 T1 执行一个线程的指令，到时间 T2 又执行下一线程的指令，<strong>各线程轮流执行</strong>，结果好象是所有线程在并肩前进。这样，编程时可以创建多个线程，在同一期间执行，各线程可以“并行”完成不同的任务。</p>
+<p>有了多线程的支持，可以采用异步调用，调用方和被调方可以属于两个不同的线程，<strong>调用方启动被调方线程后，不等对方返回结果就继续执行后续代码</strong>。被调方执行完毕后，通过某种手段通知调用方：结果已经出来，请酌情处理。</p>
+<h1 id="Item-35-Prefer-task-based-programming-to-thread-based"><a href="#Item-35-Prefer-task-based-programming-to-thread-based" class="headerlink" title="Item 35:Prefer task-based programming to thread based."></a>Item 35:Prefer task-based programming to thread based.</h1><p>通常来说要执行异步函数有两种选择：</p>
+<ul>
+<li><p>创建一个thread</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">doAsyncWork</span><span class="params">()</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(doAsyncWork)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建一个task</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(doAsyncWork); <span class="comment">// "fut" for "future"</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>task通常要比thread好，原因如下：</p>
+<ol>
+<li>基于task的代码往往更少。</li>
+<li>基于task更容易得到函数的返回值：调用future的get方法。</li>
+<li>future的get方法还能拿到函数抛出的异常，而thread中如果函数抛了异常，进程就挂掉了。</li>
+<li>易于实现调度均衡</li>
+</ol>
+<p>通常来说，task好处的前三点比较好理解，第四点怎么理解呢？</p>
+<p>首先我们要搞清楚它们之间更本质的差别在于，基于task的方法有着更高的抽象层次，而无需关心底层的线程管理。下面是C++中”线程”的三种不同层次的概念：</p>
+<ul>
+<li>硬件线程：真正的运算线程，目前每个CPU核可以提供一个或多个线程。比如，因特尔i7-8550U就是4核8线程架构。</li>
+<li>软件线程（OS线程）：OS提供的线程，OS会负责管理和调度这些线程。通常OS线程可以远多于硬件线程。</li>
+<li><code>std::thread</code>：C++标准库提供的线程类，底层对应一个OS线程。这些情况下<code>std::thread</code>没有对应的OS线程：刚刚构造好时；已经调用过<code>join</code>；已经调用过<code>detach</code>。</li>
+</ul>
+<p><strong>创建过多的OS线程会导致系统过载，大量资源消耗在线程调度和切换上</strong>。避免系统过载是一件困难的事情，我们很难知道OS线程和硬件线程之间的合适比例。如果我们基于task来开发，<strong>把这些问题丢给task，丢给C++标准库</strong>，这样就能更好解决问题。</p>
+<p>当然，<code>std::async</code>没办法解决GUI线程的问题，因为调度器不知道你的哪个线程对响应时间的要求最低。此时你可以<strong>指定<code>std::launch::async</code>来确保你的函数运行在另一个线程中</strong>。</p>
+<h1 id="Item-36-Specify-std-launch-async-if-asynchronicity-is-essential"><a href="#Item-36-Specify-std-launch-async-if-asynchronicity-is-essential" class="headerlink" title="Item 36:Specify std::launch::async if asynchronicity is essential."></a>Item 36:Specify std::launch::async if asynchronicity is essential.</h1><p><code>std::async</code>有三种模式：</p>
+<ul>
+<li><code>std::launch::async</code>：<code>f</code>必须异步执行，比如在另一个线程。写为<code>std::async(std::launch::async,f)</code></li>
+<li><code>std::launch::deferred</code>：<code>f</code>只在对应的future的<code>get</code>或<code>wait</code>被调用时才执行，且是同步执行。如果没有人调用对应的<code>get</code>或<code>wait</code>。</li>
+<li><code>std::launch::async|std::launch::defered</code>: 也可以写为<code>std::async(f)</code>。这是默认策略，有调度器自动决定是异步还是同步。</li>
+</ul>
+<p>默认策略的问题在于：</p>
+<ul>
+<li>无法预测<code>f</code>是否与当前线程并发执行，因为调度器有可能选择<code>std::launch::deferred</code>。</li>
+<li>无法预测<code>f</code>是否在调用<code>get</code>或<code>wait</code>的另一个线程执行。</li>
+<li>可能无法预测<code>f</code>是否会执行。</li>
+</ul>
+<p>下面的代码可能会出现问题：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>::literals;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::this_thread::sleep_for(<span class="number">1</span>s);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(f);</span><br><span class="line"><span class="keyword">while</span> (fut.wait_for(<span class="number">100</span>ms) != <span class="built_in">std</span>::future_status::ready) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果f在另一个线程运行，则没有问题。如果f是<code>deferred</code>状态，则<code>fut.wait_for</code>就会一直返回<code>std::future_status::deferred</code>，导致循环永不结束。因为我们无法掌握调度器的状况，导致它有可能把它定为<code>lauch</code>或者<code>deferred</code>。</p>
+<p>为了解决这个问题，最好检查future是不是deferred，如果是，就不进循环。但我们没办法直接询问future是不是deferred，需要用<code>wait_for</code>来绕一下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(f);</span><br><span class="line"><span class="keyword">if</span> (fut.wait_for(<span class="number">0</span>s) == <span class="built_in">std</span>::future_status::deferred) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (fut.wait_for(<span class="number">100</span>ms) != <span class="built_in">std</span>::future_status::ready) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述场景的要点在于，当满足以下条件时，使用<code>std::async</code>的默认策略才是好的：</p>
+<ul>
+<li>task不需要与调用<code>get</code>或<code>wait</code>的线程并发执行。</li>
+<li>无所谓访问哪个局部线程变量（TLS）。</li>
+<li>要么能确保有人会调用future的<code>get</code>或<code>wait</code>，要么<code>f</code>执不执行都可以。</li>
+<li>调用了<code>wait_for</code>或<code>wait_until</code>的代码要保证能处理deferred。</li>
+</ul>
+<p>如果没办法保证以上几点，你需要确保你的task运行在另一个线程中，就指定<code>std::launch::async</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> fut = <span class="built_in">std</span>::async(<span class="built_in">std</span>::launch::async, f);</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-37-Make-std-threads-unjoin-able-on-all-paths"><a href="#Item-37-Make-std-threads-unjoin-able-on-all-paths" class="headerlink" title="Item 37:Make std::threads unjoin able on all paths"></a>Item 37:Make std::threads unjoin able on all paths</h1><p>每个<code>std::thread</code>对象都处于两种状态下：可join、不可join。可join的<code>std::thread</code>对应一个可运行或运行中的底层线程，例如被阻塞、未调度或已运行完成的线程都是可join的。我们可以通过线程的成员函数<code>joinable()</code>来判断。这些情况下都是不可以join的：</p>
+<ul>
+<li>默认构造状态的<code>std::thread</code>：不对应底层线程。</li>
+<li>被移动过的<code>std::thread</code>：底层线程现在由其它<code>std::thread</code>管理。</li>
+<li>已调用过<code>join</code>的<code>std::thread</code>：底层线程已结束。</li>
+<li>已调用过<code>detach</code>的<code>std::thread</code>：<code>detach</code>会切断<code>std::thread</code>和底层线程的联系。</li>
+</ul>
+<p>下面给一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> tenMillion = <span class="number">10'000'000</span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">doWork</span><span class="params">(<span class="built_in">std</span>::function&lt;<span class="keyword">bool</span>(<span class="keyword">int</span>)&gt; filter, <span class="keyword">int</span> maxVal = tenMillion)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; goodVals;</span><br><span class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">([&amp;filter, maxVal, &amp;goodVals] &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt;= maxVal; ++i) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">if</span> (filter(i)) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">                goodVals.push_back(i);</span></span></span><br><span class="line"><span class="function"><span class="params">            &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">        &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">    &#125;)</span></span>;</span><br><span class="line">    <span class="keyword">auto</span> nh = t.native_handle();              <span class="comment">// use t's native handle to set t's priority</span></span><br><span class="line">    ...</span><br><span class="line">        <span class="keyword">if</span> (conditionsAreSatisfied()) &#123;</span><br><span class="line">            t.join();</span><br><span class="line">            performComputation(goodVals);         <span class="comment">// computation was performed</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;                             <span class="comment">// computation was not performed</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码我们用一个过滤器过滤一下容器，然后送入<code>performComputation</code>计算，由于我们<strong>需要取得线程的底层句柄来设置优先级</strong>，因此我们用thread而不是async。</p>
+<p>上面这段代码，如果最后走到了<code>false</code>分支，或中间抛了异常，就会遇到构造了一个可join的<code>std::thread</code>的问题，程序就会终止。可以<strong>改进的一点是在开始设置<code>t</code>为暂停状态</strong>。</p>
+<p>我们可以通过包装一个RAII类来实现所有情况下的<code>std::thread</code>都不可join。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadRAII</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">enum</span> <span class="class"><span class="keyword">class</span> <span class="title">DtorAction</span> &#123;</span>join, detach&#125;;</span><br><span class="line"></span><br><span class="line">    ThreadRAII(<span class="built_in">std</span>::thread&amp;&amp; t, DtorAction a)</span><br><span class="line">        : action(a), t(<span class="built_in">std</span>::move(t)) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ~ThreadRAII() &#123;</span><br><span class="line">        <span class="keyword">if</span> (t.joinable()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (action == DtorAction::join) &#123;</span><br><span class="line">                t.join();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                t.detach();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::<span class="function">thread&amp; <span class="title">get</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> t;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DtorAction action;</span><br><span class="line">    <span class="built_in">std</span>::thread t;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意：</p>
+<ul>
+<li>构造函数只接受<code>std::thread</code>的右值，因为<code>std::thread</code>只能移动不能复制。</li>
+<li>在<code>ThreadRAII</code>的析构函数中，在调用<code>t.join()</code>或<code>t.detach()</code>前，需要先调用<code>t.joinable()</code>，因为有可能<code>t</code>已经被移动过了。</li>
+</ul>
+<p>应用<code>ThreadRAII</code>到我们前面的代码中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">doWork</span><span class="params">(<span class="built_in">std</span>::function&lt;<span class="keyword">bool</span>(<span class="keyword">int</span>)&gt; filter, <span class="keyword">int</span> maxVal = tenMillion)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; goodVals;</span><br><span class="line">    <span class="function">ThreadRAII <span class="title">t</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="built_in">std</span>::thread([&amp;filter, maxVal, &amp;goodVals] &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">for</span> (<span class="keyword">auto</span> i = <span class="number">0</span>; i &lt;= maxVals; ++i) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">if</span> (filter(i)) &#123;</span></span></span><br><span class="line"><span class="function"><span class="params">                    goodVals.push_back(i);</span></span></span><br><span class="line"><span class="function"><span class="params">                &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">            &#125;</span></span></span><br><span class="line"><span class="function"><span class="params">        &#125;),</span></span></span><br><span class="line"><span class="function"><span class="params">        ThreadRAII::DtorAction::join</span></span></span><br><span class="line"><span class="function"><span class="params">    )</span></span>;</span><br><span class="line">    <span class="keyword">auto</span> nh = t.get().native_handle();</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (conditionsAreSatisfied()) &#123;</span><br><span class="line">        t.get().join();</span><br><span class="line">        performComputation(goodVals);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API/" data-id="ck4o2turd000hu4vy0mqd3znb" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CPP多线程总结1-线程管理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">EffectiveModernCPP笔记7-Lambda表达式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>详解Epoll-下篇 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. epoll_event结构体分析上篇我们讲到了epoll_wait函数的功能。 1int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);  这个函数只能获取是否有注册事件发生，至于说事件的细节，我们并不清楚。好比一个人在山洞中，只能听到声响，至于这个声响从何发出并不清楚。而这些关键信息">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解Epoll-下篇">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;15&#x2F;%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. epoll_event结构体分析上篇我们讲到了epoll_wait函数的功能。 1int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);  这个函数只能获取是否有注册事件发生，至于说事件的细节，我们并不清楚。好比一个人在山洞中，只能听到声响，至于这个声响从何发出并不清楚。而这些关键信息">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-07-15T12:16:51.000Z">
+<meta property="article:modified_time" content="2019-12-16T14:02:16.647Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-详解Epoll-下篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" class="article-date">
+  <time datetime="2019-07-15T12:16:51.000Z" itemprop="datePublished">2019-07-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      详解Epoll-下篇
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-epoll-event结构体分析"><a href="#1-epoll-event结构体分析" class="headerlink" title="1. epoll_event结构体分析"></a>1. epoll_event结构体分析</h1><p>上篇我们讲到了<code>epoll_wait</code>函数的功能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event *events, <span class="keyword">int</span> maxevents, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数只能获取<strong>是否有注册事件发生</strong>，至于说事件的细节，我们并不清楚。好比一个人在山洞中，只能听到声响，至于这个声响从何发出并不清楚。而这些<strong>关键信息就存储在<code>epoll_event</code>结构中</strong>。</p>
+<p>结构体如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line"><span class="keyword">void</span> *ptr;</span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line"><span class="keyword">__uint32_t</span> u32;</span><br><span class="line"><span class="keyword">__uint64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line"><span class="keyword">__uint32_t</span> events; <span class="comment">/* Epoll events */</span></span><br><span class="line"><span class="keyword">epoll_data_t</span> data; <span class="comment">/* User data variable */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>它分为<code>events</code>和<code>data</code>两个部分</p>
+<ul>
+<li><code>events</code>是epoll注册的事件，比如<code>EPOLLIN</code>、<code>EPOLLOUT</code>等等，这个参数在<code>epoll_ctl</code>注册事件时，可以明确告知注册事件的类型。</li>
+<li><code>data</code>是一个联合体，用于传递参数。</li>
+</ul>
+<h1 id="2-epoll-event使用实例"><a href="#2-epoll-event使用实例" class="headerlink" title="2.  epoll_event使用实例"></a>2.  epoll_event使用实例</h1><h2 id="2-1-实例1：服务器侦听客户端连接"><a href="#2-1-实例1：服务器侦听客户端连接" class="headerlink" title="2.1 实例1：服务器侦听客户端连接"></a>2.1 实例1：服务器侦听客户端连接</h2><p>这个例子很棒的展示了<code>epoll_data</code>中的<code>int fd</code>该怎么用。先看下面一段代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建socket</span></span><br><span class="line">nSocketListen = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br><span class="line">...</span><br><span class="line"><span class="comment">//绑定地址</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">local</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;local, <span class="number">0</span>, <span class="keyword">sizeof</span>(local));</span><br><span class="line">local.sin_family = AF_INET;</span><br><span class="line">local.sin_addr.s_addr = htonl(INADDR_ANY);<span class="comment">//0.0.0.0所有地址都合法</span></span><br><span class="line">local.sin_port = htons(TCP_PORT);</span><br><span class="line">bind(nSocketListen, (struct sockaddr*) &amp; local, <span class="keyword">sizeof</span>(local))</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建epoll</span></span><br><span class="line">nListenEpoll = epoll_create(MAX_LISTEN_EVENTS);</span><br><span class="line"><span class="comment">//注册事件</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">Ev</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;Ev, <span class="number">0</span>, <span class="keyword">sizeof</span>(epoll_event));</span><br><span class="line">Ev.events= EPOLLIN | EPOLLET </span><br><span class="line">Ev.data.fd = nSocketListen;</span><br><span class="line"></span><br><span class="line">epoll_ctl(nListenEpoll, EPOLL_CTL_ADD, nSocketListen, &amp;Ev);</span><br><span class="line"><span class="comment">//侦听</span></span><br><span class="line"><span class="keyword">int</span> nFdNumber = epoll_wait(nListenEpoll, lpListenEvents, MAX_LISTEN_EVENTS, <span class="number">-1</span>);</span><br><span class="line"><span class="comment">//处理侦听结果</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nFdNumber; i++)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (lpListenEvents[i].data.fd != nSocketListen) <span class="keyword">continue</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码在网上很常见，作用是建立一个服务器，侦听所有客户端的连接。具体过程是先建立了一个socket，地址设为设为0.0.0.0（所有人都可以连接），然后将这个socket的句柄<code>nSocketListen</code>附加在注册事件<code>Ev.data.fd</code>上。<strong>在wait等到结果后做一个判断，看看接收到和预设的是否一致</strong>。上篇的demo也用到了类似的思路。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (lpListenEvents[i].data.fd != nSocketListen) </span><br><span class="line">    <span class="keyword">continue</span>;</span><br></pre></td></tr></table></figure>
+
+<p>虽然这段代码用到了fd，但他<strong>并没有体现出fd的作用！</strong>整个程序仅仅设置并注册了一个socket来连接所有IP地址<code>htonl(INADDR_ANY);</code>，<strong>wait收到的消息必然来自于这个唯一的socket，所以这句判断根本是多此一举</strong>。</p>
+<p>正确的用法是：创建多个socket来管理不同的字段，比如：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Socket句柄</th>
+<th align="center">管理的IP范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">101</td>
+<td align="center">100-120</td>
+</tr>
+<tr>
+<td align="center">102</td>
+<td align="center">121-191</td>
+</tr>
+<tr>
+<td align="center">103</td>
+<td align="center">192-255</td>
+</tr>
+</tbody></table>
+<p>将这三个socket都注册进epoll里面，当wait到来时，我们就可以根据<code>Ev.data.fd</code>传进来的socket句柄来进行处理。</p>
+<p>比如上午8点到10点这个时间段，服务器只允许100-120范围的IP连接进来，就可以做一个判断<code>if (lpListenEvents[i].data.fd == 101)</code>,如果是再接受连接。</p>
+<p>这个例子中，fd传递了socket的句柄，帮助我们管理不同的网络连接。</p>
+<h2 id="2-2-实例2：进程间通信"><a href="#2-2-实例2：进程间通信" class="headerlink" title="2.2 实例2：进程间通信"></a>2.2 实例2：进程间通信</h2><p>epoll常常用于线程间的协同工作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//线程A代码</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">Ev</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;Ev, <span class="number">0</span>, <span class="keyword">sizeof</span>(Ev));</span><br><span class="line">Ev.events= EPOLLOUT | EPOLLET | EPOLLERR | EPOLLHUP</span><br><span class="line">Ev.data.ptr = lpCatList;</span><br><span class="line"></span><br><span class="line">epoll_ctl(iClientEpoll, EPOLL_CTL_ADD, lpCatList-&gt;nClientSocket, &amp;Ev);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//线程B代码</span></span><br><span class="line"><span class="keyword">int</span> nFdNumber = epoll_wait(iClientEpoll, lpEvent, MAX_CLIENT_EVENTS, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">IOPACKHEAD_LIST* RelpCatList = (IOPACKHEAD_LIST*)lpEvent[i].data.ptr;</span><br></pre></td></tr></table></figure>
+
+<p>线程AB都是服务器上的线程。</p>
+<p>线程A功能相当于接线员，跟前面展示的服务器功能相同：监听客户的连接，accept客户的请求，建立客户与服务器间的socket连接通道（此处的建立的socket句柄为<code>nClientSocket</code>）。然后将这些客户连接注册到<code>iClientEpoll</code>中</p>
+<p>这些通道建立后，客户一般不会时刻收发数据，也就是说客户可能<strong>不定时</strong>的使用为他们建立的socket连接通道，线程B的<code>iClientEpoll</code>就是用来监听有没有<strong>已经建立连接的客户</strong>需要收发数据的。</p>
+<p>如果像上一个例子一样，只用<code>Ev.data.fd</code>传一个客户socket的句柄，这样线程B能得到的信息太少了。所以我们需要使用结构体<code>lpCatList</code>来传参。</p>
+<p><code>lpCatList</code>相当于一个令牌，他是一个指针，指向的地址存储了客户的信息（Socket句柄，IP地址，MAC地址，请求时间等等），A线程在接收客户连接后，将他们写到这个令牌中，一并注册到<code>iClientEpoll</code>。B线程就可以利用<code>Ev.data.ptr</code>包含的重要的地址信息。</p>
+<p>这样ptr就相当于一个小纸条，A线程通过<code>iClientEpoll</code>将这个小纸条交到B线程手中，B线程就能了解A线程的信息，实现了线程间的通信。</p>
+<p>下面我们打印一下线程A的<code>lpCatlist</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p lpCatList</span><br><span class="line"><span class="meta">$</span><span class="bash">18 = (IOPACKHEAD_LIST *) 0x7ffff0001120</span></span><br></pre></td></tr></table></figure>
+
+<p>再打印一下线程B的ptr，可以发现他们指向同一个地址<code>0x7ffff0001120</code>，说明参数成功传递</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p lpEvent[0]</span><br><span class="line"><span class="meta">$</span><span class="bash">14 = &#123;events = 4, data = &#123;ptr = 0x7ffff0001120, fd = -268431072, u32 = 4026536224, </span></span><br><span class="line">    u64 = 140737219924256&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-id="ck4o2tus8001gu4vydinu3tjb" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SLAM基础1-综述
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GDB使用方法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ORB特征检测 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 基本概念特征点指图像中选取比较有代表性的点，这些点在相机视角发生少量变化后会保持不变，所以我们会在各个图像中找到相同的点。 特征点由关键点（Key-point）和描述子（Descriptor）两部分组成。关键点是指该特征点在图像里的位置，有些特征点还具有朝向、大小等信息。描述子通常是一个 向量，描述了该关键点周围像素的信息。描述子是按照“外观相似的特征应该有相似的描述子”的原则设计的。 OR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB特征检测">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;17&#x2F;ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 基本概念特征点指图像中选取比较有代表性的点，这些点在相机视角发生少量变化后会保持不变，所以我们会在各个图像中找到相同的点。 特征点由关键点（Key-point）和描述子（Descriptor）两部分组成。关键点是指该特征点在图像里的位置，有些特征点还具有朝向、大小等信息。描述子通常是一个 向量，描述了该关键点周围像素的信息。描述子是按照“外观相似的特征应该有相似的描述子”的原则设计的。 OR">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190807100315.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191217163524.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190819101113.png">
+<meta property="article:published_time" content="2019-12-17T16:15:05.000Z">
+<meta property="article:modified_time" content="2019-12-17T16:42:23.881Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190807100315.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ORB特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-17T16:15:05.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ORB特征检测
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1. 基本概念"></a>1. 基本概念</h1><p>特征点指图像中选取比较有代表性的点，这些点在相机<strong>视角发生少量变化后会保持不变</strong>，所以我们会在各个图像中找到相同的点。</p>
+<p>特征点由<strong>关键点</strong>（Key-point）和<strong>描述子</strong>（Descriptor）两部分组成。关键点是指该特征点在图像里的<strong>位置</strong>，有些特征点还具有朝向、大小等信息。描述子通常是一个 向量，描述了该关键点周围像素的信息。描述子是按照“<strong>外观相似的特征应该有相似的描述子</strong>”的原则设计的。</p>
+<p><strong>ORB （Oriented FAST and Rotated BRIEF）</strong>改进了 FAST 检测子不具有方向性的问题，并采用速度极快的二进制描述子 BRIEF，使整个图像特征提取的环节大大加速。借助尺度空间理论构建图像高斯金字塔，然后在每一层金字塔图像上检测角点，以实现尺度不变性。</p>
+<p>ORB 特征亦由关键点和描述子两部分组成。它的<strong>关键点称为”Oriented FAST”</strong>，是 一种改进的 FAST 角点，它的<strong>描述子称为 BRIEF （Binary Robust Independent Elementary Features）</strong>。因此，提取 ORB 特征分为两个步骤：</p>
+<ol>
+<li><strong>FAST 角点提取</strong>：找出图像中的”角点”。相较于原版的 FAST, ORB 中计算了特征点的主方向，为后续的 BRIEF 描述子增加了旋转不变特性。</li>
+<li><strong>BRIEF 描述子</strong>：对前一步提取出特征点的周围图像区域进行描述。</li>
+</ol>
+<h1 id="2-Fast关键点"><a href="#2-Fast关键点" class="headerlink" title="2. Fast关键点"></a>2. Fast关键点</h1><p>FAST 是一种角点，主要检测局部像素灰度变化明显的地方，以速度快著称。它的思想是：<strong>如果一个像素与它邻域的像素差别较大（过亮或过暗）, 那它更可能是角点</strong>。算法步骤如下：</p>
+<ol>
+<li>在图像中选取像素 $p$，假设它的亮度为 $I_p$。</li>
+<li>设置一个阈值 $T$(比如 Ip 的 20%)</li>
+<li>以像素 $p$ 为中心, 选取半径为 3 的圆上的 16 个像素点。</li>
+<li>假如选取的圆上，<strong>有连续的 $N$ 个点的亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，那么像素 p 可以被认为是特征点 ($N$ 通常取 12，即为 FAST-12。其它常用的 $N$ 取值为9和11， 他们分别被称为 FAST-9，FAST-11)。</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807100315.png" alt="img"></p>
+<p>在 FAST-12 算法中，为了更高效，可以添加一项预测试操作，以快速地排除绝大多数不是角点的像素。直接检测邻域圆上的第 1，5，9，13 个像素的亮度。只有<strong>当这四个像素中有三个同时亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，当前像素才有 可能是一个角点，否则应该直接排除。</p>
+<p>FAST算子本身是不具有方向性的，因此我们需要引入距分析来完成oriented：</p>
+<p>图像的距为：<br>$$<br>m_{p q}=\sum_{x, y \in B} x^{p} y^{q} I(x, y), \quad p, q={0,1}<br>$$<br>质心为：<br>$$<br>C=\left(\frac{m_{10}}{m_{00}}, \frac{m_{01}}{m_{00}}\right)<br>$$<br>连接图像的几何中心O和质心C可以得到方向向量$\vec{OC}$，方向就可以被定义为：<br>$$<br>\theta=\arctan{(m_{01}/m_{10})}<br>$$</p>
+<h1 id="3-BRIEF描述子"><a href="#3-BRIEF描述子" class="headerlink" title="3. BRIEF描述子"></a>3. BRIEF描述子</h1><p>BRIEF 是一种<strong>二进制描述子</strong>，它的描述向量由许多个 0 和 1 组成，这里的 0 和 1 编码了关键点附近两个像素（比如说 p 和 q）的大小关系：如果 p 比 q 大，则取 1，反之就取 0。如果我们取了 128 个这样的 pq，最后就得到 128 维由 0，1 组成的向量。</p>
+<p>pq的选点在BRIEF中采取了随机选点的比较，速度很快。</p>
+<p>算法步骤如下：</p>
+<ol>
+<li>以特征点P为中心，取一个S×S大小的Patch邻域；</li>
+<li>在这个邻域内随机取N对点(x,y)，比较N对像素点的灰度值的大小,如果x的灰度大于y，则写为1，反之为0</li>
+<li>重复步骤2得到N个（一般为256）二进制代码串</li>
+</ol>
+<p>随机点的选择一般采用高斯分布的形式，匹配时采用汉明距离(两代码串同位不同的个数,比如010和101汉明距离为3)</p>
+<p>原始的 BRIEF 描述子<strong>不具有旋转不变性</strong>，因此在图像发生旋转时容易丢失。原因是其采用了方形领域，当旋转时会造成覆盖的区域发生变化：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217163524.png" style="zoom: 50%;" />
+
+<p>而 ORB 在 FAST 特征点提取阶段计算了关键点的方向，所以可以利用方向信息，计算了旋转之后的”Steer BRIEF”特征，使 ORB 的描述子具有较好的旋转不变性。</p>
+<h1 id="4-尺度不变性"><a href="#4-尺度不变性" class="headerlink" title="4. 尺度不变性"></a>4. 尺度不变性</h1><p>前面介绍了利用距分析获取特征方向从而实现<strong>旋转不变性</strong>，同样的我们也需要实现<strong>尺度不变性</strong>，我们在描述一个特征之前，将两张图像都变换同一个尺度上，然后再在这个统一标准上来描述这个特征。</p>
+<p>为了实现尺度不变性，需要给特征加上尺度因子。在进行特征描述的时候，将尺度统一即可。一般采用<strong>高斯金字塔模型</strong>。</p>
+<p>与普通的金子塔不同，我们进行分组构建：</p>
+<ol>
+<li>先将原图像扩大一倍之后作为高斯金字塔的第1组第1层，将第1组第1层图像经高斯滤波之后作为第1组金字塔的第2层。</li>
+<li>将第一次滤波的方差$\sigma$乘以比例系数得到$\sigma_2=k\sigma_1$,用它来平滑第1组第2层图像，结果图像作为第3层。</li>
+<li>如此这般重复，最后得到L层图像，在同一组中，每一层图像的尺寸都是一样的，只是平滑系数不一样。它们对应的平滑系数分别为：$0，σ，kσ，k^2σ,k^3σ……k^(L-2)σ$</li>
+<li>将第1组<strong>倒数第三层</strong>图像作比例因子为2的降采样(缩小一倍)，得到的图像作为第2组的第1层，重复步骤2</li>
+</ol>
+<p>这样反复执行，就可以得到一共O组，每组L层，共计O*L个图像，这些图像一起就构成了高斯金字塔，结构如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819101113.png" alt="img">在高斯金字塔中一共生成O组L层不同尺度的图像，这两个量合起来（O，L）就构成了高斯金字塔的尺度空间，也就是说以高斯金字塔的组O作为二维坐标系的一个坐标，不同层L作为另一个坐标，则给定的一组坐标（O,L）就可以唯一确定高斯金字塔中的一幅图像。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-id="ck4o2turs000xu4vyb7cn2c8l" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/17/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Harris特征检测
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/17/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">高斯金字塔与拉普拉斯金字塔</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

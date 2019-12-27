@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>EffectiveModernCPP笔记7-Lambda表达式 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。 首先先澄清一些术语：  lambda表达式就是一个表达式，如下面代码花括号部分 12std::find_if(container.begin(), container.end(),              &amp;#123; return 0 &lt; val &amp;&amp; val &lt; 10">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记7-Lambda表达式">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;26&#x2F;EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。 首先先澄清一些术语：  lambda表达式就是一个表达式，如下面代码花括号部分 12std::find_if(container.begin(), container.end(),              &amp;#123; return 0 &lt; val &amp;&amp; val &lt; 10">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-12-26T13:27:58.000Z">
+<meta property="article:modified_time" content="2019-12-26T13:47:18.678Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-EffectiveModernCPP笔记7-Lambda表达式" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="article-date">
+  <time datetime="2019-12-26T13:27:58.000Z" itemprop="datePublished">2019-12-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      EffectiveModernCPP笔记7-Lambda表达式
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。</p>
+<p>首先先澄清一些术语：</p>
+<ul>
+<li><p>lambda表达式就是一个表达式，如下面代码花括号部分</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::find_if(container.begin(), container.end(), </span><br><span class="line">             &#123; <span class="keyword">return</span> <span class="number">0</span> &lt; val &amp;&amp; val &lt; <span class="number">10</span>; &#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>closure闭包是通过lambda表达式创建的对象，闭包持有被捕获的拷贝和引用。<strong>lambda通常用于一次使用的场景。但closure通常是可复制的</strong>，因此一个lambda表达式可能会对应着多个closure。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> c1 = [x](<span class="keyword">int</span> y) &#123; <span class="keyword">return</span> x * y &gt; <span class="number">55</span>; &#125;;</span><br><span class="line"><span class="keyword">auto</span> c2 = c1;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>closure class闭包类是一个闭包的实现。编译器会为每个lambda表达式生成一个唯一的closure class，lambda表达式中的代码会成为这个类的成员函数的可执行代码。</p>
+</li>
+</ul>
+<h1 id="Item-31-Avoid-default-capture-modes"><a href="#Item-31-Avoid-default-capture-modes" class="headerlink" title="Item 31:Avoid default capture modes."></a>Item 31:Avoid default capture modes.</h1><p>先介绍一些基础知识。Lambda表达式的完整声明格式如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[capture <span class="built_in">list</span>] (params <span class="built_in">list</span>) <span class="keyword">mutable</span> exception-&gt; <span class="keyword">return</span> type &#123; function body &#125;</span><br></pre></td></tr></table></figure>
+
+<p>各项含义如下：</p>
+<ul>
+<li>capture list：捕获外部变量列表</li>
+<li>params list：形参列表</li>
+<li>mutable指示符：用来说用是否可以修改捕获的变量</li>
+<li>exception：异常设定</li>
+<li>return type：返回类型</li>
+<li>function body：函数体</li>
+</ul>
+<p>明确几个捕获类型：</p>
+<ul>
+<li><p>值捕获</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">auto</span> f = [a] &#123; <span class="built_in">cout</span> &lt;&lt; a &lt;&lt; <span class="built_in">endl</span>; &#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>引用捕获</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">auto</span> f = [&amp;a] &#123; <span class="built_in">cout</span> &lt;&lt; a &lt;&lt; <span class="built_in">endl</span>; &#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>隐式捕获</p>
+<p>隐式捕获有两种方式，分别是[=]和[&amp;]。[=]表示以值捕获的方式捕获外部变量，[&amp;]表示以引用捕获的方式捕获外部变量。可以让编译器根据函数体中的代码来推断需要捕获哪些变量。</p>
+</li>
+</ul>
+<p><strong>那么为什么要避免使用隐式捕获呢？</strong></p>
+<p>如果一个<strong>由lambda创建的闭包的生命期超过了局部变量或者形参的生命期，那么闭包的引用将会空悬。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addDivisorFilter</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> calc1 = computeSomeValue1();</span><br><span class="line">    <span class="keyword">auto</span> calc2 = computeSomeValue2();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> divisor = computeDivisor(calc1, calc2);</span><br><span class="line"></span><br><span class="line">    filters.emplace_back(</span><br><span class="line">      [&amp;](<span class="keyword">int</span> value) &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;   <span class="comment">// 危险！对divisor的引用会空悬</span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这代码有个定时炸弹。lambda引用了局部变量<code>divisor</code>， 但是局部变量的生命期在<code>addDivisorFilter</code>返回时终止，也就是在<code>filters.emplace_back</code>返回之后。<strong>由于<code>filters</code>容器不属于这个局部，</strong>我们采用的是引用的形式，当本体作为局部变量被销毁后，就会变为未定义行为。</p>
+<p>即使我们加上显示引用捕获<code>divisor</code>，会存在着同样的问题：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">filters.emplace(</span><br><span class="line">  [&amp;divisor](<span class="keyword">int</span> value)          <span class="comment">// 危险！对divisor的引用依然会空悬</span></span><br><span class="line">  &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>虽然依然存在问题，但我们可以从中看到lambda的活性依赖于<code>divisor</code>的生命期，显示地写出能够提醒我们要确保<code>divisor</code>的生命期至少和lambda闭包一样长。即使是我们知道一个closure只在<strong>当前作用域范围内使用</strong>（不同于上面的<code>filters</code>），不会传播出去，使用隐式捕获依然可能出现一些问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">workWithContainer</span><span class="params">(<span class="keyword">const</span> C&amp; container)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> calc1 = computeSomeValue1();</span><br><span class="line">    <span class="keyword">auto</span> calc2 = computeSomeValue2();</span><br><span class="line">    <span class="keyword">auto</span> divisor = computeDivisor(calc1, calc2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> ContElemT = <span class="keyword">typename</span> C::value_type;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::begin;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::end;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">std</span>::all_of(</span><br><span class="line">        begin(container), end(container),</span><br><span class="line">        [&amp;](<span class="keyword">const</span> ContElemT&amp; value) &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;)) &#123;</span><br><span class="line">        ...</span><br><span class="line">    ) <span class="keyword">else</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//c++14 auto can be used in params type</span></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">std</span>::all_of(</span><br><span class="line">    begin(container), end(container),</span><br><span class="line">    [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span>&amp; value) &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;))</span><br></pre></td></tr></table></figure>
+
+<p>这段代码本身没什么问题，但你没办法保证不会有人把这段代码拷贝到其它地方，没注意这里有个默认的引用捕获，结果出现孤悬引用。</p>
+<p>为了解决这个问题，人们提出了几种可能的解决方案：</p>
+<p><strong>（1）默认的值捕获</strong> 可行，但不能捕获指针</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">filters.emplace_back([=](<span class="keyword">int</span> value) </span><br><span class="line">                     &#123; <span class="keyword">return</span> value % divisor == <span class="number">0</span>; &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）拷贝一份成员变量，再捕获</strong> 可行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addFilter</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> divisor;</span><br><span class="line"><span class="keyword">void</span> Widget::addFilter() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">auto</span> divisorCopy = divisor;</span><br><span class="line">    filters.emplace_back([divisorCopy] (<span class="keyword">int</span> value) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> value % divisorCopy == <span class="number">0</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）初始化捕获</strong>作用于14</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Widget::addFilter() <span class="keyword">const</span> &#123;</span><br><span class="line">    filters.emplace_back(</span><br><span class="line">        [divisor = divisor] (<span class="keyword">int</span> value) &#123;</span><br><span class="line">            <span class="keyword">return</span> value % divisor == <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-32-Use-init-capture-to-move-objects-into-closures"><a href="#Item-32-Use-init-capture-to-move-objects-into-closures" class="headerlink" title="Item 32:Use init capture to move objects into closures."></a>Item 32:Use init capture to move objects into closures.</h1><p>有时候我们想把一个对象移动到closure中，比如一个只能移动的对象（<code>std::unique_ptr</code>或<code>std::future</code>），或是移动的代价远小于复制的对象（比如大多数的STL容器），这个时候默认的引用捕获和值捕获都无法做到。C++14提供了一种方式，叫“<strong>初始化捕获</strong>”，能满足这一需求。C++11无法直接实现，但后面会介绍一种间接实现的方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span>;</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">auto</span> pw = <span class="built_in">std</span>::make_unique&lt;Widget&gt;();</span><br><span class="line">...                                     <span class="comment">// confiture *pw</span></span><br><span class="line"><span class="keyword">auto</span> func = [pw = <span class="built_in">std</span>::move(pw)] &#123; <span class="keyword">return</span> pw-&gt;isValidated() &amp;&amp; pw-&gt;isArchived(); &#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>pw = std::move(pw)</code>中，<code>=</code>左边的是数据成员的名字，它的<strong>作用域就是这个closure</strong>；右边是它的初始化式，它的<strong>作用域就是closure所在的作用域</strong>。</p>
+<p>举个更简单的例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> testNumber = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">auto</span> divisor = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> pw = make_unique&lt;<span class="keyword">int</span>&gt;(divisor);</span><br><span class="line"><span class="keyword">auto</span> fun = [pw = <span class="built_in">std</span>::move(pw)](<span class="keyword">auto</span>&amp; divided)&#123; <span class="keyword">return</span> divided / *pw; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; fun(testNumber) &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// result is 3</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>C++11实现</strong></p>
+<p>先介绍一下<code>std::bind</code>，上代码。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;functional&gt;  </span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;  </span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>::placeholders;  </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="keyword">auto</span> fun = [](<span class="keyword">int</span> *<span class="built_in">array</span>, <span class="keyword">int</span> n, <span class="keyword">int</span> num)&#123;  </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">array</span>[i] &gt; num)  </span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="built_in">array</span>[i] &lt;&lt; ends;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;  </span><br><span class="line">    &#125;;  </span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">array</span>[] = &#123; <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span> &#125;;  </span><br><span class="line">    <span class="comment">//_1，_2 是占位符  </span></span><br><span class="line">    <span class="keyword">auto</span> fun1 = bind(fun, _1, _2, <span class="number">5</span>);  </span><br><span class="line">    <span class="comment">//等价于调用fun(array, sizeof(array) / sizeof(*array), 5);  </span></span><br><span class="line">    fun1(<span class="built_in">array</span>, <span class="keyword">sizeof</span>(<span class="built_in">array</span>) / <span class="keyword">sizeof</span>(*<span class="built_in">array</span>));  </span><br><span class="line">    <span class="built_in">cin</span>.get();  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>fun1</code>函数由闭包转化而来，bind就是用于这种捆绑转化，它通过占位符汲取了闭包的第一、二个参数，然后将第三个参数置为5。这样就形成了：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">int</span>* <span class="built_in">array</span>,<span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">array</span>[i] &gt; <span class="number">5</span>)  </span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="built_in">array</span>[i] &lt;&lt; ends;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在C++11中我们可以用bind+lambda实现14中的移动捕获</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; data;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">auto</span> func = <span class="built_in">std</span>::bind(</span><br><span class="line">    [](<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;&amp; data) &#123;...&#125;,</span><br><span class="line">    <span class="built_in">std</span>::move(data)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下closure class的<code>operator()</code>会被认为是const，因此我们在lambda中无法修改捕获的对象。这时我们可以给lambda添加上<code>mutable</code>标识符，令它可以修改捕获的对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> func = <span class="built_in">std</span>::bind(</span><br><span class="line">    [](<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;&amp; data) <span class="keyword">mutable</span> &#123;...&#125;,</span><br><span class="line">    <span class="built_in">std</span>::move(data)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-33-Use-decltype-on-auto-amp-amp-parameters-to-std-forward-them"><a href="#Item-33-Use-decltype-on-auto-amp-amp-parameters-to-std-forward-them" class="headerlink" title="Item 33:Use decltype on auto&amp;&amp; parameters to std::forward them."></a>Item 33:Use decltype on auto&amp;&amp; parameters to std::forward them.</h1><p>C++14的一项引入注目的新功能就是泛型lambda，即lambda的参数可以用<code>auto</code>来修饰。</p>
+<p>它的实现很直接：closure class的<code>operator()</code>是个模板函数。给定下面的lambda：···</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> f = [](<span class="keyword">auto</span> x) &#123;<span class="keyword">return</span> normalize(x);&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// closure class</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SomeClosureClass</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="function"><span class="keyword">auto</span> <span class="title">operator</span><span class="params">()</span><span class="params">(T x)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> normalize(x);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>上面的例子中，如果<code>normalize</code>处理左值参数和右值参数的方式上有区别，那么我们写的还不算对，应该用上完美转发。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> f = [](<span class="keyword">auto</span>&amp;&amp; x) </span><br><span class="line">&#123; <span class="keyword">return</span> normalize(<span class="built_in">std</span>::forward&lt;???&gt;(x)); &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>但问题是<code>std::forward</code>的实例化类型是什么。通常的完美转发我们能有一个模板参数<code>T</code>，但在泛型lambda中我们只有<code>auto</code>。closure class的模板函数中有这个<code>T</code>，但我们没办法用上它。<strong>用<code>decltype</code>可以解决这个问题！</strong></p>
+<p>我们在Item3学到过：通过<code>decltype</code>保证返回变量的本来类型这一特性，保证不丢失<code>CV</code>限制符，和引用等。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> f = [](<span class="keyword">auto</span>&amp;&amp; x) &#123;</span><br><span class="line">    <span class="keyword">return</span> normalize(<span class="built_in">std</span>::forward&lt;<span class="keyword">decltype</span>(x)&gt;(x));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>甚至还支持变量个数可变的泛型lambda：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> f = [](<span class="keyword">auto</span>&amp;&amp;... xs) &#123;</span><br><span class="line">    <span class="keyword">return</span> normalize(<span class="built_in">std</span>::forward&lt;<span class="keyword">decltype</span>(xs)&gt;(xs)...);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-id="ck4o2tura000eu4vyd1yz80ki" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          EffectiveModernCPP笔记8-并发API
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B06-%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E4%B8%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">EffectiveModernCPP笔记6-右值引用与移动语义</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>详解BA | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 投影模型与BA优化函数BA(Bundle Adjustment)，又称光束法平差（平差就是抹平误差）。BA的本质是一个优化模型，其目的是最小化重投影误差。 所谓重投影误差就是二次投影与一次投影之间产生的误差。  第一次投影指的就是相机在拍照的时候三维空间点投影到图像上第一次投影在相机平面产生了特征点$p_1$，我们可以计算出$P$的坐标位置。 之后相机进行了运动，通过一些方法我们得到这个运动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解BA">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;%E8%AF%A6%E8%A7%A3BA&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 投影模型与BA优化函数BA(Bundle Adjustment)，又称光束法平差（平差就是抹平误差）。BA的本质是一个优化模型，其目的是最小化重投影误差。 所谓重投影误差就是二次投影与一次投影之间产生的误差。  第一次投影指的就是相机在拍照的时候三维空间点投影到图像上第一次投影在相机平面产生了特征点$p_1$，我们可以计算出$P$的坐标位置。 之后相机进行了运动，通过一些方法我们得到这个运动">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812113856.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812135939.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812140853.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812141438.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812141745.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812142315.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812150126.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190816163324.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190816160449.png">
+<meta property="article:published_time" content="2019-12-18T11:24:35.000Z">
+<meta property="article:modified_time" content="2019-12-20T09:38:16.964Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812113856.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-详解BA" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E8%AF%A6%E8%A7%A3BA/" class="article-date">
+  <time datetime="2019-12-18T11:24:35.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      详解BA
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-投影模型与BA优化函数"><a href="#1-投影模型与BA优化函数" class="headerlink" title="1. 投影模型与BA优化函数"></a>1. 投影模型与BA优化函数</h1><p><strong>BA</strong>(Bundle Adjustment)，又称<strong>光束法平差</strong>（平差就是抹平误差）。<strong>BA的本质是一个优化模型，其目的是最小化重投影误差</strong>。</p>
+<p>所谓重投影误差就是二次投影与一次投影之间产生的误差。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812113856.png" alt="img"></p>
+<p><strong>第一次投影</strong>指的就是相机在拍照的时候三维空间点投影到图像上第一次投影在相机平面产生了特征点$p_1$，我们可以计算出$P$的坐标位置。</p>
+<p>之后相机进行了运动，通过一些方法我们得到这个运动的数值，进而得到了它的位姿。由于我们现在知道<strong>相机的位姿</strong>（计算估计得来）和$P$<strong>的世界坐标</strong>，因此可以计算$P$在第二幅图下的投影，这就是所谓的<strong>第二次投影</strong>。</p>
+<p>此时在相机平面产生了特征点$p_2$，而通过特征匹配我们能够知道特征点$p_2’$的真实位置，两者会产生误差，这就是所谓的<strong>重投影误差</strong>。换句话说，重投影误差是指的<strong>真实三维空间点在图像平面上的投影</strong>（也就是图像上的像素点）和重投影（其实是用我们的<strong>计算值得到的虚拟的像素点</strong>）的差值。</p>
+<p>给定$N$个两张图中完成匹配的点，记作：<br>$$<br>{z_1} = \left{ {z_1^1,z_1^2, \ldots ,z_1^N} \right},{z_2} = \left{ {z_2^1,z_2^2, \ldots ,z_2^N} \right}<br>$$<br>已知相机的内参矩阵为$K$，求解相机的运动$R,t$，注意字符$z$的上标表示第几个点。则：<br>$$<br>z_i^j=[u,v]<em>i^j<br>$$<br>根据投影关系：<br>$$<br>\begin{equation} {\lambda _1}\left[ \begin{array}{l} z_1^j\ 1 \end{array} \right] = K{P^j},\quad {\lambda _2}\left[ \begin{array}{l} z_2^j\ 1 \end{array} \right] = K\left( {R{P^j} + t} \right) \end{equation}<br>$$<br>采用最小二乘法优化：<br>$$<br>\begin{equation} \mathop {\min }\limits</em>{P^j,R,t} {\left| {K{P^j} - {\left[ {z_1^j,1} \right]}^T} \right|^2} + {\left| {K\left( {R{P^j} + t} \right) - {\left[ {z_2^j,1} \right]}^T} \right|^2} \end{equation}<br>$$<br><strong>简化形式</strong>，已知观测方程为$z=h(x,y)$其中$x$表示位姿，$y$表示路标。观测误差就可以表示为：<br>$$<br>e=z-h(\xi,p)<br>$$<br>$z$表示一次投影得到的特征点位置，$h(\xi,p)$表示二次投影的结果，$h$就是投影函数（这里用李代数表示，$p$表示三维点）。如果把所有观测结果考虑进来，给误差添加一个下标：$z_{ij}$表示位姿$\xi_i$处观测路标$p_i$产生的数据，最后就得到了需要优化的函数：<br>$$<br>\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||e_{ij}||^2=\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||z_{ij}-h(\xi_i,p_j)||^2<br>$$</p>
+<h1 id="2-求解BA"><a href="#2-求解BA" class="headerlink" title="2. 求解BA"></a>2. 求解BA</h1><h2 id="2-1-迭代求解"><a href="#2-1-迭代求解" class="headerlink" title="2.1 迭代求解"></a>2.1 迭代求解</h2><p>这不是一个线性函数，所以可以通过第六章的非线性优化的方法来求解。根据非线性优化的思想，我们应该从某个的初始值开始，不断地寻找下降方向 $\Delta x$ 来找到目标函数的最优解，即不断地求解增量方程中的增量$\Delta x$。</p>
+<p>首先需要把所有自变量定义成待优化变量：<br>$$<br>x=[\xi_1,…,\xi_m,p_1,…,p_n]^T<br>$$<br>相应的，增量方程中的$\Delta x$则是对整体自变量的增量。在这个意义下，当我们给自变量一个增量时，目标函数变为：<br>$$<br>\frac{1}{2}|f(\boldsymbol{x}+\Delta \boldsymbol{x})|^{2} \approx \frac{1}{2} \sum_{i=1}^{m} \sum_{i=1}^{n}\left|\boldsymbol{e}<em>{i j}+\boldsymbol{F}</em>{i j} \Delta \boldsymbol{\xi}<em>{i}+\boldsymbol{E}</em>{i j} \Delta \boldsymbol{p}<em>{j}\right|^{2}<br>$$<br>其中$F</em>{ij}$表示整个代价函数在当前状态下对相机姿态的偏导数，$E_{ij}$表示该函数对路标点位置的偏导。把相机的位姿变量和空间点变量放在一起：<br>$$<br>x_c=[\xi_1,\xi_2,…,\xi_m]^T\<br>x_p=[p_1,p_2,…,p_n]^T<br>$$<br>最后待求式子就可以被化简为：<br>$$<br>\frac{1}{2}||f(x+\Delta x)||^2=\frac{1}{2}||e+F\Delta x_c+E\Delta x_p||^2<br>$$<br>通过GN或者LM方法，最后可以得到增量线性方程：<br>$$<br>H\Delta x=g<br>$$<br>由于我们把变量分为了位姿和空间点两种，所以雅克比矩阵还需要被分块：<br>$$<br>J=[F\ E]<br>$$<br>以GN为例，H矩阵表示为：<br>$$<br>H=J^TJ=\begin{bmatrix} F^TF&amp;F^TE\<br>E^TF&amp; E^TE<br>\end{bmatrix}<br>$$<br>因为考虑了所有的优化变量，这 个线性方程的维度将非常大，包含了所有的相机位姿和路标点。如果直接对 H 求逆来计算增量方程，由于<strong>矩阵求逆是复杂度为 O(n3) 的操作</strong> ，这是非常消耗计算资源的。 幸运地是，这里的 H 矩阵是有一定的特殊结构的。利用这个特殊结构，我们可以加速求解过程。</p>
+<h2 id="2-3-稀疏性与边缘化"><a href="#2-3-稀疏性与边缘化" class="headerlink" title="2.3 稀疏性与边缘化"></a>2.3 稀疏性与边缘化</h2><p>先举个例子，如下图相机$C_1$能够观测到路标$P_{1,2,3,4}$而相机$C_2$能观测到路标$P_{3,4,5,6}$</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812135939.png" alt="img"></p>
+<p>该场景下的BA优化函数为:<br>$$<br>\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{n}||e_{ij}||^2=\frac{1}{2}(||e_{11}||^2+||e_{12}||^2\+||e_{13}||^2+||e_{14}||^2+||e_{23}||^2+||e_{24}||^2\+||e_{25}||^2+||e_{26}||^2)<br>$$<br>此时$x=[\xi_1,\xi_2,p_1,…,p_6]^T$可知：<br>$$<br>J_{11}=\frac{\partial e_{11}}{\partial x}=(\frac{\partial e_{11}}{\xi_1},\frac{\partial e_{11}}{\xi_2},\frac{\partial e_{11}}{p_1},\frac{\partial e_{11}}{p_2},\frac{\partial e_{11}}{p_3},\frac{\partial e_{11}}{p_4},\frac{\partial e_{11}}{p_5},\frac{\partial e_{11}}{p_6})<br>$$<br>由于这里描述的是$C_1$观测到$P_1$所以<strong>只有两项不为0</strong>：<br>$$<br>J_{11}=\frac{\partial e_{11}}{\partial x}=(\frac{\partial e_{11}}{\xi_1},0_{2\times6},\frac{\partial e_{11}}{p_1},0_{2\times3},0_{2\times3},0_{2\times3},0_{2\times3},0_{2\times3})<br>$$<br>用图案表示如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812140853.png" alt="img"></p>
+<p>$H$矩阵和$C,P$关系图之间，除了对角线元素以外，有明显的关联性：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812141438.png" alt="img" style="zoom: 80%;" />
+
+<p>现在考虑更<strong>一般</strong>的情况，假如我们有 m 个相机位姿，n 个路标点。由于通常路标数量远远会比相机多，于是有 n ≫ m。由上面推理可知，实际当中的 H 矩阵会像下图所示的那样。它的左上角块显得非常小，而右下角的对角块占据了大量地方。除此之外，非对角部分则分布着散乱的观测数据。这就是<strong>镐形矩阵</strong>（箭头矩阵）。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812141745.png" alt="img" style="zoom:50%;" />
+
+<p>因此线性方程$H\Delta x=g$又可以表示为如下形式：<br>$$<br>\begin{bmatrix} B&amp;E\<br>E^T&amp; C<br>\end{bmatrix}<br>\begin{bmatrix} \Delta x_c\<br>\Delta x_p<br>\end{bmatrix}=<br>\begin{bmatrix} v\<br>w<br>\end{bmatrix}<br>$$<br><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812142315.png" alt="img"></p>
+<p>对于这个方程直接代入消元，先求$\Delta x_c$然后求$\Delta x_p$，得到的结果为：<br>$$<br>[B-EC^{-1}E^T]\Delta x_c=v-EC^{-1}w\<br>\Delta x_p=C^{-1}(w-E^T\Delta x_c)<br>$$<br>由于$C$是一个对角块矩阵，对角矩阵的逆矩阵非常好求（对角线上的元素不能为0）：<br>$$<br>\left[\begin{array}{ccccc}{a_{1}} &amp; {} &amp; {} &amp; {} &amp; {} \ {} &amp; {a_{2}} &amp; {} &amp; {} &amp; {} \ {} &amp; {} &amp; {\ddots} &amp; {} &amp; {} \ {} &amp; {} &amp; {} &amp; {a_{n}}\end{array}\right]^{-1}=\left[\begin{array}{ccccc}{a_{1}^{-1}} &amp; {} &amp; {} &amp; {} &amp; {} \ {} &amp; {a_{2}^{-1}} &amp; {} &amp; {} &amp; {} \ {} &amp; {} &amp; {a_{2}^{-1}} &amp; {} &amp; {} \ {} &amp; {} &amp; {} &amp; {\ddots} &amp; {} \ {} &amp; {} &amp; {} &amp; {a_{n}}\end{array}\right]<br>$$<br>因此边缘化的<strong>主要计算量在于求解</strong>$\Delta x_c$ 。从概率角度来看，我们称这一步为<strong>边缘化</strong>，是因为我们实际上把求 $(\Delta x_c,\Delta x_p)$的问题，转化成先求$\Delta x_c$，再求 $\Delta x_p$的过程。这一步相当于做了条件概率展开：<br>$$<br>P(x_c,x_p)=P(x_c)·P(x_p|x_c)<br>$$<br>结果是求<strong>出了关于$x_c$ 的边缘分布</strong>，故称边缘化。在上边讲的边缘化过程中，我们实际把所有的路标点都给边缘化了。</p>
+<h2 id="2-3-鲁棒核函数"><a href="#2-3-鲁棒核函数" class="headerlink" title="2.3 鲁棒核函数"></a>2.3 鲁棒核函数</h2><p>在前面的 BA 问题中，我们最小化误差项的二范数平方和，作为目标函数。<strong>当出现误匹配时，误差$e$就会很大</strong>，如果我们再使用平方，这个误差就会更大，算法将试图调整这条边所连接的节点的估计值，使它们顺应这条边的无理要求。由于这个边的误差真的很大，往往会抹平了其他正确边的影响，使优化算法专注于调整一个错误的值。</p>
+<p>出现这种问题的原因是，<strong>当误差很大时，二范数增长得太快了</strong>。于是就有了核函数的存在。<strong>核函数保证每条边的误差不会太大</strong>以至于掩盖掉其他的边。这种核函数称之为<strong>鲁棒核函数</strong>。</p>
+<p>最常用的鲁棒核函数有Huber核：<br>$$<br>H(e)=\begin{equation}<br>\left{<br>             \begin{array}{lr}<br>\frac{1}{2}e^2\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \text{if}\ |e|&lt;\delta ,\<br>\delta(|e|-\frac{1}{2}\delta) \ \ \ \  \text{otherwise}</p>
+<pre><code>\end{array}</code></pre><p>\right.<br>\end{equation}<br>$$<br>当误差 $e$ 大于某个阈值 $δ$ 后，<strong>函数增长由二次形式变成了一次形式</strong>，相当于限制了梯度的最大值。同时，Huber 核函数又是<strong>光滑</strong>的，可以很方便地求导。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812150126.png" alt="img" style="zoom: 80%;" />
+
+<h1 id="3-图优化"><a href="#3-图优化" class="headerlink" title="3. 图优化"></a>3. 图优化</h1><h2 id="3-1-BA中图的构建思路"><a href="#3-1-BA中图的构建思路" class="headerlink" title="3.1 BA中图的构建思路"></a>3.1 BA中图的构建思路</h2><p>在图优化中，<strong>顶点是待优化的量，边是误差</strong>。</p>
+<p>考虑重投影误差公式：</p>
+<p>$$<br>\begin{equation} \mathop {\min }\limits_{P^j,R,t} {\left| {K{P^j} - {\left[ {z_1^j,1} \right]}^T} \right|^2} + {\left| {K\left( {R{P^j} + t} \right) - {\left[ {z_2^j,1} \right]}^T} \right|^2} \end{equation}<br>$$<br>这里有两种思路：</p>
+<ol>
+<li>假设得到的所有世界坐标是真实可靠地，换言之，第一项<strong>没有重投影误差</strong>。那么第一个式子默认为0，我们只需要调整第二项中的$R，t$让整个函数达到极小值(局部最优解)。</li>
+<li>假设得到的世界坐标有误差，那么我们就需要将两个式子结合起来共同优化，优化的对象就变为了：$N$个特征点的世界坐标+变换矩阵，一共有$3N+12$个参数</li>
+</ol>
+<p>如果我们考虑第二种情况（<strong>既优化位姿又优化路标点</strong>），那么图就变成：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816163324.png" alt="img"></p>
+<h2 id="3-2-使用g2o优化"><a href="#3-2-使用g2o优化" class="headerlink" title="3.2 使用g2o优化"></a>3.2 使用g2o优化</h2><p>现在我们明确了<strong>顶点是位姿+路标点，边是重投影误差</strong>，如果使用g2o进行优化，我们需要完成：</p>
+<ul>
+<li>设置顶点和边</li>
+<li>构建优化图</li>
+<li>增添顶点和边</li>
+<li>执行优化</li>
+</ul>
+<p>然而在g2o里面专门为我们提供了位姿、路标、重投影误差模型，所以不需要自己设置顶点和边。</p>
+<h3 id="（1）构建图优化"><a href="#（1）构建图优化" class="headerlink" title="（1）构建图优化"></a>（1）构建图优化</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//矩阵块：位姿6个维度，路标3个维度</span></span><br><span class="line"><span class="keyword">typedef</span> g2o::BlockSolver&lt;g2o::BlockSolverTraits&lt;<span class="number">6</span>, <span class="number">3</span>&gt;&gt; Block;</span><br><span class="line"><span class="comment">// Step1 选择一个线性方程求解器</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Block::LinearSolverType&gt; linearSolver(<span class="keyword">new</span> g2o::LinearSolverCholmod&lt;Block::PoseMatrixType&gt;());</span><br><span class="line"><span class="comment">// Step2 选择一个稀疏矩阵块求解器</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Block&gt; solver_ptr(<span class="keyword">new</span> Block(<span class="built_in">std</span>::move(linearSolver)));</span><br><span class="line"><span class="comment">// Step3 选择一个梯度下降方法，从GN、LM、DogLeg中选</span></span><br><span class="line">g2o::OptimizationAlgorithmLevenberg *solver = <span class="keyword">new</span> g2o::OptimizationAlgorithmLevenberg(<span class="built_in">std</span>::move(solver_ptr));</span><br><span class="line"></span><br><span class="line">g2o::SparseOptimizer optimizer;</span><br><span class="line">optimizer.setAlgorithm(solver);</span><br><span class="line">optimizer.setVerbose(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）加顶点和边"><a href="#（2）加顶点和边" class="headerlink" title="（2）加顶点和边"></a>（2）加顶点和边</h3><p>这里采用了g2o提供的模板创建<code>VertexSE3Expmap</code>顶点和<code>VertexSBAPointXYZ</code>边</p>
+<p>特征点采用了归一化的方式，相机模型得到的$XYZ$值设为特征点初值。第一个位姿设为单位pose，第二个位姿设为和第一个一样，并<strong>固定第一个位姿</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">    g2o::VertexSE3Expmap *v = <span class="keyword">new</span> g2o::VertexSE3Expmap();</span><br><span class="line">    v-&gt;setId(i);</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">        v-&gt;setFixed(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    v-&gt;setEstimate(g2o::SE3Quat());</span><br><span class="line">    optimizer.addVertex(v);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加特征点作为节点</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.size(); i++) &#123;</span><br><span class="line">    g2o::VertexSBAPointXYZ *v = <span class="keyword">new</span> g2o::VertexSBAPointXYZ();</span><br><span class="line">    v-&gt;setId(<span class="number">2</span> + i);</span><br><span class="line">    <span class="comment">//深度未知，设为1，利用相机模型，相当于是在求归一化相机坐标</span></span><br><span class="line">    <span class="keyword">double</span> z = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">double</span> x = (pts1[i].x - cx) * z / fx;</span><br><span class="line">    <span class="keyword">double</span> y = (pts1[i].y - cy) * z / fy;</span><br><span class="line">    v-&gt;setMarginalized(<span class="literal">true</span>);</span><br><span class="line">    v-&gt;setEstimate(Eigen::Vector3d(x, y, z));</span><br><span class="line">    optimizer.addVertex(v);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//////////////////////////////////////</span></span><br><span class="line"><span class="comment">//添加第一帧中的边</span></span><br><span class="line"><span class="built_in">vector</span>&lt;g2o::EdgeProjectXYZ2UV *&gt; edges;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.size(); i++) &#123;</span><br><span class="line">    g2o::EdgeProjectXYZ2UV *edge = <span class="keyword">new</span> g2o::EdgeProjectXYZ2UV();</span><br><span class="line"></span><br><span class="line">    edge-&gt;setVertex(<span class="number">0</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>)));</span><br><span class="line">    edge-&gt;setVertex(<span class="number">1</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">0</span>)));</span><br><span class="line"></span><br><span class="line">    edge-&gt;setMeasurement(Eigen::Vector2d(pts1[i].x, pts1[i].y));</span><br><span class="line">    edge-&gt;setInformation(Eigen::Matrix2d::Identity());</span><br><span class="line">    edge-&gt;setParameterId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    edge-&gt;setRobustKernel(<span class="keyword">new</span> g2o::RobustKernelHuber());</span><br><span class="line"></span><br><span class="line">    optimizer.addEdge(edge);</span><br><span class="line">    edges.push_back(edge);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加第二帧中的边</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts2.size(); i++) &#123;</span><br><span class="line">    g2o::EdgeProjectXYZ2UV *edge = <span class="keyword">new</span> g2o::EdgeProjectXYZ2UV();</span><br><span class="line"></span><br><span class="line">    edge-&gt;setVertex(<span class="number">0</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>)));</span><br><span class="line">    edge-&gt;setVertex(<span class="number">1</span>, <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">1</span>)));</span><br><span class="line"></span><br><span class="line">    edge-&gt;setMeasurement(Eigen::Vector2d(pts2[i].x, pts2[i].y));</span><br><span class="line">    edge-&gt;setInformation(Eigen::Matrix2d::Identity());</span><br><span class="line">    edge-&gt;setParameterId(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    edge-&gt;setRobustKernel(<span class="keyword">new</span> g2o::RobustKernelHuber());</span><br><span class="line">    optimizer.addEdge(edge);</span><br><span class="line">    edges.push_back(edge);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（3）执行优化"><a href="#（3）执行优化" class="headerlink" title="（3）执行优化"></a>（3）执行优化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"开始优化"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">chrono::steady_clock::time_point t1 = chrono::steady_clock::now();<span class="comment">//计时</span></span><br><span class="line">optimizer.initializeOptimization();</span><br><span class="line">optimizer.optimize(<span class="number">10</span>);</span><br><span class="line">chrono::steady_clock::time_point t2 = chrono::steady_clock::now();<span class="comment">//结束计时</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"优化完毕"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">chrono::duration&lt;<span class="keyword">double</span>&gt; time_used = chrono::duration_cast&lt;chrono::duration&lt;<span class="keyword">double</span>&gt;&gt;(t2 - t1);</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"solve time cost = "</span> &lt;&lt; time_used.count() &lt;&lt; <span class="string">" seconds. "</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出变换矩阵T</span></span><br><span class="line">g2o::VertexSE3Expmap *v = <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSE3Expmap *&gt;(optimizer.vertex(<span class="number">1</span>));</span><br><span class="line">Eigen::Isometry3d pose = v-&gt;estimate();</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"Pose="</span> &lt;&lt; <span class="built_in">endl</span> &lt;&lt; pose.matrix() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//优化后所有特征点的位置</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; pts1.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">    g2o::VertexSBAPointXYZ *v = <span class="keyword">dynamic_cast</span>&lt;g2o::VertexSBAPointXYZ *&gt;(optimizer.vertex(i + <span class="number">2</span>));</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"vertex id:"</span> &lt;&lt; i + <span class="number">2</span> &lt;&lt; <span class="string">",pos="</span>;</span><br><span class="line">    Eigen::Vector3d pos = v-&gt;estimate();</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; pos(<span class="number">0</span>) &lt;&lt; <span class="string">","</span> &lt;&lt; pos(<span class="number">1</span>) &lt;&lt; <span class="string">","</span> &lt;&lt; pos(<span class="number">2</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（4）结果分析"><a href="#（4）结果分析" class="headerlink" title="（4）结果分析"></a>（4）结果分析</h3><p>对于这两张图而言，可以看到相机只做了Y方向的运动，并没有发生旋转。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816160449.png" alt="img"></p>
+<p><strong>通过EPNP计算</strong>的结果如下，可以看出$R$非常接近单位矩阵（说明没有发生旋转），Y方向位移明显，其他方向位移不明显，我们将EPNP计算的结果试做标准结果，然后比对BA得到的结果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Epnp R:</span><br><span class="line">[0.9999996742857543, 0.0006346775733399234, -0.0004986108331204287;</span><br><span class="line"> -0.0006349112234142204, 0.9999996886585097, -0.0004685836340065393;</span><br><span class="line"> 0.0004983132783585473, 0.0004689000549962402, 0.9999997659082801]</span><br><span class="line">t:</span><br><span class="line">[-0.02433141053497313;</span><br><span class="line"> -0.9995135415375248;</span><br><span class="line"> -0.01951058032180258]</span><br></pre></td></tr></table></figure>
+
+<p><strong>通过BA计算</strong>的结果如下，位移量整体变小了约1/3，这是由于我们选取的坐标系不同导致。值得注意的是，未优化路标得到的位移量和上面的标准位移量不成很好的比例，而优化路标后的位移量与上面的比例大约为3.15，符合的很好。由此，我们认为<strong>优化路标是有必要的</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">未优化路标</span></span><br><span class="line">Pose=</span><br><span class="line">    0.999996  -0.00290451  0.000505124    -0.011841</span><br><span class="line">  0.00290592     0.999992  -0.00281963    -0.313892</span><br><span class="line">-0.000496931   0.00282108     0.999996  -0.00914159</span><br><span class="line">           0            0            0            1</span><br><span class="line"><span class="meta">#</span><span class="bash">优化路标</span></span><br><span class="line">Pose=</span><br><span class="line">           1  0.000308113 -0.000653462  -0.00758165</span><br><span class="line">-0.000308225            1 -0.000171787    -0.317904</span><br><span class="line"> 0.000653409  0.000171988            1   -0.0061968</span><br><span class="line">           0            0            0            1</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E8%AF%A6%E8%A7%A3BA/" data-id="ck4o2tus7001eu4vy7xexgoi6" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          单应矩阵与对极几何
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">自适应直方图均衡化</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

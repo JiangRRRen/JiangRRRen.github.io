@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>CPP泛型编程4-可变参数模板 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 可变参数模板示例在C++11以后，模板可以接收任意数量的参数，因此被称作可变参数的模板(variadic templates). 下面展示一段非常精妙的代码： 1234567891011121314void print () &amp;#123;&amp;#125; &#x2F;&#x2F; 没有参数时将调用此函数template&lt;typename T, typename... Types&gt;void print (">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP泛型编程4-可变参数模板">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;27&#x2F;CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 可变参数模板示例在C++11以后，模板可以接收任意数量的参数，因此被称作可变参数的模板(variadic templates). 下面展示一段非常精妙的代码： 1234567891011121314void print () &amp;#123;&amp;#125; &#x2F;&#x2F; 没有参数时将调用此函数template&lt;typename T, typename... Types&gt;void print (">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191123145523.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191123151624.png">
+<meta property="article:published_time" content="2019-12-27T09:58:06.000Z">
+<meta property="article:modified_time" content="2019-12-27T11:18:25.235Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191123145523.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-CPP泛型编程4-可变参数模板" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/" class="article-date">
+  <time datetime="2019-12-27T09:58:06.000Z" itemprop="datePublished">2019-12-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP泛型编程4-可变参数模板
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-可变参数模板示例"><a href="#1-可变参数模板示例" class="headerlink" title="1. 可变参数模板示例"></a>1. 可变参数模板示例</h1><p>在C++11以后，模板可以接收任意数量的参数，因此被称作可变参数的模板(variadic templates).</p>
+<p>下面展示一段非常精妙的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">()</span> </span>&#123;&#125; <span class="comment">// 没有参数时将调用此函数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Types&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">(T firstArg, Types... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; firstArg &lt;&lt; <span class="string">' '</span>;  <span class="comment">// 打印第一个实参</span></span><br><span class="line">    print(args...); <span class="comment">// 调用print()打印其余实参</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">s</span><span class="params">(<span class="string">"world"</span>)</span></span>;</span><br><span class="line">    print(<span class="number">3.14</span>, <span class="string">"hello"</span>, s); <span class="comment">// 3.14 hello world</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码采用了递归的办法进行打印，每次递归都会减少参数个数。需要注意</p>
+<ul>
+<li><code>Types... args</code>必须在三点后面打空格，有点类似于CV符，引用的那种感觉。</li>
+<li><code>args...</code>可以被视为一个打包的参数</li>
+<li>每次进入print函数，都会将<code>args...</code>分为一个单一的<code>firstArg</code>和一个新的打包参数<code>args...</code></li>
+<li>必须要准备一个空函数以<strong>防止没有参数时将调用此函数</strong></li>
+</ul>
+<hr>
+<p>上例也可以如下实现，<strong>如果两个函数模板只有尾置参数包不同，会优先匹配没有尾置参数包的版本</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">(T x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="string">' '</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Types&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">(T firstArg, Types... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    print(firstArg);</span><br><span class="line">    print(args...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-sizeof…"><a href="#3-sizeof…" class="headerlink" title="3. sizeof…"></a>3. sizeof…</h1><p>在C++11中，引入了一个新的<code>sizeof...</code>运算符来应对可变参数，它的形式非常有趣：这是一个<strong>由标点符号和字符共同组建的一个运算符</strong>，它的作用就是<strong>算出可变参数的数量</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Types&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">(T firstArg, Types... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="keyword">sizeof</span>...(args) &lt;&lt; <span class="string">'\n'</span>; <span class="comment">// print number of remaining args</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可能会想到利用这个特性来处理前面的例子中比较麻烦的递归结尾，但这样会报错：<strong>实例化后的代码是否能发挥作用是在运行时决定，而实例化的调用是否合法是编译时决定</strong>。听起来有点绕，简单来说就是模板编译时，会<strong>无视if里面的判断条件</strong>，实例化print，直到出现print( )里面为空的情况。然后就是报错。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191123145523.png" alt="img" style="zoom:80%;" />
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Types&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span> <span class="params">(T firstArg, Types... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; firstArg &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">sizeof</span>...(args) &gt; <span class="number">0</span>) &#123; <span class="comment">// sizeof...(args)==0时会出错</span></span><br><span class="line">        print(args...); <span class="comment">// 因为print(args...)仍将被初始化，而此时没有实参</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-折叠表达式"><a href="#4-折叠表达式" class="headerlink" title="4. 折叠表达式"></a>4. 折叠表达式</h1><p>C++17新引入的语法糖，非常有用，值得学习！</p>
+<p>折叠表达式的作用就是：<strong>使用二元运算符计算剩余参数包里面的参数</strong>。举个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... T&gt;</span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">foldSum</span> <span class="params">(T... s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (... + s);   <span class="comment">// ((s1 + s2) + s3) ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意一下如果参数包为空，则表达式会被判定为非法。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191123151624.png" alt="img" style="zoom:67%;" />
+
+<p>折叠表达式的运算规则如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foldSum(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>); <span class="comment">// 假如实参是12345</span></span><br><span class="line">(... + s)：((((<span class="number">1</span> + <span class="number">2</span>) + <span class="number">3</span>) + <span class="number">4</span>) + <span class="number">5</span>)</span><br><span class="line">(s + ...)：(<span class="number">1</span> + (<span class="number">2</span> + (<span class="number">3</span> + (<span class="number">4</span> + <span class="number">5</span>))))</span><br><span class="line">(<span class="number">0</span> + ... + s)：(((((<span class="number">0</span> + <span class="number">1</span>) + <span class="number">2</span>) + <span class="number">3</span>) + <span class="number">4</span>) + <span class="number">5</span>)</span><br><span class="line">(s + ... + <span class="number">0</span>)：(<span class="number">1</span> + (<span class="number">2</span> + (<span class="number">3</span> + (<span class="number">4</span> + (<span class="number">5</span> + <span class="number">0</span>)))))</span><br></pre></td></tr></table></figure>
+
+<p>除了上面的求和，求累积外，还有其他用法。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    Node* left;</span><br><span class="line">    Node* right;</span><br><span class="line">    Node(<span class="keyword">int</span> i = <span class="number">0</span>) : val(i), left(<span class="literal">nullptr</span>), right(<span class="literal">nullptr</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Ts&gt;</span><br><span class="line"><span class="function">Node* <span class="title">traverse</span><span class="params">(T root, Ts... paths)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (root -&gt;* ... -&gt;* paths); <span class="comment">// root -&gt;* paths1 -&gt;* paths2 ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node* node2 = traverse(root, left, right);</span><br><span class="line">    <span class="comment">//左子节点，左子节点的右子节点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）使用折叠表达式简化打印所有参数的可变参数模板</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Ts&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> Ts&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    (<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ... &lt;&lt; args) &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果想用空格分隔参数包元素，需要使用一个包裹类来提供此功能</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AddSpace</span> &#123;</span></span><br><span class="line">    <span class="keyword">const</span> T&amp; ref; <span class="comment">// 构造函数中的实参的引用</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    AddSpace(<span class="keyword">const</span> T&amp; r): ref(r) &#123;&#125;</span><br><span class="line">    <span class="keyword">friend</span> <span class="built_in">std</span>::ostream&amp; <span class="keyword">operator</span>&lt;&lt; (<span class="built_in">std</span>::ostream&amp; os, AddSpace&lt;T&gt; s) &#123;</span><br><span class="line">        <span class="keyword">return</span> os &lt;&lt; s.ref &lt;&lt; <span class="string">' '</span>;   <span class="comment">// 输出传递的实参和一个空格</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(Args... args)</span> </span>&#123;</span><br><span class="line">    (<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ... &lt;&lt; AddSpace(args)) &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="5-可变参数表达式"><a href="#5-可变参数表达式" class="headerlink" title="5. 可变参数表达式"></a>5. 可变参数表达式</h1><p>前面说到可变参数的本质也是参数，既然如此我们就可以针对他进行相关的运算。</p>
+<p>比如比如让每个元素翻倍后传递给再打印：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> Args&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    (<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ... &lt;&lt; args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printDoubled</span> <span class="params">(<span class="keyword">const</span> T&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    print (args + args...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意参数包的省略号不能直接接在数值字面值后:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addOne</span><span class="params">(<span class="keyword">const</span> T&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    print (args + <span class="number">1.</span>..); <span class="comment">// 错误 1...是带多个小数点的字面值，不合法</span></span><br><span class="line">    print (args + <span class="number">1</span> ...); <span class="comment">// OK</span></span><br><span class="line">    print ((args + <span class="number">1</span>)...); <span class="comment">// OK</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="6-可变参数索引"><a href="#6-可变参数索引" class="headerlink" title="6. 可变参数索引"></a>6. 可变参数索引</h1><p>以索引形式访问：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> Args&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    (<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ... &lt;&lt; args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span>… Idx&gt; </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printElems</span> <span class="params">(C <span class="keyword">const</span>&amp; coll, Idx… idx)</span> </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    print (coll[idx]…); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; v&#123; <span class="string">"good"</span>, <span class="string">"times"</span>, <span class="string">"say"</span>, <span class="string">"bye"</span> &#125;;</span><br><span class="line">    printElems(v, <span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>); <span class="comment">// say good bye：等价于print(v[2], v[0], v[3]);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>非类型模板参数也可以声明为参数包:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="built_in">std</span>::<span class="keyword">size_t</span>... N, <span class="keyword">typename</span> C&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printIdx</span><span class="params">(<span class="keyword">const</span> C&amp; c)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    print(c[N]...);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; v&#123; <span class="string">"good"</span>, <span class="string">"times"</span>, <span class="string">"say"</span>, <span class="string">"bye"</span> &#125;;</span><br><span class="line">printIdx&lt;<span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>&gt;(v);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/" data-id="ck4o2tuqz0005u4vy71pza4qa" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CPP泛型编程3-非类型的模板参数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

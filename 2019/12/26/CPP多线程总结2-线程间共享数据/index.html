@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>CPP多线程总结2-线程间共享数据 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本章着重讲述如何处理线程间的共享数据，内容包括：mutex, lock, unique_lock, call_once,shared_lock 1. 使用互斥量保护共享数据1.1 以RAII的方式使用互斥量在 C++ 中，标准库提供的互斥量是 std::mutex，它被定义在 mutex 这个头文件中。互斥量是锁的一种，它也是一种资源，必须保证资源被正确释放（正确使用互斥量的条件之一）。这就像内存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP多线程总结2-线程间共享数据">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;26&#x2F;CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%932-%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本章着重讲述如何处理线程间的共享数据，内容包括：mutex, lock, unique_lock, call_once,shared_lock 1. 使用互斥量保护共享数据1.1 以RAII的方式使用互斥量在 C++ 中，标准库提供的互斥量是 std::mutex，它被定义在 mutex 这个头文件中。互斥量是锁的一种，它也是一种资源，必须保证资源被正确释放（正确使用互斥量的条件之一）。这就像内存">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-12-26T14:51:09.000Z">
+<meta property="article:modified_time" content="2019-12-26T15:34:34.638Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-CPP多线程总结2-线程间共享数据" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%932-%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE/" class="article-date">
+  <time datetime="2019-12-26T14:51:09.000Z" itemprop="datePublished">2019-12-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP多线程总结2-线程间共享数据
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本章着重讲述如何处理线程间的共享数据，内容包括：<code>mutex</code>, <code>lock</code>, <code>unique_lock</code>, <code>call_once</code>,<code>shared_lock</code></p>
+<h1 id="1-使用互斥量保护共享数据"><a href="#1-使用互斥量保护共享数据" class="headerlink" title="1. 使用互斥量保护共享数据"></a>1. 使用互斥量保护共享数据</h1><h2 id="1-1-以RAII的方式使用互斥量"><a href="#1-1-以RAII的方式使用互斥量" class="headerlink" title="1.1 以RAII的方式使用互斥量"></a>1.1 以RAII的方式使用互斥量</h2><p>在 C++ 中，标准库提供的互斥量是 <code>std::mutex</code>，它被定义在 <code>mutex</code> 这个头文件中。互斥量是锁的一种，它也是一种<strong>资源</strong>，必须<strong>保证资源被正确释放</strong>（正确使用互斥量的条件之一）。这就像内存需要delete一样，互斥量在<code>lock()</code>以后必须<code>unlock()</code>解除。</p>
+<p>实际上并不推荐这么做，C++标准库为互斥量提供了一个RAII语法的模板类<code>std::lock_guard</code>，在构造时就能提供已锁的互斥量，并在析构的时候进行解锁，从而保证了一个已锁互斥量能被正确解锁。</p>
+<blockquote>
+<p>RAII要求，资源的有效期与持有资源的<a href="https://zh.wikipedia.org/w/index.php?title=对象的生命期&action=edit&redlink=1" target="_blank" rel="noopener">对象的生命期</a>严格绑定，即由对象的<a href="https://zh.wikipedia.org/wiki/构造函数" target="_blank" rel="noopener">构造函数</a>完成<a href="https://zh.wikipedia.org/w/index.php?title=资源的分配&action=edit&redlink=1" target="_blank" rel="noopener">资源的分配</a>（获取），同时由<a href="https://zh.wikipedia.org/wiki/析构函数" target="_blank" rel="noopener">析构函数</a>完成资源的释放。在这种要求下，只要对象能正确地析构，就不会出现<a href="https://zh.wikipedia.org/w/index.php?title=资源泄露&action=edit&redlink=1" target="_blank" rel="noopener">资源泄露</a>问题。</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; some_list;    <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">std</span>::mutex some_mutex;    <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_to_list</span><span class="params">(<span class="keyword">int</span> new_value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; guard(some_mutex);    <span class="comment">// 3</span></span><br><span class="line">  some_list.push_back(new_value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">list_contains</span><span class="params">(<span class="keyword">int</span> value_to_find)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; guard(some_mutex);    <span class="comment">// 4</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">std</span>::find(some_list.begin(),some_list.end(),value_to_find) != some_list.end();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有一个全局变量①，这个全局变量被一个全局的互斥量保护②。<code>add_to_list()</code>③和<code>list_contains()</code>④函数中使用<code>std::lock_guard</code>，使得这两个函数中对数据的访问是互斥的：<code>list_contains()</code>不可能看到正在被<code>add_to_list()</code>修改的列表</p>
+<p>简单理解：<strong>被声明guard的地方在析构前都是被保护的</strong>。</p>
+<p>在C++17中新添加了一个特性，称之为模板类参数推导，这样类似<code>std::locak_guard</code>这样简单的模板类型的模板参数列表可以省略。③和④的代码可以简化成：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">lock_guard <span class="title">guard</span><span class="params">(some_mutex)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-限制被保护数据的使用范围"><a href="#1-2-限制被保护数据的使用范围" class="headerlink" title="1.2 限制被保护数据的使用范围"></a>1.2 限制被保护数据的使用范围</h2><p>这一节讨论正确使用互斥锁的一个重要前提：必须限制被保护数据的使用范围。简单来说，就是<strong>不要</strong>将被保护数据的<strong>指针或引用</strong>通过返回值、函数参数的方式，传到无法控制的范围内。</p>
+<p>举一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">some_data</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">int</span> a;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> b;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">do_something</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">data_wrapper</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  some_data data;</span><br><span class="line">  <span class="built_in">std</span>::mutex m;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Function&gt;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">process_data</span><span class="params">(Function func)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; l(m);</span><br><span class="line">    func(data);    <span class="comment">// 1 传递“保护”数据给用户函数</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">some_data* unprotected;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">malicious_function</span><span class="params">(some_data&amp; protected_data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  unprotected=&amp;protected_data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">data_wrapper x;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  x.process_data(malicious_function);    <span class="comment">// 2 传递一个恶意函数</span></span><br><span class="line">  unprotected-&gt;do_something();    <span class="comment">// 3 在无保护的情况下访问保护数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>例子中<code>process_data</code>看起来没有任何问题，<code>std::lock_guard</code>对数据做了很好的保护，但调用用户提供的函数<code>func</code>①，就意味着foo能够绕过保护机制将函数<code>malicious_function</code>传递进去②，在没有锁定互斥量的情况下调用<code>do_something()</code>。</p>
+<p>这段代码的问题在于根本没有保护，只是将所有可访问的数据结构代码标记为互斥。函数<code>foo()</code>中调用<code>unprotected-&gt;do_something()</code>的代码未能被标记为互斥。</p>
+<p>所以，<strong>不能将被保护数据的指针或引用以函数返回值的形式，返回或传递给外部不可控的调用者</strong>。</p>
+<h2 id="1-3-定位接口间的条件竞争"><a href="#1-3-定位接口间的条件竞争" class="headerlink" title="1.3 定位接口间的条件竞争"></a>1.3 定位接口间的条件竞争</h2><p>以<code>std::stack</code>为例，讲解接口设计缺陷导致的条件竞争。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (! s.empty())&#123;    <span class="comment">// 1</span></span><br><span class="line">  <span class="keyword">int</span> <span class="keyword">const</span> value = s.top();    <span class="comment">// 2</span></span><br><span class="line">  s.pop();    <span class="comment">// 3</span></span><br><span class="line">  do_something(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码是一套很常规的操作，存在两个竞争：</p>
+<p>有可能线程A判断不为空后，放心的去执行2，但在步骤1和2之间，线程B插了进来弹出了最后一个元素，此时线程A执行步骤2就会发生异常。即使我们使用了互斥量也不能保证，这就是接口本身的问题。解决问题的最简单办法就是在<code>if (! s.empty())</code>之后，再加一个<code>try/catch</code>抛出异常，但这样<code>empty</code>就成了摆设。</p>
+<p><strong>（2）调用<code>top()</code>和<code>pop()</code>之间</strong></p>
+<p>上图是可能的操作顺序，很有可能两个线程<strong>都取了相同的值</strong>，这种条件竞争，然其结果依赖于<code>do_something()</code>的结果，但因为看起来没有任何错误，就会让这个Bug很难定位。</p>
+<br>
+
+<p>那么为什么STL的设计者还要这样设计接口呢？如果我们<code>auto val = stk.pop()</code>既完成取栈顶的工作，又执行弹出的操作，就会发生一个问题：传值的办法是通过拷贝，如果这里的<code>val</code>是一个<code>vector</code>类似的容器，它的拷贝需要时间，<strong>这时如果出现了异常抛出的情况，原来的值就被丢掉了</strong>——它既不存在于栈，也不存在于其他变量。</p>
+<p>下面是解决的办法，也是一段非常经典的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;exception&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">empty_stack</span>:</span> <span class="built_in">std</span>::exception</span><br><span class="line">&#123;</span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">what</span><span class="params">()</span> <span class="keyword">const</span> <span class="title">throw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"empty stack!"</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">threadsafe_stack</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">stack</span>&lt;T&gt; data;</span><br><span class="line">  <span class="keyword">mutable</span> <span class="built_in">std</span>::mutex m;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  threadsafe_stack()</span><br><span class="line">    : data(<span class="built_in">std</span>::<span class="built_in">stack</span>&lt;T&gt;())&#123;&#125;</span><br><span class="line"></span><br><span class="line">  threadsafe_stack(<span class="keyword">const</span> threadsafe_stack&amp; other)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(other.m);</span><br><span class="line">    data = other.data; <span class="comment">// 1 在构造函数体中的执行拷贝</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  threadsafe_stack&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> threadsafe_stack&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(T new_value)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(m);</span><br><span class="line">    data.push(new_value);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;T&gt; pop()</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(m);</span><br><span class="line">    <span class="keyword">if</span>(data.empty()) <span class="keyword">throw</span> empty_stack(); <span class="comment">// 在调用pop前，检查栈是否为空</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;T&gt; <span class="function"><span class="keyword">const</span> <span class="title">res</span><span class="params">(<span class="built_in">std</span>::make_shared&lt;T&gt;(data.top()))</span></span>; <span class="comment">// 在修改堆栈前，分配出返回值</span></span><br><span class="line">    data.pop();</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">pop</span><span class="params">(T&amp; value)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(m);</span><br><span class="line">    <span class="keyword">if</span>(data.empty()) <span class="keyword">throw</span> empty_stack();</span><br><span class="line"></span><br><span class="line">    value=data.top();</span><br><span class="line">    data.pop();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock(m);</span><br><span class="line">    <span class="keyword">return</span> data.empty();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在这段程序中，我们重载了两个pop版本，一个是原始版本（返回void），另一个是pop和top结合版本（返回值）。为了避免之前提到的数据丢失问题，我们采用返回指针的办法。</p>
+<h1 id="2-避免死锁"><a href="#2-避免死锁" class="headerlink" title="2. 避免死锁"></a>2. 避免死锁</h1><p>通俗来说，假如有两个线程分别有互斥量AB，两个线程都在等待对方解锁，这样两个锁AB就会形成死锁。<strong>死锁往往是由于不同线程之间不当交互所导致的</strong>。</p>
+<p>从原理上来说，避免死锁的办法是<strong>两个互斥量总以相同的顺序上锁解锁</strong>：先锁住A，锁住B，先解锁A再解锁B。如果反过来，锁住AB，以BA的形式解锁，就会导致死锁。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">a</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mutex1.lock();</span><br><span class="line">    mutex2.lock();</span><br><span class="line">    doSomething();</span><br><span class="line">    mutex2.unlock();</span><br><span class="line">    mutex1.unlock();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">b</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mutex2.lock();</span><br><span class="line">    mutex1.lock();</span><br><span class="line">    doSomething();</span><br><span class="line">    mutex1.unlock();</span><br><span class="line">    mutex2.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中假设函数a先锁住了1，b同时锁住了2，这样a要去锁2时需要等待2解锁，b要去锁1时要等待1解锁，这样就凉了。</p>
+<p>然而即使我们按顺序上锁，在一些交换操作中，交换了两个锁保护的两个实例，这下就又会发生死锁。因此我们研究几个有效避免死锁的办法：</p>
+<h2 id="2-1-std-lock函数"><a href="#2-1-std-lock函数" class="headerlink" title="2.1 std::lock函数"></a>2.1 <code>std::lock</code>函数</h2><p><code>std::lock</code>——可以一次性锁住多个(两个以上)的互斥量，并且没有副作用(死锁风险)，下面给出了一个很好的例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">some_big_object</span>;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(some_big_object&amp; lhs,some_big_object&amp; rhs)</span></span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  some_big_object some_detail;</span><br><span class="line">  <span class="built_in">std</span>::mutex m;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  X(some_big_object <span class="keyword">const</span>&amp; sd):some_detail(sd)&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">friend</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(X&amp; lhs, X&amp; rhs)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(&amp;lhs==&amp;rhs) <span class="comment">//一定要引用，判断地址是否相同而不是值</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    <span class="built_in">std</span>::lock(lhs.m,rhs.m); <span class="comment">// 1</span></span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock_a(lhs.m,<span class="built_in">std</span>::adopt_lock); <span class="comment">// 2</span></span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lock_b(rhs.m,<span class="built_in">std</span>::adopt_lock); <span class="comment">// 3</span></span><br><span class="line">    swap(lhs.some_detail,rhs.some_detail);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>着重看一下这个友元函数。<strong>首先需要判断两个对象是否相同，避免被同时上锁两次。</strong>然后，调用<code>std::lock()</code>①锁住两个互斥量，并且两个<code>std:lock_guard</code>实例已经创建好②③。提供<code>std::adopt_lock</code>参数除了表示<code>std::lock_guard</code>对象可获取锁之外，还将锁交由<code>std::lock_guard</code>对象管理，而不需要<code>std::lock_guard</code>对象再去构建新的锁。在退出时，互斥量能被正确解锁。</p>
+<h2 id="2-2-std-scoped-lock函数"><a href="#2-2-std-scoped-lock函数" class="headerlink" title="2.2 std::scoped_lock函数"></a>2.2 <code>std::scoped_lock</code>函数</h2><p>这是C++17中的新函数，一种新的RAII类型模板类型，与<code>std::lock_guard&lt;&gt;</code>的功能等价，这个新类型能<strong>接受不定数量的互斥量类型作为模板参数</strong>，以及相应的互斥量(数量和类型)作为构造参数。<strong>互斥量支持构造即上锁</strong>，与<code>std::lock</code>的用法相同，其解锁阶段是在析构中进行。（注意请确保你的编译器支持17，如果是使用visual studio，需要手动设置语言版本为17）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(X&amp; lhs, X&amp; rhs)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(&amp;lhs==&amp;rhs)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">scoped_lock <span class="title">guard</span><span class="params">(lhs.m,rhs.m)</span></span>; <span class="comment">// 1</span></span><br><span class="line">  swap(lhs.some_detail,rhs.some_detail);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了C++17的另一个特性：<strong>自动推导模板参数</strong>。C++17可以通过隐式参数模板类型推导机制， 通过传递的对形象类型来构造实例1。其等价于：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::scoped_lock&lt;<span class="built_in">std</span>::mutex,<span class="built_in">std</span>::mutex&gt; guard(lhs.m,rhs.m);</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-std-unique-lock"><a href="#3-std-unique-lock" class="headerlink" title="3. std::unique_lock"></a>3. std::unique_lock</h1><h2 id="3-1-独占锁的基本用法"><a href="#3-1-独占锁的基本用法" class="headerlink" title="3.1 独占锁的基本用法"></a>3.1 独占锁的基本用法</h2><p><code>std::unique_lock</code>不是一种锁而是一种锁的超集，是在11中引入的锁工具的复合体。</p>
+<p><code>std::unique_lock</code>的构造函数，支持三种加锁模式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unique_lock( mutex_type&amp; m, <span class="built_in">std</span>::<span class="keyword">defer_lock_t</span> t );  　<span class="comment">//延迟加锁</span></span><br><span class="line">unique_lock( mutex_type&amp; m, <span class="built_in">std</span>::<span class="keyword">try_to_lock_t</span> t );　<span class="comment">//尝试加锁</span></span><br><span class="line">unique_lock( mutex_type&amp; m, <span class="built_in">std</span>::<span class="keyword">adopt_lock_t</span> t );  　<span class="comment">//马上加锁</span></span><br></pre></td></tr></table></figure>
+
+<p>有丰富的操作函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">lock()　　　　     <span class="comment">//阻塞等待加锁</span></span><br><span class="line">try_lock()　　      <span class="comment">// 非阻塞等待加锁</span></span><br><span class="line">try_lock_for()　　<span class="comment">//在一段时间内尝试加锁</span></span><br><span class="line">try_lock_until()　  <span class="comment">//在某个时间点之前尝试加锁</span></span><br><span class="line">unlock()             <span class="comment">//临时解锁</span></span><br></pre></td></tr></table></figure>
+
+<p><code>std::lock_guard</code>只有在析构时才会解锁，它自己本身没有加锁解锁的接口。而<code>std::unique_lock</code>可以在任意时间临时加锁解锁，在析构时也会自动解锁。下面举一个例子：</p>
+<p>使用<code>std::lock_guard</code>我们需要生成两个锁来保护，当然可以用一个锁同时保护123，但这样锁的粒度太大，效率不行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shared_print</span><span class="params">(<span class="built_in">string</span> msg, <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; guard(_mu);</span><br><span class="line">        <span class="comment">//do something 1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//do something 2</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; guard(_mu);</span><br><span class="line">        <span class="comment">// do something 3</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我们改为独占锁，可以通过临时上锁解锁，实现精细化的操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shared_print</span><span class="params">(<span class="built_in">string</span> msg, <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; guard(_mu);</span><br><span class="line">    <span class="comment">//do something 1</span></span><br><span class="line">    guard.unlock(); <span class="comment">//临时解锁</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//do something 2</span></span><br><span class="line"></span><br><span class="line">    guard.lock(); <span class="comment">//继续上锁</span></span><br><span class="line">    <span class="comment">// do something 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们甚至可以使用<code>std::defer_lock</code>设置初始化的时候不进行默认的上锁操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shared_print</span><span class="params">(<span class="built_in">string</span> msg, <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; guard(_mu, <span class="built_in">std</span>::defer_lock);</span><br><span class="line">    <span class="comment">//do something 1</span></span><br><span class="line"></span><br><span class="line">    guard.lock();</span><br><span class="line">    <span class="comment">// do something protected</span></span><br><span class="line">    guard.unlock(); <span class="comment">//临时解锁</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//do something 2</span></span><br><span class="line"></span><br><span class="line">    guard.lock(); <span class="comment">//继续上锁</span></span><br><span class="line">    <span class="comment">// do something 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，独占锁和<code>unique_ptr</code>一样不能复制，但可以移动！而<code>lock_guard</code>两个都不行：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// unique_lock 可以移动，不能复制</span></span><br><span class="line"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; guard1(_mu);</span><br><span class="line"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; guard2 = guard1;  <span class="comment">// error</span></span><br><span class="line"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; guard2 = <span class="built_in">std</span>::move(guard1); <span class="comment">// ok</span></span><br></pre></td></tr></table></figure>
+
+<p>下面的示例展示了所有权的传递应用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; get_lock()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">extern</span> <span class="built_in">std</span>::mutex some_mutex;</span><br><span class="line">  <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; lk(some_mutex);</span><br><span class="line">  prepare_data();</span><br><span class="line">  <span class="keyword">return</span> lk;  <span class="comment">// 1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">process_data</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; lk(get_lock());  <span class="comment">// 2</span></span><br><span class="line">  do_something();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构造时，拷贝构造函数是<code>delete</code>，调用移动构造函数，所以不需要<code>std::move</code>。</p>
+<h1 id="4-保护共享数据的其他方式"><a href="#4-保护共享数据的其他方式" class="headerlink" title="4. 保护共享数据的其他方式"></a>4. 保护共享数据的其他方式</h1><h2 id="4-1-保护共享数据的初始化过程"><a href="#4-1-保护共享数据的初始化过程" class="headerlink" title="4.1 保护共享数据的初始化过程"></a>4.1 保护共享数据的初始化过程</h2><p><strong>延迟初始化(Lazy initialization)</strong>在单线程代码很常见——每一个操作都需要先对源进行检查，为了了解数据是否被初始化，然后在其使用前决定，数据是否需要初始化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;some_resource&gt; resource_ptr;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(!resource_ptr)</span><br><span class="line">  &#123;</span><br><span class="line">    resource_ptr.reset(<span class="keyword">new</span> some_resource);  <span class="comment">// 1</span></span><br><span class="line">  &#125;</span><br><span class="line">  resource_ptr-&gt;do_something();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>转为多线程代码时，只有①处需要保护，这样共享数据对于并发访问就是安全的，我们尝试使用锁来进行保护时会出现一些问题：由于每次我们调用<code>foo()</code>都会检查是否初始化，这样每次都会创建锁，非常影响代码的正常运行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;some_resource&gt; resource_ptr;</span><br><span class="line"><span class="built_in">std</span>::mutex resource_mutex;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; lk(resource_mutex);  <span class="comment">// 所有线程在此序列化 </span></span><br><span class="line">  <span class="keyword">if</span>(!resource_ptr)</span><br><span class="line">  &#123;</span><br><span class="line">    resource_ptr.reset(<span class="keyword">new</span> some_resource);  <span class="comment">// 只有初始化过程需要保护 </span></span><br><span class="line">  &#125;</span><br><span class="line">  lk.unlock();</span><br><span class="line">  resource_ptr-&gt;do_something();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>于是有人针对这种情况提出了<strong>双重检查锁模式</strong>。由于<strong>条件判断1并没有与被锁保护的3同步</strong>，这样又会引入新<strong>条件的竞争</strong>：线程A进入了步骤3，由于C++在new一个对象时，首先会把指针指向分配的那块空间，然后在初始化该空间。此时线程B兴奋得知，<code>resource_ptr</code>不为空了，赶紧执行4，然而事实却是：指针只是指向了某个地方，指向的对象并没有完全初始化完成！</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">undefined_behaviour_with_double_checked_locking</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(!resource_ptr)  <span class="comment">// 1</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lk(resource_mutex);</span><br><span class="line">    <span class="keyword">if</span>(!resource_ptr)  <span class="comment">// 2</span></span><br><span class="line">    &#123;</span><br><span class="line">      resource_ptr.reset(<span class="keyword">new</span> some_resource);  <span class="comment">// 3</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  resource_ptr-&gt;do_something();  <span class="comment">// 4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了避免这些情况，C++标准委员会建议我们使用<code>std::call_once</code>函数。这个函数能保证我们在多线程中，某个函数只会被调用一次。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::once_flag flag1;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">simple_do_once</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::call_once(flag1, []() &#123; <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Simple example: called once\n"</span>; &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">st1</span><span class="params">(simple_do_once)</span></span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">st2</span><span class="params">(simple_do_once)</span></span>;</span><br><span class="line">    st1.join();</span><br><span class="line">    st2.join();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面展示了使用<code>std::call_once</code>作为类成员的延迟初始化(线程安全)</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">string</span> connection_handle;</span><br><span class="line">    <span class="built_in">std</span>::once_flag connection_init_flag;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">open_connection</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        connection_handle = <span class="string">"4396"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">send_data</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">std</span>::call_once(connection_init_flag, &amp;X::open_connection, <span class="keyword">this</span>);</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"Connectiong handle is "</span> &lt;&lt; connection_handle &lt;&lt; <span class="string">" send data: "</span> &lt;&lt;i&lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">receive_data</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">std</span>::call_once(connection_init_flag, &amp;X::open_connection, <span class="keyword">this</span>);</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"Connectiong handle is "</span> &lt;&lt; connection_handle &lt;&lt; <span class="string">" recieve data: "</span> &lt;&lt; i &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-保护不常更新的数据结构"><a href="#4-2-保护不常更新的数据结构" class="headerlink" title="4.2 保护不常更新的数据结构"></a>4.2 保护不常更新的数据结构</h2><p>有的数据比如DNS，我们很少去改改动他，平常更多的是去读取访问，但偶尔也会对他进行修改。因此我们可以使用读写锁<code>std::shared_lock</code>去管理。所谓「读写锁」，就是同时可以被多个读者拥有，但是只能被一个写者拥有的锁。而所谓「多个读者、单个写者」，并非指程序中只有一个写者（线程），而是说不能有多个写者同时去写。</p>
+<p><code>std::shared_lock</code>往往和<code>shared_mutex</code>搭配使用，下面给一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadSafeCounter</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  ThreadSafeCounter() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 多个线程/读者能同时读计数器的值。</span></span><br><span class="line">  <span class="function"><span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::shared_lock&lt;<span class="built_in">std</span>::shared_mutex&gt; lock(mutex_);</span><br><span class="line">    <span class="keyword">return</span> value_;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 只有一个线程/写者能增加/写线程的值。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::shared_mutex&gt; lock(mutex_);</span><br><span class="line">    value_++;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 只有一个线程/写者能重置/写线程的值。</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">reset</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::shared_mutex&gt; lock(mutex_);</span><br><span class="line">    value_ = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">mutable</span> <span class="built_in">std</span>::shared_mutex mutex_;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> value_ = <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%932-%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE/" data-id="ck4o2tuqu0001u4vy3n4496jt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%933-%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CPP多线程总结3-并发操作
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CPP多线程总结1-线程管理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

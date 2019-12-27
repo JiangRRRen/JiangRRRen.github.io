@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>GDB使用方法 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 安装GDB在linux中需要先安装gcc和gdb 123456# 安装 gccyum install gcc# 安装 g++yum install gcc-c++# 安装 gdbyum install gdb  当要调试某程序时，需要在gcc编译时加上-g，目的是保留编译后的程序中调试符号信息。 当输入gdb hello时能看到： 12Reading symbols from &#x2F;r">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GDB使用方法">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;14&#x2F;GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 安装GDB在linux中需要先安装gcc和gdb 123456# 安装 gccyum install gcc# 安装 g++yum install gcc-c++# 安装 gdbyum install gdb  当要调试某程序时，需要在gcc编译时加上-g，目的是保留编译后的程序中调试符号信息。 当输入gdb hello时能看到： 12Reading symbols from &#x2F;r">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-07-14T13:02:41.000Z">
+<meta property="article:modified_time" content="2019-12-16T15:29:19.505Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GDB使用方法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="article-date">
+  <time datetime="2019-07-14T13:02:41.000Z" itemprop="datePublished">2019-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GDB使用方法
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-安装GDB"><a href="#1-安装GDB" class="headerlink" title="1. 安装GDB"></a>1. 安装GDB</h1><p>在linux中需要先安装gcc和gdb</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 gcc</span></span><br><span class="line">yum install gcc</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 g++</span></span><br><span class="line">yum install gcc-c++</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 gdb</span></span><br><span class="line">yum install gdb</span><br></pre></td></tr></table></figure>
+
+<p>当要调试某程序时，需要在gcc编译时加上<strong>-g</strong>，目的是<strong>保留编译后的程序中调试符号信息</strong>。</p>
+<p>当输入<code>gdb hello</code>时能看到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Reading symbols from &#x2F;root&#x2F;testclient&#x2F;hello_server...done.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>说明保留调试符号信息成功。</p>
+<h1 id="2-启动GDB调试"><a href="#2-启动GDB调试" class="headerlink" title="2. 启动GDB调试"></a>2. 启动GDB调试</h1><p>启动有三种方式：<strong>直接调试目标程序，附加进程，调试core文件</strong></p>
+<h2 id="2-1-直接调试目标程序"><a href="#2-1-直接调试目标程序" class="headerlink" title="2.1 直接调试目标程序"></a>2.1 直接调试目标程序</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb filename</span><br></pre></td></tr></table></figure>
+
+<p><code>filename</code>是需要启动的调试文件名，可以直接使用gdb启动一个程序调试，此时并没有完全启动，而是附加了一个可执行文件，<strong>需要输入run才能真正运行</strong>。</p>
+<h2 id="2-2-附加进程号"><a href="#2-2-附加进程号" class="headerlink" title="2.2 附加进程号"></a>2.2 附加进程号</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb attach ProcessID</span><br></pre></td></tr></table></figure>
+
+<p>有时候程序已经启动，我们并不想重启它（比如服务器），此时需要利用attach指令将进程号添加到GDB调试器。获取进程号的方法如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@iZ238vnojlyZ flamingoserver]$ ps -ef | grep chatserver</span><br><span class="line">zhangyl  21462 21414  0 18:00 pts/2    00:00:00 grep --color=auto chatserver</span><br><span class="line">zhangyl  26621     1  5 Oct10 ?        2-17:54:42 ./chatserver -d</span><br></pre></td></tr></table></figure>
+
+<p>得到<code>charserver</code>的PID为26621，使用<code>gdb attach 26621</code>将GDB附加到<code>chatserver</code>中，看到<code>attaching to process 26661</code>时表示已经附加成功。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ gdb attach 26621</span><br><span class="line">Attaching to process 26661</span><br><span class="line">Reading symbols from /home/zhangyl/flamingoserver/chatserver...done.</span><br><span class="line">Reading symbols from /usr/lib64/mysql/libmysqlclient.so.18...Reading symbols from /usr/lib64/mysql/libmysqlclient.so.18...(no debugging symbols found)...done.</span><br><span class="line">Reading symbols from /lib64/libpthread.so.0...(no debugging symbols found)...done.</span><br><span class="line">[New LWP 42931]</span><br><span class="line">[New LWP 42930]</span><br><span class="line">[New LWP 42929]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library "/lib64/libthread_db.so.1".</span><br><span class="line">Loaded symbols for /lib64/libpthread.so.0</span><br><span class="line">Reading symbols from /lib64/libc.so.6...(no debugging symbols found)...done.</span><br></pre></td></tr></table></figure>
+
+<p>调试完成时，可以使用<strong>detach</strong>将其分离。</p>
+<h2 id="2-3-调试core文件"><a href="#2-3-调试core文件" class="headerlink" title="2.3 调试core文件"></a>2.3 调试core文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb filename corename</span><br></pre></td></tr></table></figure>
+
+<p>有时候，服务器程序运行一段时间后会突然崩溃，只要程序在崩溃的时候有 core 文件产生，就可以使用这个 core 文件来定位崩溃的原因。</p>
+<p>默认情况下，Linux关闭了core文件机制，使用<code>ulimit -c</code>命令来查看系统是否启动这一机制。0表示关闭，数字表示启动但限制core文件大小，unlimited表示启动且不限制大小。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c</span><br><span class="line">core file size          (blocks, -c) 0</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>ulimit -c unlimited</code>指令来启动。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c unlimited</span><br><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c</span><br><span class="line">core file size          (blocks, -c) unlimited</span><br></pre></td></tr></table></figure>
+
+<p>生成的 core 文件的默认命名方式是 <code>core.pid</code>，比如某个程序运行时的进程 ID 是 16663，那么它崩溃产生的 core 文件的名称就是 <code>core.16663</code>，可以通过<code>gdb chatserver core.16663</code>来启动调试。</p>
+<p>多个程序同时崩溃，我们根本没法通过 core 文件名称中的 PID 来区分。因此可以再程序中记录一下自己的PID。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">writePid</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">uint32_t</span> curPid = (<span class="keyword">uint32_t</span>) getpid();</span><br><span class="line">      FILE* f = fopen(<span class="string">"xxserver.pid"</span>, <span class="string">"w"</span>);</span><br><span class="line">      assert(f);</span><br><span class="line">      <span class="keyword">char</span> szPid[<span class="number">32</span>];</span><br><span class="line">      <span class="built_in">snprintf</span>(szPid, <span class="keyword">sizeof</span>(szPid), <span class="string">"%d"</span>, curPid);</span><br><span class="line">      fwrite(szPid, <span class="built_in">strlen</span>(szPid), <span class="number">1</span>, f);</span><br><span class="line">      fclose(f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在程序启动时调用上述 <code>writePID</code>函数，将程序当时的 PID 记录到 <code>xxserver.pid</code> 文件中去，这样当程序崩溃时，可以从这个文件中得到进程当时运行的 PID，这样就可以与默认的 core 文件名后面的 PID 做匹配了。</p>
+<h1 id="3-常用命令"><a href="#3-常用命令" class="headerlink" title="3. 常用命令"></a>3. 常用命令</h1><p>首先下载redis开源代码作为示例</p>
+<blockquote>
+<p>Redis是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API</p>
+</blockquote>
+<p>Redis 的最新源码下载地址可以在 <a href="https://redis.io/" target="_blank" rel="noopener">Redis 官网</a>获得，使用 <code>wget</code> 命令将 Redis 源码文件下载下来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost gdbtest]# wget http://download.redis.io/releases/redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>然后解压：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost gdbtest]# tar zxvf redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>Makefile</code>编译，加入<code>MALLOC=libc</code>防止<code>jemalloc</code>问题，<code>make distclean</code>清除上次失败的编译残留文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make distclean</span><br><span class="line">make MALLOC=libc</span><br></pre></td></tr></table></figure>
+
+<p>进入src目录，使用<code>gdb redis-server</code>启动程序。</p>
+<h2 id="3-1-流控制语句"><a href="#3-1-流控制语句" class="headerlink" title="3.1 流控制语句"></a>3.1 流控制语句</h2><h3 id="run"><a href="#run" class="headerlink" title="run"></a><strong>run</strong></h3><p><strong>gdb filename</strong> 命令只是附加的一个调试文件，并没有启动这个程序，需要输入 <strong>run</strong> 命令（简写为 r）启动这个程序</p>
+<p>redis-server 启动后能看到一个四方堆叠结构，说明启动成功了。假设程序已经启动，再次输入 run 命令则是重启程序。我们在 GDB 界面按 Ctrl + C 快捷键让 GDB 中断下来，再次输入 r 命令，GDB 会询问我们是否重启程序，输入 yes 确认重启。</p>
+<h3 id="continue"><a href="#continue" class="headerlink" title="continue"></a><strong>continue</strong></h3><p>当 GDB 触发断点或者使用 Ctrl + C 命令中断下来后，想让程序继续运行，只要输入 <strong>continue</strong>命令即可（简写为 c）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">^C</span><br><span class="line">Program received signal SIGINT, Interrupt.</span><br><span class="line">0x00007ffff73ee923 in epoll_wait () from /lib64/libc.so.6</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br></pre></td></tr></table></figure>
+
+<h3 id="next、step、until、finish、return-和-jump-命令"><a href="#next、step、until、finish、return-和-jump-命令" class="headerlink" title="next、step、until、finish、return 和 jump 命令"></a><strong>next、step、until、finish、return 和 jump 命令</strong></h3><p><strong>next</strong> 命令（简写为 n）是让 GDB 调到下一条命令去执行，这里的下一条命令不一定是代码的下一行，而是根据程序逻辑跳转到相应的位置。</p>
+<p>在 GDB 命令行界面如果直接按下回车键，默认是将最近一条命令重新执行一遍，因此，当使用 <strong>next</strong> 命令单步调试时，不必反复输入 <strong>n</strong> 命令，直接回车就可以。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n</span><br><span class="line">3736        spt_init(argc, argv);</span><br><span class="line">(gdb)</span><br><span class="line">3738        setlocale(LC_COLLATE,"");</span><br><span class="line">(gdb)</span><br><span class="line">3739        zmalloc_set_oom_handler(redisOutOfMemoryHandler);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>next</strong> 命令用调试的术语叫“单步步过”（step over），即遇到函数调用直接跳过，不进入函数体内部。而<strong>step</strong> 命令（简写为 <strong>s</strong>）就是“单步步入”（step into），顾名思义，就是遇到函数调用，进入函数内部。</p>
+<hr>
+<p>在某个函数中调试一段时间后，不需要再一步步执行到函数返回处，希望直接执行完当前函数并回到上一层调用处，就可以使用 <strong>finish</strong> 命令。与 <strong>finish</strong> 命令类似的还有 <strong>return</strong> 命令，<strong>return</strong> 命令的作用是结束执行当前函数，还<strong>可以指定该函数的返回值</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">func</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">     <span class="keyword">int</span> a = <span class="number">9</span>;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">"a=%d.\n"</span>, a);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> c = func();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"c=%d.\n"</span>, c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码在func函数里直接输入 <strong>return</strong> 命令以后，不会返回任何值，如果输入<strong>retrun 9999</strong>，那么打印出来结果就是9999。</p>
+<hr>
+<p><strong>until</strong> 命令（简写为 <strong>u</strong>）可以指定程序运行到某一行停下来，可以代替break+continue，比如当前运行到338行，想要运行到992行，直接<code>u 992</code></p>
+<p><strong>jump</strong>命令也是跳转，但中间的步骤不会执行。比如从338行跳转到992行<code>j 992</code>。从338行到992行之间的所有代码都不会执行（可能会因为没有初始化造成问题），并且会从992行以后<strong>持续执行</strong>（如果没有碰到断点）</p>
+<h2 id="3-2-断点语句"><a href="#3-2-断点语句" class="headerlink" title="3.2 断点语句"></a>3.2 断点语句</h2><p><strong>break</strong> 命令（简写为 b）即我们添加断点的命令，可以使用以下方式添加断点：</p>
+<ul>
+<li><strong>break functionname</strong>，在函数名为 functionname 的入口处添加一个断点；</li>
+<li><strong>break LineNo</strong>，在当前文件行号为 LineNo 处添加一个断点；</li>
+<li><strong>break filename:LineNo</strong>，在 filename 文件行号为 LineNo 处添加一个断点。</li>
+</ul>
+<p>在程序中加了很多断点，而我们想查看加了哪些断点时，可以使用 <strong>info break</strong> 命令。</p>
+<p>如果我们想禁用某个断点，使用“<strong>disable 断点编号</strong>”就可以禁用这个断点了，被禁用的断点不会再被触发；同理，被禁用的断点也可以使用“<strong>enable 断点编号</strong>”重新启用。如果 <strong>disable</strong> 命令和 <strong>enable</strong> 命令<strong>不加断点编号</strong>，则分别表示禁用和启用所有断点。</p>
+<p>使用“<strong>delete 编号</strong>”可以删除某个断点，如 <strong>delete 2 3</strong> 则表示要删除的断点 2 和断点 3。同样的道理，如果输入 delete 不加命令号，则表示删除所有断点。</p>
+<p><strong>tbreak</strong> 命令也是添加一个断点，第一个字母“<strong>t</strong>”的意思是 temporarily（临时的），也就是说这个命令加的断点是临时的，所谓临时断点，就是一旦该断点触发一次后就会自动删除。</p>
+<h2 id="3-2-堆栈和线程查看语句"><a href="#3-2-堆栈和线程查看语句" class="headerlink" title="3.2 堆栈和线程查看语句"></a>3.2 堆栈和线程查看语句</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a><strong>list</strong></h3><p><strong>list</strong> 命令（简写为 l）可以查看当前断点处的代码。使用 <strong>frame</strong> 命令切换到刚才的堆栈 #3 处，然后输入 <strong>list</strong> 命令看下效果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 4</span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">(gdb) l</span><br><span class="line">1847        &#125;</span><br><span class="line">1848        server.db = zmalloc(sizeof(redisDb)*server.dbnum);</span><br><span class="line">1849</span><br><span class="line">1850        /* Open the TCP listening socket for the user commands. */</span><br><span class="line">1851        if (server.port != 0 &amp;&amp;</span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">1853            exit(1);</span><br><span class="line">1854</span><br><span class="line">1855        /* Open the listening Unix domain socket. */</span><br><span class="line">1856        if (server.unixsocket != NULL) &#123;</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>list语句现实的是目标语句处<strong>前后附近</strong>的代码，再次输入list命令后，代码继续往后显示 10 行。 list 指令还可以往前和往后显示代码，命令分别是<strong>list +</strong> （加号）和<strong>list -</strong> （减号）。</p>
+<h3 id="backtrace和frame"><a href="#backtrace和frame" class="headerlink" title="backtrace和frame"></a><strong>backtrace和frame</strong></h3><p><strong>backtrace</strong> 命令（简写为 bt）用来查看当前调用堆栈。若redis-server 现在中断在 anet.c:452 行，可以通过 <strong>backtrace</strong> 命令来查看当前的调用堆栈：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt</span><br><span class="line"><span class="meta">#</span><span class="bash">0  anetListen (err=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, s=10, sa=0x7e34e0, len=16, backlog=511) at anet.c:452</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x0000000000426e35 <span class="keyword">in</span> _anetTcpServer (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, af=af@entry=10, backlog=511)</span></span><br><span class="line">    at anet.c:487</span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x000000000042793d <span class="keyword">in</span> anetTcp6Server (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, backlog=511)</span></span><br><span class="line">    at anet.c:510</span><br><span class="line"><span class="meta">#</span><span class="bash">3  0x000000000042b0bf <span class="keyword">in</span> listenToPort (port=6379, fds=fds@entry=0x746ae4 &lt;server+356&gt;, count=count@entry=0x746b24 &lt;server+420&gt;) at server.c:1728</span></span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line"><span class="meta">#</span><span class="bash">5  0x0000000000423803 <span class="keyword">in</span> main (argc=1, argv=0x7fffffffe648) at server.c:3862</span></span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>这里一共有 6 层堆栈，最顶层是 <code>main()</code> 函数，最底层是断点所在的 <code>anetListen()</code>函数，堆栈编号分别是 #0 ~ #5。比如我们在利用<code>pthread_creat</code>函数创建线程时可以利用bt查看创建过程。</p>
+<p>使用bt以后可以看到如下结果，说明creat线程创建过程是clone-&gt;start_thread-&gt;MainTcpEpollThread</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">0  MainTcpEpollThread (lpParam=0x0) at ./Server.cpp:1035</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x00007ffff7bc6dd5 <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span></span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x00007ffff68f3ead <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>如果想切换到其他堆栈处，可以使用 frame 命令（简写为 f），该命令的使用方法是<strong>frame 堆栈编号</strong>（编号不加 #）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 1</span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x0000000000426e35 <span class="keyword">in</span> _anetTcpServer (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, af=af@entry=10, backlog=511)</span></span><br><span class="line">    at anet.c:487</span><br><span class="line">487             if (anetListen(err,s,p-&gt;ai_addr,p-&gt;ai_addrlen,backlog) == ANET_ERR) s = ANET_ERR;</span><br><span class="line">(gdb) f 2</span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x000000000042793d <span class="keyword">in</span> anetTcp6Server (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, backlog=511)</span></span><br><span class="line">    at anet.c:510</span><br><span class="line">510         return _anetTcpServer(err, port, bindaddr, AF_INET6, backlog);</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>通过查看上面的各个堆栈，可以得出这里的调用层级关系，即：</p>
+<ul>
+<li><code>main()</code> 函数在第 3862 行调用了 <code>initServer()</code> 函数</li>
+<li><code>initServer()</code> 在第 1852 行调用了 <code>listenToPort()</code>函数</li>
+<li><code>listenToPort()</code> 在第 1728 行调用了 <code>anetTcp6Server()</code> 函数</li>
+<li><code>anetTcp6Server()</code> 在第 510 行调用了 <code>_anetTcpServer()</code> 函数</li>
+<li><code>_anetTcpServer()</code> 函数在第 487 行调用了 <code>anetListen()</code> 函数</li>
+<li>当前断点正好位于 <code>anetListen()</code> 函数中</li>
+</ul>
+<h3 id="thread-命令"><a href="#thread-命令" class="headerlink" title="thread 命令"></a><strong>thread 命令</strong></h3><p>使用 <strong>info thread</strong> 命令来查看当前进程有哪些线程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info thread</span><br><span class="line">  Id   Target Id         Frame</span><br><span class="line">  4    Thread 0x7fffef7fd700 (LWP 53065) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">  3    Thread 0x7fffefffe700 (LWP 53064) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">  2    Thread 0x7ffff07ff700 (LWP 53063) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">* 1    Thread 0x7ffff7fec780 (LWP 53062) "redis-server" 0x00007ffff73ee923 in epoll_wait () from /lib64/libc.so.6</span><br></pre></td></tr></table></figure>
+
+<p>通过 <strong>info thread</strong> 的输出可以知道 redis-server 正常启动后，一共产生了 4 个线程，包括一个主线程和三个工作线程，线程编号（Id 那一列）分别是 4、3、2、1。三个工作线程（2、3、4）分别阻塞在 Linux API <code>pthread_cond_wait</code> 处，而主线程（1）阻塞在 <code>epoll_wait</code> 处。</p>
+<blockquote>
+<p>虽然第一栏的名称叫 Id，但第一栏的数值不是线程的 Id，第三栏括号里的内容（如 LWP 53065）中，53065 这样的数值才是当前线程真正的 Id。 LWP 是Light Weight Process（轻量级进程），之前Linux没有线程，用进程代替后来 Linux 系统有了真正的线程实现，这个名字仍然被保留了下来。</p>
+</blockquote>
+<p>可以通过“<strong>thread 线程编号</strong>”切换到具体的线程上去。例如，想切换到线程 2 上去，只要输入 <strong>thread 2</strong> 即可，然后输入 <strong>bt</strong> 就能查看这个线程的调用堆栈了。当把 GDB 当前作用的线程切换到线程 2 上之后，线程 2 前面就被加上了星号。</p>
+<h2 id="3-4-变量信息查看语句"><a href="#3-4-变量信息查看语句" class="headerlink" title="3.4 变量信息查看语句"></a>3.4 变量信息查看语句</h2><h3 id="print和ptype命令"><a href="#print和ptype命令" class="headerlink" title="print和ptype命令"></a><strong>print和ptype命令</strong></h3><p>通过 <strong>print</strong> 命令（简写为 p）我们可以在调试过程中方便地查看变量的值，也可以修改当前内存中的变量值。切换当前断点到堆栈 #4 ，然后打印以下三个变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 4</span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">(gdb) l</span><br><span class="line">1847        &#125;</span><br><span class="line">1848        server.db = zmalloc(sizeof(redisDb)*server.dbnum);</span><br><span class="line">1849</span><br><span class="line">1850        /* Open the TCP listening socket for the user commands. */</span><br><span class="line">1851        if (server.port != 0 &amp;&amp;</span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">1853            exit(1);</span><br><span class="line">1854</span><br><span class="line">1855        /* Open the listening Unix domain socket. */</span><br><span class="line">1856        if (server.unixsocket != NULL) &#123;</span><br><span class="line">(gdb) p server.port</span><br><span class="line"><span class="meta">$</span><span class="bash">15 = 6379</span></span><br><span class="line">(gdb) p server.ipfd</span><br><span class="line"><span class="meta">$</span><span class="bash">16 = &#123;0 &lt;repeats 16 <span class="built_in">times</span>&gt;&#125;</span></span><br><span class="line">(gdb) p server.ipfd_count</span><br><span class="line"><span class="meta">$</span><span class="bash">17 = 0</span></span><br></pre></td></tr></table></figure>
+
+<p>这里使用 <strong>print</strong> 命令分别打印出 <code>server.port</code> 、<code>server.ipfd</code> 、<code>server.ipfd_count</code> 的值，其中 <code>server.ipfd</code> 显示 “{0 …}”，这是 GDB 显示字符串或字符数据特有的方式，当一个字符串变量或者字符数组或者连续的内存值重复若干次，<strong>GDB 就会以这种模式来显示以节约空间.</strong></p>
+<p>此外我们可以输入 <strong>p &amp;server.port</strong> 来输出 <code>server.port</code> 的地址值。 <code>func()</code> 是一个可以执行的函数，<code>p func()</code> 命令可以输出该变量的执行结果。举一个最常用的例子，某个时刻，某个系统函数执行失败了，通过系统变量 errno 得到一个错误码，则可以使用 <strong>p strerror(errno)</strong> 将这个错误码对应的文字信息打印出来，这样就不用费劲地去 man 手册上查找这个错误码对应的错误含义了。</p>
+<hr>
+<p><strong>ptype</strong> ，顾名思义，其含义是“print type”，就是输出一个变量的类型。例如，我们试着输出 Redis 堆栈 #4 的变量 <code>server</code> 和变量 <code>server.port</code> 的类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(gdb) ptype server</span><br><span class="line">type = struct redisServer &#123;</span><br><span class="line">    pid_t pid;</span><br><span class="line">    char *configfile;</span><br><span class="line">    char *executable;</span><br><span class="line">    char **exec_argv;</span><br><span class="line">    int hz;</span><br><span class="line">    redisDb *db;</span><br><span class="line">    ...省略部分字段...</span><br><span class="line">(gdb) ptype server.port</span><br><span class="line">type = int</span><br></pre></td></tr></table></figure>
+
+<h3 id="info-args命令"><a href="#info-args命令" class="headerlink" title="info args命令"></a><strong>info args命令</strong></h3><p><strong>info args</strong>可以用来查看当前函数的参数值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(gdb) thread 1</span><br><span class="line">[Switching to thread 1 (Thread 0x7ffff7fec780 (LWP 53062))]</span><br><span class="line"><span class="meta">#</span><span class="bash">0  0x00007ffff73ee923 <span class="keyword">in</span> epoll_wait () from /lib64/libc.so.6</span></span><br><span class="line">(gdb) bt</span><br><span class="line"><span class="meta">#</span><span class="bash">0  0x00007ffff73ee923 <span class="keyword">in</span> epoll_wait () from /lib64/libc.so.6</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x00000000004265df <span class="keyword">in</span> aeApiPoll (tvp=0x7fffffffe300, eventLoop=0x7ffff08350a0) at ae_epoll.c:112</span></span><br><span class="line"><span class="meta">#</span><span class="bash">2  aeProcessEvents (eventLoop=eventLoop@entry=0x7ffff08350a0, flags=flags@entry=11) at ae.c:411</span></span><br><span class="line"><span class="meta">#</span><span class="bash">3  0x0000000000426aeb <span class="keyword">in</span> aeMain (eventLoop=0x7ffff08350a0) at ae.c:501</span></span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x00000000004238ef <span class="keyword">in</span> main (argc=1, argv=0x7fffffffe648) at server.c:3899</span></span><br><span class="line">(gdb) f 2</span><br><span class="line"><span class="meta">#</span><span class="bash">2  aeProcessEvents (eventLoop=eventLoop@entry=0x7ffff08350a0, flags=flags@entry=11) at ae.c:411</span></span><br><span class="line">411             numevents = aeApiPoll(eventLoop, tvp);</span><br><span class="line">(gdb) info args</span><br><span class="line">eventLoop = 0x7ffff08350a0</span><br><span class="line">flags = 11</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>上述代码片段切回至主线程 1，然后切换到堆栈 #2，堆栈 #2 调用处的函数是 aeProcessEvents() ，一共有两个参数，使用 <strong>info args</strong> 命令可以输出当前两个函数参数的值，参数 eventLoop 是一个指针类型的参数，对于指针类型的参数，GDB 默认会输出该变量的指针地址值，如果想输出该指针指向对象的值，在变量名前面加上<strong>解引用</strong>即可，这里使用 <code>p* eventLoop</code> 命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p *eventLoop</span><br><span class="line"><span class="meta">$</span><span class="bash">26 = &#123;maxfd = 11, setsize = 10128, timeEventNextId = 1, lastTime = 1536570672, events = 0x7ffff0871480, fired = 0x7ffff08c2e40, timeEventHead = 0x7ffff0822080,</span></span><br><span class="line">  stop = 0, apidata = 0x7ffff08704a0, beforesleep = 0x429590 &lt;beforeSleep&gt;, aftersleep = 0x4296d0 &lt;afterSleep&gt;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="watch命令"><a href="#watch命令" class="headerlink" title="watch命令"></a><strong>watch命令</strong></h3><p><strong>watch</strong> 命令可以用来监视一个变量或者一段内存，当这个变量或者该内存处的值发生变化时，GDB 就会中断下来。被监视的某个变量或者某个内存地址会产生一个 watch point（观察点）， watch 命令就可以通过添加硬件断点来达到监视数据变化的目的。它有两种形式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//形式一：整型变量</span></span><br><span class="line"><span class="keyword">int</span> i;</span><br><span class="line">watch i</span><br><span class="line"><span class="comment">//形式二：指针类型</span></span><br><span class="line"><span class="keyword">char</span> *p;</span><br><span class="line">watch p 与 watch *p</span><br><span class="line"><span class="comment">//形式三：watch 一个数组或内存区间</span></span><br><span class="line"><span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">watch buf</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：<code>watch p</code> 与 <code>watch *p</code> 是有区别的，前者是查看* (&amp;p)，是 p 变量本身；后者是 p 所指内存的内容。我们需要查看地址，因为目的是要看某内存地址上的数据是怎样变化的。</p>
+<h3 id="display命令"><a href="#display命令" class="headerlink" title="display命令"></a><strong>display命令</strong></h3><p><strong>display</strong> 命令监视的变量或者内存地址，每次程序中断下来都会自动输出这些变量或内存的值。例如，假设程序有一些全局变量，每次断点停下来我都希望 GDB 可以自动输出这些变量的最新值，那么使用“<strong>display 变量名</strong>”设置即可</p>
+<p>比如输入<code>(gdb) display $ebx</code>，那么每次调试的最后无论有没有print最后都会打印出$ebx的结果。</p>
+<p>以使用 <strong>info display</strong> 查看当前已经自动添加了哪些值，使用 <strong>delete display</strong> 清除全部需要自动输出的变量，使用 <strong>delete diaplay 编号</strong> 删除某个自动输出的变量。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" data-id="ck4o2turd000gu4vyh1xbgrw1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          详解Epoll-下篇
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">详解Epoll-上篇</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

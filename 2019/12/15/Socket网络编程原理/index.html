@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Socket网络编程原理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 网络模型TCP&#x2F;IP模型，又称传输控制协议&#x2F;网际协议(Transmission Control Protocol&#x2F;Internet Protocol)。 简单来说，此协议的通信过程如同数据出栈入栈的过程。  入栈：数据发送方每层不断地封装头部和尾部，向中间添加传输信息 出栈：数据接收方每层不断拆除头部尾部，读取中间的传输信息  TCP&#x2F;IP协议借鉴了OSI参考模型(Open System I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Socket网络编程原理">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;15&#x2F;Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 网络模型TCP&#x2F;IP模型，又称传输控制协议&#x2F;网际协议(Transmission Control Protocol&#x2F;Internet Protocol)。 简单来说，此协议的通信过程如同数据出栈入栈的过程。  入栈：数据发送方每层不断地封装头部和尾部，向中间添加传输信息 出栈：数据接收方每层不断拆除头部尾部，读取中间的传输信息  TCP&#x2F;IP协议借鉴了OSI参考模型(Open System I">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;07&#x2F;ed88f97317decd70.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;07&#x2F;5c01a97cd467d222.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;07&#x2F;8dabc100eb0549e0.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;07&#x2F;074e5304e133a22c.png">
+<meta property="article:published_time" content="2019-12-15T13:54:01.000Z">
+<meta property="article:modified_time" content="2019-12-16T10:48:34.900Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;07&#x2F;ed88f97317decd70.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Socket网络编程原理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-12-15T13:54:01.000Z" itemprop="datePublished">2019-12-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Socket网络编程原理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-网络模型"><a href="#1-网络模型" class="headerlink" title="1. 网络模型"></a>1. 网络模型</h1><p>TCP/IP模型，又称<strong>传输控制协议/网际协议(Transmission Control Protocol/Internet Protocol)</strong>。</p>
+<p>简单来说，此协议的通信过程如同<strong>数据出栈入栈</strong>的过程。</p>
+<ul>
+<li>入栈：数据发送方每层不断地封装头部和尾部，向中间添加传输信息</li>
+<li>出栈：数据接收方每层不断拆除头部尾部，读取中间的传输信息</li>
+</ul>
+<p>TCP/IP协议借鉴了OSI参考模型(Open System Interconnect)，主要针对计算机网络体系。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/ed88f97317decd70.png" alt="img" style="zoom: 80%;" />
+
+<ul>
+<li>应用层：具有HTTP和FTP等协议</li>
+<li>传输层：具有TCP和UDP(User Datagram Protocol)用户数据报协议</li>
+<li>网络层：包含了IP协议</li>
+<li>数据链路层：也称网络接口层，为等待传送的数据加入一个以太网协议头，为传输做好准备</li>
+</ul>
+<p>如果用发快递作比喻</p>
+<ul>
+<li>应用层：帮客户打包</li>
+<li>传输层：从快递点送到集散中心</li>
+<li>网络层：集散中心确定将要发送的地址</li>
+<li>数据链路层：将小包裹打包成集装箱（装帧），由此控制发送流量等信息</li>
+<li>物理层：高速路、铁路送走</li>
+</ul>
+<h1 id="2-Socket原理"><a href="#2-Socket原理" class="headerlink" title="2. Socket原理"></a>2. Socket原理</h1><h2 id="2-1-概念"><a href="#2-1-概念" class="headerlink" title="2.1 概念"></a>2.1 概念</h2><p>socket是<strong>应用层</strong>和<strong>传输层</strong>之间的抽象层，他是一组接口，<strong>将复杂的传输层和网络层协议隐藏到socket接口后面</strong>。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/5c01a97cd467d222.png" alt="img" style="zoom:80%;" />
+
+<p>socket是从Unix/Linux引入的概念，而Unix/Linux的哲学就是：<strong>一切皆文件，都可以用”open–&gt;write/read–&gt;close”模式进行操作</strong>。同样的，socket的思路也是打开、读写IO、关闭。</p>
+<h2 id="2-2-三次握手"><a href="#2-2-三次握手" class="headerlink" title="2.2 三次握手"></a>2.2 三次握手</h2><p>所谓三次握手是指<strong>建立</strong>一个TCP连接时，<strong>需要客户端和服务器发送3个包</strong>。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/8dabc100eb0549e0.png" alt="img"  />
+
+<p>名词解释：</p>
+<ul>
+<li>SYN：Synchronize，同步标志位，为1时表示序列号有效</li>
+<li>ACK：Acknowledgment，确认标志位</li>
+<li>seq：Synchronize Sequence Number，同步序列号</li>
+<li>ack：确认序列号</li>
+</ul>
+<p>握手过程：</p>
+<ol>
+<li>第一次握手：客户端发送SYN标志为1的包，以及同步序列号x，并指明打算连接的服务器端口。此时，connect进入阻塞状态。</li>
+<li>第二次握手：服务器收到后，发送SYN和ACK标志为1的包，同时也发送一个自己的同步序列号y，外加一个确认序列号ack=x+1。此时accept进入阻塞状态。</li>
+<li>第三次握手：客户端收到后，再次发送ACK=1，以及同步序列号seq和确认序列号ack，与此同时，connect返回。当服务器收到ACK=1时，accept返回。</li>
+</ol>
+<h2 id="2-3-四次挥手"><a href="#2-3-四次挥手" class="headerlink" title="2.3 四次挥手"></a>2.3 四次挥手</h2><p>指<strong>中断</strong>连接时需要发送4个包，此<strong>时客户端和服务器均可主动发起</strong>挥手操作，只需要调用close()函数即可。</p>
+<p><img src="https://i.bmp.ovh/imgs/2019/07/074e5304e133a22c.png" alt="img"></p>
+<p>B收到FIN结束消息时，干两件事：发送确认标志和通知其他进程准备关闭（这也是为什么要多一次挥手）。当准备完毕时，发送FIN。</p>
+<p>A收到FIN时，也干两件事：发送确认标志和等待2MSL(Maximum Segment Lifetime)</p>
+<h2 id="2-4-常见问题"><a href="#2-4-常见问题" class="headerlink" title="2.4 常见问题"></a>2.4 常见问题</h2><p><strong>为什么不能用两次握手连接</strong></p>
+<p>三次握手完成两个重要功能：</p>
+<ul>
+<li>双方都知道彼此已经准备好</li>
+<li>确认彼此的序列号</li>
+</ul>
+<p>假设只有两次握手，A向B发送连接请求，B收到后回复消息，B认为此时已经连接成功，开始发送数据。然而，如果B的回复消息丢失了，A没有收到确认消息，只有再次发送连接请求，而此时B有在向A发送数据，这样就会造成<strong>死锁</strong>。</p>
+<p><strong>为什么连接是三次握手，而关闭时是四次？</strong></p>
+<p>关闭连接时，服务端需要回复两次</p>
+<ul>
+<li>第一次告诉客户端，我已经收到了你的请求了，但我的剩余报文还没有处理完，等一等。客户端收到后不再发送请求，开始默默等待。</li>
+<li>第二次告诉客户端处理完成。</li>
+</ul>
+<p><strong>为什么TIME_WAIT状态需要经过2MSL？</strong></p>
+<p>2MSL是一次发送和回复的最大时间，客户端最后一次发送ACK可能会丢失，如果此时冒然关闭，会导致服务器没收到ACK，然后一直发一直发。所以需要等2MSL，如果超过这个时间，都还没有收到服务器的信息，说明已经完成，可以关闭。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" data-id="ck4o2tus4001au4vy5k412bx1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/16/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SLAM基础2-三维刚体运动
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">鱼眼镜头模型</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

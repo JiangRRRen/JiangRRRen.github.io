@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>CPP多线程总结1-线程管理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="包含了线程创建的基本操作和注意事项，如何向线程传递参数，以及线程管理的高级操作：转移所有权和动态数量 1. 创建与启动线程1.1 线程与进程线程与进程的区别，这个问题真的是老生常谈了，在开始之前最好还是复习一遍： 对于操作系统来说，一个任务就是一个进程(Process)，比如打开浏览器，使用word。而一个进程可能不只干一件事（比如word既要打字又要检查拼写），这种进程内的多个子任务就是线程（T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP多线程总结1-线程管理">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;26&#x2F;CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="包含了线程创建的基本操作和注意事项，如何向线程传递参数，以及线程管理的高级操作：转移所有权和动态数量 1. 创建与启动线程1.1 线程与进程线程与进程的区别，这个问题真的是老生常谈了，在开始之前最好还是复习一遍： 对于操作系统来说，一个任务就是一个进程(Process)，比如打开浏览器，使用word。而一个进程可能不只干一件事（比如word既要打字又要检查拼写），这种进程内的多个子任务就是线程（T">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-12-26T14:25:02.000Z">
+<meta property="article:modified_time" content="2019-12-26T14:50:47.221Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-CPP多线程总结1-线程管理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2019-12-26T14:25:02.000Z" itemprop="datePublished">2019-12-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP多线程总结1-线程管理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>包含了线程创建的基本操作和注意事项，如何向线程传递参数，以及线程管理的高级操作：转移所有权和动态数量</p>
+<h1 id="1-创建与启动线程"><a href="#1-创建与启动线程" class="headerlink" title="1. 创建与启动线程"></a>1. 创建与启动线程</h1><h2 id="1-1-线程与进程"><a href="#1-1-线程与进程" class="headerlink" title="1.1 线程与进程"></a>1.1 线程与进程</h2><p>线程与进程的区别，这个问题真的是老生常谈了，在开始之前最好还是复习一遍：</p>
+<p>对于操作系统来说，<strong>一个任务就是一个进程(Process)</strong>，比如打开浏览器，使用word。而一个进程可能不只干一件事（比如word既要打字又要检查拼写），这种<strong>进程内的多个子任务就是线程</strong>（Thread）。</p>
+<p>具体来说：</p>
+<ul>
+<li>进程是操作系统分配资源的单位，而线程是进程的一个实体，是CPU调度和分派的基本单位。</li>
+<li>线程不能够独立执行，必须依存在应用程序中，由应用程序提供多个线程执行控制。</li>
+</ul>
+<p><strong>多进程与多线程：</strong>现代操作系统一般都是多进程的，他可以同时运行多个任务，一般来说一个CPU核对应一个进程，如果开启的进程比较多就需要使用<strong>时间片轮转进程调度算法</strong>。它的思想简单介绍如下：在操作系统的管理下，所有正在运行的进程轮流使用CPU，每个进程允许占用CPU的时间非常短(比如10毫秒)，这样用户根本感觉不出来CPU是在轮流为多个进程服务，就好象所有的进程都在不间断地运行一样。</p>
+<p><strong>引入线程的好处：</strong></p>
+<ul>
+<li>在进程内创建、终止线程比创建、终止进程要快；</li>
+<li>同一进程内的线程间切换比进程间的切换要快。</li>
+</ul>
+<p><strong>总结：</strong></p>
+<ul>
+<li>一个程序至少有一个进程,一个进程至少有一个线程。</li>
+<li>线程的划分尺度小于进程，使得多线程程序的并发性高（多个计算同时执行）。</li>
+<li>进程在执行过程中拥有独立的内存单元，而多个线程共享内存，从而极大地提高了程序的运行效率。</li>
+<li>虽然线程拥有单独的程序运行入口，出口，但不能独立执行。</li>
+<li>从逻辑角度来看，多线程的意义在于一个应用程序中，有多个执行部分可以同时执行。但操作系统并没有将多个线程看做多个独立的应用，来实现进程的调度和管理以及资源分配。<strong>这就是进程和线程的重要区别。</strong></li>
+</ul>
+<h2 id="1-2-启动线程"><a href="#1-2-启动线程" class="headerlink" title="1.2 启动线程"></a>1.2 启动线程</h2><p>在C++11的标准库中，将<strong>创建线程和创建实例</strong>两个动作统一起来，对于人们来说来说，线程就变成了如内存、文件一样的资源，由 C++ 提供统一的接口进行管理。同时，我们也已知晓，<strong>创建线程需指定线程函数</strong>。那么，根据线程函数的不同，在 C++ 中使用 <code>std::thread</code> 直接创建线程，大致有三种不同的方式。</p>
+<p><strong>1）使用函数指针创建</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_some_work</span><span class="params">()</span></span>;</span><br><span class="line"><span class="built_in">std</span>::thread wk_thread&#123;do_some_work&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这就是最基本的方式，当然也可以显示的传入<code>&amp;do_some_work</code>当做构造参数，或者利用<code>auto</code>进行构造：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">thread_function</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++)</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"thread function excuting"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> fun1 = thread_function;</span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">wk_thread</span><span class="params">(fun1)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）可调用类型创建</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DisplayThread</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">operator</span> <span class="params">()</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++)</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Display Thread Excecuting"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::thread wk_thread&#123;DisplayThread&#123;&#125;&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>若是在创建线程的时候，传入的是临时构造的实例，需要注意 C++ 的语法解析规则。这种情况下，推荐使用 C++ 的列表初始化。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">wk_thread</span><span class="params">(ThreadTask())</span></span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">std</span>::thread wk_thread&#123;ThreadTask&#123;&#125;&#125;;    <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>1可能会被理解为一个函数声明：参数是函数指针<code>ThreadTask</code>，返回类型是<code>thread</code>。所以这种情况下最好用花括号初始化。</p>
+<p><strong>（3）Lambda表达式</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> a = <span class="number">1</span>, b = <span class="number">5</span>;</span><br><span class="line"><span class="keyword">auto</span> dosomething = [a=a,b=b]() &#123;<span class="built_in">cout</span> &lt;&lt; a+b &lt;&lt; <span class="built_in">endl</span>; &#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">wk_thread</span><span class="params">(dosomething)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-线程控制"><a href="#1-3-线程控制" class="headerlink" title="1.3 线程控制"></a>1.3 线程控制</h2><p>正如申请了内存，必须主动释放一样，对线程的管理也讲究有始有终。当线程启动之后，我们可以在 <code>std::thread</code> 实例销毁之前，<strong>显式地说明我们希望如何处理实例对应线程的结束状</strong>态。如果上述实例销毁之时，程序员尚未显式说明如何处理对应线程的结束状态，那么在上述实例的析构函数中，会调用 <code>std::terminate()</code> 函数，终止整个程序。</p>
+<p>在主线程中，我们可以选择「挂起 (join)」或者「分离 (detach)」产生的子线程。具体来说，就是对 <code>std::thread</code> 实例调用 <code>join()</code> 或者 <code>detach()</code> 成员函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_something</span><span class="params">()</span></span>;</span><br><span class="line"><span class="built_in">std</span>::thread join_me&#123;do_something&#125;;</span><br><span class="line"><span class="built_in">std</span>::thread detach_me&#123;do_something&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (join_me.joinable()) &#123;       <span class="comment">// 1</span></span><br><span class="line">    join_me.join();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (detach_me.joinable()) &#123;     <span class="comment">// 1</span></span><br><span class="line">    detach_me.detach();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果选择挂起子线程，则<strong>主线程会被阻塞</strong>，直到子线程退出为止。如果选择分离子线程，则<strong>主线程对子线程的控制权丢失</strong>，将控制权转交给C++库。这会导致几个问题：</p>
+<ul>
+<li>主线程结束之后，子线程可能仍在运行（因而可以作为守护线程）</li>
+<li>主线程结束伴随着资源销毁，需要保证子线程没有引用这些资源。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">func</span> &#123;</span></span><br><span class="line">    <span class="keyword">size_t</span>&amp; i_ = <span class="number">0</span>;</span><br><span class="line">    func(<span class="keyword">int</span>&amp; i): i_(i) &#123;&#125;      <span class="comment">// 1</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">operator</span><span class="params">()</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">size_t</span> j&#123;<span class="number">0</span>&#125;; j!= <span class="number">1000000</span>; ++j) &#123;</span><br><span class="line">            do_something(i);    <span class="comment">// 2</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bad_reference</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">size_t</span> working&#123;<span class="number">42</span>&#125;;</span><br><span class="line">    func wk_func&#123;working&#125;;</span><br><span class="line">    <span class="built_in">std</span>::thread wk_thread&#123;wk_func&#125;;</span><br><span class="line">    wk_thread.detach();         <span class="comment">// 3</span></span><br><span class="line">    <span class="keyword">return</span>;                     <span class="comment">// 4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里，我们定义了一个可调用的类。在循环内，我们不断尝试对外部传来的引用 (1) 进行一些操作 (2)。然而，在分离子线程之后 (3)，子线程所依赖的外部引用，随着函数的退出而销毁 (4)。这样，子线程后续使用该引用 (2) 的行为就是未定义的了，这是非常危险的。</p>
+<p>事实上这段程序根本不会通过编译，因为根据C++11的新特性：向thread传引用必须使用<code>std::ref(params)</code>或者使用移动语义<code>std::move(params)</code>，前者相当于复制了一个资源进入线程。</p>
+<p>对于可能发生资源泄漏的情况，下面介绍两种应对策略：<strong>异常抛出和RAII</strong>。</p>
+<p><strong>（1）RAII策略（Resource Acquisition Is Initialization）</strong></p>
+<p>将资源封装在一个 handle 或者 guard 当中，从而防止资源泄漏。同时，前文也提到，<strong>线程也是一种资源</strong>。因此，我们可以考虑构造一个 <code>ThreadGuard</code> 来处理这种异常安全的问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadGuard</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::thread&amp; t_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    explicit ThreadGuard(std::thread&amp; t) :t_(t) &#123;&#125;</span><br><span class="line">    ~ThreadGuard()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;t_.joinable())</span><br><span class="line">            <span class="keyword">this</span>-&gt;t_.join();</span><br><span class="line">    &#125;</span><br><span class="line">    ThreadGuard(<span class="keyword">const</span> ThreadGuard&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    ThreadGuard&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> ThreadGuard&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::thread mythread&#123; myfun &#125;;</span><br><span class="line">    ThreadGuard g&#123; mythread &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果不添加线程守护，则主程序结束后，线程资源并没有得到释放，会引起内存出错。加了以后，会一直等待子线程跑完，主线程才会彻底结束。</p>
+<p><strong>（2）try-catch策略</strong></p>
+<p>通过异常抛出的办法保护子线程的正常工作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">func</span>;</span> <span class="comment">// 定义在清单2.1中</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> some_local_state=<span class="number">0</span>;</span><br><span class="line">  <span class="function">func <span class="title">my_func</span><span class="params">(some_local_state)</span></span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(my_func)</span></span>;</span><br><span class="line">  <span class="keyword">try</span></span><br><span class="line">  &#123;</span><br><span class="line">    do_something_in_current_thread();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">catch</span>(...)</span><br><span class="line">  &#123;</span><br><span class="line">    t.join();  <span class="comment">// 1</span></span><br><span class="line">    <span class="keyword">throw</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  t.join();  <span class="comment">// 2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>try/catch</code>块确保访问本地状态的线程退出后，函数才结束。当函数正常退出时，会执行到②处；当函数执行过程中抛出异常，程序会执行到①处。<code>try/catch</code>块能轻易的捕获轻量级错误。</p>
+<h1 id="2-向线程传递参数"><a href="#2-向线程传递参数" class="headerlink" title="2. 向线程传递参数"></a>2. 向线程传递参数</h1><h2 id="2-1-确保预先转换格式"><a href="#2-1-确保预先转换格式" class="headerlink" title="2.1 确保预先转换格式"></a>2.1 确保预先转换格式</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">demo</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp;)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bad_buffer</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> param)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">2014</span>];                  <span class="comment">// 1</span></span><br><span class="line">    <span class="built_in">sprintf</span>(buffer, <span class="string">"%i"</span>, param);</span><br><span class="line">    <span class="built_in">std</span>::<span class="function">thread <span class="title">wk_t</span><span class="params">(demo, <span class="number">42</span>, buffer)</span></span>; <span class="comment">// 2</span></span><br><span class="line">    <span class="keyword">wk_t</span>.detach();</span><br><span class="line">    <span class="keyword">return</span>;                             <span class="comment">// 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>传入<code>thread</code>的是一个<code>int</code>，一个<code>char*</code>，而<code>char*</code>需要隐式转化为<code>const string&amp;</code>，如果在转化的过程中发生了函数退出(3)，则会产生一个未定义行为，这是非常危险的。</p>
+<p>因此，关于线程函数传参的铁律是：<strong>必须在参数传递给线程构造之前，就转换好格式</strong>。</p>
+<h2 id="2-2-确保引用和右值的可行性"><a href="#2-2-确保引用和右值的可行性" class="headerlink" title="2.2 确保引用和右值的可行性"></a>2.2 确保引用和右值的可行性</h2><p>对于引用类型，如前面提到的必须使用<code>std::ref()</code>进行转化转化为<code>std::reference_wrapper</code>类型。</p>
+<p>首先介绍一下<code>ref</code>和<code>std::reference_wrapper</code>。简单来说就是<strong>让按值传参的模板可以接受一个引用作为参数</strong>。如下代码所示，由于模板是按值传递，T会被推导为<code>int</code>类型，所以引用无效。所以为了使得引用生效，我们必须转化为<code>std::reference_wrapper</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">functest</span><span class="params">(T a)</span></span>&#123;</span><br><span class="line">    ++a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span>&amp; b=a;</span><br><span class="line">functest(a);</span><br><span class="line">functest(ref(a));</span><br></pre></td></tr></table></figure>
+
+<p><code>ref()</code>返回一个<code>reference_wrapper</code>对象，事实上，<code>ref()</code>就是用<code>reference wrapper</code>来包裹对象的一个简化写法。</p>
+<p>下面展示了<code>ref()</code>的一个用例，<code>stl</code>容器提供的是value语义而不是reference语义，所以容器不支持元素为引用，而用reference_wrapper可以实现。所以vector和list能实现<strong>同步更新</strong>（不支持添加，删除操作！）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">list</span>&lt;<span class="keyword">int</span>&gt; l1(<span class="number">2</span>,<span class="number">1</span>);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::reference_wrapper&lt;<span class="keyword">int</span>&gt;&gt; v(l1.begin(), l1.end());</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; x : l1)</span><br><span class="line">    x = x * <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>讲完引用，下面来讲下移动语义。由于thread支持普适引用<code>T&amp;&amp;</code>，所以<code>move</code>操作可以放心执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">wk_t</span><span class="params">(demo, <span class="number">42</span>, <span class="built_in">std</span>::<span class="built_in">move</span>(params))</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-非静态成员函数作为线程函数"><a href="#2-3-非静态成员函数作为线程函数" class="headerlink" title="2.3 非静态成员函数作为线程函数"></a>2.3 非静态成员函数作为线程函数</h2><p>类的非静态成员函数也是函数，因而也可以作为线程函数使用。不过，相比一般的函数（包括静态成员函数），将其作为线程函数使用时，有两个特殊之处。</p>
+<ul>
+<li>必须显式地使用<strong>函数指针</strong>，作为 <code>std::thread</code> 构造函数的第一个参数（换句话说，必须使用引用的形式）；</li>
+<li>非静态成员函数的第一个参数，实际上是<strong>类实例的指针</strong>，在创建线程时，需要显式地填入这个参数。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">demo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Foo baz;</span><br><span class="line">    <span class="built_in">std</span>::thread <span class="keyword">temp_t</span>&#123;&amp;Foo::bar, &amp;baz&#125;;</span><br><span class="line">    <span class="keyword">temp_t</span>.join();</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，必须说明的是，脱离了实例的非静态成员函数是没有意义的。因此，在将非静态成员函数作为线程函数时，必须保证对应的实例可用。</p>
+<h1 id="3-转移线程所有权"><a href="#3-转移线程所有权" class="headerlink" title="3. 转移线程所有权"></a>3. 转移线程所有权</h1><p>线程这种资源<strong>可转移但不可复制</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">some_function</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">some_other_function</span><span class="params">()</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(some_function)</span></span>;            <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">std</span>::thread t2=<span class="built_in">std</span>::move(t1);            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line">t1=<span class="built_in">std</span>::thread(some_other_function);    <span class="comment">// 3</span></span><br><span class="line"><span class="built_in">std</span>::thread t3;                            <span class="comment">// 4</span></span><br><span class="line">t3=<span class="built_in">std</span>::move(t2);                        <span class="comment">// 5</span></span><br><span class="line">t1=<span class="built_in">std</span>::move(t3);                        <span class="comment">// 6 赋值操作将使程序崩溃</span></span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，我们先创建了一个线程t1，然后将结果移动到t2，现在t1这个变量依然存在，只是不包含任何内容。</p>
+<p>操作3-6则<strong>尝试将一个线程赋给一个非空线程</strong>，将some_function线程的所有权转移⑥给t1。不过，t1已经有了一个关联的线程(执行some_other_function的线程)，所以这里系统直接调用<code>std::terminate()</code>终止程序继续运行。这样做（<strong>不抛出异常</strong>，<code>std::terminate()</code>是noexcept函数，是为了保证与<code>std::thread</code>的析构函数的行为一致。</p>
+<p><code>std::thread</code>支持移动，就意味着线程的所有权可以在函数外进行转移，或者作为参数传递进入函数中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="built_in">std</span>::thread t)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">some_function</span><span class="params">()</span></span>;</span><br><span class="line">  f(<span class="built_in">std</span>::thread(some_function));</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(some_function)</span></span>;</span><br><span class="line">  f(<span class="built_in">std</span>::move(t));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>移动操作也可能引出一些问题：<strong>当某个对象转移了线程的所有权后，它就不能对线程进行加入或分离</strong>。为了<strong>确保线程程序退出前完成</strong>，下面的代码里定义了<code>scoped_thread</code>类。它的思路和我们之前写的<code>ThreadGuard</code>比较相似。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">scoped_thread</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="built_in">std</span>::thread t;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  explicit scoped_thread(std::thread t_):                 // 1</span><br><span class="line">    t(<span class="built_in">std</span>::move(t_))</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(!t.joinable())                                     <span class="comment">// 2</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="built_in">std</span>::logic_error(“No thread”);</span><br><span class="line">  &#125;</span><br><span class="line">  ~scoped_thread()</span><br><span class="line">  &#123;</span><br><span class="line">    t.join();                                            <span class="comment">// 3</span></span><br><span class="line">  &#125;</span><br><span class="line">  scoped_thread(scoped_thread <span class="keyword">const</span>&amp;)=<span class="keyword">delete</span>;</span><br><span class="line">  scoped_thread&amp; <span class="keyword">operator</span>=(scoped_thread <span class="keyword">const</span>&amp;)=<span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">func</span>;</span> <span class="comment">// 定义在清单2.1中</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> some_local_state;</span><br><span class="line">  <span class="function">scoped_thread <span class="title">t</span><span class="params">(<span class="built_in">std</span>::thread(func(some_local_state)))</span></span>;    <span class="comment">// 4</span></span><br><span class="line">  do_something_in_current_thread();</span><br><span class="line">&#125;                                                        <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+
+<p>与<code>ThreadGuard</code>相似，不过新线程直接传递到<code>scoped_thread</code>中④，而非创建一个独立变量。当主线程到达<code>f()</code>函数末尾时⑤，<code>scoped_thread</code>对象就会销毁，然后加入③到的构造函数①创建的线程对象中去。在清单2.3中的<code>thread_guard</code>类，需要在析构中检查线程是否”可加入”。<strong>这里把检查放在了构造函数</strong>中②，并且当线程不可加入时，抛出异常。</p>
+<h1 id="4-运时决定线程数量"><a href="#4-运时决定线程数量" class="headerlink" title="4. 运时决定线程数量"></a>4. 运时决定线程数量</h1><p>对于那些支持移动操作的容器，我们可以将线程放入这些容器中，产生<strong>量产线程</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_work</span><span class="params">(<span class="keyword">unsigned</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">unsigned</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    threads.emplace_back(do_work,i); <span class="comment">// 产生线程</span></span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; entry : threads) <span class="comment">// 对每个线程调用 join()</span></span><br><span class="line">    entry.join();       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面给出一个很棒的实战demo，我们仔细来分析一下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Iterator,<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">accumulate_block</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">operator</span><span class="params">()</span><span class="params">(Iterator first,Iterator last,T&amp; result)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    result=<span class="built_in">std</span>::accumulate(first,last,result);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Iterator,<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function">T <span class="title">parallel_accumulate</span><span class="params">(Iterator first,Iterator last,T init)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> length=<span class="built_in">std</span>::distance(first,last);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(!length) <span class="comment">// 1</span></span><br><span class="line">    <span class="keyword">return</span> init;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> min_per_thread=<span class="number">25</span>;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> max_threads=</span><br><span class="line">      (length+min_per_thread<span class="number">-1</span>)/min_per_thread; <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> hardware_threads=</span><br><span class="line">      <span class="built_in">std</span>::thread::hardware_concurrency();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> num_threads=  <span class="comment">// 3</span></span><br><span class="line">      <span class="built_in">std</span>::min(hardware_threads != <span class="number">0</span> ? hardware_threads : <span class="number">2</span>, max_threads);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">const</span> block_size=length/num_threads; <span class="comment">// 4</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;T&gt; results(num_threads);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads(num_threads<span class="number">-1</span>);  <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line">  Iterator block_start=first;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">long</span> i=<span class="number">0</span>; i &lt; (num_threads<span class="number">-1</span>); ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    Iterator block_end=block_start;</span><br><span class="line">    <span class="built_in">std</span>::advance(block_end,block_size);  <span class="comment">// 6</span></span><br><span class="line">    threads[i]=<span class="built_in">std</span>::thread(     <span class="comment">// 7</span></span><br><span class="line">        accumulate_block&lt;Iterator,T&gt;(),</span><br><span class="line">        block_start,block_end,<span class="built_in">std</span>::ref(results[i]));</span><br><span class="line">    block_start=block_end;  <span class="comment">// #8</span></span><br><span class="line">  &#125;</span><br><span class="line">  accumulate_block&lt;Iterator,T&gt;()(</span><br><span class="line">      block_start,last,results[num_threads<span class="number">-1</span>]); <span class="comment">// 9</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::for_each(threads.begin(),threads.end(),</span><br><span class="line">        <span class="built_in">std</span>::mem_fn(&amp;<span class="built_in">std</span>::thread::join)); <span class="comment">//10</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">std</span>::accumulate(results.begin(),results.end(),init); <span class="comment">// 11</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>std::accumulate</code>函数的作用是：累加容器中begin到end的所有数，再加上init。下面我们按标号一一解释：</p>
+<ol>
+<li>此处避免输入迭代器起始位置都相同，浪费计算</li>
+<li><code>min_per_thread</code>表示每个线程的最小计算数，如果输入长度较小的情况下，避免产生过多线程。</li>
+<li><code>std::thread::hardware_concurrency()</code>返回当前计算机核心数，如果没有顺利取得，就返回0，此时我们默认设为2核。</li>
+<li>每个线程分到的计算任务量大小</li>
+<li>创建线程容器</li>
+<li><code>block_end</code>迭代器指向当前块的末尾</li>
+<li>启动一个新线程为当前块累加结果</li>
+<li>当迭代器指向当前块的末尾时，启动下一个块</li>
+<li>启动所有线程后，线程会处理最终块的结果。由于不一定分配均匀，所以需要一个来收尾。</li>
+<li>将所有线程挂起，<code>mem_fn</code>表示每个容器的元素都执行这个函数。</li>
+<li>返回所有结果的累加和。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/" data-id="ck4o2tuqw0002u4vy9tmdb6nf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%932-%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CPP多线程总结2-线程间共享数据
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">EffectiveModernCPP笔记8-并发API</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

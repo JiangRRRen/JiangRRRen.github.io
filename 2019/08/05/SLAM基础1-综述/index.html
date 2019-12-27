@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>SLAM基础1-综述 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 什么是SLAM同步定位与地图构建（SLAM或Simultaneous localization and mapping）是一种概念：希望机器人从未知环境的未知地点出发，在运动过程中通过重复观测到的地图特征（比如，墙角，柱子等）定位自身位置和姿态，再根据自身位置增量式的构建地图，从而达到同时定位和地图构建的目的。 2. 经典视觉SLAM框架 视觉SLAM分为以下几步：  传感器信息读取。在视觉">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础1-综述">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;05&#x2F;SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 什么是SLAM同步定位与地图构建（SLAM或Simultaneous localization and mapping）是一种概念：希望机器人从未知环境的未知地点出发，在运动过程中通过重复观测到的地图特征（比如，墙角，柱子等）定位自身位置和姿态，再根据自身位置增量式的构建地图，从而达到同时定位和地图构建的目的。 2. 经典视觉SLAM框架 视觉SLAM分为以下几步：  传感器信息读取。在视觉">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190805141714.png">
+<meta property="article:published_time" content="2019-08-05T14:29:05.000Z">
+<meta property="article:modified_time" content="2019-12-17T09:45:08.947Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190805141714.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SLAM基础1-综述" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" class="article-date">
+  <time datetime="2019-08-05T14:29:05.000Z" itemprop="datePublished">2019-08-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SLAM基础1-综述
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-什么是SLAM"><a href="#1-什么是SLAM" class="headerlink" title="1. 什么是SLAM"></a>1. 什么是SLAM</h1><p><strong>同步定位与地图构建</strong>（<strong>SLAM</strong>或<strong>Simultaneous localization and mapping</strong>）是一种概念：希望机器人从未知环境的未知地点出发，在运动过程中通过重复观测到的地图特征（比如，墙角，柱子等）<strong>定位</strong>自身位置和姿态，再根据自身位置增量式的<strong>构建地图</strong>，从而达到同时定位和地图构建的目的。</p>
+<h1 id="2-经典视觉SLAM框架"><a href="#2-经典视觉SLAM框架" class="headerlink" title="2. 经典视觉SLAM框架"></a>2. 经典视觉SLAM框架</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805141714.png" alt="img"></p>
+<p>视觉SLAM分为以下几步：</p>
+<ol>
+<li><strong>传感器信息读取</strong>。在视觉 SLAM 中主要为相机图像信息的读取和预处理。</li>
+<li><strong>视觉里程计 (Visual Odometry, VO)</strong>。视觉里程计任务是估算相邻图像间相机的运动， 以及局部地图的样子。VO 又称为前端（Front End）。</li>
+<li><strong>后端优化（Optimization）</strong>。后端接受不同时刻视觉里程计测量的相机位姿，以及回环检测的信息，对它们进行优化，得到全局一致的轨迹和地图。由于接在 VO 之后，又称为后端（Back End）。</li>
+<li><strong>回环检测（Loop Closing）</strong>。回环检测判断机器人是否曾经到达过先前的位置。如果 检测到回环，它会把信息提供给后端进行处理。</li>
+<li><strong>建图（Mapping）</strong>。它根据估计的轨迹，建立与任务要求对应的地图</li>
+</ol>
+<h2 id="2-1-视觉里程计"><a href="#2-1-视觉里程计" class="headerlink" title="2.1 视觉里程计"></a>2.1 视觉里程计</h2><p>视觉里程计关心<strong>相邻图像</strong>之间的相机运动，而和再往前的信息没有关联。换句话说，里程计记录的是<strong>相对差值</strong>而不是绝对值。我们可以通过将相邻时刻的运动<strong>串</strong>起来，构成最终的运动轨迹。</p>
+<p>仅通过视觉里程计来估计轨迹，将不可避免地出现<strong>累计漂移</strong>（Accumulating Drift）。这是由于视觉里程计（在最简单的情况下）只估计两个图像间运动造成的。每次估计都带有一定的误差，而由于里程计的工作方式，<strong>先前时刻的误差将会传递到下一时刻</strong>，导致经过一段时间之后，估计的轨迹将不再准确。因此我们还需要后端优化和回环检测。</p>
+<h2 id="2-2-后端优化"><a href="#2-2-后端优化" class="headerlink" title="2.2 后端优化"></a>2.2 后端优化</h2><p>后端优化主要指处理 SLAM 过程中<strong>噪声</strong>的问题。</p>
+<p>后端优化要考虑的问题， 就是如何从这些带有噪声的数据中，<strong>估计整个系统的状态</strong>，以及这个状态<strong>估计的不确定性有多大</strong>——这称为<strong>最大后验概率估计</strong>（Maximum-a-Posteriori，MAP）。</p>
+<p>在视觉 SLAM 中，前端和计算机视觉研究领域更为相关，比如图像的特征提取与匹配等，后端则主要是滤波与非线性优化算法。</p>
+<h2 id="2-3-回环检测"><a href="#2-3-回环检测" class="headerlink" title="2.3 回环检测"></a>2.3 回环检测</h2><p>回环检测，又称闭环检测（Loop Closure Detection），主要解决位置估计随时间漂移的问题。实现的途径就是让机器人具有<strong>识别曾到达过的场景的能力</strong>，比如识别二维码、环境特征等等。</p>
+<p>在检测到回环之后，我们会把“A 与 B 是同一个点”这样的信息告诉后端优化算法。 然后，后端根据这些新的信息，把轨迹和地图调整到符合回环检测结果的样子。这样就可以消除累积误差，得到全局一致的轨迹地图。</p>
+<h2 id="2-4-建图"><a href="#2-4-建图" class="headerlink" title="2.4 建图"></a>2.4 建图</h2><p>建图（Mapping）是指构建地图的过程。地图是对环境的描述，但这个描述并不是固定的，需要视 SLAM 的应用而定。</p>
+<p>地图可分为<strong>度量地图</strong>（Metric Map）和 <strong>拓扑地图</strong>（Topological Map）</p>
+<ul>
+<li><strong>度量地图</strong>强调精确地表示地图中物体的位置关系，通常我们用<strong>稀疏（Sparse）</strong>与<strong>稠密 （Dense）</strong>对它们进行分类。<ul>
+<li><strong>稀疏地图</strong>进行了一定程度的<strong>抽象</strong>，并不需要表达所有的物体。例如，我们选择一部分具有代表意义的东西，称之为路标（Landmark），那么一张稀疏地图就是由路标组成的地图，而不是路标的部分就可以忽略掉，一般适用于<strong>定位</strong>。</li>
+<li><strong>稠密地图</strong>通常按照某种分辨率，由许 多个小块组成，一个小块含有占据、空闲、未知三种状态，以表达该格内是否有物体。一般适用于<strong>导航</strong>。</li>
+</ul>
+</li>
+<li><strong>拓扑地图</strong>则更强调地图元素之间的关系。拓扑地图是一个<strong>图</strong>（Graph），由<strong>节点</strong>和<strong>边</strong>组成，只考虑节点间的连通性。它放松了地图对精确位置的需要，去掉地图的细节问题， 是一种<strong>更为紧凑的表达方式</strong></li>
+</ul>
+<h1 id="3-SLAM的数学表达"><a href="#3-SLAM的数学表达" class="headerlink" title="3. SLAM的数学表达"></a>3. SLAM的数学表达</h1><p>假设将时间变为离散 $t=1,2,…,K$，然后我们用$x$表示机器人的<strong>位置</strong> $x_1,…,x_k$，而每个时刻，传感器会测量到一部分路标点，得到它们的观测数据。不妨设<strong>路标点</strong>一共有$N$个，用 $y_1,…,y_N$表示它们。 那么机器人携带传感器在环境中的运动就可以描述为：</p>
+<ol>
+<li>什么是运动？我们要考虑从 $k−1$ 时刻到 $k$ 时刻，机器人的位置 $x$ 是如何变化的。</li>
+<li>什么是观测？假设小萝卜在 $k$ 时刻，于 $x_k$ 处探测到了某一个路标 $y_j$，我们要考虑这件事情是如何用数学语言来描述的。</li>
+</ol>
+<p>运动方程$x_k$和观测方程$z_{k,j}$可以分别抽象为如下数学表达式：<br>$$<br>\begin{equation}<br>\left{<br>             \begin{array}\<br>x_k=f(x_{k-1},u_k,\omega_k) \<br>z_{k,j}=h(y_j,x_k,v_{k,j})<br>             \end{array}<br>\right.<br>\end{equation}<br>$$<br>$\omega_k$和$v_{k,j}$为噪声，$u_k$为运动测量读数，$y_j$为路标点，$z_{k,j}$为传感器读数。</p>
+<p>因此问题就转化为：知道<strong>运动测量的读数 $u$，以及传感器的读数 $z$ 时</strong>，<strong>如何求解定位问题（估计 $x$）和建图问题（估计 $y$）</strong>？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-id="ck4o2turu0010u4vy2vu4f566" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          鱼眼镜头模型
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">详解Epoll-下篇</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>详解Epoll-上篇 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 概念1.1 基本概念解释流(stream) 指计算机中顺序读写字节序列。对应于现实中的输入模型(磁带、纸带，他们都是按顺序从头开始) 流是能统一描述所有常见输入输出类型的模型，包括文件、键盘、显示器等等，能够通过输入输出重定向（不使用标准IO函数，编写相应的读写函数，处理文件、键盘等模型）。相较于随机读写，流模型能兼容不同的读写介质，提高读写效率。 缓冲区(Buffer) 假设有一个管道，A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解Epoll-上篇">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;13&#x2F;%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 概念1.1 基本概念解释流(stream) 指计算机中顺序读写字节序列。对应于现实中的输入模型(磁带、纸带，他们都是按顺序从头开始) 流是能统一描述所有常见输入输出类型的模型，包括文件、键盘、显示器等等，能够通过输入输出重定向（不使用标准IO函数，编写相应的读写函数，处理文件、键盘等模型）。相较于随机读写，流模型能兼容不同的读写介质，提高读写效率。 缓冲区(Buffer) 假设有一个管道，A">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191216130742.png">
+<meta property="article:published_time" content="2019-07-13T15:35:50.000Z">
+<meta property="article:modified_time" content="2019-12-16T13:29:54.362Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191216130742.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-详解Epoll-上篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" class="article-date">
+  <time datetime="2019-07-13T15:35:50.000Z" itemprop="datePublished">2019-07-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      详解Epoll-上篇
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h1><h2 id="1-1-基本概念解释"><a href="#1-1-基本概念解释" class="headerlink" title="1.1 基本概念解释"></a>1.1 基本概念解释</h2><p><strong>流(stream)</strong></p>
+<p>指计算机中<strong>顺序</strong>读写字节序列。对应于现实中的输入模型(磁带、纸带，他们都是按顺序从头开始)</p>
+<p><strong>流是能统一描述所有常见输入输出类型的模型</strong>，包括文件、键盘、显示器等等，<strong>能够通过输入输出重定向</strong>（不使用标准IO函数，编写相应的读写函数，处理文件、键盘等模型）。相较于随机读写，<strong>流模型能兼容不同的读写介质，提高读写效率</strong>。</p>
+<p><strong>缓冲区(Buffer)</strong></p>
+<p>假设有一个管道，A端为输入，B端为输出。</p>
+<ol>
+<li>一开始管道是空的，对应内核缓冲区为空，B被阻塞。</li>
+<li>当A开始写入数据时，缓冲区非空，B可能还是读取也可能继续休息。</li>
+<li>若A写满了缓冲区，则A被阻塞，等待B读取数据。</li>
+<li>若B读取所有数据，缓冲区为空，则B又被阻塞。</li>
+</ol>
+<p>总结起来就是：</p>
+<ul>
+<li>缓冲区空：两种可能，A没开始输入，B读取完毕所有数据，两种情况下B都被阻塞</li>
+<li>缓冲区非满：A开始写入数据，B可能读取也可能休息</li>
+<li>缓冲区满：A不能再写入，被阻塞，等待B醒来。B读取时，A可能接着写入可能继续休息。</li>
+</ul>
+<h2 id="1-2-四种事件处理的方式"><a href="#1-2-四种事件处理的方式" class="headerlink" title="1.2 四种事件处理的方式"></a>1.2 四种事件处理的方式</h2><p><strong>阻塞IO</strong>：一个线程只能处理一个流的I/O事件。除非采用多线程，否则效率很低。</p>
+<p><strong>非阻塞忙轮询IO</strong>：即Non-Blocking Busy Polling，等待某个事件的时候，放弃其他事情，休息，专门等待，称之为<strong>阻塞</strong>。<strong>等待过程中不休息，不断询问事件是否完成，称之为非阻塞忙轮询</strong>。可以同时处理多个流，但需要从头到尾轮询，浪费资源。</p>
+<p><strong>Select</strong>：相当于一位代理，帮我们观察流。但这位代理只会告诉我们此刻是否有IO事件发生，我们却不知道是哪些流，只能无差别轮询。</p>
+<p><strong>Epoll</strong>：即event poll，不同于无差别轮询，epoll会把哪个流发生什么样的事情通知我们。</p>
+<h2 id="1-3-Select-Poll的缺点"><a href="#1-3-Select-Poll的缺点" class="headerlink" title="1.3 Select/Poll的缺点"></a>1.3 Select/Poll的缺点</h2><ol>
+<li>单个进程能够监视的文件描述为<strong>最大为1024</strong>，轮询越多，性能越差</li>
+<li>Select需要<strong>复制大量句柄数据结构</strong>，开销巨大。</li>
+<li>Select返回整个句柄数组，<strong>程序需要遍历数组</strong>才能知道哪些句柄发生了什么事件。</li>
+<li>触发方式为<strong>水平触发</strong>，如果程序没有对一个就绪的文件进行IO操作，之后每次Select调用还是会将文件描述符通知给进程。</li>
+</ol>
+<p>Poll<strong>使用链表保存文件，没有1的限制</strong>，但其他三个缺点依然比较明显。</p>
+<h1 id="2-Epoll模型"><a href="#2-Epoll模型" class="headerlink" title="2. Epoll模型"></a>2. Epoll模型</h1><h2 id="2-1-Epoll机制解析"><a href="#2-1-Epoll机制解析" class="headerlink" title="2.1 Epoll机制解析"></a>2.1 Epoll机制解析</h2><p>Epoll也就是<strong>events poll</strong>，它分为三个部分实现：</p>
+<ul>
+<li>调用<code>epoll_creat</code>建立一个epoll对象</li>
+<li>调用<code>epoll_ctl</code>向epoll对象中添加众多套接字</li>
+<li>调用<code>epoll_wait</code>收集发生的事件的连接</li>
+</ul>
+<p>某一进程调用<code>epoll_creat</code>时，Linux内核会创建一个<code>eventpoll</code>结构体。结构体中存在两个成员：</p>
+<ul>
+<li><strong>红黑树的根节点</strong>，存储epoll需要监控的事件</li>
+<li><strong>双链表的头部</strong>，存储<code>epoll_wait</code>返回给用户的满足条件的事件</li>
+</ul>
+<p>用户通过<code>epoll_ctl</code>向epoll对象中注册事件，这些<strong>事件会挂载到红黑树中，能高效识别重复事件</strong>。所有注册的事件都会<strong>和驱动程序建立回调关系</strong>，事件发生时调用这个回调方法，将发生的事件添加到双链表<code>rdlist</code>中。</p>
+<p>当调用<code>epoll_wait</code>检查事件发生时，<strong>只需要检查双链表<code>rdlist</code>是否有元素</strong>即可。通过<code>epoll_ctl</code>把所有事件传入内核，一起wait，<strong>避免了不必要的重复拷贝</strong>。</p>
+<h2 id="2-2-Epoll使用方法"><a href="#2-2-Epoll使用方法" class="headerlink" title="2.2 Epoll使用方法"></a>2.2 Epoll使用方法</h2><p><strong>1.创建Epoll句柄</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> epfd = epoll_create(intsize);</span><br></pre></td></tr></table></figure>
+
+<p>创建一个epoll句柄，<strong>size用来告诉内核这个监听的数目有多大</strong>。注意：当创建好epoll句柄后，它就是会占用一个fd值，所以使用完epoll以后，<strong>需要及时调用<code>close()</code>关闭，否则会导致fd耗尽</strong>。</p>
+<p><strong>2.注册或修改监听事件</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event *event)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li>epfd，之前creat的句柄</li>
+<li>op，动作类型<ul>
+<li><code>EPOLL_CTL_ADD</code>：注册新的fd到epfd中</li>
+<li><code>EPOLL_CTL_MOD</code>：修改已经注册的fd的监听事件</li>
+<li><code>EPOLL_CTL_DEL</code>：从epfd中删除一个fd</li>
+</ul>
+</li>
+<li>fd，需要监听的文件句柄</li>
+<li>event，需要监听的事件</li>
+</ul>
+<p>调用成功返回0，不成功返回-1。以下是<code>epoll_event</code>结构体</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 保存触发事件的某个文件描述符相关的数据</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">__uint32_t</span> u32;</span><br><span class="line">    <span class="keyword">__uint64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册所感兴趣的事件和回传所发生待处理的事件</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line">    <span class="keyword">__uint32_t</span> events; <span class="comment">// Epoll events</span></span><br><span class="line">    <span class="keyword">epoll_data_t</span> data; <span class="comment">// User data variable</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>events</code>包含了如下的宏集合：</p>
+<ul>
+<li><code>EPOLLIN</code>：表示对应的文件描述符可读（包括对端Socket）</li>
+<li><code>EPOLLOUT</code>：表示对应的文件描述符可写</li>
+<li><code>EPOLLPRI</code>：表示对应的文件描述符有紧急数据可读（带外数据）</li>
+<li><code>EPOLLERR</code>：表示对应的文件描述符发生错误；</li>
+<li><code>EPOLLHUP</code>：表示对应的文件描述符被挂断；</li>
+<li><code>EPOLLET</code>：将EPOLL设为边缘触发（Edge Triggered），这是相对于水平触发（Level Triggered）而言的。</li>
+</ul>
+<p>边缘触发和水平触发的区别是：</p>
+<ul>
+<li><strong>水平触发LT</strong>：默认方式，<strong>支持阻塞和非阻塞</strong>。内核告诉你某个fd就位了，如果你不对这个fd进行IO操作，<strong>内核会一直通知你</strong>。所以这种模式<strong>安全性较高</strong>。</li>
+<li><strong>边缘触发ET</strong>：<strong>只支持非阻塞</strong>，<strong>内核只会通知你一次</strong>，如果你不操作他也不管你了，<strong>速度快</strong></li>
+</ul>
+<p><strong>3.等待事件触发</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event * events, intmaxevents, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数:</p>
+<ul>
+<li><code>events</code>是分配好的<code>epoll_event</code>结构体数组，<code>epoll</code>将会把发生的事件赋值到<code>events</code>数组中。</li>
+<li><code>maxevents</code>告诉内核这个<code>events</code>数组有多大，这个<code>maxevents</code>的值不能大于创建<code>epoll_create</code>时的size。</li>
+<li>参数<code>timeout</code>是超时时间（毫秒）。</li>
+</ul>
+<p>该函数<strong>返回需要处理的事件数目</strong>，如返回0表示已超时。</p>
+<p>等侍注册在<code>epfd</code>上的<code>socket fd</code>的事件的发生.</p>
+<ul>
+<li>如果发生则将发生的<code>socket fd</code>和事件类型放入到<code>events</code>数组中，并<strong>将注册在<code>epfd</code>上的<code>socket fd</code>的事件类型给清空</strong>。</li>
+<li>如果下一个循环还要关注这个<code>socket fd</code>的话，则需要用<code>epoll_ctl(epfd,EPOLL_CTL_MOD,listenfd,&amp;ev)</code>来<strong>重新设置<code>socket fd</code>的事件类型</strong>。这时不用<code>EPOLL_CTL_ADD</code>，因为<code>socket fd</code>并未清空，只是事件类型清空。</li>
+</ul>
+<h1 id="3-实战"><a href="#3-实战" class="headerlink" title="3. 实战"></a>3. 实战</h1><p>使用epoll的基本逻辑如下。我们需要用到多个socket句柄，首先本地服务器肯定要创建一个socket，同时也需要将这个fd注册到epoll中。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191216130742.png" style="zoom:80%;" />
+
+<p>实际代码如下，主要工作是初始化服务器socket，并将其注册到epoll中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*步骤1：设置socket */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">clientaddr</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">serveraddr</span>;</span></span><br><span class="line">listenfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">setnonblocking(listenfd); <span class="comment">//自己写的函数，把socket设置为非阻塞方式</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*步骤2：创建并设置epoll */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">ev</span>, <span class="title">events</span>[20];</span>             <span class="comment">//声明epoll_event结构体的变量,ev用于注册事件,数组用于回传要处理的事件</span></span><br><span class="line">epfd = epoll_create(<span class="number">256</span>);                      <span class="comment">//生成用于处理accept的epoll专用的文件描述符</span></span><br><span class="line">ev.data.fd = listenfd;                         <span class="comment">//设置与要处理的事件相关的文件描述符</span></span><br><span class="line">ev.events = EPOLLIN | EPOLLET;                 <span class="comment">//设置要处理的事件类型</span></span><br><span class="line">epoll_ctl(epfd, EPOLL_CTL_ADD, listenfd, &amp;ev); <span class="comment">//注册epoll事件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*步骤3：连接并监听网络 */</span></span><br><span class="line">bzero(&amp;serveraddr, <span class="keyword">sizeof</span>(serveraddr)); <span class="comment">//置零</span></span><br><span class="line">serveraddr.sin_family = AF_INET;</span><br><span class="line"><span class="keyword">char</span> *local_addr = <span class="string">"127.0.0.1"</span>;</span><br><span class="line">inet_aton(local_addr, &amp;(serveraddr.sin_addr)); <span class="comment">//将一个字符串IP地址转换为一个32位的网络序列IP地址</span></span><br><span class="line">serveraddr.sin_port = htons(portnumber);       <span class="comment">//portnumber自己设的端口号</span></span><br><span class="line">bind(listenfd, (sockaddr *)&amp;serveraddr, <span class="keyword">sizeof</span>(serveraddr));</span><br><span class="line">listen(listenfd, <span class="number">20</span>); <span class="comment">//最大等待20个</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>客户端与服务器沟通分为两步：</p>
+<ol>
+<li>客户端连接，事件的句柄fd是服务器的fd。</li>
+<li>客户端收发数据，事件的句柄fd是客户端本身的socket句柄</li>
+</ol>
+<p>代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*步骤4：处理事件 */</span></span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">&#123;</span><br><span class="line">    nfds = epoll_wait(epfd, events, <span class="number">20</span>, <span class="number">500</span>); <span class="comment">//等待epoll事件的发生,最大20个，超时500ms</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nfds; ++i)                <span class="comment">//处理所发生的所有事件</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (events[i].data.fd == listenfd) <span class="comment">//如果新监测到一个SOCKET用户连接到了绑定的SOCKET端口，建立新的连接。</span></span><br><span class="line">        &#123;</span><br><span class="line">            connfd = accept(listenfd, (sockaddr *)&amp;clientaddr, &amp;clilen);</span><br><span class="line">            <span class="keyword">char</span> *str = inet_ntoa(clientaddr.sin_addr);</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"accapt a connection from "</span> &lt;&lt; str &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            ev.data.fd = connfd;                         <span class="comment">//设置用于读操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLIN | EPOLLET;               <span class="comment">//设置用于注测的读操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_ADD, connfd, &amp;ev); <span class="comment">//注册ev</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (events[i].events &amp; EPOLLIN) <span class="comment">//如果是已经连接的用户，并且收到数据，那么进行读入。</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"EPOLLIN"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            <span class="keyword">int</span> n = read(sockfd, line, MAXLINE))<span class="comment">//传送到line中，返回n传送的字节数</span></span><br><span class="line">            line[n] = '/0';</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"read "</span> &lt;&lt; line &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            ev.data.fd = sockfd;                         <span class="comment">//设置用于写操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLOUT | EPOLLET;              <span class="comment">//设置用于注测的写操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_MOD, sockfd, &amp;ev); <span class="comment">//修改sockfd上要处理的事件为EPOLLOUT</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (events[i].events &amp; EPOLLOUT) <span class="comment">// 如果有数据发送</span></span><br><span class="line">        &#123;</span><br><span class="line">            sockfd = events[i].data.fd;</span><br><span class="line">            write(sockfd, line, n);</span><br><span class="line">            ev.data.fd = sockfd;                         <span class="comment">//设置用于读操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLIN | EPOLLET;               <span class="comment">//设置用于注测的读操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_MOD, sockfd, &amp;ev); <span class="comment">//修改sockfd上要处理的事件为EPOLIN</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" data-id="ck4o2tus8001fu4vy6byw2zm3" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GDB使用方法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/07/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Socket网络编程实战</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

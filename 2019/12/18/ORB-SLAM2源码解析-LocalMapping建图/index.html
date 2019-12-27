@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ORB_SLAM2源码解析-LocalMapping建图 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1.概述1.1 图的概念Convisibility Graph   顶点：所有pose；边：pose-pose有共视关系(共视点大于15个) 换言之，将所有共视关系大于15的pose点连接起来，连接的edge的权重就是共视点的个数。图中绿色即为edge，红色为局部地图点，红色+黑色为全局地图点。 Spanning Tree 图论的概念，无向图能产生不同的生成树(spanning tree)，通过边">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB_SLAM2源码解析-LocalMapping建图">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1.概述1.1 图的概念Convisibility Graph   顶点：所有pose；边：pose-pose有共视关系(共视点大于15个) 换言之，将所有共视关系大于15的pose点连接起来，连接的edge的权重就是共视点的个数。图中绿色即为edge，红色为局部地图点，红色+黑色为全局地图点。 Spanning Tree 图论的概念，无向图能产生不同的生成树(spanning tree)，通过边">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826095715.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826095915.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826100039.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826100448.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190827114449.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826105847.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826115353.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826114902.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190827094230.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190827092840.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190806151141.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190827101343.png">
+<meta property="article:published_time" content="2019-12-18T14:49:04.000Z">
+<meta property="article:modified_time" content="2019-12-18T14:52:50.316Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190826095715.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ORB-SLAM2源码解析-LocalMapping建图" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" class="article-date">
+  <time datetime="2019-12-18T14:49:04.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ORB_SLAM2源码解析-LocalMapping建图
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h1><h2 id="1-1-图的概念"><a href="#1-1-图的概念" class="headerlink" title="1.1 图的概念"></a>1.1 图的概念</h2><p><strong>Convisibility Graph</strong></p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095715.png" alt="img" style="zoom:67%;" />
+
+<p>顶点：所有pose；边：pose-pose有共视关系(共视点大于15个)</p>
+<p>换言之，将所有共视关系大于15的pose点连接起来，连接的edge的权重就是共视点的个数。图中绿色即为edge，红色为局部地图点，红色+黑色为全局地图点。</p>
+<p><strong>Spanning Tree</strong></p>
+<p>图论的概念，无向图能产生不同的生成树(spanning tree)，通过边能遍历所有节点。而所有边的权重加起来最小的生成树就是最小生成树。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095915.png" alt="img" style="zoom:67%;" />
+
+<p>这里的spanning tree是在无向图convisibility graph的基础上，<strong>以共视点最多为筛选标准</strong>形成的最小生成树。这里面同时还包含了 loop closure edges(红色)</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100039.png" alt="img" style="zoom:67%;" />
+
+<p><strong>Essential Graph</strong></p>
+<p>包含了spanning tree以及convisibility graph中具有<strong>极佳共视关系(&gt;100)</strong>的边</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100448.png" alt="img" style="zoom:67%;" />
+
+<h2 id="1-2-总体结构"><a href="#1-2-总体结构" class="headerlink" title="1.2 总体结构"></a>1.2 总体结构</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827114449.png" alt="img"></p>
+<p>最后剔除冗余关键帧的条件有两个：</p>
+<ol>
+<li>90%以上的MapPoints能被至少3个其他关键帧观测到。</li>
+<li>他们都处在同一尺度下</li>
+</ol>
+<h1 id="2-处理关键帧ProcessNewKeyFrame"><a href="#2-处理关键帧ProcessNewKeyFrame" class="headerlink" title="2. 处理关键帧ProcessNewKeyFrame"></a>2. 处理关键帧ProcessNewKeyFrame</h1><p>处理要达成四个目的：</p>
+<ul>
+<li>计算该关键帧特征点的Bow映射关系</li>
+<li>处理新匹配上的MapPoints</li>
+<li>更新关键帧间的连接关系</li>
+<li>将该关键帧插入到地图中</li>
+</ul>
+<h2 id="2-1-处理过程"><a href="#2-1-处理过程" class="headerlink" title="2.1 处理过程"></a>2.1 处理过程</h2><p>LocalMapping中有一个成员变量<code>std::list mlNewKeyFrames</code>是等待处理的关键帧列表。在tracking线程中，调用了<code>void LocalMapping::InsertKeyFrame(KeyFrame *pKF)</code>函数，向<code>mlNewKeyFrames</code>链表插入了元素。因此在处理关键帧前，要首先调用<code>bool LocalMapping::CheckNewKeyFrames()</code><strong>检查等待关键帧链表是否为空</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826105847.png" alt="img"></p>
+<p>处理时调用<code>void LocalMapping::ProcessNewKeyFrame()</code>，步骤如下:</p>
+<ol>
+<li><p><strong>从链表取出一帧</strong></p>
+<p>分三步：锁线程，取元素，删除顶部元素</p>
+</li>
+<li><p><strong>计算关键帧特征点Bow映射关系</strong></p>
+</li>
+<li><p><strong>MapPoints和当前关键帧绑定</strong></p>
+<p>MapPoints分为两种情况：在tracking过程跟踪到的MapPoints；创建关键帧时创建的MapPoints。<strong>前者很可靠</strong>，直接为他们添加属性（添加观测者，平均观测方向和观测距离范围，更新最佳描述子），<strong>后者不可靠</strong>需要放到<code>mlpRecentAddedMapPoints</code>等待进一步检测。</p>
+</li>
+<li><p><strong>更新关键帧间的连接关系</strong></p>
+<p>包括Covisibility图和生成树</p>
+</li>
+<li><p><strong>插入关键帧到地图</strong></p>
+</li>
+</ol>
+<h2 id="2-2-更新连接关系UpdateConnections"><a href="#2-2-更新连接关系UpdateConnections" class="headerlink" title="2.2 更新连接关系UpdateConnections"></a>2.2 更新连接关系UpdateConnections</h2><p>更新的目的是更新Covisibility图和生成树。步骤如下：</p>
+<ol>
+<li><p><strong>统计共视关系</strong></p>
+<p>共视关系保存在<code>map KFcounter</code>中，这个成员key是关键帧，value是权重（权重为其它关键帧与当前关键帧共视3d点的个数)，结构如下：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826115353.png" alt="img" style="zoom:80%;" />
+
+<p>计算的方法借助了<code>std::map mObservations</code>，它记录了<strong>观测到该MapPoint的KF和该MapPoint在KF中的索引</strong>，是MapPoint的成员变量。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826114902.png" alt="img" style="zoom: 80%;" />
+
+<p>因为MapPoint是属于当前帧的，所以只需要执行<code>KFcounter[obervation-&gt;first]++;</code>就可以统计和当前关键帧共视的其他关键帧，以及共视点个数。</p>
+</li>
+<li><p><strong>记录有良好共视关系的关键帧</strong></p>
+<p>搜索<code>KFcounter</code>中<strong>共视点个数大于阈值</strong><code>th</code>(15)的关键帧，将他们放入<code>vector &gt; vPairs</code>容器中（将关键帧的权重写在前面，关键帧写在后面方便后面排序）。同时<strong>记录有最多共视点的关键帧</strong>，如果没有发现任何大于阈值的帧，就用最多共视点关键帧建立连接。</p>
+<p>记录完后<code>sort</code>排序，按共视点个数从大到小。</p>
+</li>
+<li><p><strong>更新图连接</strong></p>
+<p>更新与该关键帧连接的关键帧与权重<code>mConnectedKeyFrameWeights = KFcounter;</code>，将排序的<code>vPairs</code>拆开，容器<code>mvpOrderedConnectedKeyFrames</code>记录排序后的关键帧，容器<code>mvOrderedWeights</code>记录排序后的共视点个数（权重）</p>
+<p>然后更新生成树，父节点为共视程度最高的那个关键帧<code>mpParent = mvpOrderedConnectedKeyFrames.front();</code>，并且父节点将本帧添加为子节点(建立双向连接关系)<code>mpParent-&gt;AddChild(this);</code></p>
+</li>
+</ol>
+<h1 id="3-检查剔除地图点MapPointCulling"><a href="#3-检查剔除地图点MapPointCulling" class="headerlink" title="3. 检查剔除地图点MapPointCulling"></a>3. 检查剔除地图点MapPointCulling</h1><p>对上一函数获取到的最新加入的局部地图点(创建关键帧时创建的MapPoints)<code>mlpRecentAddedMapPoints</code>进行<strong>检查</strong>，该地图点被创建后的三个关键帧里必须要经过严格的测试，这样保证其能被正确的跟踪和三角化。</p>
+<p>删除过程调用<code>SetBadFlag()</code>干两件事情：删除点与帧的观测关系<code>mObservations.clear()</code>，删除帧与点的对应关系</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="built_in">map</span>&lt;KeyFrame*,<span class="keyword">size_t</span>&gt;::iterator mit=obs.<span class="built_in">begin</span>(), mend=obs.<span class="built_in">end</span>(); mit!=mend; mit++)</span><br><span class="line">    &#123;</span><br><span class="line">        KeyFrame* pKF = mit-&gt;first;</span><br><span class="line">        pKF-&gt;EraseMapPointMatch(mit-&gt;second);<span class="comment">// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="built_in">map</span>&lt;KeyFrame*,<span class="keyword">size_t</span>&gt;::iterator mit=obs.begin(), mend=obs.end(); mit!=mend; mit++)</span><br><span class="line">    &#123;</span><br><span class="line">        KeyFrame* pKF = mit-&gt;first;</span><br><span class="line">        pKF-&gt;EraseMapPointMatch(mit-&gt;second);<span class="comment">// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Copy</p>
+<p>删除条件如下:</p>
+<ol>
+<li><p><strong>已经是坏点</strong></p>
+<p><code>pMP-&gt;isBad()==true</code></p>
+</li>
+<li><p><strong>IncreaseFound / IncreaseVisible &lt; 25%</strong></p>
+<p>在<code>SearchLocalMap</code>（TrackLocalMap第二步），通过<code>isInFrustum</code>判断，就调用<code>IncreaseVisible()</code>。在TrackLocalMap中，通过优化，得到了内点和外点，如果点不是外点，说明这个点<strong>不仅能被观测，还能和特征点对应上</strong>，调用<code>IncreaseFound()</code>。<br><strong>跟踪到</strong>该MapPoint的Frame数相比<strong>可观测到</strong>该MapPoint的Frame数的比例需大于25%</p>
+</li>
+<li><p><strong>小于观测阈值</strong></p>
+<p>从该点建立开始，到现在已经<strong>过了不小于2个关键帧</strong>，且观测数<code>pMP-&gt;Observations()&lt;=cnThObs</code>，其中<code>cnThObs</code>是针对不同类型相机设置的阈值单目为2，双目为3。</p>
+</li>
+</ol>
+<p>如果这个点<strong>已经过了3个关键帧而没有被剔除</strong>，则认为是质量高的点，因此没有<code>SetBadFlag()</code>，仅从队列中删除，放弃继续对该MapPoint的检测。</p>
+<h1 id="4-创建地图点CreateNewMapPoints"><a href="#4-创建地图点CreateNewMapPoints" class="headerlink" title="4. 创建地图点CreateNewMapPoints"></a>4. 创建地图点CreateNewMapPoints</h1><h2 id="4-1-创建地图点一般步骤"><a href="#4-1-创建地图点一般步骤" class="headerlink" title="4.1 创建地图点一般步骤"></a>4.1 创建地图点一般步骤</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827094230.png" alt="img"></p>
+<ol>
+<li><p><strong>找到共视程度最高的n帧</strong></p>
+<p>寻找与当前关键帧拥有最多共视点的n帧，n取值与相机有关，单目要求会高一些。</p>
+</li>
+<li><p><strong>遍历共视关键帧</strong></p>
+<ol>
+<li><p><strong>如果有新关键帧需要处理就处理新的</strong></p>
+</li>
+<li><p><strong>判断关键帧间距是否足够长</strong></p>
+<p>对于双目而言，间距需要大于双目相机本身的基线；对于单目而言，间距与场景深度中值之比小于0.01</p>
+</li>
+<li><p><strong>特征匹配</strong></p>
+<p>通过极线约束限制匹配时的搜索范围，进行特征点匹配。所谓极线约束就是说同一个点在两幅图像上的映射，已知左图映射点PLPL，那么右图映射点PRPR 一定在相对于PLPL的极线上，这样可以减少待匹配的点数量。最后得到的匹配结果放在<code>vector &gt; vMatchedIndices;</code>中。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827092840.png" alt="img"></p>
+</li>
+<li><p><strong>三角化生成地图点</strong></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="4-2-三角化"><a href="#4-2-三角化" class="headerlink" title="4.2 三角化"></a>4.2 三角化</h2><p>一般来说单目相机没有深度信息，需要依靠三角化获得，双目相机能自己获得深度信息。如果点太远，用相机模型获取深度就不是很合适。</p>
+<p>如图所示，如果zz的值很大，则视差dd就会变得很小，误差的影响就非常大，所以这时候同样也需要三角化计算深度。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806151141.png" alt="img"></p>
+<p>由相似三角形可知：<br>$$<br>z=\frac{fb}{d},  \ d=u_l-u_r<br>$$</p>
+<p>三角化解法：</p>
+<p>假设一个点在三维空间的坐标是$P=[X,Y,Z,1]^T$，其中$p,p’$是匹配好的特征点，他们在不同位姿相机坐标系下:<br>$$<br>sp=TP\<br>s’p’=T’P<br>$$</p>
+<p>其中$T$可以表示为：<br>$$<br>T=\begin{bmatrix}<br>t_1&amp;t_2&amp;t_3&amp;t_4&amp;\<br>t_5&amp;t_6&amp;t_7&amp;t_8&amp;\<br>t_9&amp;t_{10}&amp;t_{11}&amp;t_{12}&amp;\<br>\end{bmatrix}<br>=\begin{bmatrix}<br>\mathbf{t}<em>{0[4\times1]}\<br>\mathbf{t}</em>{1[4\times1]}\<br>\mathbf{t}_{2[4\times1]}<br>\end{bmatrix}<br>$$</p>
+<p>左边叉乘$p_1,p_2$($z$已被归一化为1)：<br>$$<br>\begin{bmatrix}<br>y\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x\mathbf{t}_2\<br>x\mathbf{t}_1-y\mathbf{t}_0\<br>\end{bmatrix}P=0<br>$$</p>
+<p>将两个式子合并（第三个等式没有有效的约束）：<br>$$<br>AP=\begin{bmatrix}<br>y\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x\mathbf{t}_2\<br>y’\mathbf{t}_2-\mathbf{t}_1\<br>\mathbf{t}_0-x’\mathbf{t}_2\<br>\end{bmatrix}P=0<br>$$</p>
+<p>四个有效方程，P中含有三个未知数，这是一个<strong>超定方程</strong>，对矩阵AA奇异值分解SVD求最小二乘解。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><p><strong>提取匹配特征点</strong></p>
+<p>从<code>vMatchedIndices</code>中提取</p>
+</li>
+<li><p><strong>计算视差角</strong></p>
+<p>视差角需要计算两个：第一个是当前帧和参考帧的视差夹角，第二个是双目相机左镜头和右镜头的视差夹角。</p>
+<p>对于帧与帧的视差角，利用匹配点反投影可以得到方向向量，利用直线夹角计算公式$\theta=\frac{\vec{n_1}\vec{n_2}}{|\vec{n_1}||\vec{n_1}|}$即可算得。对于左右镜头视差角利用近似的几何关系算得。$\theta=\arctan(\frac{1}{2}B/Z)$</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827101343.png" alt="img"></p>
+</li>
+<li><p><strong>计算3D点</strong></p>
+<p>单目相机采用三角化的办法，双目相机如果物点距离很远也采用三角化，距离很近直接采用深度（判断距离远近比较两个视差角）</p>
+</li>
+<li><p><strong>检查3D点</strong></p>
+<p>检测生成的3D点是否在相机前方，检测重投影误差是否在可接受范围，检查尺度连续性</p>
+</li>
+<li><p><strong>将3D点构造成MapPoint</strong></p>
+<p>老生常谈了，调用构造函数，然后添加属性</p>
+</li>
+<li><p><strong>加入检测队列</strong></p>
+<p>这些MapPoints都会经过MapPointCulling函数的检验</p>
+</li>
+</ol>
+<h1 id="5-融合地图点SearchInNeighbors"><a href="#5-融合地图点SearchInNeighbors" class="headerlink" title="5. 融合地图点SearchInNeighbors"></a>5. 融合地图点SearchInNeighbors</h1><p>前面通过新加入的关键帧建立了一些地图点，然而这些地图点和以前建立的可能有重复，所以这一步需要剔除重复。</p>
+<p>步骤:</p>
+<ol>
+<li><p><strong>获得最佳共视关系的邻接关键帧</strong></p>
+<p>找到当前帧一级相邻与二级相邻关键帧。一级邻接是指和当前帧有最佳共视关系的那些帧，数量根据单双目情况，有所不同。二级关键帧是和一级关键帧有良好共视关系的（程序中是最好的5帧）</p>
+</li>
+<li><p><strong>正向融合</strong></p>
+<p>融合时有两个参数：帧，地图点。若存在重复，则删除；若不重复，添加属性成为正式的地图点，当然也要检查是否具有匹配关系。正向融合的帧是<strong>一二级邻接关键帧</strong>（遍历），地图点是<strong>当前关键帧产生的地图点</strong>。</p>
+</li>
+<li><p><strong>反向融合</strong></p>
+<p>反向融合帧是<strong>当前关键帧</strong>，地图点是<strong>所有一二级关键帧对应的地图点</strong>（遍历）。</p>
+</li>
+<li><p><strong>更新</strong></p>
+<p>更新当前帧MapPoints的最佳描述子，平均深度，平均观测主方向等属性。同时更新covisibility图，更新当前帧的MapPoints后更新与其它帧的连接关系。</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-id="ck4o2turn000tu4vy5t2052dc" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ORB_SLAM2源码解析-LoopClosing回环检测
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ORB_SLAM2源码解析-Tracking追踪</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

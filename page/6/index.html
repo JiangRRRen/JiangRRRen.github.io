@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;page&#x2F;6&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-鱼眼镜头模型" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2019-09-13T14:31:27.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/">鱼眼镜头模型</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-鱼眼镜头原理"><a href="#1-鱼眼镜头原理" class="headerlink" title="1. 鱼眼镜头原理"></a>1. 鱼眼镜头原理</h1><p>常见的相机模型是小孔模型，但小孔模型的视场比较小，即使采用超广角镜头视场也大概只有150°，很难做到全覆盖。因此人们利用鱼眼的特性发明了鱼眼镜头，能够达到接近180°的视场。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163056.png" alt="img" style="zoom: 80%;" />
+
+<p>如图所示，小孔模型对于180°视场，只能将一部分投影到平面上，剩余的一小部分被截去了。</p>
+<p>在自然界中，鱼眼能够通过水的折射，将光线压缩到一个锥形内</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163408.png" alt="img" style="zoom:50%;" />
+
+<p>在这个锥形内部有一部分来自水面上方，有一部分来自水面下方，水面上方的所有景物都被压缩到了一个圈内，这就是<strong>斯涅耳窗口</strong></p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163717.png" alt="img" style="zoom:50%;" />
+
+<p>如果这样拍一张照片，就可以在一个合理的照片大小范围内，记录整个水面上的半球空间内的景象。有效的视角范围接近 180°，远远超过普通超广角镜头记录的范围。鱼眼镜头与这个场景类似，也是把很<strong>大角度范围内的光线进行「压缩」和「扭曲」</strong>，压进一个相对较小的空间内，从而可以被相机所记录下来。</p>
+<h1 id="2-鱼眼镜头模型"><a href="#2-鱼眼镜头模型" class="headerlink" title="2. 鱼眼镜头模型"></a>2. 鱼眼镜头模型</h1><p>鱼眼镜头由一系列复杂的透镜组成，前两个透镜负责大力折射光线，后面的镜头负责成像。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163920.png" alt="img" style="zoom:67%;" />
+
+<p>鱼眼相机成像时遵循的模型可以近似为单位球面投影模型。可以将鱼眼相机的成像过程分解成两步：</p>
+<ol>
+<li>三维空间点线性地投影到一个球面上，它是一个虚拟的单位球面，它的球心与相机坐标系的原点重合</li>
+<li>单位球面上的点投影到图像平面上，这个过程是非线性的</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164144.png" alt="img"></p>
+<p><strong>从球面投影到CCD平面的模型</strong>有很多种</p>
+<ul>
+<li><strong>等距投影</strong>  $r_d = f \theta$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164458.png" alt="img"></p>
+<ul>
+<li><strong>等立体角投影</strong>  $r_d = 2fsin(\frac{\theta}{2})$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164523.png" alt="img"></p>
+<ul>
+<li><strong> 正交投影</strong>  $r_d = fsin( \theta)$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164629.png" alt="img"></p>
+<ul>
+<li><strong>体视投影</strong>  $r_d = 2ftan(\frac{\theta}{2})$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164825.png" alt="img"></p>
+<h1 id="3-Opencv中的鱼眼相机模型"><a href="#3-Opencv中的鱼眼相机模型" class="headerlink" title="3. Opencv中的鱼眼相机模型"></a>3. Opencv中的鱼眼相机模型</h1><p>由于投影方式多种多样，我们可以对其采用近似方法将其统一。观察可以发现，$\sin,\tan$的泰勒展开都是<strong>奇次项形式</strong>，取前5项可得即：<br>$$<br>r_d =f\theta _d \\theta_d= k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9<br>$$<br>从空间点到鱼眼图像上的点的变换过程可用式子表示为：<br>$$<br>\left[<br>\begin{array}{c}<br>X_c \<br>Y_c \<br>Z_c<br>\end{array}<br>\right]=RX+t\<br>x_c = \frac{X_c}{Z_c},\ y_c=\frac{Y_c}{Z_c}\<br>r^2 = x^2_c + y^2_c\<br>\theta = arctan(r)\<br>\theta _d = k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9\<br>x_d=\frac{\theta_d}{r}x_c, \ y_d=\frac{\theta_d}{r}y_c\<br>u=f_xx_d+c_x, \ v=f_yy_d+c_y<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-id="ck4o2tusc001ju4vygotdccnl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础1-综述" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" class="article-date">
+  <time datetime="2019-08-05T14:29:05.000Z" itemprop="datePublished">2019-08-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/">SLAM基础1-综述</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-什么是SLAM"><a href="#1-什么是SLAM" class="headerlink" title="1. 什么是SLAM"></a>1. 什么是SLAM</h1><p><strong>同步定位与地图构建</strong>（<strong>SLAM</strong>或<strong>Simultaneous localization and mapping</strong>）是一种概念：希望机器人从未知环境的未知地点出发，在运动过程中通过重复观测到的地图特征（比如，墙角，柱子等）<strong>定位</strong>自身位置和姿态，再根据自身位置增量式的<strong>构建地图</strong>，从而达到同时定位和地图构建的目的。</p>
+<h1 id="2-经典视觉SLAM框架"><a href="#2-经典视觉SLAM框架" class="headerlink" title="2. 经典视觉SLAM框架"></a>2. 经典视觉SLAM框架</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805141714.png" alt="img"></p>
+<p>视觉SLAM分为以下几步：</p>
+<ol>
+<li><strong>传感器信息读取</strong>。在视觉 SLAM 中主要为相机图像信息的读取和预处理。</li>
+<li><strong>视觉里程计 (Visual Odometry, VO)</strong>。视觉里程计任务是估算相邻图像间相机的运动， 以及局部地图的样子。VO 又称为前端（Front End）。</li>
+<li><strong>后端优化（Optimization）</strong>。后端接受不同时刻视觉里程计测量的相机位姿，以及回环检测的信息，对它们进行优化，得到全局一致的轨迹和地图。由于接在 VO 之后，又称为后端（Back End）。</li>
+<li><strong>回环检测（Loop Closing）</strong>。回环检测判断机器人是否曾经到达过先前的位置。如果 检测到回环，它会把信息提供给后端进行处理。</li>
+<li><strong>建图（Mapping）</strong>。它根据估计的轨迹，建立与任务要求对应的地图</li>
+</ol>
+<h2 id="2-1-视觉里程计"><a href="#2-1-视觉里程计" class="headerlink" title="2.1 视觉里程计"></a>2.1 视觉里程计</h2><p>视觉里程计关心<strong>相邻图像</strong>之间的相机运动，而和再往前的信息没有关联。换句话说，里程计记录的是<strong>相对差值</strong>而不是绝对值。我们可以通过将相邻时刻的运动<strong>串</strong>起来，构成最终的运动轨迹。</p>
+<p>仅通过视觉里程计来估计轨迹，将不可避免地出现<strong>累计漂移</strong>（Accumulating Drift）。这是由于视觉里程计（在最简单的情况下）只估计两个图像间运动造成的。每次估计都带有一定的误差，而由于里程计的工作方式，<strong>先前时刻的误差将会传递到下一时刻</strong>，导致经过一段时间之后，估计的轨迹将不再准确。因此我们还需要后端优化和回环检测。</p>
+<h2 id="2-2-后端优化"><a href="#2-2-后端优化" class="headerlink" title="2.2 后端优化"></a>2.2 后端优化</h2><p>后端优化主要指处理 SLAM 过程中<strong>噪声</strong>的问题。</p>
+<p>后端优化要考虑的问题， 就是如何从这些带有噪声的数据中，<strong>估计整个系统的状态</strong>，以及这个状态<strong>估计的不确定性有多大</strong>——这称为<strong>最大后验概率估计</strong>（Maximum-a-Posteriori，MAP）。</p>
+<p>在视觉 SLAM 中，前端和计算机视觉研究领域更为相关，比如图像的特征提取与匹配等，后端则主要是滤波与非线性优化算法。</p>
+<h2 id="2-3-回环检测"><a href="#2-3-回环检测" class="headerlink" title="2.3 回环检测"></a>2.3 回环检测</h2><p>回环检测，又称闭环检测（Loop Closure Detection），主要解决位置估计随时间漂移的问题。实现的途径就是让机器人具有<strong>识别曾到达过的场景的能力</strong>，比如识别二维码、环境特征等等。</p>
+<p>在检测到回环之后，我们会把“A 与 B 是同一个点”这样的信息告诉后端优化算法。 然后，后端根据这些新的信息，把轨迹和地图调整到符合回环检测结果的样子。这样就可以消除累积误差，得到全局一致的轨迹地图。</p>
+<h2 id="2-4-建图"><a href="#2-4-建图" class="headerlink" title="2.4 建图"></a>2.4 建图</h2><p>建图（Mapping）是指构建地图的过程。地图是对环境的描述，但这个描述并不是固定的，需要视 SLAM 的应用而定。</p>
+<p>地图可分为<strong>度量地图</strong>（Metric Map）和 <strong>拓扑地图</strong>（Topological Map）</p>
+<ul>
+<li><strong>度量地图</strong>强调精确地表示地图中物体的位置关系，通常我们用<strong>稀疏（Sparse）</strong>与<strong>稠密 （Dense）</strong>对它们进行分类。<ul>
+<li><strong>稀疏地图</strong>进行了一定程度的<strong>抽象</strong>，并不需要表达所有的物体。例如，我们选择一部分具有代表意义的东西，称之为路标（Landmark），那么一张稀疏地图就是由路标组成的地图，而不是路标的部分就可以忽略掉，一般适用于<strong>定位</strong>。</li>
+<li><strong>稠密地图</strong>通常按照某种分辨率，由许 多个小块组成，一个小块含有占据、空闲、未知三种状态，以表达该格内是否有物体。一般适用于<strong>导航</strong>。</li>
+</ul>
+</li>
+<li><strong>拓扑地图</strong>则更强调地图元素之间的关系。拓扑地图是一个<strong>图</strong>（Graph），由<strong>节点</strong>和<strong>边</strong>组成，只考虑节点间的连通性。它放松了地图对精确位置的需要，去掉地图的细节问题， 是一种<strong>更为紧凑的表达方式</strong></li>
+</ul>
+<h1 id="3-SLAM的数学表达"><a href="#3-SLAM的数学表达" class="headerlink" title="3. SLAM的数学表达"></a>3. SLAM的数学表达</h1><p>假设将时间变为离散 $t=1,2,…,K$，然后我们用$x$表示机器人的<strong>位置</strong> $x_1,…,x_k$，而每个时刻，传感器会测量到一部分路标点，得到它们的观测数据。不妨设<strong>路标点</strong>一共有$N$个，用 $y_1,…,y_N$表示它们。 那么机器人携带传感器在环境中的运动就可以描述为：</p>
+<ol>
+<li>什么是运动？我们要考虑从 $k−1$ 时刻到 $k$ 时刻，机器人的位置 $x$ 是如何变化的。</li>
+<li>什么是观测？假设小萝卜在 $k$ 时刻，于 $x_k$ 处探测到了某一个路标 $y_j$，我们要考虑这件事情是如何用数学语言来描述的。</li>
+</ol>
+<p>运动方程$x_k$和观测方程$z_{k,j}$可以分别抽象为如下数学表达式：<br>$$<br>\begin{equation}<br>\left{<br>             \begin{array}\<br>x_k=f(x_{k-1},u_k,\omega_k) \<br>z_{k,j}=h(y_j,x_k,v_{k,j})<br>             \end{array}<br>\right.<br>\end{equation}<br>$$<br>$\omega_k$和$v_{k,j}$为噪声，$u_k$为运动测量读数，$y_j$为路标点，$z_{k,j}$为传感器读数。</p>
+<p>因此问题就转化为：知道<strong>运动测量的读数 $u$，以及传感器的读数 $z$ 时</strong>，<strong>如何求解定位问题（估计 $x$）和建图问题（估计 $y$）</strong>？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-id="ck4o2turu0010u4vy2vu4f566" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-详解Epoll-下篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" class="article-date">
+  <time datetime="2019-07-15T12:16:51.000Z" itemprop="datePublished">2019-07-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/">详解Epoll-下篇</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-epoll-event结构体分析"><a href="#1-epoll-event结构体分析" class="headerlink" title="1. epoll_event结构体分析"></a>1. epoll_event结构体分析</h1><p>上篇我们讲到了<code>epoll_wait</code>函数的功能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event *events, <span class="keyword">int</span> maxevents, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数只能获取<strong>是否有注册事件发生</strong>，至于说事件的细节，我们并不清楚。好比一个人在山洞中，只能听到声响，至于这个声响从何发出并不清楚。而这些<strong>关键信息就存储在<code>epoll_event</code>结构中</strong>。</p>
+<p>结构体如下所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line"><span class="keyword">void</span> *ptr;</span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line"><span class="keyword">__uint32_t</span> u32;</span><br><span class="line"><span class="keyword">__uint64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line"><span class="keyword">__uint32_t</span> events; <span class="comment">/* Epoll events */</span></span><br><span class="line"><span class="keyword">epoll_data_t</span> data; <span class="comment">/* User data variable */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>它分为<code>events</code>和<code>data</code>两个部分</p>
+<ul>
+<li><code>events</code>是epoll注册的事件，比如<code>EPOLLIN</code>、<code>EPOLLOUT</code>等等，这个参数在<code>epoll_ctl</code>注册事件时，可以明确告知注册事件的类型。</li>
+<li><code>data</code>是一个联合体，用于传递参数。</li>
+</ul>
+<h1 id="2-epoll-event使用实例"><a href="#2-epoll-event使用实例" class="headerlink" title="2.  epoll_event使用实例"></a>2.  epoll_event使用实例</h1><h2 id="2-1-实例1：服务器侦听客户端连接"><a href="#2-1-实例1：服务器侦听客户端连接" class="headerlink" title="2.1 实例1：服务器侦听客户端连接"></a>2.1 实例1：服务器侦听客户端连接</h2><p>这个例子很棒的展示了<code>epoll_data</code>中的<code>int fd</code>该怎么用。先看下面一段代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建socket</span></span><br><span class="line">nSocketListen = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br><span class="line">...</span><br><span class="line"><span class="comment">//绑定地址</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">local</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;local, <span class="number">0</span>, <span class="keyword">sizeof</span>(local));</span><br><span class="line">local.sin_family = AF_INET;</span><br><span class="line">local.sin_addr.s_addr = htonl(INADDR_ANY);<span class="comment">//0.0.0.0所有地址都合法</span></span><br><span class="line">local.sin_port = htons(TCP_PORT);</span><br><span class="line">bind(nSocketListen, (struct sockaddr*) &amp; local, <span class="keyword">sizeof</span>(local))</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建epoll</span></span><br><span class="line">nListenEpoll = epoll_create(MAX_LISTEN_EVENTS);</span><br><span class="line"><span class="comment">//注册事件</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">Ev</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;Ev, <span class="number">0</span>, <span class="keyword">sizeof</span>(epoll_event));</span><br><span class="line">Ev.events= EPOLLIN | EPOLLET </span><br><span class="line">Ev.data.fd = nSocketListen;</span><br><span class="line"></span><br><span class="line">epoll_ctl(nListenEpoll, EPOLL_CTL_ADD, nSocketListen, &amp;Ev);</span><br><span class="line"><span class="comment">//侦听</span></span><br><span class="line"><span class="keyword">int</span> nFdNumber = epoll_wait(nListenEpoll, lpListenEvents, MAX_LISTEN_EVENTS, <span class="number">-1</span>);</span><br><span class="line"><span class="comment">//处理侦听结果</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nFdNumber; i++)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (lpListenEvents[i].data.fd != nSocketListen) <span class="keyword">continue</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码在网上很常见，作用是建立一个服务器，侦听所有客户端的连接。具体过程是先建立了一个socket，地址设为设为0.0.0.0（所有人都可以连接），然后将这个socket的句柄<code>nSocketListen</code>附加在注册事件<code>Ev.data.fd</code>上。<strong>在wait等到结果后做一个判断，看看接收到和预设的是否一致</strong>。上篇的demo也用到了类似的思路。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (lpListenEvents[i].data.fd != nSocketListen) </span><br><span class="line">    <span class="keyword">continue</span>;</span><br></pre></td></tr></table></figure>
+
+<p>虽然这段代码用到了fd，但他<strong>并没有体现出fd的作用！</strong>整个程序仅仅设置并注册了一个socket来连接所有IP地址<code>htonl(INADDR_ANY);</code>，<strong>wait收到的消息必然来自于这个唯一的socket，所以这句判断根本是多此一举</strong>。</p>
+<p>正确的用法是：创建多个socket来管理不同的字段，比如：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Socket句柄</th>
+<th align="center">管理的IP范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">101</td>
+<td align="center">100-120</td>
+</tr>
+<tr>
+<td align="center">102</td>
+<td align="center">121-191</td>
+</tr>
+<tr>
+<td align="center">103</td>
+<td align="center">192-255</td>
+</tr>
+</tbody></table>
+<p>将这三个socket都注册进epoll里面，当wait到来时，我们就可以根据<code>Ev.data.fd</code>传进来的socket句柄来进行处理。</p>
+<p>比如上午8点到10点这个时间段，服务器只允许100-120范围的IP连接进来，就可以做一个判断<code>if (lpListenEvents[i].data.fd == 101)</code>,如果是再接受连接。</p>
+<p>这个例子中，fd传递了socket的句柄，帮助我们管理不同的网络连接。</p>
+<h2 id="2-2-实例2：进程间通信"><a href="#2-2-实例2：进程间通信" class="headerlink" title="2.2 实例2：进程间通信"></a>2.2 实例2：进程间通信</h2><p>epoll常常用于线程间的协同工作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//线程A代码</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">Ev</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;Ev, <span class="number">0</span>, <span class="keyword">sizeof</span>(Ev));</span><br><span class="line">Ev.events= EPOLLOUT | EPOLLET | EPOLLERR | EPOLLHUP</span><br><span class="line">Ev.data.ptr = lpCatList;</span><br><span class="line"></span><br><span class="line">epoll_ctl(iClientEpoll, EPOLL_CTL_ADD, lpCatList-&gt;nClientSocket, &amp;Ev);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//线程B代码</span></span><br><span class="line"><span class="keyword">int</span> nFdNumber = epoll_wait(iClientEpoll, lpEvent, MAX_CLIENT_EVENTS, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">IOPACKHEAD_LIST* RelpCatList = (IOPACKHEAD_LIST*)lpEvent[i].data.ptr;</span><br></pre></td></tr></table></figure>
+
+<p>线程AB都是服务器上的线程。</p>
+<p>线程A功能相当于接线员，跟前面展示的服务器功能相同：监听客户的连接，accept客户的请求，建立客户与服务器间的socket连接通道（此处的建立的socket句柄为<code>nClientSocket</code>）。然后将这些客户连接注册到<code>iClientEpoll</code>中</p>
+<p>这些通道建立后，客户一般不会时刻收发数据，也就是说客户可能<strong>不定时</strong>的使用为他们建立的socket连接通道，线程B的<code>iClientEpoll</code>就是用来监听有没有<strong>已经建立连接的客户</strong>需要收发数据的。</p>
+<p>如果像上一个例子一样，只用<code>Ev.data.fd</code>传一个客户socket的句柄，这样线程B能得到的信息太少了。所以我们需要使用结构体<code>lpCatList</code>来传参。</p>
+<p><code>lpCatList</code>相当于一个令牌，他是一个指针，指向的地址存储了客户的信息（Socket句柄，IP地址，MAC地址，请求时间等等），A线程在接收客户连接后，将他们写到这个令牌中，一并注册到<code>iClientEpoll</code>。B线程就可以利用<code>Ev.data.ptr</code>包含的重要的地址信息。</p>
+<p>这样ptr就相当于一个小纸条，A线程通过<code>iClientEpoll</code>将这个小纸条交到B线程手中，B线程就能了解A线程的信息，实现了线程间的通信。</p>
+<p>下面我们打印一下线程A的<code>lpCatlist</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p lpCatList</span><br><span class="line"><span class="meta">$</span><span class="bash">18 = (IOPACKHEAD_LIST *) 0x7ffff0001120</span></span><br></pre></td></tr></table></figure>
+
+<p>再打印一下线程B的ptr，可以发现他们指向同一个地址<code>0x7ffff0001120</code>，说明参数成功传递</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p lpEvent[0]</span><br><span class="line"><span class="meta">$</span><span class="bash">14 = &#123;events = 4, data = &#123;ptr = 0x7ffff0001120, fd = -268431072, u32 = 4026536224, </span></span><br><span class="line">    u64 = 140737219924256&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/15/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-id="ck4o2tus8001gu4vydinu3tjb" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-GDB使用方法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="article-date">
+  <time datetime="2019-07-14T13:02:41.000Z" itemprop="datePublished">2019-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">GDB使用方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-安装GDB"><a href="#1-安装GDB" class="headerlink" title="1. 安装GDB"></a>1. 安装GDB</h1><p>在linux中需要先安装gcc和gdb</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装 gcc</span></span><br><span class="line">yum install gcc</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 g++</span></span><br><span class="line">yum install gcc-c++</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装 gdb</span></span><br><span class="line">yum install gdb</span><br></pre></td></tr></table></figure>
+
+<p>当要调试某程序时，需要在gcc编译时加上<strong>-g</strong>，目的是<strong>保留编译后的程序中调试符号信息</strong>。</p>
+<p>当输入<code>gdb hello</code>时能看到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Reading symbols from &#x2F;root&#x2F;testclient&#x2F;hello_server...done.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>说明保留调试符号信息成功。</p>
+<h1 id="2-启动GDB调试"><a href="#2-启动GDB调试" class="headerlink" title="2. 启动GDB调试"></a>2. 启动GDB调试</h1><p>启动有三种方式：<strong>直接调试目标程序，附加进程，调试core文件</strong></p>
+<h2 id="2-1-直接调试目标程序"><a href="#2-1-直接调试目标程序" class="headerlink" title="2.1 直接调试目标程序"></a>2.1 直接调试目标程序</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb filename</span><br></pre></td></tr></table></figure>
+
+<p><code>filename</code>是需要启动的调试文件名，可以直接使用gdb启动一个程序调试，此时并没有完全启动，而是附加了一个可执行文件，<strong>需要输入run才能真正运行</strong>。</p>
+<h2 id="2-2-附加进程号"><a href="#2-2-附加进程号" class="headerlink" title="2.2 附加进程号"></a>2.2 附加进程号</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb attach ProcessID</span><br></pre></td></tr></table></figure>
+
+<p>有时候程序已经启动，我们并不想重启它（比如服务器），此时需要利用attach指令将进程号添加到GDB调试器。获取进程号的方法如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@iZ238vnojlyZ flamingoserver]$ ps -ef | grep chatserver</span><br><span class="line">zhangyl  21462 21414  0 18:00 pts/2    00:00:00 grep --color=auto chatserver</span><br><span class="line">zhangyl  26621     1  5 Oct10 ?        2-17:54:42 ./chatserver -d</span><br></pre></td></tr></table></figure>
+
+<p>得到<code>charserver</code>的PID为26621，使用<code>gdb attach 26621</code>将GDB附加到<code>chatserver</code>中，看到<code>attaching to process 26661</code>时表示已经附加成功。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ gdb attach 26621</span><br><span class="line">Attaching to process 26661</span><br><span class="line">Reading symbols from /home/zhangyl/flamingoserver/chatserver...done.</span><br><span class="line">Reading symbols from /usr/lib64/mysql/libmysqlclient.so.18...Reading symbols from /usr/lib64/mysql/libmysqlclient.so.18...(no debugging symbols found)...done.</span><br><span class="line">Reading symbols from /lib64/libpthread.so.0...(no debugging symbols found)...done.</span><br><span class="line">[New LWP 42931]</span><br><span class="line">[New LWP 42930]</span><br><span class="line">[New LWP 42929]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library "/lib64/libthread_db.so.1".</span><br><span class="line">Loaded symbols for /lib64/libpthread.so.0</span><br><span class="line">Reading symbols from /lib64/libc.so.6...(no debugging symbols found)...done.</span><br></pre></td></tr></table></figure>
+
+<p>调试完成时，可以使用<strong>detach</strong>将其分离。</p>
+<h2 id="2-3-调试core文件"><a href="#2-3-调试core文件" class="headerlink" title="2.3 调试core文件"></a>2.3 调试core文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb filename corename</span><br></pre></td></tr></table></figure>
+
+<p>有时候，服务器程序运行一段时间后会突然崩溃，只要程序在崩溃的时候有 core 文件产生，就可以使用这个 core 文件来定位崩溃的原因。</p>
+<p>默认情况下，Linux关闭了core文件机制，使用<code>ulimit -c</code>命令来查看系统是否启动这一机制。0表示关闭，数字表示启动但限制core文件大小，unlimited表示启动且不限制大小。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c</span><br><span class="line">core file size          (blocks, -c) 0</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>ulimit -c unlimited</code>指令来启动。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c unlimited</span><br><span class="line">[zhangyl@localhost flamingoserver]$ ulimit -c</span><br><span class="line">core file size          (blocks, -c) unlimited</span><br></pre></td></tr></table></figure>
+
+<p>生成的 core 文件的默认命名方式是 <code>core.pid</code>，比如某个程序运行时的进程 ID 是 16663，那么它崩溃产生的 core 文件的名称就是 <code>core.16663</code>，可以通过<code>gdb chatserver core.16663</code>来启动调试。</p>
+<p>多个程序同时崩溃，我们根本没法通过 core 文件名称中的 PID 来区分。因此可以再程序中记录一下自己的PID。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">writePid</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">uint32_t</span> curPid = (<span class="keyword">uint32_t</span>) getpid();</span><br><span class="line">      FILE* f = fopen(<span class="string">"xxserver.pid"</span>, <span class="string">"w"</span>);</span><br><span class="line">      assert(f);</span><br><span class="line">      <span class="keyword">char</span> szPid[<span class="number">32</span>];</span><br><span class="line">      <span class="built_in">snprintf</span>(szPid, <span class="keyword">sizeof</span>(szPid), <span class="string">"%d"</span>, curPid);</span><br><span class="line">      fwrite(szPid, <span class="built_in">strlen</span>(szPid), <span class="number">1</span>, f);</span><br><span class="line">      fclose(f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在程序启动时调用上述 <code>writePID</code>函数，将程序当时的 PID 记录到 <code>xxserver.pid</code> 文件中去，这样当程序崩溃时，可以从这个文件中得到进程当时运行的 PID，这样就可以与默认的 core 文件名后面的 PID 做匹配了。</p>
+<h1 id="3-常用命令"><a href="#3-常用命令" class="headerlink" title="3. 常用命令"></a>3. 常用命令</h1><p>首先下载redis开源代码作为示例</p>
+<blockquote>
+<p>Redis是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API</p>
+</blockquote>
+<p>Redis 的最新源码下载地址可以在 <a href="https://redis.io/" target="_blank" rel="noopener">Redis 官网</a>获得，使用 <code>wget</code> 命令将 Redis 源码文件下载下来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost gdbtest]# wget http://download.redis.io/releases/redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>然后解压：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost gdbtest]# tar zxvf redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>Makefile</code>编译，加入<code>MALLOC=libc</code>防止<code>jemalloc</code>问题，<code>make distclean</code>清除上次失败的编译残留文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make distclean</span><br><span class="line">make MALLOC=libc</span><br></pre></td></tr></table></figure>
+
+<p>进入src目录，使用<code>gdb redis-server</code>启动程序。</p>
+<h2 id="3-1-流控制语句"><a href="#3-1-流控制语句" class="headerlink" title="3.1 流控制语句"></a>3.1 流控制语句</h2><h3 id="run"><a href="#run" class="headerlink" title="run"></a><strong>run</strong></h3><p><strong>gdb filename</strong> 命令只是附加的一个调试文件，并没有启动这个程序，需要输入 <strong>run</strong> 命令（简写为 r）启动这个程序</p>
+<p>redis-server 启动后能看到一个四方堆叠结构，说明启动成功了。假设程序已经启动，再次输入 run 命令则是重启程序。我们在 GDB 界面按 Ctrl + C 快捷键让 GDB 中断下来，再次输入 r 命令，GDB 会询问我们是否重启程序，输入 yes 确认重启。</p>
+<h3 id="continue"><a href="#continue" class="headerlink" title="continue"></a><strong>continue</strong></h3><p>当 GDB 触发断点或者使用 Ctrl + C 命令中断下来后，想让程序继续运行，只要输入 <strong>continue</strong>命令即可（简写为 c）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">^C</span><br><span class="line">Program received signal SIGINT, Interrupt.</span><br><span class="line">0x00007ffff73ee923 in epoll_wait () from /lib64/libc.so.6</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br></pre></td></tr></table></figure>
+
+<h3 id="next、step、until、finish、return-和-jump-命令"><a href="#next、step、until、finish、return-和-jump-命令" class="headerlink" title="next、step、until、finish、return 和 jump 命令"></a><strong>next、step、until、finish、return 和 jump 命令</strong></h3><p><strong>next</strong> 命令（简写为 n）是让 GDB 调到下一条命令去执行，这里的下一条命令不一定是代码的下一行，而是根据程序逻辑跳转到相应的位置。</p>
+<p>在 GDB 命令行界面如果直接按下回车键，默认是将最近一条命令重新执行一遍，因此，当使用 <strong>next</strong> 命令单步调试时，不必反复输入 <strong>n</strong> 命令，直接回车就可以。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n</span><br><span class="line">3736        spt_init(argc, argv);</span><br><span class="line">(gdb)</span><br><span class="line">3738        setlocale(LC_COLLATE,"");</span><br><span class="line">(gdb)</span><br><span class="line">3739        zmalloc_set_oom_handler(redisOutOfMemoryHandler);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>next</strong> 命令用调试的术语叫“单步步过”（step over），即遇到函数调用直接跳过，不进入函数体内部。而<strong>step</strong> 命令（简写为 <strong>s</strong>）就是“单步步入”（step into），顾名思义，就是遇到函数调用，进入函数内部。</p>
+<hr>
+<p>在某个函数中调试一段时间后，不需要再一步步执行到函数返回处，希望直接执行完当前函数并回到上一层调用处，就可以使用 <strong>finish</strong> 命令。与 <strong>finish</strong> 命令类似的还有 <strong>return</strong> 命令，<strong>return</strong> 命令的作用是结束执行当前函数，还<strong>可以指定该函数的返回值</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">func</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">     <span class="keyword">int</span> a = <span class="number">9</span>;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">"a=%d.\n"</span>, a);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> c = func();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"c=%d.\n"</span>, c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码在func函数里直接输入 <strong>return</strong> 命令以后，不会返回任何值，如果输入<strong>retrun 9999</strong>，那么打印出来结果就是9999。</p>
+<hr>
+<p><strong>until</strong> 命令（简写为 <strong>u</strong>）可以指定程序运行到某一行停下来，可以代替break+continue，比如当前运行到338行，想要运行到992行，直接<code>u 992</code></p>
+<p><strong>jump</strong>命令也是跳转，但中间的步骤不会执行。比如从338行跳转到992行<code>j 992</code>。从338行到992行之间的所有代码都不会执行（可能会因为没有初始化造成问题），并且会从992行以后<strong>持续执行</strong>（如果没有碰到断点）</p>
+<h2 id="3-2-断点语句"><a href="#3-2-断点语句" class="headerlink" title="3.2 断点语句"></a>3.2 断点语句</h2><p><strong>break</strong> 命令（简写为 b）即我们添加断点的命令，可以使用以下方式添加断点：</p>
+<ul>
+<li><strong>break functionname</strong>，在函数名为 functionname 的入口处添加一个断点；</li>
+<li><strong>break LineNo</strong>，在当前文件行号为 LineNo 处添加一个断点；</li>
+<li><strong>break filename:LineNo</strong>，在 filename 文件行号为 LineNo 处添加一个断点。</li>
+</ul>
+<p>在程序中加了很多断点，而我们想查看加了哪些断点时，可以使用 <strong>info break</strong> 命令。</p>
+<p>如果我们想禁用某个断点，使用“<strong>disable 断点编号</strong>”就可以禁用这个断点了，被禁用的断点不会再被触发；同理，被禁用的断点也可以使用“<strong>enable 断点编号</strong>”重新启用。如果 <strong>disable</strong> 命令和 <strong>enable</strong> 命令<strong>不加断点编号</strong>，则分别表示禁用和启用所有断点。</p>
+<p>使用“<strong>delete 编号</strong>”可以删除某个断点，如 <strong>delete 2 3</strong> 则表示要删除的断点 2 和断点 3。同样的道理，如果输入 delete 不加命令号，则表示删除所有断点。</p>
+<p><strong>tbreak</strong> 命令也是添加一个断点，第一个字母“<strong>t</strong>”的意思是 temporarily（临时的），也就是说这个命令加的断点是临时的，所谓临时断点，就是一旦该断点触发一次后就会自动删除。</p>
+<h2 id="3-2-堆栈和线程查看语句"><a href="#3-2-堆栈和线程查看语句" class="headerlink" title="3.2 堆栈和线程查看语句"></a>3.2 堆栈和线程查看语句</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a><strong>list</strong></h3><p><strong>list</strong> 命令（简写为 l）可以查看当前断点处的代码。使用 <strong>frame</strong> 命令切换到刚才的堆栈 #3 处，然后输入 <strong>list</strong> 命令看下效果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 4</span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">(gdb) l</span><br><span class="line">1847        &#125;</span><br><span class="line">1848        server.db = zmalloc(sizeof(redisDb)*server.dbnum);</span><br><span class="line">1849</span><br><span class="line">1850        /* Open the TCP listening socket for the user commands. */</span><br><span class="line">1851        if (server.port != 0 &amp;&amp;</span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">1853            exit(1);</span><br><span class="line">1854</span><br><span class="line">1855        /* Open the listening Unix domain socket. */</span><br><span class="line">1856        if (server.unixsocket != NULL) &#123;</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>list语句现实的是目标语句处<strong>前后附近</strong>的代码，再次输入list命令后，代码继续往后显示 10 行。 list 指令还可以往前和往后显示代码，命令分别是<strong>list +</strong> （加号）和<strong>list -</strong> （减号）。</p>
+<h3 id="backtrace和frame"><a href="#backtrace和frame" class="headerlink" title="backtrace和frame"></a><strong>backtrace和frame</strong></h3><p><strong>backtrace</strong> 命令（简写为 bt）用来查看当前调用堆栈。若redis-server 现在中断在 anet.c:452 行，可以通过 <strong>backtrace</strong> 命令来查看当前的调用堆栈：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt</span><br><span class="line"><span class="meta">#</span><span class="bash">0  anetListen (err=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, s=10, sa=0x7e34e0, len=16, backlog=511) at anet.c:452</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x0000000000426e35 <span class="keyword">in</span> _anetTcpServer (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, af=af@entry=10, backlog=511)</span></span><br><span class="line">    at anet.c:487</span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x000000000042793d <span class="keyword">in</span> anetTcp6Server (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, backlog=511)</span></span><br><span class="line">    at anet.c:510</span><br><span class="line"><span class="meta">#</span><span class="bash">3  0x000000000042b0bf <span class="keyword">in</span> listenToPort (port=6379, fds=fds@entry=0x746ae4 &lt;server+356&gt;, count=count@entry=0x746b24 &lt;server+420&gt;) at server.c:1728</span></span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line"><span class="meta">#</span><span class="bash">5  0x0000000000423803 <span class="keyword">in</span> main (argc=1, argv=0x7fffffffe648) at server.c:3862</span></span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>这里一共有 6 层堆栈，最顶层是 <code>main()</code> 函数，最底层是断点所在的 <code>anetListen()</code>函数，堆栈编号分别是 #0 ~ #5。比如我们在利用<code>pthread_creat</code>函数创建线程时可以利用bt查看创建过程。</p>
+<p>使用bt以后可以看到如下结果，说明creat线程创建过程是clone-&gt;start_thread-&gt;MainTcpEpollThread</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">0  MainTcpEpollThread (lpParam=0x0) at ./Server.cpp:1035</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x00007ffff7bc6dd5 <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span></span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x00007ffff68f3ead <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>如果想切换到其他堆栈处，可以使用 frame 命令（简写为 f），该命令的使用方法是<strong>frame 堆栈编号</strong>（编号不加 #）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 1</span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x0000000000426e35 <span class="keyword">in</span> _anetTcpServer (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, af=af@entry=10, backlog=511)</span></span><br><span class="line">    at anet.c:487</span><br><span class="line">487             if (anetListen(err,s,p-&gt;ai_addr,p-&gt;ai_addrlen,backlog) == ANET_ERR) s = ANET_ERR;</span><br><span class="line">(gdb) f 2</span><br><span class="line"><span class="meta">#</span><span class="bash">2  0x000000000042793d <span class="keyword">in</span> anetTcp6Server (err=err@entry=0x746bb0 &lt;server+560&gt; <span class="string">""</span>, port=port@entry=6379, bindaddr=bindaddr@entry=0x0, backlog=511)</span></span><br><span class="line">    at anet.c:510</span><br><span class="line">510         return _anetTcpServer(err, port, bindaddr, AF_INET6, backlog);</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>通过查看上面的各个堆栈，可以得出这里的调用层级关系，即：</p>
+<ul>
+<li><code>main()</code> 函数在第 3862 行调用了 <code>initServer()</code> 函数</li>
+<li><code>initServer()</code> 在第 1852 行调用了 <code>listenToPort()</code>函数</li>
+<li><code>listenToPort()</code> 在第 1728 行调用了 <code>anetTcp6Server()</code> 函数</li>
+<li><code>anetTcp6Server()</code> 在第 510 行调用了 <code>_anetTcpServer()</code> 函数</li>
+<li><code>_anetTcpServer()</code> 函数在第 487 行调用了 <code>anetListen()</code> 函数</li>
+<li>当前断点正好位于 <code>anetListen()</code> 函数中</li>
+</ul>
+<h3 id="thread-命令"><a href="#thread-命令" class="headerlink" title="thread 命令"></a><strong>thread 命令</strong></h3><p>使用 <strong>info thread</strong> 命令来查看当前进程有哪些线程</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info thread</span><br><span class="line">  Id   Target Id         Frame</span><br><span class="line">  4    Thread 0x7fffef7fd700 (LWP 53065) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">  3    Thread 0x7fffefffe700 (LWP 53064) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">  2    Thread 0x7ffff07ff700 (LWP 53063) "redis-server" 0x00007ffff76c4945 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span><br><span class="line">* 1    Thread 0x7ffff7fec780 (LWP 53062) "redis-server" 0x00007ffff73ee923 in epoll_wait () from /lib64/libc.so.6</span><br></pre></td></tr></table></figure>
+
+<p>通过 <strong>info thread</strong> 的输出可以知道 redis-server 正常启动后，一共产生了 4 个线程，包括一个主线程和三个工作线程，线程编号（Id 那一列）分别是 4、3、2、1。三个工作线程（2、3、4）分别阻塞在 Linux API <code>pthread_cond_wait</code> 处，而主线程（1）阻塞在 <code>epoll_wait</code> 处。</p>
+<blockquote>
+<p>虽然第一栏的名称叫 Id，但第一栏的数值不是线程的 Id，第三栏括号里的内容（如 LWP 53065）中，53065 这样的数值才是当前线程真正的 Id。 LWP 是Light Weight Process（轻量级进程），之前Linux没有线程，用进程代替后来 Linux 系统有了真正的线程实现，这个名字仍然被保留了下来。</p>
+</blockquote>
+<p>可以通过“<strong>thread 线程编号</strong>”切换到具体的线程上去。例如，想切换到线程 2 上去，只要输入 <strong>thread 2</strong> 即可，然后输入 <strong>bt</strong> 就能查看这个线程的调用堆栈了。当把 GDB 当前作用的线程切换到线程 2 上之后，线程 2 前面就被加上了星号。</p>
+<h2 id="3-4-变量信息查看语句"><a href="#3-4-变量信息查看语句" class="headerlink" title="3.4 变量信息查看语句"></a>3.4 变量信息查看语句</h2><h3 id="print和ptype命令"><a href="#print和ptype命令" class="headerlink" title="print和ptype命令"></a><strong>print和ptype命令</strong></h3><p>通过 <strong>print</strong> 命令（简写为 p）我们可以在调试过程中方便地查看变量的值，也可以修改当前内存中的变量值。切换当前断点到堆栈 #4 ，然后打印以下三个变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 4</span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x000000000042fa77 <span class="keyword">in</span> initServer () at server.c:1852</span></span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">(gdb) l</span><br><span class="line">1847        &#125;</span><br><span class="line">1848        server.db = zmalloc(sizeof(redisDb)*server.dbnum);</span><br><span class="line">1849</span><br><span class="line">1850        /* Open the TCP listening socket for the user commands. */</span><br><span class="line">1851        if (server.port != 0 &amp;&amp;</span><br><span class="line">1852            listenToPort(server.port,server.ipfd,&amp;server.ipfd_count) == C_ERR)</span><br><span class="line">1853            exit(1);</span><br><span class="line">1854</span><br><span class="line">1855        /* Open the listening Unix domain socket. */</span><br><span class="line">1856        if (server.unixsocket != NULL) &#123;</span><br><span class="line">(gdb) p server.port</span><br><span class="line"><span class="meta">$</span><span class="bash">15 = 6379</span></span><br><span class="line">(gdb) p server.ipfd</span><br><span class="line"><span class="meta">$</span><span class="bash">16 = &#123;0 &lt;repeats 16 <span class="built_in">times</span>&gt;&#125;</span></span><br><span class="line">(gdb) p server.ipfd_count</span><br><span class="line"><span class="meta">$</span><span class="bash">17 = 0</span></span><br></pre></td></tr></table></figure>
+
+<p>这里使用 <strong>print</strong> 命令分别打印出 <code>server.port</code> 、<code>server.ipfd</code> 、<code>server.ipfd_count</code> 的值，其中 <code>server.ipfd</code> 显示 “{0 …}”，这是 GDB 显示字符串或字符数据特有的方式，当一个字符串变量或者字符数组或者连续的内存值重复若干次，<strong>GDB 就会以这种模式来显示以节约空间.</strong></p>
+<p>此外我们可以输入 <strong>p &amp;server.port</strong> 来输出 <code>server.port</code> 的地址值。 <code>func()</code> 是一个可以执行的函数，<code>p func()</code> 命令可以输出该变量的执行结果。举一个最常用的例子，某个时刻，某个系统函数执行失败了，通过系统变量 errno 得到一个错误码，则可以使用 <strong>p strerror(errno)</strong> 将这个错误码对应的文字信息打印出来，这样就不用费劲地去 man 手册上查找这个错误码对应的错误含义了。</p>
+<hr>
+<p><strong>ptype</strong> ，顾名思义，其含义是“print type”，就是输出一个变量的类型。例如，我们试着输出 Redis 堆栈 #4 的变量 <code>server</code> 和变量 <code>server.port</code> 的类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(gdb) ptype server</span><br><span class="line">type = struct redisServer &#123;</span><br><span class="line">    pid_t pid;</span><br><span class="line">    char *configfile;</span><br><span class="line">    char *executable;</span><br><span class="line">    char **exec_argv;</span><br><span class="line">    int hz;</span><br><span class="line">    redisDb *db;</span><br><span class="line">    ...省略部分字段...</span><br><span class="line">(gdb) ptype server.port</span><br><span class="line">type = int</span><br></pre></td></tr></table></figure>
+
+<h3 id="info-args命令"><a href="#info-args命令" class="headerlink" title="info args命令"></a><strong>info args命令</strong></h3><p><strong>info args</strong>可以用来查看当前函数的参数值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(gdb) thread 1</span><br><span class="line">[Switching to thread 1 (Thread 0x7ffff7fec780 (LWP 53062))]</span><br><span class="line"><span class="meta">#</span><span class="bash">0  0x00007ffff73ee923 <span class="keyword">in</span> epoll_wait () from /lib64/libc.so.6</span></span><br><span class="line">(gdb) bt</span><br><span class="line"><span class="meta">#</span><span class="bash">0  0x00007ffff73ee923 <span class="keyword">in</span> epoll_wait () from /lib64/libc.so.6</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1  0x00000000004265df <span class="keyword">in</span> aeApiPoll (tvp=0x7fffffffe300, eventLoop=0x7ffff08350a0) at ae_epoll.c:112</span></span><br><span class="line"><span class="meta">#</span><span class="bash">2  aeProcessEvents (eventLoop=eventLoop@entry=0x7ffff08350a0, flags=flags@entry=11) at ae.c:411</span></span><br><span class="line"><span class="meta">#</span><span class="bash">3  0x0000000000426aeb <span class="keyword">in</span> aeMain (eventLoop=0x7ffff08350a0) at ae.c:501</span></span><br><span class="line"><span class="meta">#</span><span class="bash">4  0x00000000004238ef <span class="keyword">in</span> main (argc=1, argv=0x7fffffffe648) at server.c:3899</span></span><br><span class="line">(gdb) f 2</span><br><span class="line"><span class="meta">#</span><span class="bash">2  aeProcessEvents (eventLoop=eventLoop@entry=0x7ffff08350a0, flags=flags@entry=11) at ae.c:411</span></span><br><span class="line">411             numevents = aeApiPoll(eventLoop, tvp);</span><br><span class="line">(gdb) info args</span><br><span class="line">eventLoop = 0x7ffff08350a0</span><br><span class="line">flags = 11</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>上述代码片段切回至主线程 1，然后切换到堆栈 #2，堆栈 #2 调用处的函数是 aeProcessEvents() ，一共有两个参数，使用 <strong>info args</strong> 命令可以输出当前两个函数参数的值，参数 eventLoop 是一个指针类型的参数，对于指针类型的参数，GDB 默认会输出该变量的指针地址值，如果想输出该指针指向对象的值，在变量名前面加上<strong>解引用</strong>即可，这里使用 <code>p* eventLoop</code> 命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p *eventLoop</span><br><span class="line"><span class="meta">$</span><span class="bash">26 = &#123;maxfd = 11, setsize = 10128, timeEventNextId = 1, lastTime = 1536570672, events = 0x7ffff0871480, fired = 0x7ffff08c2e40, timeEventHead = 0x7ffff0822080,</span></span><br><span class="line">  stop = 0, apidata = 0x7ffff08704a0, beforesleep = 0x429590 &lt;beforeSleep&gt;, aftersleep = 0x4296d0 &lt;afterSleep&gt;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="watch命令"><a href="#watch命令" class="headerlink" title="watch命令"></a><strong>watch命令</strong></h3><p><strong>watch</strong> 命令可以用来监视一个变量或者一段内存，当这个变量或者该内存处的值发生变化时，GDB 就会中断下来。被监视的某个变量或者某个内存地址会产生一个 watch point（观察点）， watch 命令就可以通过添加硬件断点来达到监视数据变化的目的。它有两种形式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//形式一：整型变量</span></span><br><span class="line"><span class="keyword">int</span> i;</span><br><span class="line">watch i</span><br><span class="line"><span class="comment">//形式二：指针类型</span></span><br><span class="line"><span class="keyword">char</span> *p;</span><br><span class="line">watch p 与 watch *p</span><br><span class="line"><span class="comment">//形式三：watch 一个数组或内存区间</span></span><br><span class="line"><span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">watch buf</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：<code>watch p</code> 与 <code>watch *p</code> 是有区别的，前者是查看* (&amp;p)，是 p 变量本身；后者是 p 所指内存的内容。我们需要查看地址，因为目的是要看某内存地址上的数据是怎样变化的。</p>
+<h3 id="display命令"><a href="#display命令" class="headerlink" title="display命令"></a><strong>display命令</strong></h3><p><strong>display</strong> 命令监视的变量或者内存地址，每次程序中断下来都会自动输出这些变量或内存的值。例如，假设程序有一些全局变量，每次断点停下来我都希望 GDB 可以自动输出这些变量的最新值，那么使用“<strong>display 变量名</strong>”设置即可</p>
+<p>比如输入<code>(gdb) display $ebx</code>，那么每次调试的最后无论有没有print最后都会打印出$ebx的结果。</p>
+<p>以使用 <strong>info display</strong> 查看当前已经自动添加了哪些值，使用 <strong>delete display</strong> 清除全部需要自动输出的变量，使用 <strong>delete diaplay 编号</strong> 删除某个自动输出的变量。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/14/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" data-id="ck4o2turd000gu4vyh1xbgrw1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-详解Epoll-上篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" class="article-date">
+  <time datetime="2019-07-13T15:35:50.000Z" itemprop="datePublished">2019-07-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/">详解Epoll-上篇</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h1><h2 id="1-1-基本概念解释"><a href="#1-1-基本概念解释" class="headerlink" title="1.1 基本概念解释"></a>1.1 基本概念解释</h2><p><strong>流(stream)</strong></p>
+<p>指计算机中<strong>顺序</strong>读写字节序列。对应于现实中的输入模型(磁带、纸带，他们都是按顺序从头开始)</p>
+<p><strong>流是能统一描述所有常见输入输出类型的模型</strong>，包括文件、键盘、显示器等等，<strong>能够通过输入输出重定向</strong>（不使用标准IO函数，编写相应的读写函数，处理文件、键盘等模型）。相较于随机读写，<strong>流模型能兼容不同的读写介质，提高读写效率</strong>。</p>
+<p><strong>缓冲区(Buffer)</strong></p>
+<p>假设有一个管道，A端为输入，B端为输出。</p>
+<ol>
+<li>一开始管道是空的，对应内核缓冲区为空，B被阻塞。</li>
+<li>当A开始写入数据时，缓冲区非空，B可能还是读取也可能继续休息。</li>
+<li>若A写满了缓冲区，则A被阻塞，等待B读取数据。</li>
+<li>若B读取所有数据，缓冲区为空，则B又被阻塞。</li>
+</ol>
+<p>总结起来就是：</p>
+<ul>
+<li>缓冲区空：两种可能，A没开始输入，B读取完毕所有数据，两种情况下B都被阻塞</li>
+<li>缓冲区非满：A开始写入数据，B可能读取也可能休息</li>
+<li>缓冲区满：A不能再写入，被阻塞，等待B醒来。B读取时，A可能接着写入可能继续休息。</li>
+</ul>
+<h2 id="1-2-四种事件处理的方式"><a href="#1-2-四种事件处理的方式" class="headerlink" title="1.2 四种事件处理的方式"></a>1.2 四种事件处理的方式</h2><p><strong>阻塞IO</strong>：一个线程只能处理一个流的I/O事件。除非采用多线程，否则效率很低。</p>
+<p><strong>非阻塞忙轮询IO</strong>：即Non-Blocking Busy Polling，等待某个事件的时候，放弃其他事情，休息，专门等待，称之为<strong>阻塞</strong>。<strong>等待过程中不休息，不断询问事件是否完成，称之为非阻塞忙轮询</strong>。可以同时处理多个流，但需要从头到尾轮询，浪费资源。</p>
+<p><strong>Select</strong>：相当于一位代理，帮我们观察流。但这位代理只会告诉我们此刻是否有IO事件发生，我们却不知道是哪些流，只能无差别轮询。</p>
+<p><strong>Epoll</strong>：即event poll，不同于无差别轮询，epoll会把哪个流发生什么样的事情通知我们。</p>
+<h2 id="1-3-Select-Poll的缺点"><a href="#1-3-Select-Poll的缺点" class="headerlink" title="1.3 Select/Poll的缺点"></a>1.3 Select/Poll的缺点</h2><ol>
+<li>单个进程能够监视的文件描述为<strong>最大为1024</strong>，轮询越多，性能越差</li>
+<li>Select需要<strong>复制大量句柄数据结构</strong>，开销巨大。</li>
+<li>Select返回整个句柄数组，<strong>程序需要遍历数组</strong>才能知道哪些句柄发生了什么事件。</li>
+<li>触发方式为<strong>水平触发</strong>，如果程序没有对一个就绪的文件进行IO操作，之后每次Select调用还是会将文件描述符通知给进程。</li>
+</ol>
+<p>Poll<strong>使用链表保存文件，没有1的限制</strong>，但其他三个缺点依然比较明显。</p>
+<h1 id="2-Epoll模型"><a href="#2-Epoll模型" class="headerlink" title="2. Epoll模型"></a>2. Epoll模型</h1><h2 id="2-1-Epoll机制解析"><a href="#2-1-Epoll机制解析" class="headerlink" title="2.1 Epoll机制解析"></a>2.1 Epoll机制解析</h2><p>Epoll也就是<strong>events poll</strong>，它分为三个部分实现：</p>
+<ul>
+<li>调用<code>epoll_creat</code>建立一个epoll对象</li>
+<li>调用<code>epoll_ctl</code>向epoll对象中添加众多套接字</li>
+<li>调用<code>epoll_wait</code>收集发生的事件的连接</li>
+</ul>
+<p>某一进程调用<code>epoll_creat</code>时，Linux内核会创建一个<code>eventpoll</code>结构体。结构体中存在两个成员：</p>
+<ul>
+<li><strong>红黑树的根节点</strong>，存储epoll需要监控的事件</li>
+<li><strong>双链表的头部</strong>，存储<code>epoll_wait</code>返回给用户的满足条件的事件</li>
+</ul>
+<p>用户通过<code>epoll_ctl</code>向epoll对象中注册事件，这些<strong>事件会挂载到红黑树中，能高效识别重复事件</strong>。所有注册的事件都会<strong>和驱动程序建立回调关系</strong>，事件发生时调用这个回调方法，将发生的事件添加到双链表<code>rdlist</code>中。</p>
+<p>当调用<code>epoll_wait</code>检查事件发生时，<strong>只需要检查双链表<code>rdlist</code>是否有元素</strong>即可。通过<code>epoll_ctl</code>把所有事件传入内核，一起wait，<strong>避免了不必要的重复拷贝</strong>。</p>
+<h2 id="2-2-Epoll使用方法"><a href="#2-2-Epoll使用方法" class="headerlink" title="2.2 Epoll使用方法"></a>2.2 Epoll使用方法</h2><p><strong>1.创建Epoll句柄</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> epfd = epoll_create(intsize);</span><br></pre></td></tr></table></figure>
+
+<p>创建一个epoll句柄，<strong>size用来告诉内核这个监听的数目有多大</strong>。注意：当创建好epoll句柄后，它就是会占用一个fd值，所以使用完epoll以后，<strong>需要及时调用<code>close()</code>关闭，否则会导致fd耗尽</strong>。</p>
+<p><strong>2.注册或修改监听事件</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event *event)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li>epfd，之前creat的句柄</li>
+<li>op，动作类型<ul>
+<li><code>EPOLL_CTL_ADD</code>：注册新的fd到epfd中</li>
+<li><code>EPOLL_CTL_MOD</code>：修改已经注册的fd的监听事件</li>
+<li><code>EPOLL_CTL_DEL</code>：从epfd中删除一个fd</li>
+</ul>
+</li>
+<li>fd，需要监听的文件句柄</li>
+<li>event，需要监听的事件</li>
+</ul>
+<p>调用成功返回0，不成功返回-1。以下是<code>epoll_event</code>结构体</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 保存触发事件的某个文件描述符相关的数据</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">__uint32_t</span> u32;</span><br><span class="line">    <span class="keyword">__uint64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册所感兴趣的事件和回传所发生待处理的事件</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line">    <span class="keyword">__uint32_t</span> events; <span class="comment">// Epoll events</span></span><br><span class="line">    <span class="keyword">epoll_data_t</span> data; <span class="comment">// User data variable</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>events</code>包含了如下的宏集合：</p>
+<ul>
+<li><code>EPOLLIN</code>：表示对应的文件描述符可读（包括对端Socket）</li>
+<li><code>EPOLLOUT</code>：表示对应的文件描述符可写</li>
+<li><code>EPOLLPRI</code>：表示对应的文件描述符有紧急数据可读（带外数据）</li>
+<li><code>EPOLLERR</code>：表示对应的文件描述符发生错误；</li>
+<li><code>EPOLLHUP</code>：表示对应的文件描述符被挂断；</li>
+<li><code>EPOLLET</code>：将EPOLL设为边缘触发（Edge Triggered），这是相对于水平触发（Level Triggered）而言的。</li>
+</ul>
+<p>边缘触发和水平触发的区别是：</p>
+<ul>
+<li><strong>水平触发LT</strong>：默认方式，<strong>支持阻塞和非阻塞</strong>。内核告诉你某个fd就位了，如果你不对这个fd进行IO操作，<strong>内核会一直通知你</strong>。所以这种模式<strong>安全性较高</strong>。</li>
+<li><strong>边缘触发ET</strong>：<strong>只支持非阻塞</strong>，<strong>内核只会通知你一次</strong>，如果你不操作他也不管你了，<strong>速度快</strong></li>
+</ul>
+<p><strong>3.等待事件触发</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event * events, intmaxevents, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数:</p>
+<ul>
+<li><code>events</code>是分配好的<code>epoll_event</code>结构体数组，<code>epoll</code>将会把发生的事件赋值到<code>events</code>数组中。</li>
+<li><code>maxevents</code>告诉内核这个<code>events</code>数组有多大，这个<code>maxevents</code>的值不能大于创建<code>epoll_create</code>时的size。</li>
+<li>参数<code>timeout</code>是超时时间（毫秒）。</li>
+</ul>
+<p>该函数<strong>返回需要处理的事件数目</strong>，如返回0表示已超时。</p>
+<p>等侍注册在<code>epfd</code>上的<code>socket fd</code>的事件的发生.</p>
+<ul>
+<li>如果发生则将发生的<code>socket fd</code>和事件类型放入到<code>events</code>数组中，并<strong>将注册在<code>epfd</code>上的<code>socket fd</code>的事件类型给清空</strong>。</li>
+<li>如果下一个循环还要关注这个<code>socket fd</code>的话，则需要用<code>epoll_ctl(epfd,EPOLL_CTL_MOD,listenfd,&amp;ev)</code>来<strong>重新设置<code>socket fd</code>的事件类型</strong>。这时不用<code>EPOLL_CTL_ADD</code>，因为<code>socket fd</code>并未清空，只是事件类型清空。</li>
+</ul>
+<h1 id="3-实战"><a href="#3-实战" class="headerlink" title="3. 实战"></a>3. 实战</h1><p>使用epoll的基本逻辑如下。我们需要用到多个socket句柄，首先本地服务器肯定要创建一个socket，同时也需要将这个fd注册到epoll中。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191216130742.png" style="zoom:80%;" />
+
+<p>实际代码如下，主要工作是初始化服务器socket，并将其注册到epoll中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*步骤1：设置socket */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">clientaddr</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">serveraddr</span>;</span></span><br><span class="line">listenfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">setnonblocking(listenfd); <span class="comment">//自己写的函数，把socket设置为非阻塞方式</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*步骤2：创建并设置epoll */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">ev</span>, <span class="title">events</span>[20];</span>             <span class="comment">//声明epoll_event结构体的变量,ev用于注册事件,数组用于回传要处理的事件</span></span><br><span class="line">epfd = epoll_create(<span class="number">256</span>);                      <span class="comment">//生成用于处理accept的epoll专用的文件描述符</span></span><br><span class="line">ev.data.fd = listenfd;                         <span class="comment">//设置与要处理的事件相关的文件描述符</span></span><br><span class="line">ev.events = EPOLLIN | EPOLLET;                 <span class="comment">//设置要处理的事件类型</span></span><br><span class="line">epoll_ctl(epfd, EPOLL_CTL_ADD, listenfd, &amp;ev); <span class="comment">//注册epoll事件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*步骤3：连接并监听网络 */</span></span><br><span class="line">bzero(&amp;serveraddr, <span class="keyword">sizeof</span>(serveraddr)); <span class="comment">//置零</span></span><br><span class="line">serveraddr.sin_family = AF_INET;</span><br><span class="line"><span class="keyword">char</span> *local_addr = <span class="string">"127.0.0.1"</span>;</span><br><span class="line">inet_aton(local_addr, &amp;(serveraddr.sin_addr)); <span class="comment">//将一个字符串IP地址转换为一个32位的网络序列IP地址</span></span><br><span class="line">serveraddr.sin_port = htons(portnumber);       <span class="comment">//portnumber自己设的端口号</span></span><br><span class="line">bind(listenfd, (sockaddr *)&amp;serveraddr, <span class="keyword">sizeof</span>(serveraddr));</span><br><span class="line">listen(listenfd, <span class="number">20</span>); <span class="comment">//最大等待20个</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>客户端与服务器沟通分为两步：</p>
+<ol>
+<li>客户端连接，事件的句柄fd是服务器的fd。</li>
+<li>客户端收发数据，事件的句柄fd是客户端本身的socket句柄</li>
+</ol>
+<p>代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*步骤4：处理事件 */</span></span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">&#123;</span><br><span class="line">    nfds = epoll_wait(epfd, events, <span class="number">20</span>, <span class="number">500</span>); <span class="comment">//等待epoll事件的发生,最大20个，超时500ms</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nfds; ++i)                <span class="comment">//处理所发生的所有事件</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (events[i].data.fd == listenfd) <span class="comment">//如果新监测到一个SOCKET用户连接到了绑定的SOCKET端口，建立新的连接。</span></span><br><span class="line">        &#123;</span><br><span class="line">            connfd = accept(listenfd, (sockaddr *)&amp;clientaddr, &amp;clilen);</span><br><span class="line">            <span class="keyword">char</span> *str = inet_ntoa(clientaddr.sin_addr);</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"accapt a connection from "</span> &lt;&lt; str &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            ev.data.fd = connfd;                         <span class="comment">//设置用于读操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLIN | EPOLLET;               <span class="comment">//设置用于注测的读操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_ADD, connfd, &amp;ev); <span class="comment">//注册ev</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (events[i].events &amp; EPOLLIN) <span class="comment">//如果是已经连接的用户，并且收到数据，那么进行读入。</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"EPOLLIN"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            <span class="keyword">int</span> n = read(sockfd, line, MAXLINE))<span class="comment">//传送到line中，返回n传送的字节数</span></span><br><span class="line">            line[n] = '/0';</span><br><span class="line">            <span class="built_in">cout</span> &lt;&lt; <span class="string">"read "</span> &lt;&lt; line &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">            ev.data.fd = sockfd;                         <span class="comment">//设置用于写操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLOUT | EPOLLET;              <span class="comment">//设置用于注测的写操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_MOD, sockfd, &amp;ev); <span class="comment">//修改sockfd上要处理的事件为EPOLLOUT</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (events[i].events &amp; EPOLLOUT) <span class="comment">// 如果有数据发送</span></span><br><span class="line">        &#123;</span><br><span class="line">            sockfd = events[i].data.fd;</span><br><span class="line">            write(sockfd, line, n);</span><br><span class="line">            ev.data.fd = sockfd;                         <span class="comment">//设置用于读操作的文件描述符</span></span><br><span class="line">            ev.events = EPOLLIN | EPOLLET;               <span class="comment">//设置用于注测的读操作事件</span></span><br><span class="line">            epoll_ctl(epfd, EPOLL_CTL_MOD, sockfd, &amp;ev); <span class="comment">//修改sockfd上要处理的事件为EPOLIN</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/13/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" data-id="ck4o2tus8001fu4vy6byw2zm3" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Socket网络编程实战" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/07/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" class="article-date">
+  <time datetime="2019-07-07T14:46:15.000Z" itemprop="datePublished">2019-07-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/07/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">Socket网络编程实战</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本流程"><a href="#1-基本流程" class="headerlink" title="1. 基本流程"></a>1. 基本流程</h1><img src="https://i.bmp.ovh/imgs/2019/07/1e40d870e0026c8d.png" alt="img" style="zoom:80%;" />
+
+<p>服务器端可以分为3个过程：</p>
+<ul>
+<li>初始化：初始化DLL，创建套接字，绑定套接字端口号IP地址</li>
+<li>工作：监听客户端，接受连接，收发数据</li>
+<li>结束：关闭套接字，终止DLL的使用</li>
+</ul>
+<p>客户端也分为这3个过程</p>
+<ul>
+<li>初始化：DLL、套接字，但不用绑定</li>
+<li>工作：连接服务器，收发数据</li>
+<li>结束：关闭套接字，终止DLL的使用</li>
+</ul>
+<h1 id="2-关键API"><a href="#2-关键API" class="headerlink" title="2. 关键API"></a>2. 关键API</h1><p>以windows下的socket为例，讲解如何调用这些API</p>
+<h2 id="2-1-WSAStartup"><a href="#2-1-WSAStartup" class="headerlink" title="2.1 WSAStartup( )"></a>2.1 WSAStartup( )</h2><p>作用是添加链接库函数DLL，当某个程序调用<code>WSAStartup()</code>函数时，操作系统根据请求的Socket版本来搜索相应的库，然后将找到的库绑定到该应用程序中。成功返回0，失败返回错误代码。</p>
+<p><code>MAKEWORD(2, 1)</code>表示socket版本号。</p>
+<p>使用前需要加上：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;WinSock2.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"ws2_32.lib"</span>)  <span class="comment">//加载</span></span></span><br></pre></td></tr></table></figure>
+
+<p>一般用法是</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WSADATA wsaData;</span><br><span class="line"><span class="keyword">int</span> iResult = WSAStartup(MAKEWORD(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData);</span><br><span class="line"><span class="keyword">if</span> (iResult != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"WSAStartup failed: %d\n"</span>, iResult);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-Socket"><a href="#2-2-Socket" class="headerlink" title="2.2 Socket( )"></a>2.2 Socket( )</h2><p>类似于<code>fopen</code>，文件打开时，返回一个文件描述字，而<code>socket( )</code>用于创建一个socket描述符，相当于socket的名字。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果成功则返回描述符，失败返回-1。</p>
+<ul>
+<li>Domain：协议族，常用的有<code>AF_INET</code>和<code>AF_UNIX</code>。前者表示使用ipv4地址(32位)和端口号(16位)的组合，后者表示使用一个绝对路径。</li>
+<li>Type：指定socket的类型，常用的有<ol>
+<li><strong>SOCK_STREAM</strong>，流套接字，应用了传输控制协议TCP，保证数据无差错按数据收发</li>
+<li><strong>SOCK_DGRAM</strong>数据报套接字，应用UDP协议，不校验，可靠性差，会丢失，但速度快；</li>
+</ol>
+</li>
+<li>Protocol：指定协议，常用的有<strong>IPPROTO_TCP</strong>、<strong>IPPROTO_UDP</strong>，分别对应TCP/UDP</li>
+</ul>
+<h2 id="2-3-Bind"><a href="#2-3-Bind" class="headerlink" title="2.3 Bind( )"></a>2.3 Bind( )</h2><p>将套接字、地址、端口号绑定在一起</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bind</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> struct sockaddr *addr, <span class="keyword">socklen_t</span> addrlen)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>通常服务器在启动的时候需要绑定一个众所周知的地址(IP+端口号)，客户端以此来连接。而客户端则不需要指定，在<code>connect</code>时由系统随机生成一个。这就是为什么在服务器端，我们要在<code>listen</code>之前调用<code>bind</code>的原因。</p>
+<h2 id="2-4-Listen-Connect"><a href="#2-4-Listen-Connect" class="headerlink" title="2.4 Listen( ), Connect( )"></a>2.4 Listen( ), Connect( )</h2><p><code>listen</code>第一个是服务器的描述字，<code>backlog</code>是可以排队的最大连接个数。成功则返回0, 失败返回-1, 错误原因存于<code>errno</code> 中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> struct sockaddr *addr, <span class="keyword">socklen_t</span> addrlen)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-accept"><a href="#2-5-accept" class="headerlink" title="2.5 accept( )"></a>2.5 accept( )</h2><p>提取出所监听套接字的等待连接队列中第一个连接请求，<strong>创建一个新的套接字，并返回指向该套接字的文件描述符</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">SOCKET <span class="title">accept</span><span class="params">(<span class="keyword">int</span> sockfd, struct sockaddr *addr, <span class="keyword">socklen_t</span> *addrlen)</span></span>;</span><br><span class="line">CCopy</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>sockfd</strong>, 利用系统调用socket()建立的套接字描述符，通过bind()绑定到一个本地地址(一般为服务器的套接字)，并且<strong>通过listen()一直在监听连接</strong>；</li>
+<li><strong>addr</strong>, 指向struct sockaddr的指针，该结构用通讯层服务器对等套接字的地址(一般为客户端地址)填写</li>
+<li><strong>addrlen</strong>, 一个值结果参数，调用函数必须初始化为包含addr所指向结构大小的数值</li>
+</ul>
+<p>通过这个函数我们能知晓：客户端的socket端口号，客户端地址。</p>
+<p>如果队列中没有等待的连接，套接字也没有被标记为Non-blocking，<code>accept()</code>会<strong>阻塞调用</strong>函数<strong>直到连接出现</strong>；如果套接字被标记为Non-blocking，队列中也没有等待的连接，<code>accept()</code>返回错误<strong>EAGAIN</strong></p>
+<h2 id="2-6-closesocket"><a href="#2-6-closesocket" class="headerlink" title="2.6 closesocket( )"></a>2.6 closesocket( )</h2><p>关闭socket，成功返回0，失败返回-1。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">closesocket</span><span class="params">(<span class="keyword">int</span> sockfd)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>注意：close操作只是使相应socket描述字的引用计数-1，<strong>只有当引用计数为0的时候，才会触发TCP客户端向服务器发送终止连接请求</strong>。</p>
+<h2 id="2-7-recv-send"><a href="#2-7-recv-send" class="headerlink" title="2.7 recv/send"></a>2.7 recv/send</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">recv</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbytes, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">send</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbytes, <span class="keyword">int</span> flags)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>buf：保存接收数据的缓冲地址值; </li>
+<li>nbytes：可接收最大字节数;</li>
+<li>flags：接收数据时指定的可选项信息。成功时返回发送的字节数，失败返回-1</li>
+</ul>
+<h2 id="2-8-sockaddr-in结构体"><a href="#2-8-sockaddr-in结构体" class="headerlink" title="2.8 sockaddr_in结构体"></a>2.8 sockaddr_in结构体</h2><p><code>sockaddr_in</code>系统封装的一个结构体，包含了:</p>
+<ul>
+<li>sin_family：定义地址族，AF和PF都一样，INET表示TCP/IP协议；</li>
+<li>sin_port：保存端口号； </li>
+<li>sin_addr：保存IP地址信息；</li>
+<li>sin_zero：无意义。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sockaddr_in sockAddr;</span><br><span class="line"><span class="built_in">memset</span>(&amp;sockAddr, <span class="number">0</span>, <span class="keyword">sizeof</span>(sockAddr));  <span class="comment">//每个字节都用0填充  </span></span><br><span class="line">sockAddr.sin_family = PF_INET;  <span class="comment">//使用IPv4地址  </span></span><br><span class="line">sockAddr.sin_addr.s_addr = inet_addr(<span class="string">"127.0.0.1"</span>);  <span class="comment">//回送IP地址 </span></span><br><span class="line">sockAddr.sin_port = htons(<span class="number">1234</span>);  <span class="comment">//端口</span></span><br></pre></td></tr></table></figure>
+
+<p>字节顺序包括<strong>NBO网络字节顺序</strong>和<strong>HBO主机字节顺序</strong>。NBO按从高到低的顺序存储，<strong>在网络上使用统一的网络字节顺序，可以避免兼容性问题</strong>。</p>
+<p>不同的机器HBO不相同，与CPU设计有关。比如Intelx86架构下，short型数0x1234表示为34 12，而IBM power PC结构下,short型数0x1234表示为12 34。</p>
+<p>为此我们需要进行转化：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">htonl():host to network long</span><br><span class="line">ntohl():network to host long</span><br><span class="line">htons():host to network short</span><br><span class="line">htons():network to host short</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-实例"><a href="#3-实例" class="headerlink" title="3. 实例"></a>3. 实例</h1><p>使用方法：在Visual Studio中建立两个解决方案，分别放入Server和Client，运行后在DEBUG文件中得到exe文件，先运行Server.exe然后运行Client.exe即可。</p>
+<h2 id="3-1-Server"><a href="#3-1-Server" class="headerlink" title="3.1 Server"></a>3.1 Server</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  _WINSOCK_DEPRECATED_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;winsock2.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment (lib, <span class="meta-string">"ws2_32.lib"</span>)  <span class="comment">//加载 ws2_32.dll  </span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUF_SIZE 10086</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;  <span class="comment">//直接用std好像会出现bug</span></span><br><span class="line"><span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">cout</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">//初始化dll</span></span><br><span class="line">	WSADATA wsaData;</span><br><span class="line">	WSAStartup(MAKEWORD(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//创建套接字  </span></span><br><span class="line">	SOCKET servSock = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//绑定套接字  </span></span><br><span class="line">	sockaddr_in sockAddr;</span><br><span class="line">	<span class="built_in">memset</span>(&amp;sockAddr, <span class="number">0</span>, <span class="keyword">sizeof</span>(sockAddr));  <span class="comment">//每个字节都用0填充  </span></span><br><span class="line">	sockAddr.sin_family = PF_INET;  <span class="comment">//使用IPv4地址  </span></span><br><span class="line">	sockAddr.sin_addr.s_addr = inet_addr(<span class="string">"127.0.0.1"</span>);  <span class="comment">//回送IP地址 </span></span><br><span class="line">	sockAddr.sin_port = htons(<span class="number">1234</span>);  <span class="comment">//端口  </span></span><br><span class="line">	bind(servSock, (SOCKADDR*)&amp;sockAddr, <span class="keyword">sizeof</span>(SOCKADDR));</span><br><span class="line"></span><br><span class="line">	<span class="comment">//进入监听状态  </span></span><br><span class="line">	listen(servSock, <span class="number">20</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//接收客户端请求  </span></span><br><span class="line">	SOCKADDR clntAddr;</span><br><span class="line">	<span class="keyword">int</span> nSize = <span class="keyword">sizeof</span>(SOCKADDR);</span><br><span class="line">	<span class="keyword">char</span> buffer[BUF_SIZE] = &#123; <span class="number">0</span> &#125;;  <span class="comment">//缓冲区  </span></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		SOCKET clntSock = accept(servSock, (SOCKADDR*)&amp;clntAddr, &amp;nSize);</span><br><span class="line">		<span class="keyword">int</span> strLen = recv(clntSock, buffer, BUF_SIZE, <span class="number">0</span>);  <span class="comment">//接收客户端发来的数据  </span></span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"收到的数据是："</span> &lt;&lt; buffer&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">		send(clntSock, buffer, strLen, <span class="number">0</span>);  <span class="comment">//将数据原样返回  </span></span><br><span class="line"></span><br><span class="line">		closesocket(clntSock);  <span class="comment">//关闭套接字  </span></span><br><span class="line">		<span class="built_in">memset</span>(buffer, <span class="number">0</span>, BUF_SIZE);  <span class="comment">//重置缓冲区  </span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//关闭套接字  </span></span><br><span class="line">	closesocket(servSock);</span><br><span class="line">	<span class="comment">//终止 DLL 的使用  </span></span><br><span class="line">	WSACleanup();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-Client"><a href="#3-2-Client" class="headerlink" title="3.2 Client"></a>3.2 Client</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  _WINSOCK_DEPRECATED_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;WinSock2.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"ws2_32.lib"</span>)  <span class="comment">//加载 ws2_32.dll  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUF_SIZE 10086</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">cout</span>;</span><br><span class="line"><span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">cin</span>;</span><br><span class="line"><span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">//初始化DLL  </span></span><br><span class="line">	WSADATA wsaData;</span><br><span class="line">	<span class="keyword">int</span> iResult = WSAStartup(MAKEWORD(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData);</span><br><span class="line">	<span class="keyword">if</span> (iResult != <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"WSAStartup failed: %d\n"</span>, iResult);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//向服务器发起请求  </span></span><br><span class="line">	sockaddr_in sockAddr;</span><br><span class="line">	<span class="built_in">memset</span>(&amp;sockAddr, <span class="number">0</span>, <span class="keyword">sizeof</span>(sockAddr));  <span class="comment">//每个字节都用0填充  </span></span><br><span class="line">	sockAddr.sin_family = PF_INET;</span><br><span class="line">	sockAddr.sin_addr.s_addr = inet_addr(<span class="string">"127.0.0.1"</span>);		<span class="comment">//回送地址</span></span><br><span class="line">	sockAddr.sin_port = htons(<span class="number">1234</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> bufSend[BUF_SIZE] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	<span class="keyword">char</span> bufRecv[BUF_SIZE] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//创建套接字  </span></span><br><span class="line">		SOCKET sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br><span class="line">		connect(sock, (SOCKADDR*)&amp;sockAddr, <span class="keyword">sizeof</span>(SOCKADDR));</span><br><span class="line">		<span class="comment">//获取用户输入的字符串并发送给服务器  </span></span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"输入"</span>;</span><br><span class="line">		<span class="built_in">cin</span> &gt;&gt; bufSend;</span><br><span class="line">		send(sock, bufSend, <span class="built_in">strlen</span>(bufSend), <span class="number">0</span>);</span><br><span class="line">		<span class="comment">//接收服务器传回的数据  </span></span><br><span class="line">		recv(sock, bufRecv, BUF_SIZE, <span class="number">0</span>);</span><br><span class="line">		<span class="comment">//输出接收到的数据  </span></span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"服务器传送回的数据为："</span> &lt;&lt; bufRecv &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		<span class="built_in">memset</span>(bufSend, <span class="number">0</span>, BUF_SIZE);  <span class="comment">//重置缓冲区  </span></span><br><span class="line">		<span class="built_in">memset</span>(bufRecv, <span class="number">0</span>, BUF_SIZE);  <span class="comment">//重置缓冲区  </span></span><br><span class="line">		closesocket(sock);  <span class="comment">//关闭套接字</span></span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	WSACleanup();  <span class="comment">//终止使用 DLL  </span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/07/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" data-id="ck4o2tus6001cu4vy50ek1gjq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

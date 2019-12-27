@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>SLAM基础3-李群和李代数 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1.基本概念李群李代数主要用于SLAM算法中平移以及旋转来的求导。由于旋转矩阵为矩阵形式，不能用$R+\Delta R$表示变化量。 三维矩阵旋转构成了特殊正交群$SO(3)$，变换矩阵则构成了特殊欧式群$SE(3)$$$\begin{array}{c}{S O(3)&#x3D;\left{\boldsymbol{R} \in \mathbb{R}^{3 \times 3} | \boldsymbol{R}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础3-李群和李代数">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;17&#x2F;SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1.基本概念李群李代数主要用于SLAM算法中平移以及旋转来的求导。由于旋转矩阵为矩阵形式，不能用$R+\Delta R$表示变化量。 三维矩阵旋转构成了特殊正交群$SO(3)$，变换矩阵则构成了特殊欧式群$SE(3)$$$\begin{array}{c}{S O(3)&#x3D;\left{\boldsymbol{R} \in \mathbb{R}^{3 \times 3} | \boldsymbol{R}">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190809092612.png">
+<meta property="article:published_time" content="2019-12-17T09:45:56.000Z">
+<meta property="article:modified_time" content="2019-12-17T10:44:49.376Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190809092612.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SLAM基础3-李群和李代数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" class="article-date">
+  <time datetime="2019-12-17T09:45:56.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SLAM基础3-李群和李代数
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><p>李群李代数主要用于SLAM算法中平移以及旋转来的<strong>求导</strong>。由于旋转矩阵为矩阵形式，<strong>不能用$R+\Delta R$表示变化量</strong>。</p>
+<p>三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵则构成了<strong>特殊欧式群</strong>$SE(3)$<br>$$<br>\begin{array}{c}{S O(3)=\left{\boldsymbol{R} \in \mathbb{R}^{3 \times 3} | \boldsymbol{R} \boldsymbol{R}^{T}=\boldsymbol{I}, \operatorname{det}(\boldsymbol{R})=1\right}} \ {S E(3)=\left{\boldsymbol{T}=\left[\begin{array}{cc}{\boldsymbol{R}} &amp; {t} \ {0^{T}} &amp; {1}\end{array}\right] \in \mathbb{R}^{4 \times 4} | \boldsymbol{R} \in S O(3), \boldsymbol{t} \in \mathbb{R}^{3}\right}}\end{array}<br>$$<br>群（Group）是<strong>一种集合</strong>加上<strong>一种运算</strong>的代数结构。<strong>李群则是光滑的群</strong>(整数群就不光滑不连续)。<strong>李代数描述了李群的局部性质</strong>（变化率,相当于求导数）。</p>
+<p>对于任意旋转矩阵$R$，由于它是正交矩阵，所以满足$RR^T=I$，如果$R$连续随时间变化，则我们用$R(t)$表示：<br>$$<br>R(t)R(t)^T=I<br>$$<br>对其求导可得：<br>$$<br>\dot{R}(t)R(t)^T+R(t)\dot{R}(t)^T=0\<br>\dot{R}(t)R(t)^T=-R(t)\dot{R}(t)^T=-(\dot{R}(t)R(t)^T)^T<br>$$</p>
+<blockquote>
+<p>如果矩阵A满足$A^T=-A$，则称之为反对称矩阵。它的展开形式一定是:<br>$$<br>\left[\begin{array}{ccc}{0} &amp; {-a_{3}} &amp; {a_{2}} \ {a_{3}} &amp; {0} &amp; {-a_{1}} \ {-a_{2}} &amp; {a_{1}} &amp; {0}\end{array}\right]<br>$$<br>所以我们可以用向量$[a_1,a_2,a_3]\land$表示</p>
+</blockquote>
+<p>由于$\dot{R}(t)R(t)^T$是一个反对称矩阵，我们可以找到一个三维向量 与之对应。于是有：<br>$$<br>\dot{R}(t)R(t)^T=\phi(t)\land<br>$$<br>等式左右两边乘以$R(t)$，由于$R$是正交矩阵，所以有：<br>$$<br>\dot{\boldsymbol{R}}(t)=\phi(t)^{\wedge} \boldsymbol{R}(t)=\left[\begin{array}{ccc}{0} &amp; {-\phi_{3}} &amp; {\phi_{2}} \ {\phi_{3}} &amp; {0} &amp; {-\phi_{1}} \ {-\phi_{2}} &amp; {\phi_{1}} &amp; {0}\end{array}\right] \boldsymbol{R}(t)<br>$$<br>可以看到，每对旋转矩阵求一次导数，只需左乘一个 $\phi(t)\land$ 矩阵即可。为方便讨论，我们设 $t_0=0$，并设此时旋转矩阵为 $R(0)=I$，按照导数定义，可以把 $R(t)$ 在 0 附近进行 一阶泰勒展开：<br>$$<br>\begin{aligned} \boldsymbol{R}(t) &amp; \approx \boldsymbol{R}\left(t_{0}\right)+\dot{\boldsymbol{R}}\left(t_{0}\right)\left(t-t_{0}\right) \ &amp;=\boldsymbol{I}+\phi\left(t_{0}\right)^{\wedge}(t) \end{aligned}<br>$$<br>同时在 $t_0$ 附近，设$\phi$ 保持为常数$\phi(t_0)=\phi_0$(保证$\phi{}$在 $t_0 $附近保持不变)则可以推导得出：<br>$$<br>\dot{\boldsymbol{R}}(t)=\phi\left(t_{0}\right)^{\wedge} \boldsymbol{R}(t)=\phi_{0}^{\wedge} \boldsymbol{R}(t)<br>$$<br>解微分方程可以得到：<br>$$<br>\boldsymbol{R(t)}=\exp({\phi_0}^{\land} t)<br>$$<br><strong>由此可知给定某时刻的 $R$，我们就能求得一个 $\phi$，它描述了 $R$ 在局部的导数关系，它是一个李代数。</strong></p>
+<h1 id="2-映射关系"><a href="#2-映射关系" class="headerlink" title="2. 映射关系"></a>2. 映射关系</h1><p>以下关系专门针对三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵构成的<strong>特殊欧式群</strong>$SE(3)$，$\mathfrak{so}(3)$表示特殊正交群的李代数，<strong>此时旋转通过对数映射用$\phi$表示</strong>，$\mathfrak{se}(3)$表示特殊欧式群的李代数，<strong>变换用$\xi$</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809092612.png" alt="img"></p>
+<h2 id="2-1-SO-3-上的映射"><a href="#2-1-SO-3-上的映射" class="headerlink" title="2.1  SO(3)上的映射"></a>2.1  SO(3)上的映射</h2><p>$\exp(ϕ∧)$ 是如何计算的？它是一个矩阵的指数，在李群和李代数中，称为指数映射（Exponential Map）</p>
+<p>任意矩阵的指数映射可以写成一个泰勒展开：<br>$$<br>exp(A)=\sum_{n=0}^\infty{\frac{1}{n!}A^n}<br>$$<br>替换A得到：<br>$$<br>exp(\phi\land)=\sum_{n=0}^\infty{\frac{1}{n!}(\phi\land)^n}<br>$$<br>对于反对称矩阵有两条特殊性质：<br>$$<br>a^\land a^\land=aa^T-I\<br>a^\land a^\land a^\land=-a^\land<br>$$<br>展开可以得到：<br>$$<br>\begin{aligned} \exp \left(\phi^{\wedge}\right) &amp;=\exp \left(\theta \boldsymbol{a}^{\wedge}\right)=\sum_{n=0} \frac{1}{n !}\left(\theta \boldsymbol{a}^{\wedge}\right)^{n} \ &amp;=\boldsymbol{I}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{4}+\ldots \ &amp;=\boldsymbol{a} \boldsymbol{a}^{T}-\boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}-\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge}-\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{2}+\ldots \ &amp;=\boldsymbol{a} \boldsymbol{a}^{T}+\left(\theta-\frac{1}{3 !} \theta^{3}+\frac{1}{5 !} \theta^{5}-\ldots\right) \boldsymbol{a}^{\wedge}-\left(1-\frac{1}{2 !} \theta^{2}+\frac{1}{4 !} \theta^{4}-\ldots\right) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \ &amp;=(1-\cos \theta) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\boldsymbol{I}+\sin \theta \boldsymbol{a}^{\wedge} \ &amp;=\cos \theta \boldsymbol{I}+(1-\cos \theta) \boldsymbol{a} \boldsymbol{a}^{T}+\sin \theta \boldsymbol{a}^{\wedge} \end{aligned}<br>$$<br>最后就得到了类似罗德里格斯公式的式子：<br>$$<br>\exp(\theta a^\land)=\cos(\theta)I+(1-\cos\theta)aa^T+\sin(\theta)a^\land<br>$$<br>罗德里格斯公式如下：<br>$$<br>\mathbf{R}=\cos\theta \mathbf\cdot \mathbf{I}+(1-\cos\theta)\mathbf{nn^T}+\sin\theta\cdot \mathbf{n} {\land}<br>$$<br>因此我们可以知道，$\mathfrak{so}(3)$ 实际上就是由所谓的<strong>旋转向量组成的空间</strong>，而指数映射即<strong>罗德里格斯公式</strong></p>
+<p>反之也可以定义对数映射：<br>$$<br>\phi=\ln (\boldsymbol{R})^{\vee}=\left(\sum_{n=0}^{\infty} \frac{(-1)^{n}}{n+1}(\boldsymbol{R}-\boldsymbol{I})^{n+1}\right)^{\vee}<br>$$</p>
+<h2 id="2-2-SE-3-上的指数映射"><a href="#2-2-SE-3-上的指数映射" class="headerlink" title="2.2 SE(3)上的指数映射"></a>2.2 SE(3)上的指数映射</h2><p>相较于之前，我们把旋转矩阵$R$替换为变换矩阵$T$：<br>$$<br>\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}<br>$$<br>解微分方程可以得到：<br>$$<br>\mathbf{T(t)}=\exp({\xi_0}^{\land} t)<br>$$<br>仿照前面的指数展开可以得到：<br>$$<br>\begin{aligned} \exp \left(\boldsymbol{\xi}^{\wedge}\right) &amp;=\left[\begin{array}{cc}{\sum_{n=0}^{\infty} \frac{1}{n !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n}} &amp; {\sum_{n=0}^{\infty} \frac{1}{(n+1) !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n} \boldsymbol{\rho}} \ {0^{T}} &amp; {1}\end{array}\right] \ &amp; \triangleq\left[\begin{array}{cc}{\boldsymbol{R}} &amp; {\boldsymbol{J} \boldsymbol{\rho}} \ {\boldsymbol{0}^{T}} &amp; {1}\end{array}\right]=\boldsymbol{T} \end{aligned}<br>$$<br>右上角的 $J$ 可整理为：<br>$$<br>J=\frac{\sin \theta}{\theta} I+\left(1-\frac{\sin \theta}{\theta}\right) a a^{T}+\frac{1-\cos \theta}{\theta} a^{\wedge}<br>$$</p>
+<h1 id="3-李代数求导"><a href="#3-李代数求导" class="headerlink" title="3. 李代数求导"></a>3. 李代数求导</h1><h2 id="3-1-BCH公式与近似形式"><a href="#3-1-BCH公式与近似形式" class="headerlink" title="3.1 BCH公式与近似形式"></a>3.1 BCH公式与近似形式</h2><p>在$SO3$中完成两个矩阵乘法时，在$\mathfrak{so}(3)$是否对应着加法？如果成立的话，相当于：<br>$$<br>\exp(\phi_1^\land)\exp(\phi_2^\land)=\exp((\phi_1+\phi_2)^\land)<br>$$<br>换言之，我们需要研究下述公式是否成立：<br>$$<br>\ln(\exp(A)\exp(B))=A+B<br>$$<br>然而这个式子<strong>在矩阵时并不成立</strong>，他真实的成立条件由<strong>BCH公式</strong>给出：<br>$$<br>\ln \left( {\exp \left( A \right)\exp \left( B \right)} \right) = A + B + \frac{1}{2}\left[ {A,B} \right] + \frac{1}{12}\left[ {A,\left[ {A,B} \right]} \right] - \frac{1}{12}\left[ {B,\left[ {A,B} \right]} \right] +  \cdots<br>$$<br><strong>其中[ ]为李括号</strong>。</p>
+<blockquote>
+<p>一般来说李括号$\left[ {A,B} \right] = AB - BA$，若满足$\mathbf{\phi}$为反对称矩阵，则李括号的结果为：<br>$$<br>[\phi_1,\phi_2]=(\Phi_1\Phi_2-\Phi_2\Phi_1)^\lor<br>$$</p>
+</blockquote>
+<p><strong>取近似项可得</strong>：<br>$$<br>\begin{equation} \ln {\left( {R_1}{R_2} \right)^ \vee } \approx \left{ \begin{array}{l} {J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1} + {\phi _2}\ {J_r}{\left( {\phi _1} \right)^{ - 1}}{\phi _2} + {\phi _1} \end{array} \right. \end{equation}<br>$$<br>在 $\phi_1$ 较小时，使用第一个式；在在 $\phi_2$ 较小时，使用第二个式（换句话说依据是左乘一个微小位移还是右乘）。</p>
+<p>以第一个近似为例。该式告诉我们，当对<strong>一个旋转矩阵 $R_2$李代数为 $\phi_2$左乘一个微小旋转矩阵 $R_1$李代数为 $\phi_1$时</strong>，可以近似地看作，在原有的李代数 $\phi_2$ 上，加上了一 项 ${J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1}$</p>
+<p>这里的 $J_l$ 和 $J_r$ 也称为左/右雅可比&mdash;&mdash;从而李代数就分成了<strong>左右两种模型</strong>（因此，李代数程序库会声明它使用的是左乘模型还是右乘模型）</p>
+<p>这两个雅克比矩阵可以表示为如下形式，他和旋转向量$\theta a$的关系<br>$$<br>\begin{equation} {J_l} = J = \sum\limits_{n = 0}^\infty  {\frac{1}{\left( {n + 1} \right)!}{\left( {\phi ^ \wedge } \right)}^n} ,{J_r} = J\left( { - \phi } \right) \end{equation}<br>$$</p>
+<blockquote>
+<p>雅克比矩阵表示的是m个n元函数的一阶导数组成的矩阵<br>$$<br>\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{1}}{\partial x_{n}}} \ {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial f_{m}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]<br>$$</p>
+</blockquote>
+<h2 id="3-2-李代数求导模型"><a href="#3-2-李代数求导模型" class="headerlink" title="3.2 李代数求导模型"></a>3.2 李代数求导模型</h2><p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：<br>$$<br>\frac{\partial(Rp)}{\partial R}<br>$$<br>按照李代数的写法：<br>$$<br>\frac{\partial(\exp(\phi^\land)p)}{\partial\phi}<br>$$<br>按照3.1所推导的结论：<br>$$<br>\begin{aligned} \frac{\partial\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)}{\partial \boldsymbol{\phi}} &amp;=\lim <em>{\delta \phi \rightarrow 0} \frac{\exp \left((\phi+\delta \phi)^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp;=\lim _{\delta \phi \rightarrow 0} \frac{\exp \left(\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp; \approx \lim <em>{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{I}+\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp;=\lim <em>{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge} \exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}<em>{l} \ &amp;=\lim _{\delta \phi \rightarrow 0} \frac{-\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)^{\wedge} \boldsymbol{J}</em>{l} \delta \phi}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}_{l} \end{aligned}<br>$$<br>第二行的近似为 BCH 线性近似，第三行为泰勒展开舍去高阶项后近似，第四行至第 五行将反对称符号看作叉积，交换之后变号。于是，我们推导了旋转后的点相对于李代数的导数：<br>$$<br>\frac{d\left( {RP} \right)}{d\phi }= {(-RP)^ \wedge }{J_l}<br>$$<br>得到的结果中包含雅克比矩阵，<strong>我们希望进一步简化，因此可以采用扰动模型</strong>。</p>
+<h2 id="3-3-扰动模型"><a href="#3-3-扰动模型" class="headerlink" title="3.3 扰动模型"></a>3.3 扰动模型</h2><p>上一种求导方式比较复杂，下面介绍另一种另一种求导方式，是对 $R$ 进行一次扰动 $∆R$。这个扰动可以乘在左边也可以乘在右 边，最后结果会有一点儿微小的差异。</p>
+<p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：<br>$$<br>\frac{\partial(\boldsymbol{R} \boldsymbol{p})}{\partial \boldsymbol{\varphi}}=\lim _{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\varphi}<br>$$<br>这里和李代数求导模型有很大区别，李代数求导模型是老老实实按照求导定义来的，因此出现了李代数加法从而引出了雅克比矩阵，而扰动模型用乘法来近似。</p>
+<p>近似后可以得到：<br>$$<br>\begin{aligned} \frac{\partial(\boldsymbol{R} p)}{\partial \varphi} &amp;=\lim <em>{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \ &amp; \approx \lim _{\varphi \rightarrow 0} \frac{\left(1+\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \ &amp;=\lim _{\varphi \rightarrow 0} \frac{\varphi^{\wedge} R p}{\varphi}=\lim _{\varphi \rightarrow 0} \frac{-(R p)^{\wedge} \varphi}{\varphi}=-(R p)^{\wedge} \end{aligned}<br>$$<br>同理在SE3上的李代数求导结果为<br>$$<br>\frac{\partial(\boldsymbol{T} \boldsymbol{p})}{\partial \delta \boldsymbol{\xi}}=\left[\begin{array}{cc}{\boldsymbol{I}} &amp; {-(\boldsymbol{R} \boldsymbol{p}+\boldsymbol{t})^{\wedge}} \ {\boldsymbol{0}^{T}} &amp; {\boldsymbol{0}^{T}}\end{array}\right] \triangleq(\boldsymbol{T} \boldsymbol{p})^{\odot}<br>$$<br>其中⊙算符把一个4×4的矩阵变换成一个4×6的矩阵，计算方式如下：<br>$$<br>\begin{equation} p = \left[ \begin{array}{l} x</em>{3 \times 1}\ w_{1 \times 1} \end{array} \right], \quad {p^ \odot } = \left[ {\begin{array}{*{20}{c}} w{I_{3 \times 3}}&amp;{ - {x^ \wedge }<em>{3 \times 3}}\ {0^T}</em>{3 \times 1}&amp;{0^T}_{3 \times 1} \end{array}} \right] \end{equation}<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-id="ck4o2turx0012u4vy2bus1rda" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SLAM基础4-相机模型
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/16/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SLAM基础2-三维刚体运动</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

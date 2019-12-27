@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>SIFT特征检测 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 概述SIFT全称Scale Invariant Feature Transform，即尺度不变特征变换。相较于Harris和Fast这两种角点特征检测手段，SIFT专注于那些尺度不变的特征。 Harris算子不是尺度不变的，当图像变小时，检测结果的语义也会发生变化。   SIFT被设计出来的目的就是解决特征检测过程中经常遇到的尺度不变问题和旋转不变问题。  SIFT所查找到的关键点是一些十分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SIFT特征检测">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 概述SIFT全称Scale Invariant Feature Transform，即尺度不变特征变换。相较于Harris和Fast这两种角点特征检测手段，SIFT专注于那些尺度不变的特征。 Harris算子不是尺度不变的，当图像变小时，检测结果的语义也会发生变化。   SIFT被设计出来的目的就是解决特征检测过程中经常遇到的尺度不变问题和旋转不变问题。  SIFT所查找到的关键点是一些十分">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191217171729.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218093742.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218094643.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218095855.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191217165553.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218102653.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218103335.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218103500.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218103606.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218103655.png">
+<meta property="article:published_time" content="2019-12-18T09:31:25.000Z">
+<meta property="article:modified_time" content="2019-12-18T10:38:48.972Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191217171729.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SIFT特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-18T09:31:25.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SIFT特征检测
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>SIFT全称Scale Invariant Feature Transform，即尺度不变特征变换。相较于Harris和Fast这两种<strong>角点特征检测</strong>手段，SIFT专注于那些<strong>尺度不变的特征</strong>。</p>
+<p>Harris算子不是尺度不变的，当图像变小时，检测结果的语义也会发生变化。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171729.png" style="zoom: 50%;" />
+
+<p>SIFT被设计出来的目的就是解决特征检测过程中经常遇到的<strong>尺度不变问题和旋转不变问题</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218093742.png" alt=""></p>
+<p>SIFT所查找到的关键点是一些十分突出，不会因光照，仿射变换和噪音等因素而变化的点，如角点、边缘点、暗区的亮点及亮区的暗点等。</p>
+<p>基本的算法流程是：</p>
+<ol>
+<li>尺度空间极值点检测</li>
+<li>关键点精确定位</li>
+<li>确定方向</li>
+<li>确定描述子</li>
+</ol>
+<h1 id="2-高斯金字塔与高斯差分金字塔"><a href="#2-高斯金字塔与高斯差分金字塔" class="headerlink" title="2. 高斯金字塔与高斯差分金字塔"></a>2. 高斯金字塔与高斯差分金字塔</h1><p>高斯金字塔和高斯差分金字塔如下图所示：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218094643.png" alt=""></p>
+<p>首先我们把输入的原图扩大一倍，由该图像进行高斯模糊的得到的第0组第0层图像设定为<strong>基准图像</strong>，设它的尺度为$\sigma_0$，称之为<strong>基准层尺度</strong>。则第0组第1层尺度为$k\sigma_0$，第0组第2层尺度为$k^2\sigma_0$，以此类推。</p>
+<p>那么第0组中的图像的尺度为：<br>$$<br>\sigma = k^r\sigma_0 ,r=0,1,…,s-2<br>$$<br>第1组的第0层图像<strong>倒数第三张图像</strong>采样得到，若令$k=2^\frac{1}{s}$，则其相对于输入图像来说，尺度为$2\sigma_0$。</p>
+<p>上述规律总结如下：</p>
+<p>第$o$组第$r$层图像相对于输入图像的尺度为：<br>$$<br>\sigma = 2^ok^r\sigma_0\ 其中，o = 0,1,2,…;r = 0,1,2,…,s+2<br>$$<br>该图像相对于本组中的基准图像的尺度为：<br>$$<br>\sigma  = k^r\sigma_0<br>$$<br>而差分金字塔(DOG)就比较简单了，直接<strong>同组相邻的图像相减即可</strong>。</p>
+<h1 id="3-算法流程"><a href="#3-算法流程" class="headerlink" title="3. 算法流程"></a>3. 算法流程</h1><h2 id="3-1-检测极值点"><a href="#3-1-检测极值点" class="headerlink" title="3.1 检测极值点"></a>3.1 检测极值点</h2><p>基本思路是在DOG金字塔中检测最大最小值点</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218095855.png" style="zoom: 67%;" />
+
+<p>具体检测思路是：</p>
+<ul>
+<li>检测点和周围8个邻域点比较是否为极值点</li>
+<li>检测点和尺度空间上下两层共计18个邻域点比较是否为极值点</li>
+</ul>
+<p>同时满足这两个条件才可以被初步认定为特征点。</p>
+<h2 id="3-2-关键点精确定位"><a href="#3-2-关键点精确定位" class="headerlink" title="3.2 关键点精确定位"></a>3.2 关键点精确定位</h2><p>我们之前找到的极值点也就是离散空间中的极值点，但是离散空间中的极值点并不是真实的连续空间中的极值点。所以需要对DoG空间进行拟合处理，以找到极值点的精确位置和尺度。</p>
+<p>我们得到的极值点是一个三维向量，包括它所在的尺度$\sigma$以及所在尺度图像中的位置坐标，即$X = (x,y,\sigma)$，泰勒展开即可得到<br>$$<br>f(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]) \approx f(\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]) + [\frac{\partial f}{\partial x}    \frac{\partial f}{\partial y} \frac{\partial f}{\partial \sigma}]\left(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]-\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]\right) + \\frac{1}{2}\left(\left[x \quad y \quad \sigma\right] - \left[x_0 \quad y_0 \quad \sigma_0\right]\right)\left[\begin{matrix}\frac{\partial^2 f}{\partial x \partial x} &amp; \frac{\partial^2 f}{\partial x \partial y} &amp; \frac{\partial^2 f}{\partial x \partial \sigma} \<br>\frac{\partial^2 f}{\partial x \partial y}&amp;\frac{\partial^2 f}{\partial y \partial y}&amp;\frac{\partial^2 f}{\partial y \partial \sigma}\<br>\frac{\partial^2 f}{\partial x \partial \sigma}&amp;\frac{\partial^2 f}{\partial y \partial \sigma}&amp;\frac{\partial^2 f}{\partial \sigma \partial \sigma}\end{matrix}\right]\left(\left[\begin{matrix}x\y\\sigma\end{matrix}\right]-\left[\begin{matrix}x_0\y_0\\sigma_0\end{matrix}\right]\right)<br>$$<br>若写成矢量形式，则为：<br>$$<br>f(X) = f(X_0）+\frac{\partial f^T}{\partial X}(X- X_0)+\frac{1}{2}(X-X_0)^T\frac{\partial^2 f}{\partial X^2}(X-X_0)<br>$$<br>此处，$X_0$表示中心，$X$表示拟合后连续空间的差值坐标，设$\hat{X} = X - X_0$表示偏移量。令导数为0则有：<br>$$<br>\hat{X} = -\frac{\partial^2 f^{-1}}{\partial X^2}\frac{\partial f}{\partial X}<br>$$<br>带入原公式：<br>$$<br>f(\hat{X}) = f(X_0) + \frac{1}{2}\frac{\partial f^T}{\partial X} \hat{X}<br>$$<br>若上式得到的偏移量大于阈值，则把位置移动到拟合后的新位置继续进行迭代求偏移量，若迭代过一定次数后偏移量仍然大于阈值，则抛弃该点。</p>
+<hr>
+<p>有些极值点的位置是在图像的边缘位置的，因为图像的边缘点很难定位，同时也容易受到噪声的干扰，我们把这些点看做是不稳定的极值点，需要进行去除。</p>
+<p>判定办法和Harris的办法很相似，设图像某点处的黑塞矩阵为<br>$$<br>M=\left[ \begin{matrix} I_x^2&amp; I_xI_y \ I_xI_y &amp; I_y^2\end{matrix} \right] = \left[ \begin{matrix} A&amp; C\ C&amp; B\end{matrix} \right]<br>$$<br>则有：<br>$$<br>detM=\lambda_1 \lambda_2=AB-C^2\<br>traceM=\lambda_1 + \lambda_2 = A+B<br>$$<br>如果两个特征值相差特别大，就认为是边缘，排除。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165553.png" style="zoom:50%;" />
+
+<h2 id="3-3-方向计算"><a href="#3-3-方向计算" class="headerlink" title="3.3 方向计算"></a>3.3 方向计算</h2><p>选取半径为$r$的区域作为邻域，计算每个像素的梯度幅角：<br>$$<br>\theta(x,y) = arctan\left(\frac{L(x,y+1)-L(x,y-1)}{L(x+1,y)-L(x-1,y)}\right)<br>$$<br>将 $2\pi$ 分为 $n$ 份，对应于直方图的 $n$ 个单位。比如分为6份，每个直方图代表 $60^o$：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218102653.png" style="zoom:50%;" />
+
+<p><strong>选取其中最高的一柱代表主方向</strong>。</p>
+<p>之后<strong>将每个特征点的方向调整至一致</strong>，这期间一般使用双线性差值的办法填补像素。</p>
+<h2 id="3-4-确定描述子"><a href="#3-4-确定描述子" class="headerlink" title="3.4 确定描述子"></a>3.4 确定描述子</h2><p><strong>步骤1</strong>：将$16\times16$区域作为一个patch，校正方向</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103335.png" style="zoom:67%;" />
+
+<p><strong>步骤2</strong>：按照3.3所述的办法计算每个像素的方向和幅度</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103500.png" style="zoom:67%;" />
+
+<p><strong>步骤3</strong>：将其分为$4\times4$的方框，计算每个方框的8方向直方图</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103606.png" style="zoom:67%;" />
+
+<p>最后就能得到128维描述向量（每个柱可用1-8的数字表示）</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218103655.png" style="zoom:67%;" />
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/SIFT%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-id="ck4o2turu000zu4vyh7mjavhf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/%E5%85%89%E6%B5%81%E6%B3%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          光流法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/17/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Harris特征检测</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

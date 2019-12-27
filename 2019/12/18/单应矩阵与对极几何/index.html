@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>单应矩阵与对极几何 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="围绕F、E、H这三个矩阵展开 1. 对极几何原理假设相机1运动到了相机2，两个相机的中心分别是$O_1,O_2$，成像得到了图像$I_1,I_2$。图像1中有一个特征点$p_1$，在图像2中对应了$p_2$（根据特征匹配的结果）。 也就是说通过两个图像的像素位置来估计相机的运动。   连线$\vec{O_1p_1}$和连线$\vec{O_1p_1}$在三维空间中交于点P，通过$O_1O_2P$这三">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单应矩阵与对极几何">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="围绕F、E、H这三个矩阵展开 1. 对极几何原理假设相机1运动到了相机2，两个相机的中心分别是$O_1,O_2$，成像得到了图像$I_1,I_2$。图像1中有一个特征点$p_1$，在图像2中对应了$p_2$（根据特征匹配的结果）。 也就是说通过两个图像的像素位置来估计相机的运动。   连线$\vec{O_1p_1}$和连线$\vec{O_1p_1}$在三维空间中交于点P，通过$O_1O_2P$这三">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218130654.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190816092611.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190810141856.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190816100908.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190816102143.png">
+<meta property="article:published_time" content="2019-12-18T13:01:49.000Z">
+<meta property="article:modified_time" content="2019-12-18T13:46:36.003Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191218130654.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-单应矩阵与对极几何" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" class="article-date">
+  <time datetime="2019-12-18T13:01:49.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      单应矩阵与对极几何
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>围绕F、E、H这三个矩阵展开</p>
+<h1 id="1-对极几何原理"><a href="#1-对极几何原理" class="headerlink" title="1. 对极几何原理"></a>1. 对极几何原理</h1><p>假设相机1运动到了相机2，两个相机的中心分别是$O_1,O_2$，成像得到了图像$I_1,I_2$。图像1中有一个特征点$p_1$，在图像2中对应了$p_2$（根据特征匹配的结果）。</p>
+<p>也就是说通过<strong>两个图像的像素位置</strong>来估计相机的运动。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218130654.png" style="zoom:67%;" />
+
+<p>连线$\vec{O_1p_1}$和连线$\vec{O_1p_1}$在三维空间中交于点P，通过$O_1O_2P$这三个点可以形成一个平面，称之为<strong>极平面</strong>（Epipolar plane）,$O_1O_2$被称为<strong>基线</strong>(Baseline)，基线与图像平面的交点为$e_1e_2$记作<strong>极点</strong>(Epipoles)，$l_1l_2$称之为<strong>极线</strong>(Epipolar line)</p>
+<p>假设第一个相机的P点的相机坐标系<strong>$P=[X,Y,Z]$</strong>。由于第一个相机的中心作为世界坐标系的原点，也就是说第一个相机没有旋转和平移，通过小孔相机模型可得：<br>$$<br>p_1 = KP，p_2=K(RP+t)<br>$$<br>从$p_1 = KP$可以得到$P=K^{-1}p_1$，带入第二个式子可以得到：<br>$$<br>p_2=K(RK^{-1}p_1 + t)<br>$$<br>两边同时左乘$K^{-1}$，可以得到<br>$$<br>K^{-1}p_2=RK^{-1}p_1 + t<br>$$<br>假设$x_1=K^{-1}p_1,x_2=K^{-1}p_2$，尝试带入可得：<br>$$<br>x_2=Rx_1+t<br>$$<br>左右两边同时乘以反对称矩阵$t^{\land}$，<strong>由于</strong>$t^{\land}t=0$，所以：<br>$$<br>t^{\land}x_2=t^{\land}Rx_1<br>$$<br>两边再同时左乘$x_2^T$<br>$$<br>x_2^Tt^{\land}x_2=x_2^Tt^{\land}Rx_1<br>$$<br><strong>由于$t^\land x_2$是向量$t$和向量$x_2$的叉积</strong>，得到的结果同时垂直于两向量，所以左边等于0，于是：<br>$$<br>x_2^Tt^{\land}Rx_1=0<br>$$<br>替换掉$x$:<br>$$<br>p_2^TK^{-T}t^{\land}RK^{-1}p_1=0<br>$$<br>这就是<strong>对极约束</strong>。令$F$来表示中间的<strong>基础矩阵</strong>：<br>$$<br>p_2^TFp_1 = 0 ,  其中 F=K^{-T}t^{\land}RK^{-1}<br>$$<br>由于相机内参已知，所以实际上我们可以用<strong>本质矩阵</strong>$E$来表示我们要求的对象：<br>$$<br>E = t^{\land}R<br>$$</p>
+<h1 id="2-单应矩阵"><a href="#2-单应矩阵" class="headerlink" title="2. 单应矩阵"></a>2. 单应矩阵</h1><p><strong>单应(Homography)</strong>是射影几何中的概念，又称为射影变换。它<strong>把一个射影平面上的点(三维齐次矢量)映射到另一个射影平面上</strong>，并且把直线映射为直线。换句话说，单应是关于三维齐次矢量的一种线性变换，可以用一个3×3的非奇异矩阵$H$表示：<br>$$<br>x_1=Hx_2<br>$$<br>假设已经取得了两图像之间的单应，则可以通过单应矩阵H将两幅图关联起来：<br>$$<br>\left(\begin{array}{c}u_1\v_1\1\end{array}\right) = H\left(\begin{array}{c}u_2\v_2\1\end{array}\right)<br>$$<br>假设使用同一相机在不同的位姿拍摄同一平面，如下图：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816092611.png" alt="img" style="zoom: 67%;" />
+
+<p>上图表示场景中的平面π在两相机的成像，设平面π在第一个相机坐标系下的单位法向量为$N$，其到第一个相机中心（坐标原点）的距离为$d$，则平面$π$可以表示为：<br>$$<br>N^TX_1 = d \<br>\frac{1}{d}N^TX_1 = 1,\forall X_1 \in \pi<br>$$<br>其中，$X_1$是三维点$P$在第一相机坐标系下的坐标，其在第二个相机坐标系下的坐标为$X_2$，</p>
+<h2 id="2-1-平移-旋转"><a href="#2-1-平移-旋转" class="headerlink" title="2.1 平移+旋转"></a>2.1 平移+旋转</h2><p>假设，<br>$$<br>X_2 = RX_1 + T<br>$$<br>将他们结合起来：<br>$$<br>X_2 = RX_1 + T\frac{1}{d}N^TX_1\<br> =(R+T\frac{1}{d}N^T)X_1=H’X_1<br>$$<br>因此就得到了同一个平面两个不同坐标系的单应矩阵：<br>$$<br>H’ = R+T\frac{1}{d}N^T<br>$$<br>上述的单应矩阵在相机坐标系下，将它转化为像素坐标：<br>$$<br>x_1 = KX_1,x_2 = KX_2\<br>H = K(R+T\frac{1}{d}N^T)K^{-1}<br>$$<br>这个公式和对极几何非常像，本质上也是利用了对极几何的约束性质，基础矩阵的另一种表现形式。<br>$$<br>\begin{align<em>}<br>X_2&amp;=RX_1+T\<br>\<br>E_1 &amp;= T^{\land}R\<br>E_2 &amp;= R+T\frac{1}{d}N^T<br>\end{align</em>}<br>$$</p>
+<h2 id="2-2-只有旋转"><a href="#2-2-只有旋转" class="headerlink" title="2.2 只有旋转"></a>2.2 只有旋转</h2><p>由于没有平移，所以<strong>点在相机坐标系下的三维坐标没有变</strong>：<br>$$<br>p_1 = KP \ ,p_2 = KRP\<br>P=K^{-1}p_1,p_2 = KRK^{-1}p_1<br>$$<br>最后结果为：<br>$$<br>H = KRK^{-1}<br>$$<br>在相机只有旋转而没有平移的情况下，两视图的<strong>对极约束</strong>就不再适用，这时可以使用单应矩阵$H$来描述两个图像像点的对应关系。</p>
+<p>在这种情况下，不存在参数$d$，也就是说两图像点的<strong>匹配不依赖于三维点的深度信息</strong>，无法使用三角法重构出三维点在世界坐标系中的三维坐标。</p>
+<h1 id="3-基础矩阵解法"><a href="#3-基础矩阵解法" class="headerlink" title="3. 基础矩阵解法"></a>3. 基础矩阵解法</h1><h2 id="3-1-八点法"><a href="#3-1-八点法" class="headerlink" title="3.1 八点法"></a>3.1 八点法</h2><p>考虑它的<strong>尺度等价性</strong>(按比例表示即可，不需要具体数值)，因此这个约束条件可以减少一个未知数，只需要8对匹配的点对就可以求解出两视图的基础矩阵$F$，这就是<strong>八点法</strong></p>
+<p>假设一对匹配的像点$p_1=[u_1,v_1,1]^T,p_2=[u_2,v_2,1]^T$，带入式子：<br>$$<br>[u_1,v_1,1]\left[\begin{array}{ccc}f_1&amp;f_2&amp;f_3\f_4&amp;f_5&amp;f_6\f_7&amp;f_8&amp;f_9\end{array}\right]<br>\left[\begin{array}{c}u_2\v_2\1\end{array}\right] = 0<br>$$<br>把基础矩阵F的各个元素当作一个向量处理:<br>$$<br>f = [f_1,f_2,f_3,f_4,f_5,f_6,f_7,f_8,f_9]<br>$$<br>就可以改写为：<br>$$<br>[u_1u_2,u_1v_2,u_1,v_1u_2,v_1v_2,v_1,u_2,v_2,1]\cdot f = 0<br>$$</p>
+<p>$$<br>\left[<br>\begin{array}{ccccccccc}<br>u_1^1u_2^1&amp;u_1^1v_2^1&amp;u_1^1&amp;v_1^1u_2^1&amp;v_1^1v_2^1&amp;v_1^1&amp;u_2^1&amp;v_2^1&amp;1\<br>u_1^2u_2^2&amp;u_1^2v_2^2&amp;u_1^2&amp;v_1^2u_2^2&amp;v_1^2v_2^2&amp;v_1^2&amp;u_2^2&amp;v_2^2&amp;1\<br>u_1^3u_2^3&amp;u_1^3v_2^3&amp;u_1^3&amp;v_1^3u_2^1&amp;v_1^3v_2^1&amp;v_1^3&amp;u_2^3&amp;v_2^3&amp;1\<br>\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots&amp;\cdots \<br>u_1^8u_2^8&amp;u_1^8v_2^8&amp;u_1^8&amp;v_1^8u_2^8&amp;v_1^8v_2^8&amp;v_1^8&amp;u_2^8&amp;v_2^8&amp;1<br>\end{array}<br>\right]<br>\left[<br>\begin{array}{c}<br>f_1\f_2\f_3\f_4\f_5\f_6\f_7\f_8\f_9<br>\end{array}<br>\right]=0<br>$$</p>
+<p>求解上面的方程组就可以得到基础矩阵各个元素了。</p>
+<p><strong>求得本质矩阵$E$的解以后</strong>，需要得到$R$和$t$，这个过程使用奇异值分解(SVD)：<br>$$<br>E=U\varSigma V^{T}<br>$$<br>其中$U$和$V$都是正交矩阵，$\Sigma$为对角矩阵。解出来的结果有四种情况：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190810141856.png" alt="img" style="zoom:67%;" />
+
+<p>只有第一种解中，P 在两个相机中都具有正的深度。因此，只要把任意一点代入四种解中，检测该点在两个相机下的深度，就可以确定哪个解是正确的了。</p>
+<h2 id="3-2-RANSAC法"><a href="#3-2-RANSAC法" class="headerlink" title="3.2 RANSAC法"></a>3.2 RANSAC法</h2><p>RANSAC做出了如下基本假设：</p>
+<ol>
+<li>数据是由<strong>局内点</strong>组成，例如：数据的分布可以用一些模型参数来解释；</li>
+<li><strong>局外点</strong>是不能适应该模型的数据；</li>
+<li>除此之外的数据属于噪声。</li>
+</ol>
+<p>局外点产生的原因有：噪声的极值；错误的测量方法；对数据的错误假设。</p>
+<p>一个简单的例子就是从一组观测数据中找出合适的二维直线。假设观测数据中包含局内点和局外点，其中局内点近似的被直线所通过，而局外点远离直线。</p>
+<p>简单的最小二乘法不能找到适应于局内点的直线，原因是最小二乘法尽量去适应包括局外点在内的所有点。相反，RANSAC能得出一个仅仅利用局内点计算出模型，并且概率还足够高。但是，RANSAC并不能保证结果一定正确，为了保证算法有足够高的合理概率，我们必须小心的选择算法的参数。图示如下所示：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816100908.png" alt="img" style="zoom:80%;" />
+
+<p>具体步骤如下：</p>
+<ol>
+<li>有一个模型适应于假设的局内点，即所有的未知参数都能从假设的局内点计算得出；</li>
+<li>用1中得到的模型去测试所有的其他数据，如果某个点适应于估计的模型，认为它也是局内点。</li>
+<li>如果有足够多的点被归类于假设的局内点，那么估计的模型就足够合理；</li>
+<li>然后，<strong>用所有假设的局内点去重新估计模型</strong>，因为它仅仅被初始的假设局内点估计过；</li>
+<li>最后，通过估计局内点与模型的错误率来评估模型。</li>
+</ol>
+<p>优缺点：</p>
+<ul>
+<li>优点：能鲁棒的估计模型参数。例如，它能从包含大量局外点的数据集中估计出高精度的参数。</li>
+<li>缺点：计算参数的迭代次数没有上限，如果设置迭代次数的上限，得到的结果可能不是最优的结果，甚至可能得到错误的结果。</li>
+</ul>
+<hr>
+<p>将RANSAC应用于基础矩阵的求解中，我们知道：<br>$$<br>\left(\begin{array}{c}x_2\y_2\1\end{array}\right)=\left(\begin{array}{ccc}H_{11}&amp;H_{12}&amp;H_{13}\H_{21}&amp;H_{22}&amp;H_{23}\H_{31}&amp;H_{32}&amp;H_{33}\end{array}\right)\left(\begin{array}{c}x_1\y_1\1\end{array}\right)\Leftrightarrow p_2= Hp_1<br>$$<br>RANSAC算法从匹配数据集中<strong>随机抽取四个样本</strong>并保证这四个样本之间不共线。计算出单应性矩阵，然后利用这个模型测试所有数据，并计算满足这个<strong>模型数据点的个数和投影误差（即代价函数）</strong>若此模型为最优模型，则对应的代价函数最小：<br>$$<br>\sum_{i=1}^{n}((x_i^{}{h_{11}x_i+h_{12}y_i+h_{13} \over h_{31}x_i+h_{32}y_i+h_{33} })^2+(y_i^{}{h_{21}x_i+h_{22}y_i+h_{23} \over h_{31}x_i+h_{32}y_i+h_{33} })^2)<br>$$<br>结果如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190816102143.png" alt="img"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" data-id="ck4o2tus6001du4vyaace3vmg" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/PNP%E4%B8%8EEPNP/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          PNP与EPNP
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/%E8%AF%A6%E8%A7%A3BA/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">详解BA</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>SLAM基础5-非线性优化 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 状态估计问题1.1 最大似然概念极大似然估计，通俗理解来说，就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的模型参数值。 对于函数$p(x|\theta)$输入有两个：$x$表示具体观测数据，$\theta$表示模型的参数。如果$\theta$是确定的，$x$是变量，这函数叫做概率函数(probability function)，他表述了在一个模型下，样本点$x$">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础5-非线性优化">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;17&#x2F;SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 状态估计问题1.1 最大似然概念极大似然估计，通俗理解来说，就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的模型参数值。 对于函数$p(x|\theta)$输入有两个：$x$表示具体观测数据，$\theta$表示模型的参数。如果$\theta$是确定的，$x$是变量，这函数叫做概率函数(probability function)，他表述了在一个模型下，样本点$x$">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812101218.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190809142904.png">
+<meta property="article:published_time" content="2019-12-17T11:05:19.000Z">
+<meta property="article:modified_time" content="2019-12-17T13:07:48.398Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190812101218.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SLAM基础5-非线性优化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" class="article-date">
+  <time datetime="2019-12-17T11:05:19.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SLAM基础5-非线性优化
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-状态估计问题"><a href="#1-状态估计问题" class="headerlink" title="1. 状态估计问题"></a>1. 状态估计问题</h1><h2 id="1-1-最大似然概念"><a href="#1-1-最大似然概念" class="headerlink" title="1.1 最大似然概念"></a>1.1 最大似然概念</h2><p>极大似然估计，通俗理解来说，就是利用<strong>已知的样本结果信息</strong>，反推最<strong>具有可能</strong>（最大概率）导致这些样本结果出现的<strong>模型参数值</strong>。</p>
+<p>对于函数$p(x|\theta)$输入有两个：$x$表示具体观测数据，$\theta$表示模型的参数。如果$\theta$是确定的，$x$是变量，这函数叫做概率函数(probability function)，他表述了<strong>在一个模型下，样本点$x$出现的概率是多少</strong>。</p>
+<p>反之，如果$x$是确定的，$\theta$是变量，这个函数叫做似然函数(likelihood function)，它描述了<strong>在不同的模型下，样本点$x$出现的概率是多少。</p>
+<p>举例说明：假如有一个罐子，里面有黑白两种颜色的球，数目多少不知，两种颜色的比例也不知。现在我们可以每次任意从已经摇匀的罐中拿一个球出来，记录球的颜色，然后把拿出来的球再放回罐中。假如在前面的一百次重复记录中，<strong>有七十次是白球</strong>，请问罐中白球所占的比例最有可能是多少？<br>$$<br>P(x_1,x_2…,x_{100}|Model)<br>=P(x_1|M)P(x_2|M)…P(x_{100}|M)<br>=p^{70}(1-p)^{30}<br>$$<br>要求这个式子的最大值，对他求导即可，得到的结果是：p=0.7时，结果最大，符合我们的日常逻辑认知。</p>
+<h2 id="1-2-SLAM中的最大后验与最大似然"><a href="#1-2-SLAM中的最大后验与最大似然" class="headerlink" title="1.2 SLAM中的最大后验与最大似然"></a>1.2 SLAM中的最大后验与最大似然</h2><p>对于SLAM经典模型，我们知道是由一个运动方程和一个观测方程构成，如下方程：<br>$$<br>\left{\begin{matrix} \mathit{x}<em>{k}=f(\mathit{x}</em>{k-1},\mathit{u}<em>{k})+\mathit{w}</em>{k} \ {z}<em>{k,j}=f(\mathit{y}</em>{j},\mathit{x}<em>{k})+\mathit{v}</em>{k,j} \end{matrix}\right.<br>$$<br>其中$\mathit{x}<em>{k}$为相机位姿，$u_k$为传感器采集到的数据；$z</em>{k,j}$为图像的像素位置，$y_j$为观测到的路标。</p>
+<p>在运动方程和观测方程中，假设<strong>假设噪声都满足于均值为0的高斯分布</strong>：<br>$$<br>\mathit{w}<em>{k}\sim N(0,\mathit{R}</em>{k}),\mathit{v}<em>{k}\sim N(0,\mathit{Q}</em>{k,j})<br>$$<br>因此这个问题变成了：<strong>我们希望通过带噪声的数据 z 和 u来推断位姿 x 和地图 y(以及他们的概率分布)</strong>，在已知传感器采集数据u和图像数据z的情况下，x的条件概率为：<br>$$<br>P(x|z,u)<br>$$<br>如果没有传感器采集数据，只有一张张图片时，就变成了：<br>$$<br>P(x|z)=\frac{P(z|x)P(x)}{P(z)}\propto P(z|x)P(x)<br>$$<br>其中$P(x|z)$为后验概率，$P(z|x)$为似然，$P(x)$为先验概率。直接求后验概率比较困难，我们可以先求出一个最有可能的模型（$P(z|x)$最大），与先验概率相结合，就可以求出在这个模型下，以后x的可能结果。即：<strong>最大后验概率=最大似然×先验概率</strong>。</p>
+<p>当不知道机器人在哪里时，我们缺乏先验概率，因此需要直接求解最大似然估计(MLE)：<br>$$<br>x^{*}_{MLE}=\mathrm{arg} max P(z|x)<br>$$<br>其中$argmax F(x)$返回的是函数F取得最大时的$x$</p>
+<h2 id="1-3-最小二乘法的引出"><a href="#1-3-最小二乘法的引出" class="headerlink" title="1.3 最小二乘法的引出"></a>1.3 最小二乘法的引出</h2><p>多变量的高维高斯分布$x\sim N(u,\Sigma)$它的概率密度函数展开形式为：<br>$$<br>P(\boldsymbol{x})=\frac{1}{\sqrt{(2 \pi)^{N} \operatorname{det}(\boldsymbol{\Sigma})}} \exp \left(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\right)<br>$$<br>取负对数可知：<br>$$<br>-\ln (P(x))=\frac{1}{2} \ln \left((2 \pi)^{N} \operatorname{det}(\Sigma)\right)+\frac{1}{2}(x-\mu)^{T} \Sigma^{-1}(x-\mu)<br>$$<br>对于观测模型${z}<em>{k,j}=f(\mathit{y}</em>{j},\mathit{x}<em>{k})+\mathit{v}</em>{k,j} $来说，由于我们设置了噪声项$v_k\sim N(0,Q_{k,j})$，因此观测到的数据的条件概率是：<br>$$<br>P(z|x_k,y_j)=N(h(y_j,x_k),Q_{k,j})<br>$$<br>按照高维高斯模型，第一项和x无关，因此我们可以忽略。最后问题转化为求第二项取最小时，x的取值。</p>
+<p>我们定义数据与估计值之间的误差：<br>$$<br>\left{\begin{matrix} e_{v,k}=x_{k}-f(x_{k-1},u_{k})\ e_{y,j,k}=z_{k,j}-h(x_{k},y_{j}) \end{matrix}\right.<br>$$<br>并求该误差的平方和：<br>$$<br>J(x)=\sum_{k}e_{v,k}^{T}R_{k}^{-1}e_{v,k}+\sum_{k}\sum_{j}e_{y,k,j}^{T}Q_{k,j}^{-1}e_{y,k,j}<br>$$<br>这就得到了一个总体意义下的最小二乘问题（Least Square Problem）。我们明白它的<strong>最优解等价于状态的最大似然估计</strong>。</p>
+<h1 id="2-非线性最小二乘"><a href="#2-非线性最小二乘" class="headerlink" title="2.非线性最小二乘"></a>2.非线性最小二乘</h1><p>对于一个简单的最小二乘问题${min}\frac{1}{2}\left | f(x) \right |^{2}_{2}$，要求取他的最小值，只需要求取导数即可，通过比较这些极小值，能得到<strong>全局最优解</strong>，这样一般适用于线性最小二乘。对于非线性最小二乘，最好采用<strong>迭代</strong>的方式求取，但只能得到<strong>局部最优解</strong>(极小值)。其步骤如下:</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，寻找增量$\Delta x_k$，使得$||f(x_k+\Delta x_k)||^2$达到最小。</li>
+<li>若$\Delta x_k$足够小，则停止；否则令$x_{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>所以现在的问题时，<strong>如何选取$\Delta x_k$</strong></p>
+<h2 id="2-1-一阶和二阶梯度法"><a href="#2-1-一阶和二阶梯度法" class="headerlink" title="2.1 一阶和二阶梯度法"></a>2.1 一阶和二阶梯度法</h2><p>求解增量最直观的方式是将目标函数在 x 附近进行泰勒展开，得到：<br>$$<br>\left | f(x+\Delta x) \right |^{2}<em>{2}\approx \left | f(x) \right |^{2}</em>{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x<br>$$<br>这里的$J$是$||f(x)||^2$关于x的一阶导数（雅克比矩阵），H则是二阶导数（黑塞矩阵），其中黑塞矩阵是对称矩阵。<br>$$<br>\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{1}}{\partial x_{n}}} \ {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial f_{m}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]<br>$$</p>
+<p>$$<br>\mathbf{H}=\left[\begin{array}{cccc}{\frac{\partial^{2} f}{\partial x_{1}^{2}}} &amp; {\frac{\partial^{2} f}{\partial x_{1} \partial x_{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{1} \partial x_{n}}} \ {\frac{\partial^{2} f}{\partial x_{2} \partial x_{1}}} &amp; {\frac{\partial^{2} f}{\partial x_{2}^{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{2} \partial x_{n}}} \ {\vdots} &amp; {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial^{2} f}{\partial x_{n} \partial x_{1}}} &amp; {\frac{\partial^{2} f}{\partial x_{n} \partial x_{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{n}^{2}}}\end{array}\right]<br>$$</p>
+<p>其中$J(x)$是一阶梯度，$\frac{1}{2}\Delta x^TH$是二阶梯度，我们可以选择保留泰勒展开的一阶或二阶项，对应的求解方法则为一阶梯度或二阶梯度法。</p>
+<p>首先考虑只<strong>保留一阶梯度</strong>。梯度下降的时候我们需要<strong>确定下降$\Delta x$的方向</strong>，这就是所谓梯度下降法，下降的方向就是梯度的反方向$-J^T(x)$</p>
+<blockquote>
+<p>在$y$是标量的情况下，$J^T$便是梯度，在$y$是高维的情况下，$J^T$每个列向量都是对应的$y_i$的梯度。</p>
+</blockquote>
+<p>同时还需要添加一个步长$\lambda$，<strong>有了方向和步长</strong>，就可以的到$\Delta x$顺利求取局部最小值了。步长通过公式求解，越接近目标值，步长越小，前进越慢。这种方法被称为<strong>最速下降法</strong>。<br>$$<br>\Delta x^<em>=-\lambda J^T(x)<br>$$<br>另一方面，*</em>如果保留二阶梯度信息**，那么增量方程为：<br>$$<br>\left | f(x+\Delta x) \right |^{2}<em>{2}\approx \left | f(x) \right |^{2}</em>{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x<br>$$<br>我们知道当$f’(x)=0$时函数有极小值，对右侧关于$\Delta x$求导就得到了增量解：<br>$$<br>J(x)^T+\frac{1}{2}(H\Delta x+H^T\Delta x)=0<br>$$<br>化简以后可得：<br>$$<br>H\Delta x=-J^T<br>$$</p>
+<blockquote>
+<p>矩阵求导公式：<br>$$<br>\frac{\partial (X^TAX)}{\partial X}=(A^T+A)X<br>$$<br>黑塞矩阵是一个对称矩阵$H^T=H$</p>
+</blockquote>
+<p>这种方法又称为<strong>牛顿法</strong>。由于泰勒展开之后函数变成了多项式， 所以求解增量时只需解线性方程即可，避免了直接求导函数为零这样的非线性方程的困难。</p>
+<p>牛顿法与最速下降法的<strong>区别</strong>在于：牛顿法是二阶收敛，最速下降法是一阶收敛。最速下降法每次只从你当前所处位置<strong>选一个坡度最大的方向走一步</strong>，在局部进行下降，然后步步逼近极值，往往是<strong>走之字型</strong>的。</p>
+<p>牛顿法在二阶导数的作用下，从函数的凸性出发，直接搜索怎样到达极值点。在选择方向时，不仅会考虑坡度是否够大，还会考虑你<strong>走了一步之后，坡度是否会变得更大</strong>。所以，可以说牛顿法比最速下降法看得更远一点，能更快地走到最底部。如图，红色代表牛顿法，绿色代表最速下降法。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812101218.png" alt="img"></p>
+<p>这两种方法的<strong>缺点</strong>在于：最速下降法<strong>过于贪心，容易走出锯齿路线</strong>，反而增加了迭代次数。牛顿法<strong>需要计算H矩阵，十分繁琐</strong>。牛顿法则需要计算目标函数的 H 矩阵，这在问题规模较大时非常困难。</p>
+<h2 id="2-2-高斯牛顿法-GN优化"><a href="#2-2-高斯牛顿法-GN优化" class="headerlink" title="2.2 高斯牛顿法 GN优化"></a>2.2 高斯牛顿法 GN优化</h2><p>高斯牛顿法，它的思想是将$f(x)$进行泰勒展开<strong>（目标函数不是$f(x)$的二范数</strong>，和2.1的内容前提相区别）：<br>$$<br>f(x+\Delta x)\approx f(x)+J(x)\Delta x<br>$$<br>根据前面的框架，需要求得下降矢量$\Delta x$使得$||f(x+\Delta x)||^{2}$最小，如果将$\Delta x$看做变量，就会得到如下的最小二乘问题：<br>$$<br>\Delta x^*=argmin||f(x)+J(x)\Delta x||^2<br>$$<br>目标函数展开后可得：<br>$$<br>\begin{aligned} \frac{1}{2}|f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}|^{2} &amp;=\frac{1}{2}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x})^{T}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}) \ &amp;=\frac{1}{2}\left(|f(\boldsymbol{x})|_{2}^{2}+2 f(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}+\Delta \boldsymbol{x}^{T} \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}\right) \end{aligned}<br>$$<br>对目标函数的$\Delta x$求导，并令其等于0：<br>$$<br>2 \boldsymbol{J}(\boldsymbol{x})^{T} f(\boldsymbol{x})+2 \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}=\mathbf{0}<br>$$<br>最后得到：<br>$$<br>J(x)^{T}J(x)\Delta x=-J(x)^{T}f(x)<br>$$</p>
+<blockquote>
+<p>$||A||_2=\sqrt \lambda$其中$\lambda$是谱范数，即$A^TA$的最大特征值</p>
+<p>这里认为$f(x)^TJ(x)\Delta x$是对称矩阵</p>
+</blockquote>
+<p>这个方程称之为<strong>增量方程</strong>，也称之为<strong>高斯牛顿方程</strong>。将左边的系数设为$H$右边的系数设为$g$，则有：<br>$$<br>H\Delta x=g<br>$$<br>注意这里并不是真正的黑塞矩阵，而是<strong>利用$J^TJ$代替了牛顿法中的黑塞矩阵</strong>，简化了计算。</p>
+<p><strong>求解增量方程是整个优化问题的核心所在。</strong>其步骤可以写为：</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，求出当前的雅克比矩阵$J(x_{k})$和误差$f(x_k)$</li>
+<li>求解增量方程$H\Delta x=g$</li>
+<li>若$\Delta x_k$足够小，则停止；否则令$x_{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>缺点在于$H$是半正定矩阵，可能是奇异矩阵(不可逆)导致算法不收敛，且即使可逆，如果步长太长可能导致局部近似不准确，甚至不收敛。</p>
+<h2 id="2-3-列文伯格-马夸尔特法-LM优化"><a href="#2-3-列文伯格-马夸尔特法-LM优化" class="headerlink" title="2.3 列文伯格-马夸尔特法 LM优化"></a>2.3 列文伯格-马夸尔特法 LM优化</h2><p>高斯牛顿法只能在展开点附近有比较好的效果，所以我们可以给$\Delta x$添加一个信赖区域(Trust Region)。</p>
+<p>那么如何确定这个信赖区域的范围呢？一个比较好的方法是根据我们的近似模型跟实际函数之间的差异来确定这个范围：如果差异小，我们就让范围尽可能大；如果差异大，我们就缩小这个近似范围。因此，考虑使用：<br>$$<br>\rho=\frac{f(\boldsymbol{x}+\Delta \boldsymbol{x})-f(\boldsymbol{x})}{\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}}<br>$$<br>分子是实际函数下降的值，分母是近似模型下降的值。<strong>如果 ρ 接近于 1，则近似是好的</strong>。<strong>如果 ρ 太小，说明实际减小的值远少于近似减小的值</strong>，则认为近似比较差，需要缩小近似范围。反之，如果 ρ 比较大，则说明实际下降的比预计的更大，我们可以放大近似范围。</p>
+<p>具体算法步骤如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809142904.png" alt="img"></p>
+<p>这里近似范围扩大的倍数和阈值都是经验值，可以替换成其他数值。上述约束中相当于把增量限定在<strong>半径为u的球</strong>里面，认为在球内的才有效。<strong>带上D后成为椭圆</strong>。</p>
+<p>在上述求解中，由于是有约束优化，可以利用拉格朗日乘子将其转化为一个无约束优化问题(其中λ为拉格朗日乘子)：<br>$$<br>\underset{\Delta x_{k}}{min}\frac{1}{2}||f(x_{k})+J(x_{k}\Delta x_{k})||^{2}+\frac{\lambda }{2}||D\Delta x||^{2}<br>$$<br>展开后可得：<br>$$<br>(H+\lambda D^{T}D)\Delta x = g<br>$$<br>当参数λ较小时，H占主导地位，<strong>说明二次近似模型在该范围内是比较好的</strong>，<strong>该方法接近于高斯牛顿法</strong>。当参数λ较大时，λ所在项<strong>接近于一阶梯度下降法</strong>。该方法可在一定程度上避免线性方程组的系数矩阵的非奇异和病态问题。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-id="ck4o2tus00015u4vy2jp5hb0i" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SLAM基础6-后端
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SLAM基础4-相机模型</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

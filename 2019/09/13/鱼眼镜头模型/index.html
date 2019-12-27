@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>鱼眼镜头模型 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 鱼眼镜头原理常见的相机模型是小孔模型，但小孔模型的视场比较小，即使采用超广角镜头视场也大概只有150°，很难做到全覆盖。因此人们利用鱼眼的特性发明了鱼眼镜头，能够达到接近180°的视场。   如图所示，小孔模型对于180°视场，只能将一部分投影到平面上，剩余的一小部分被截去了。 在自然界中，鱼眼能够通过水的折射，将光线压缩到一个锥形内   在这个锥形内部有一部分来自水面上方，有一部分来自水面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="鱼眼镜头模型">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;09&#x2F;13&#x2F;%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 鱼眼镜头原理常见的相机模型是小孔模型，但小孔模型的视场比较小，即使采用超广角镜头视场也大概只有150°，很难做到全覆盖。因此人们利用鱼眼的特性发明了鱼眼镜头，能够达到接近180°的视场。   如图所示，小孔模型对于180°视场，只能将一部分投影到平面上，剩余的一小部分被截去了。 在自然界中，鱼眼能够通过水的折射，将光线压缩到一个锥形内   在这个锥形内部有一部分来自水面上方，有一部分来自水面">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902163056.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902163408.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902163717.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902163920.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902164144.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902164458.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902164523.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902164629.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902164825.png">
+<meta property="article:published_time" content="2019-09-13T14:31:27.000Z">
+<meta property="article:modified_time" content="2019-12-18T15:40:57.981Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190902163056.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-鱼眼镜头模型" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2019-09-13T14:31:27.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      鱼眼镜头模型
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-鱼眼镜头原理"><a href="#1-鱼眼镜头原理" class="headerlink" title="1. 鱼眼镜头原理"></a>1. 鱼眼镜头原理</h1><p>常见的相机模型是小孔模型，但小孔模型的视场比较小，即使采用超广角镜头视场也大概只有150°，很难做到全覆盖。因此人们利用鱼眼的特性发明了鱼眼镜头，能够达到接近180°的视场。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163056.png" alt="img" style="zoom: 80%;" />
+
+<p>如图所示，小孔模型对于180°视场，只能将一部分投影到平面上，剩余的一小部分被截去了。</p>
+<p>在自然界中，鱼眼能够通过水的折射，将光线压缩到一个锥形内</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163408.png" alt="img" style="zoom:50%;" />
+
+<p>在这个锥形内部有一部分来自水面上方，有一部分来自水面下方，水面上方的所有景物都被压缩到了一个圈内，这就是<strong>斯涅耳窗口</strong></p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163717.png" alt="img" style="zoom:50%;" />
+
+<p>如果这样拍一张照片，就可以在一个合理的照片大小范围内，记录整个水面上的半球空间内的景象。有效的视角范围接近 180°，远远超过普通超广角镜头记录的范围。鱼眼镜头与这个场景类似，也是把很<strong>大角度范围内的光线进行「压缩」和「扭曲」</strong>，压进一个相对较小的空间内，从而可以被相机所记录下来。</p>
+<h1 id="2-鱼眼镜头模型"><a href="#2-鱼眼镜头模型" class="headerlink" title="2. 鱼眼镜头模型"></a>2. 鱼眼镜头模型</h1><p>鱼眼镜头由一系列复杂的透镜组成，前两个透镜负责大力折射光线，后面的镜头负责成像。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163920.png" alt="img" style="zoom:67%;" />
+
+<p>鱼眼相机成像时遵循的模型可以近似为单位球面投影模型。可以将鱼眼相机的成像过程分解成两步：</p>
+<ol>
+<li>三维空间点线性地投影到一个球面上，它是一个虚拟的单位球面，它的球心与相机坐标系的原点重合</li>
+<li>单位球面上的点投影到图像平面上，这个过程是非线性的</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164144.png" alt="img"></p>
+<p><strong>从球面投影到CCD平面的模型</strong>有很多种</p>
+<ul>
+<li><strong>等距投影</strong>  $r_d = f \theta$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164458.png" alt="img"></p>
+<ul>
+<li><strong>等立体角投影</strong>  $r_d = 2fsin(\frac{\theta}{2})$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164523.png" alt="img"></p>
+<ul>
+<li><strong> 正交投影</strong>  $r_d = fsin( \theta)$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164629.png" alt="img"></p>
+<ul>
+<li><strong>体视投影</strong>  $r_d = 2ftan(\frac{\theta}{2})$</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164825.png" alt="img"></p>
+<h1 id="3-Opencv中的鱼眼相机模型"><a href="#3-Opencv中的鱼眼相机模型" class="headerlink" title="3. Opencv中的鱼眼相机模型"></a>3. Opencv中的鱼眼相机模型</h1><p>由于投影方式多种多样，我们可以对其采用近似方法将其统一。观察可以发现，$\sin,\tan$的泰勒展开都是<strong>奇次项形式</strong>，取前5项可得即：<br>$$<br>r_d =f\theta _d \\theta_d= k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9<br>$$<br>从空间点到鱼眼图像上的点的变换过程可用式子表示为：<br>$$<br>\left[<br>\begin{array}{c}<br>X_c \<br>Y_c \<br>Z_c<br>\end{array}<br>\right]=RX+t\<br>x_c = \frac{X_c}{Z_c},\ y_c=\frac{Y_c}{Z_c}\<br>r^2 = x^2_c + y^2_c\<br>\theta = arctan(r)\<br>\theta _d = k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9\<br>x_d=\frac{\theta_d}{r}x_c, \ y_d=\frac{\theta_d}{r}y_c\<br>u=f_xx_d+c_x, \ v=f_yy_d+c_y<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-id="ck4o2tusc001ju4vygotdccnl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Socket网络编程原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/05/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SLAM基础1-综述</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

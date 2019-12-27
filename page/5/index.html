@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;page&#x2F;5&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-ORB特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-17T16:15:05.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/">ORB特征检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1. 基本概念"></a>1. 基本概念</h1><p>特征点指图像中选取比较有代表性的点，这些点在相机<strong>视角发生少量变化后会保持不变</strong>，所以我们会在各个图像中找到相同的点。</p>
+<p>特征点由<strong>关键点</strong>（Key-point）和<strong>描述子</strong>（Descriptor）两部分组成。关键点是指该特征点在图像里的<strong>位置</strong>，有些特征点还具有朝向、大小等信息。描述子通常是一个 向量，描述了该关键点周围像素的信息。描述子是按照“<strong>外观相似的特征应该有相似的描述子</strong>”的原则设计的。</p>
+<p><strong>ORB （Oriented FAST and Rotated BRIEF）</strong>改进了 FAST 检测子不具有方向性的问题，并采用速度极快的二进制描述子 BRIEF，使整个图像特征提取的环节大大加速。借助尺度空间理论构建图像高斯金字塔，然后在每一层金字塔图像上检测角点，以实现尺度不变性。</p>
+<p>ORB 特征亦由关键点和描述子两部分组成。它的<strong>关键点称为”Oriented FAST”</strong>，是 一种改进的 FAST 角点，它的<strong>描述子称为 BRIEF （Binary Robust Independent Elementary Features）</strong>。因此，提取 ORB 特征分为两个步骤：</p>
+<ol>
+<li><strong>FAST 角点提取</strong>：找出图像中的”角点”。相较于原版的 FAST, ORB 中计算了特征点的主方向，为后续的 BRIEF 描述子增加了旋转不变特性。</li>
+<li><strong>BRIEF 描述子</strong>：对前一步提取出特征点的周围图像区域进行描述。</li>
+</ol>
+<h1 id="2-Fast关键点"><a href="#2-Fast关键点" class="headerlink" title="2. Fast关键点"></a>2. Fast关键点</h1><p>FAST 是一种角点，主要检测局部像素灰度变化明显的地方，以速度快著称。它的思想是：<strong>如果一个像素与它邻域的像素差别较大（过亮或过暗）, 那它更可能是角点</strong>。算法步骤如下：</p>
+<ol>
+<li>在图像中选取像素 $p$，假设它的亮度为 $I_p$。</li>
+<li>设置一个阈值 $T$(比如 Ip 的 20%)</li>
+<li>以像素 $p$ 为中心, 选取半径为 3 的圆上的 16 个像素点。</li>
+<li>假如选取的圆上，<strong>有连续的 $N$ 个点的亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，那么像素 p 可以被认为是特征点 ($N$ 通常取 12，即为 FAST-12。其它常用的 $N$ 取值为9和11， 他们分别被称为 FAST-9，FAST-11)。</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807100315.png" alt="img"></p>
+<p>在 FAST-12 算法中，为了更高效，可以添加一项预测试操作，以快速地排除绝大多数不是角点的像素。直接检测邻域圆上的第 1，5，9，13 个像素的亮度。只有<strong>当这四个像素中有三个同时亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，当前像素才有 可能是一个角点，否则应该直接排除。</p>
+<p>FAST算子本身是不具有方向性的，因此我们需要引入距分析来完成oriented：</p>
+<p>图像的距为：<br>$$<br>m_{p q}=\sum_{x, y \in B} x^{p} y^{q} I(x, y), \quad p, q={0,1}<br>$$<br>质心为：<br>$$<br>C=\left(\frac{m_{10}}{m_{00}}, \frac{m_{01}}{m_{00}}\right)<br>$$<br>连接图像的几何中心O和质心C可以得到方向向量$\vec{OC}$，方向就可以被定义为：<br>$$<br>\theta=\arctan{(m_{01}/m_{10})}<br>$$</p>
+<h1 id="3-BRIEF描述子"><a href="#3-BRIEF描述子" class="headerlink" title="3. BRIEF描述子"></a>3. BRIEF描述子</h1><p>BRIEF 是一种<strong>二进制描述子</strong>，它的描述向量由许多个 0 和 1 组成，这里的 0 和 1 编码了关键点附近两个像素（比如说 p 和 q）的大小关系：如果 p 比 q 大，则取 1，反之就取 0。如果我们取了 128 个这样的 pq，最后就得到 128 维由 0，1 组成的向量。</p>
+<p>pq的选点在BRIEF中采取了随机选点的比较，速度很快。</p>
+<p>算法步骤如下：</p>
+<ol>
+<li>以特征点P为中心，取一个S×S大小的Patch邻域；</li>
+<li>在这个邻域内随机取N对点(x,y)，比较N对像素点的灰度值的大小,如果x的灰度大于y，则写为1，反之为0</li>
+<li>重复步骤2得到N个（一般为256）二进制代码串</li>
+</ol>
+<p>随机点的选择一般采用高斯分布的形式，匹配时采用汉明距离(两代码串同位不同的个数,比如010和101汉明距离为3)</p>
+<p>原始的 BRIEF 描述子<strong>不具有旋转不变性</strong>，因此在图像发生旋转时容易丢失。原因是其采用了方形领域，当旋转时会造成覆盖的区域发生变化：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217163524.png" style="zoom: 50%;" />
+
+<p>而 ORB 在 FAST 特征点提取阶段计算了关键点的方向，所以可以利用方向信息，计算了旋转之后的”Steer BRIEF”特征，使 ORB 的描述子具有较好的旋转不变性。</p>
+<h1 id="4-尺度不变性"><a href="#4-尺度不变性" class="headerlink" title="4. 尺度不变性"></a>4. 尺度不变性</h1><p>前面介绍了利用距分析获取特征方向从而实现<strong>旋转不变性</strong>，同样的我们也需要实现<strong>尺度不变性</strong>，我们在描述一个特征之前，将两张图像都变换同一个尺度上，然后再在这个统一标准上来描述这个特征。</p>
+<p>为了实现尺度不变性，需要给特征加上尺度因子。在进行特征描述的时候，将尺度统一即可。一般采用<strong>高斯金字塔模型</strong>。</p>
+<p>与普通的金子塔不同，我们进行分组构建：</p>
+<ol>
+<li>先将原图像扩大一倍之后作为高斯金字塔的第1组第1层，将第1组第1层图像经高斯滤波之后作为第1组金字塔的第2层。</li>
+<li>将第一次滤波的方差$\sigma$乘以比例系数得到$\sigma_2=k\sigma_1$,用它来平滑第1组第2层图像，结果图像作为第3层。</li>
+<li>如此这般重复，最后得到L层图像，在同一组中，每一层图像的尺寸都是一样的，只是平滑系数不一样。它们对应的平滑系数分别为：$0，σ，kσ，k^2σ,k^3σ……k^(L-2)σ$</li>
+<li>将第1组<strong>倒数第三层</strong>图像作比例因子为2的降采样(缩小一倍)，得到的图像作为第2组的第1层，重复步骤2</li>
+</ol>
+<p>这样反复执行，就可以得到一共O组，每组L层，共计O*L个图像，这些图像一起就构成了高斯金字塔，结构如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819101113.png" alt="img">在高斯金字塔中一共生成O组L层不同尺度的图像，这两个量合起来（O，L）就构成了高斯金字塔的尺度空间，也就是说以高斯金字塔的组O作为二维坐标系的一个坐标，不同层L作为另一个坐标，则给定的一组坐标（O,L）就可以唯一确定高斯金字塔中的一幅图像。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-id="ck4o2turs000xu4vyb7cn2c8l" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-高斯金字塔与拉普拉斯金字塔" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" class="article-date">
+  <time datetime="2019-12-17T15:03:35.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/">高斯金字塔与拉普拉斯金字塔</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-高斯金字塔"><a href="#1-高斯金字塔" class="headerlink" title="1. 高斯金字塔"></a>1. 高斯金字塔</h1><p>高斯金字塔本质上是信号的在不同尺度上的表达，即将同一图片多次进行高斯模糊，并向下采样，产生不同尺度下的多组信号或图片以进行后续的处理。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217150618.png" style="zoom:67%;" />
+
+<p>为了获取层级为$G_{i+1}$的金子塔图像，我们采用如下办法：</p>
+<ol>
+<li>对图像$G_i$进行高斯平滑</li>
+<li>将所有偶数行去除</li>
+</ol>
+<p>得到的图像即为$G_{i+1}$的图像。显然，整个图像的大小只有原图的1/4。不断重复操作就能得到整个金字塔。</p>
+<p>高斯内核如下：<br>$$<br>\frac{1}{256}\left[\begin{array}{ccccc}{1} &amp; {4} &amp; {6} &amp; {4} &amp; {1} \ {4} &amp; {16} &amp; {24} &amp; {16} &amp; {4} \ {6} &amp; {24} &amp; {36} &amp; {24} &amp; {6} \ {4} &amp; {16} &amp; {24} &amp; {16} &amp; {4} \ {1} &amp; {4} &amp; {6} &amp; {4} &amp; {1}\end{array}\right]<br>$$<br>降采样过程如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217151040.png" alt=""></p>
+<p>在Opencv中调用<code>pyrDown</code>函数即可，默认输出参数为<code>Size((src.cols+1)/2, (src.rows+1)/2)</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> cv::pyrDown	(	InputArray 	src,</span><br><span class="line">                     OutputArray 	dst,</span><br><span class="line">                     <span class="keyword">const</span> Size &amp; 	dstsize = Size(),</span><br><span class="line">                     <span class="keyword">int</span> 	borderType = BORDER_DEFAULT </span><br><span class="line">                    )</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152619.png" alt=""></p>
+<h1 id="2-拉普拉斯金字塔"><a href="#2-拉普拉斯金字塔" class="headerlink" title="2. 拉普拉斯金字塔"></a>2. 拉普拉斯金字塔</h1><p>拉普拉斯金字塔式高斯金字塔的逆过程，又称差分金字塔(DOG)。</p>
+<p>假设我们现在拥有高斯采样图$G_{i + 1}$和$G_i $，则拉普拉斯金字塔计算方式如下：</p>
+<ol>
+<li>将$G_i $每列每行赋值一遍，插入到隔行隔列中间，这样图像$G_{i+1}^{\prime}$大小和$G_{i+1}$相同</li>
+<li>两者做差$G_{i+1}^{\prime}-G_{i+1}$，得到的结果就是拉普拉斯金字塔</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152416.png" alt=""></p>
+<p>同样的在opencv中也有：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> cv::pyrUp	(	InputArray 	src,</span><br><span class="line">                 OutputArray 	dst,</span><br><span class="line">                 <span class="keyword">const</span> Size &amp; 	dstsize = Size(),</span><br><span class="line">                 <span class="keyword">int</span> 	borderType = BORDER_DEFAULT </span><br><span class="line">                )</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152827.png" alt=""></p>
+<h1 id="3-金字塔的应用-图像融合"><a href="#3-金字塔的应用-图像融合" class="headerlink" title="3. 金字塔的应用-图像融合"></a>3. 金字塔的应用-图像融合</h1><p>如12所示，我们能够按如下方法得到图像的高斯金字塔和拉普拉斯金字塔：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217154749.png" alt=""></p>
+<p>在最底层，我们认为高斯等于拉普拉斯，由此我们希望以此为开始，融合两张图片。</p>
+<p>首先我们需要准备一个掩模M</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155514.png" alt=""></p>
+<p>通过掩模对两张图像的拉普拉斯每一层做运算，然后相加：<br>$$<br>LS_i=LA_i\cdot M+LB_i\cdot (1-M)<br>$$<br><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155712.png" style="zoom:80%;" /></p>
+<p>随后将得到的图片进行扩展，然后加上下一层的图片：<br>$$<br>Res_i = LS_i+expand(LS_{i+1})<br>$$<br><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160453.png" style="zoom:80%;" /></p>
+<hr>
+<p>另一种简单的办法是feathr blending，对于交接区域我们做简答的加权即可。<br>$$<br>PB(i,j) = (1-w)<em>PA(i,j) + w</em>PB(i,j)<br>$$<br><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160613.png" style="zoom:67%;" /></p>
+<p>这种办法对图像的质量要求很高，如果两张图片存在曝光差异(exposure differences)，算法结果就会很差。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217161305.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" data-id="ck4o2tusa001hu4vya3bpgw85" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础8-建图" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%808-%E5%BB%BA%E5%9B%BE/" class="article-date">
+  <time datetime="2019-12-17T13:36:55.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%808-%E5%BB%BA%E5%9B%BE/">SLAM基础8-建图</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在经典的 SLAM 模型中，我们所谓的地图，即所有路标点的集合。一旦我们确定了路标点的位置，那就可以说我们完成了建图，这就是所谓的<strong>稀疏路标地图</strong>。这种地图只建模感兴趣的部分，也就特征点（路标点），而稠密地图是指建模<strong>所有看到过的部分</strong>。</p>
+<p>对于同一个桌子，稀疏地图可能只建模了桌子的四个角，而稠密地图则会建模整个桌面。虽然从定位角度看，只有四个角的地图也可以 用于对相机进行定位，但由于我们无法从四个角推断这几个点之间的空间结构，所以无法仅用四个角来完成导航、避障等需要稠密地图才能完成的工作。</p>
+<h1 id="1-单目稠密建图"><a href="#1-单目稠密建图" class="headerlink" title="1. 单目稠密建图"></a>1. 单目稠密建图</h1><p>我们从最简单的情况开始：在<strong>给定相机轨迹的基础上</strong>，如何根据一段时间 的视频序列，来估计某张图像的深度。换言之，我们不考虑 SLAM，先考虑稍为简单的建图问题。</p>
+<p>基本思路是：首先提特征，并根据描述子匹配。换言之，通过特征，我们对某一个空间点进行了跟踪，<strong>知道了它在各个图像之间的位置</strong>。 之后，通过不同视角下的观测，利用<strong>三角测量原理</strong>估计深度。</p>
+<p>如何确定第一张图的某像素，出现在其他图里的位置呢？这需要用到<strong>极线搜索</strong>和<strong>块匹配</strong>技术。由于我们拍摄了多张图片，需要使用多次三角测量让深度逐渐收敛，需要使用<strong>深度滤波器技术</strong>。</p>
+<h2 id="1-1-极线搜索与块匹配"><a href="#1-1-极线搜索与块匹配" class="headerlink" title="1.1 极线搜索与块匹配"></a>1.1 极线搜索与块匹配</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/1565749562230.png" alt="img"></p>
+<p>左边的相机观测到了像素$p_1$，由于这是一个单目相机，我们无法知道它的深度，因此该像素的空间点分布在图中的这条射线段上。<strong>由于知道了相机的运动</strong>，所以基线$O_1O_2$和极线$l_2$都是确定的。现在问题就变为：如何根据极线找到$p_2$的位置？由于单个像素不好判断，所以为了提高区分度需要使用<strong>块匹配</strong>。</p>
+<p>我们在$p_1$周围取$w×w$的小块，同时在$l_2$极线附近取若干小块，比较他们的差异。</p>
+<p>比较的方法常见的有：</p>
+<ul>
+<li><strong>SAD(sum of Absolute Difference)</strong>取两个小块的绝对值之和</li>
+<li><strong>SSD(Sum of Squared Distance)</strong>取两个小块的差的平方和</li>
+<li><strong>NCC(Normalized Cross Correlation)</strong>归一化互相关</li>
+</ul>
+<p>$$<br>S(A, B)<em>{N C C}=\frac{\sum</em>{i, j} A(i, j) B(i, j)}{\sqrt{\sum_{i, j} A(i, j)^{2} \sum_{i, j} B(i, j)^{2}}}<br>$$</p>
+<p>在搜索距离较长的情况下，我们通常会得到一个非凸函数：这个分布存在着许多峰值，然而真实的对应点必定只有一个。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190814104221.png" alt="img" style="zoom:67%;" />
+
+<h2 id="1-2-高斯分布的深度滤波器"><a href="#1-2-高斯分布的深度滤波器" class="headerlink" title="1.2 高斯分布的深度滤波器"></a>1.2 高斯分布的深度滤波器</h2><p>对深度的分布假设存在着若干种不同的做法。首先，在比较简单的假设条件下，我们 可以假设深度值服从高斯分布，得到一种类卡尔曼式的方法。</p>
+<p>在上一节中，我们可以通过匹配求得一帧图片中特征点的大致位置和它的不确定度，现在需要做两件事：像素的不确定度和实际点深度的不确定度的关系？多帧图像的不确定度怎么融合？</p>
+<p>融合的办法采用了高斯分布的计算性质：<strong>两个高斯分布的乘积依然是高斯分布</strong>。</p>
+<p>假设某个点的深度服从$P(d)=N(\mu,\sigma^2)$，每当新的数据到来时，我们可以观测到它的深度，假设这个深度依然是高斯分布$P(d_{obs})=N(\mu_{obs},\sigma^2_{obs})$那么根据高斯分布的乘法公式可以得到：<br>$$<br>\mu_{\text {fuse}}=\frac{\sigma_{\text {obs}}^{2} \mu+\sigma^{2} \mu_{\text {obs}}}{\sigma^{2}+\sigma_{\text {obs}}^{2}}, \quad \sigma_{\text {fuse}}^{2}=\frac{\sigma^{2} \sigma_{\text {obs}}^{2}}{\sigma^{2}+\sigma_{o b s}^{2}}<br>$$<br>接下来考虑像素的不确定度和实际点深度的不确定度的关系，换句话说需要为上述式子$u_{obs},\sigma^2_{obs}$求值。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190814110428.png" alt="img" style="zoom: 80%;" />
+
+<p>根据几何计算单个像素引起:<br>$$<br>p’=t\frac{\sin{\beta’}}{sin{\gamma}}<br>$$<br>如果认为极线搜索的块匹配仅有一个像素的误差，那么就可以设：<br>$$<br>\sigma_{obs}=p-p’<br>$$<br>在实际工程中，当不确定性小于一 定阈值之后，就可以认为深度数据已经收敛了。综上所述，我们给出了估计稠密深度的一个完整的过程：</p>
+<ol>
+<li>假设所有像素深度满足某个初始的高斯分布；</li>
+<li>当新数据产生时，通过极线搜索和块匹配确定投影点的位置；</li>
+<li>根据集合关系计算三角化后的深度以及不确定性；</li>
+<li>将当前观测融合进上一次的估计中。若收敛则停止计算，否则返回2。</li>
+</ol>
+<h1 id="2-RGB-D稠密建图"><a href="#2-RGB-D稠密建图" class="headerlink" title="2. RGB-D稠密建图"></a>2. RGB-D稠密建图</h1><p>RGBD建图常见的是点云的方式。但是点云有几个明显的缺点：</p>
+<ul>
+<li>点云地图通常规模很大.</li>
+<li>点云地图产生了很多无用信息(比如地毯上的褶皱、阴暗处的影子)</li>
+<li>点云地图无法处理运动物体。因为我们的做法里只有“添加点”，而没有“当点消失时把它移除”的做法。</li>
+</ul>
+<p>因此可以采用改进的<strong>八叉树建图</strong>方法，这是一种灵活的、压缩的、又能随时更新的地图形式。</p>
+<p>如果我 们把一个小方块的每个面平均切成两片，那么这个小方块就会变成同样大小的八个小方块。 这个步骤可以不断的重复，直到最后的方块大小达到建模的最高精度。在这个过程中，把 “将一个小方块分成同样大小的八个”这件事，看成“从一个节点展开成八个子节点”，那么，整个从最大空间细分到最小空间的过程，就是一棵<strong>八叉树</strong>（Octo-tree）。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190814112203.png" style="zoom:67%;" />
+
+<p><strong>当某个方块的所有子节点都被占据或都不被占据时，就没必要展开这个节点。</strong>例如，一开始地图为空白时，我们就只需一个 根节点，而不需要完整的树。当在地图中添加信息时，由于实际的物体经常连在一起，空白的地方也会常常连在一起，所以大多数八叉树节点都无需展开到叶子层面。所以说，八叉树比点云节省了大量的存储空间。</p>
+<p>从点云层面来讲，我们自然可以用0 表示空白，1 表示被占据。这种 0-1 的表示可以用一个比特来存储，节省空间，不过显得有些过于简单了。由于噪声的影响，我们可能会看到某个点一会为 0，一会儿为 1；或者大部分时刻为 0，小部分时刻为 1；或者除了“是、否”两种情况之外，还有一个“未知” 的状态。我们会选择用<strong>概率</strong>形式表达某节点是否被占据的事情，例如用一个浮点数 [0-1] 来表达。<strong>如果不断观测到它被占据，那么让这个值不断增加；反之，如果不断观测到它是空白，那就让它不断减小即可</strong>。</p>
+<p>为了避免增加超过1，我们采用对数变化性质：<br>$$<br>y=logit(x)=log(\frac{x}{1-x})<br>$$<br>可以看到，当 $y$ 从$−∞$ 变到 $+∞$ 时，$x$ 相应地从 0 变到了 1。而当 $y$ 取 0 时，$x$ 取 到 0.5。</p>
+<p>假设我们在 RGB-D 图像中观测到某个像素带有深度 $d$，这说明了一件事：我们在深度值对应的空间点 上观察到了一个占据数据，并且，从相机光心出发，到这个点的线段上，应该是<strong>没有物体</strong>的（否则会被遮挡）。利用这个信息，可以很好地对八叉树地图进行更新，并且能处理运动的结构。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%808-%E5%BB%BA%E5%9B%BE/" data-id="ck4o2tus30018u4vy9ik660yz" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础7-回环检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" class="article-date">
+  <time datetime="2019-12-17T13:36:41.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/">SLAM基础7-回环检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-回环检测概述"><a href="#1-回环检测概述" class="headerlink" title="1. 回环检测概述"></a>1. 回环检测概述</h1><p>随着时间的推移，机器人的运动轨迹的误差会逐渐加大，一般情况下我们只能做到相邻帧之间的约束$x_k,x_{k-1}$，我们希望构建一些<strong>时间间隔更久远的约束</strong>：比如$x_1-x_{100}$之间的位姿关系。产生这种约束的原因是：我们察觉到<strong>相机经过了同一个地方，采集到了相似的数据</strong>。</p>
+<p>现在问题在于，如何相机如何判断自己经过了同一地方。在解决这个问题之前，我们先引入一个概念：</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812155942.png" alt="img" style="zoom:80%;" />
+
+<p>回环检测的结果分为如上图所示的四种：TP FP FN TN。如下图所示图1不是回环，但由于太过相似被误认为回环，图2是回环但由于光线变化所以没有被检测出来。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160033.png" alt="img" style="zoom: 67%;" />
+
+<p>我们可以定义两个统计量：<strong>正确率</strong>和<strong>召回率</strong>(Precision &amp; Recall)<br>$$<br>Precision=\frac{TP}{TP+FP}\<br>Recall=\frac{TP}{TP+FN}<br>$$<br>正确率的意思是：当算法认为它是回环时，它真的是回环的概率是多大；召回率的意思是：对于一个事实上的回环，算法检测出的概率是多大。这两者一般是矛盾的：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160708.png" alt="img"></p>
+<p><strong>当检测条件宽松时，召回率会上升，但准确率会下降</strong>。好的算法在较高召回率的情况下也能保证好的准确率。通常情况下，SLAM选择高准确率，适当放弃一些召回率，为了保证<strong>不会出现较大的错误</strong>可以牺牲一些精确度。</p>
+<h1 id="2-词袋模型"><a href="#2-词袋模型" class="headerlink" title="2. 词袋模型"></a>2. 词袋模型</h1><p>如何确定两张图具有相似性，从而判断此处为回环是非常关键的技术。一般来说我们可以任意选取两张图做特征匹配，但这样时间复杂度太高。我们可以借鉴数据结构中字典结构中的键值映射的思路。</p>
+<p><strong>词袋</strong>，也就是 Bag-of-Words（BoW），目的是用“<strong>图像上有哪几种特征</strong>”来描述一个图像。它所使用的数据结构是背包模型，也就是没有顺序的容器。假设一张图中发现了“人、车、狗”这三个对象，我们就可以把他们记录为单词$w_1,w_2,w_3$，在另一张图中只发现了“人、车”这两个单词，所以：<br>$$<br>A=1·w_1+1·w_2+0·w_3<br>$$<br>直接可以表示为$[1,1,0]^T$,当然也可以考虑出现的个数这样就不是二进制表示了$[2,1,0]^T$，因此我们只需要比较两张图的词袋的<strong>一范数(绝对值之和)</strong>，就可以判断他们的相似性。</p>
+<h1 id="3-字典模型"><a href="#3-字典模型" class="headerlink" title="3. 字典模型"></a>3. 字典模型</h1><h2 id="3-1-创建字典"><a href="#3-1-创建字典" class="headerlink" title="3.1 创建字典"></a>3.1 创建字典</h2><p>按照前面的介绍，字典由很多单词组成，而每一个单词代表了一个概念。一个单词与一个单独的特征点不同，它不是从单个图像上提取出来的，而是某一类特征的组合。所以，字典生成问题类似于一个<strong>聚类（Clustering）</strong>问题。</p>
+<p>首先，假设我们对<strong>大量的图像提取了特征点</strong>，比如说有 N 个。现在，我们想找一个有 k 个单词的字典，每 个单词可以看作局部相邻特征点的集合，应该怎么做呢？这可以用经典的 <strong>K-means（K均值）</strong>算法解决。步骤如下：</p>
+<ol>
+<li>随机选取k个中心点；</li>
+<li>对每个样本计算他们与中心点的距离，取最小距离为归类；</li>
+<li>重新计算每个类的中心点；</li>
+<li>如果中心点的变化很小则算法收敛，退出；否则返回2</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812162843.png" alt="img"></p>
+<p>根据 K-means，我们可以把已经提取的大量特征点<strong>聚类成一个含有k个单词的字典</strong>了。现在的问题，变为如何根据图像中某个特征点，查找字典中相应的单词？ 一般使用<strong>K叉树</strong>，步骤是：</p>
+<ol>
+<li>在根节点，用k-means将所有样本聚成k类</li>
+<li>对上层的每个父节点，把属于该节点的样本再次聚成k类，得到下一层。</li>
+<li>以此类推，最后得到叶子层，也就是所谓的单词。</li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812163340.png" alt="img"></p>
+<p>词袋模型利用视觉词典（vocabulary）来把图像转化为<strong>向量</strong>。过程如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818195255.png" alt="img"></p>
+<p>这棵树里面总共有$1+K+\cdots+K^L=(k^{L+1}-1)/(K-1)$个节点，所有叶节点在L层形成$W=K^L$类，每一类用该类中所有特征的平均特征（meanValue）作为代表，称为单词（word）。每个叶节点被赋予一个权重。常见的权重有TF、IDF、TF-IDF等<br>$$<br>\text{IDF}_k=\log\left(\frac{\text{number of all images}}{\text{number of images reach k-th leaf node}}\right)\<br>\text{TF}_k=\frac{\text{number of features locates in leaf node k}}{\text{number of all features}}\<br>\text{TF-IDF}_k=\text{TF}_k*\text{IDF}_k<br>$$</p>
+<blockquote>
+<p>TF-IDF的主要思想是：如果某个词或短语在一篇文章中出现的频率TF高，并且在其他文章中很少出现，则认为此词或者短语具有很好的类别区分能力，适合用来分类。TF-IDF实际上是TF * IDF，TF代表词频(Term Frequency)，表示词条在文档d中出现的频率。IDF代表逆向文件频率(Inverse Document Frequency)。如果包含词条t的文档越少，IDF越大，表明词条t具有很好的类别区分能力。</p>
+</blockquote>
+<p>视觉词典可以通过离线训练大量数据得到。训练中只计算和保存单词的IDF值，即单词在众多图像中的区分度。TF则是从实际图像中计算得到各个单词的频率。<strong>单词的TF越高，说明单词在这幅图像中出现的越多</strong>；<strong>单词的IDF越高，说明单词本身具有高区分度</strong>。二者结合起来，即可得到这幅图像的BoW描述。</p>
+<h2 id="3-2-特征识别应用"><a href="#3-2-特征识别应用" class="headerlink" title="3.2 特征识别应用"></a>3.2 特征识别应用</h2><p>离线生成视觉词典以后，我们就能在线进行图像识别或者场景识别。实际应用中分为两步进行：</p>
+<ol>
+<li><p>为图像生成一个表征向量$v_{1×W}$，图像中的每个特征都在词典中搜索其最近邻的叶节点。所有叶节点上的权重集合构成了BoW向量$v$</p>
+</li>
+<li><p>根据BoW向量，计算当前图像和其它图像之间的距离:<br>$$<br>s(v_1,v_2)=1-\frac{1}{2}\left |\frac{v_1}{|v_1|}-\frac{v_2}{|v_2|}\right|<br>$$</p>
+</li>
+</ol>
+<p>在视觉词典之上，引入了<strong>正向索引</strong>（direct index）和<strong>反向索引</strong>（inverse index）的概念。</p>
+<p>用反向索引记录每个叶节点对应的图像编号。当识别图像时，根据反向索引选出有着公共叶节点的备选图像并计算得分，而不需要计算与所有图像的得分。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202249.png" alt="img"></p>
+<p>比如下面三张图包含了一些特征：</p>
+<ul>
+<li>imageA：cat, dog, panda</li>
+<li>imageB： cat</li>
+<li>imageC:：cat，dog</li>
+</ul>
+<p>那么就会得到以下反向文件索引：</p>
+<ul>
+<li>dog : { A, C }</li>
+<li>cat：{ A, B , C}</li>
+<li>panda：{ A }</li>
+</ul>
+<p>当新得到一张图片D，它包含了cat和dog，则对应集合$(A,B)\cap(A,B,C)=(A,B)$所以图片D和图片C最像。</p>
+<p>而正排索引非常慢。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202323.png" alt="img"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-id="ck4o2tus10016u4vy0u4t5cgn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础6-后端" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" class="article-date">
+  <time datetime="2019-12-17T13:09:07.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/">SLAM基础6-后端</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-经典的后端优化方法"><a href="#1-经典的后端优化方法" class="headerlink" title="1. 经典的后端优化方法"></a>1. 经典的后端优化方法</h1><h2 id="1-1-状态估计的概率解释"><a href="#1-1-状态估计的概率解释" class="headerlink" title="1.1 状态估计的概率解释"></a>1.1 状态估计的概率解释</h2><p>视觉里程计只有<strong>短暂的记忆</strong>，在后端优化中，我们通常考虑一个<strong>更长时间内（或所有时间内）的状态估计问题</strong>，而且不仅使用过去的信息更新自己的状态，也会用未来的信息来更新自己。<br>$$<br>\begin{equation}<br>\left{<br>             \begin{array}\<br>x_k=f(x_{k-1},u_k,\omega_k) \<br>z_{k,j}=h(y_j,x_k,v_{k,j})<br>             \end{array}<br>\right.<br>\end{equation}<br>$$<br><strong>运动方程</strong>和<strong>观测方程</strong>组成了SLAM系统，每个方程都受噪声影响，所以要把这里的位姿 $x$ 和路标 $y$ 看成<strong>服从某种概率分布的随机变量</strong>，而不是单独的一个数。因此整个问题变成了：当我拥有某些运动数据 $u$ 和观测数据 $z$ 时，如何来<strong>确定状态量 $x,y$ 的分布</strong>？</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190811142227.png" alt="img"></p>
+<p>当没有观测数据，只有运动方程时，如左图所示，噪声导致的误差会逐渐累积，不确定性越来越大。如果我们可以观测路标点，误差会得到修正，不确定性就会减小。</p>
+<p>下面以定量的角度思考。令$x_k$为$k$时刻的所有未知量，它包含了当前时刻的相机位姿和$m$个路标点。<br>$$<br>x_k=(x_k,y_1,…,y_m)​<br>$$<br>&gt;同时，把$k$时刻的所有<strong>观测</strong>记为$z_k$，$u_k$还是表示传感器输入，整个方程可以写得比较简单。<br>$$<br>\begin{equation}<br>\left{<br>\begin{array}\<br>x_k=f(x_{k-1},u_k)+w_k\<br>z_k=h(x_k)+v_k<br> \end{array}<br>\right.<br>\end{equation}<br>$$<br>现在考虑第$k$时刻的情况。我们希望用过去0到$k$的数据，来估计现在的状态分布：<br>$$<br>P(x_{k}|x_{0},u_{1:k},z_{1:k})<br>$$<br>下标 $0:k$表示从 0 时刻到 k 时刻的所有数据。请注意 $z_k$ 来表达所有在k时刻的观测数据，注意它可能不止一个，只是这种记法更加方便。这个式子表达了：<strong>已知初始位姿、之前所有的观测数据和传感器数据，通过这些条件来估计$k$时刻的位姿</strong>。</p>
+<p>按照贝叶斯法则，展开可得：<br>$$<br>P(x|x_{0},u_{1:k},z_{1:k})\propto P(z_{k}|x_{k})P(x_{k}|x_{0},u_{1:k},z_{1:k-1})<br>$$<br>左边为<strong>后验概率</strong>，右边第一项为<strong>似然概率</strong>（已知数据求模型参数），第二项为<strong>先验概率</strong>。似然概率可以由观测方程计算得到，至于先验概率，我们知道当前状态$x_k$是根据过去所有状态估计得到，所以他至少会受到$x_{k-1}$的影响，于是在此处按照条件概率展开：<br>$$<br>P(x_{k}|x_{0},u_{1:k},z_{1:k-1})=\int P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})d_{x_{k-1}}<br>$$<br><strong>如果我们考虑更久之前的状态，也可以继续对此式进行展开</strong>，但现在我们只关心 $k$ 时刻和 $k−1$ 时刻的情况。</p>
+<p>后续的处理有两种方式：其一是假设<strong>马尔可夫性</strong>，即<strong>k 时刻状态只与k−1时刻状态有关</strong>，而与再之前的无关；其二依然考虑 <strong>k 时刻状态与之前所有状态的关系</strong>。前一种得到的方法是<strong>扩展卡尔曼滤波(EKF)</strong>，第二种得到<strong>非线性优化</strong>。</p>
+<h2 id="1-2-线性系统和KF"><a href="#1-2-线性系统和KF" class="headerlink" title="1.2 线性系统和KF"></a>1.2 线性系统和KF</h2><p>按照马尔科夫性，状态只与上一个时刻有关，因此公式可以进行简化。<br>$$<br>P(x_{k}|x_{0},u_{1:k},z_{1:k})=\int P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})d_{x_{k-1}}<br>$$<br>由于$k$时刻的状态与$k-1$之前无关，所以可以简化为只与$x_{k-1}$和$u_k$相关的形式，所以第一项可以简化为：<br>$$<br>P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})=P(x_{k}|x_{k-1},u_{k})<br>$$<br>第二项由于输入量$u_k$与$k-1$无关，所以可以将其去掉：<br>$$<br>P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})=P(x_{k-1}|x_{0},u_{1:k-1},z_{1:k-1})<br>$$<br>可以看到这就<strong>是$k-1$时刻的状态分布</strong>（参照贝叶斯法则展开前$P(x_{k}|x_{0},u_{1:k},z_{1:k})$）。我们实际在做的是“<strong>如何把 k−1 时刻的状态分布推导至 k 时刻</strong>”这样一件事。</p>
+<p>首先从简单的<strong>线性高斯系统</strong>开始。<br>$$<br>\left{<br>\begin{matrix} x_{k}=A_{k}x_{k-1}+u_{k}+w_{k} \<br>z_{k}=C_{k}x_{k}+v_{k}\<br>\end{matrix}\right.<br>$$<br>第一个公式描述状态量$x_k$，$A_k$是状态转移矩阵，负责描述$x_{k-1}$时刻到$x_k$的状态，$u_k$是控制矩阵，是k-1到k状态改变的原因，$w_k$是噪声。</p>
+<p>第二个公式描述观测量$z_k$，$C_k$时观测矩阵，$v_k$是噪声。并假设所有的状态和噪声均满足高斯分布。记这里的噪声服从零均值高斯分布：<br>$$<br>w_k\sim N(0,R),\ v_k\sim N(0,Q)<br>$$<br>假设我们已知$x_{k-1}$状态分布的后验状态估计$\overset{\wedge }{x}<em>{k-1}$和协方差$\overset {\wedge }x</em>{k-1}$根据输入数据和观测数据，确定$x_k$的后验分布。$\overset{\wedge }x_{k}$表示后验，$\overset{- }x_{k}$表示先验。</p>
+<blockquote>
+<p>高斯分布运算性质：<br>$$<br>x+y\sim N(\mu_x+\mu_y,\sum <em>{xx}+\sum</em>{yy})<br>$$<br>若$y=\textbf{A}x$，则y满足：<br>$$<br>y\sim N(A\mu,A\sum_{xx}A^T)<br>$$</p>
+</blockquote>
+<p>所以有：<br>$$<br>P(x_{k}|x_{0},u_{1:k},z_{1:k-1})=N(A_{k}\overset{-}{x}<em>{k-1}+u</em>{k},A_{k}\overset{-}{P}<em>{k-1}A</em>{k}^{T}+R)=N(\overset{-}{x}<em>{k},\overset{-}{P}</em>{k})<br>$$<br>因此我们得到了两个公式：<strong>状态预测公式</strong>，<strong>协方差预测公式</strong><br>$$<br>\overset{-}{x}<em>{k}=A</em>{k}\overset{-}{x}<em>{k-1}+u</em>{k}\<br>\overset{-}{P}<em>{k}=A</em>{k}\overset{-}{P}<em>{k-1}A</em>{k}^{T}+R<br>$$<br>这里$\overset{-}{x}<em>{k}$表示<strong>先验分布</strong>，也就是<strong>不准确</strong>的，$\overset{\wedge }{x}</em>{k}$表示的是<strong>后验分布</strong>，是经过<strong>修正</strong>的。</p>
+<p>得到的这两个结果都是<strong>预测结果</strong>，他们需要<strong>通过观测方程来进行修正</strong>。由于计算过程太复杂，直接给出结果：<br>$$<br>\overset{\wedge }{x}<em>{k}=\overset{- }{x}</em>{k}+K(z_{k}-C_{k}\overset{- }{x}<em>{k})\<br>\overset{\wedge }{P}</em>{k}=(I-KC_{k})\overset{-}{P }<em>{ k}\<br>$$<br>计算出$\overset{\wedge }{P}</em>{k}$是为了<strong>留给下一次迭代使用</strong>。</p>
+<p>这里的$K$表示<strong>卡尔曼系数</strong>，它具有两个作用：</p>
+<ul>
+<li>决定相信预测模型$\overset{- }{x}_{k}$更多一些还是观测模型更多一些</li>
+<li>将残差$(z_{k}-C_{k}\overset{- }{x}_{k})$的表现形式由<strong>观测域转化到状态域</strong></li>
+</ul>
+<p>卡尔曼系数的计算公式是：<br>$$<br>K=\overset{\wedge }{P}<em>{k}C</em>{k}^{T}Q^{-1}=\overset{-}{P}<em>{k}{C}</em>{k}^{T}({C}<em>{k}\overset{-}{P}</em>{k}{C}<em>{k}^{T}+Q</em>{k})^{-1}<br>$$<br>所以卡尔曼滤波可以由<strong>五个公式概括</strong>：<br>$$<br>\begin{equation}<br>\left{<br>\begin{array}{lr}<br>\overset{-}{x}<em>{k}=A</em>{k}\overset{-}{x}<em>{k-1}+u</em>{k}\<br>\overset{-}{P}<em>{k}=A</em>{k}\overset{-}{P}<em>{k-1}A</em>{k}^{T}+R\<br>\overset{\wedge }{x}<em>{k}=\overset{- }{x}</em>{k}+K(z_{k}-C_{k}\overset{- }{x}<em>{k})\<br>\overset{\wedge }{P}</em>{k}=(I-KC_{k})\overset{-}{P }<em>{ k}\<br>K=\overset{\wedge }{P}</em>{k}C_{k}^{T}Q^{-1}=\overset{-}{P}<em>{k}{C}</em>{k}^{T}({C}<em>{k}\overset{-}{P}</em>{k}{C}<em>{k}^{T}+Q</em>{k})^{-1}<br>\end{array}<br>\right.<br>\end{equation}<br>$$<br>前两个是<strong>预测公式</strong>，后两个是<strong>更新公式</strong>（将预测的先验值修正）。</p>
+<h2 id="1-3-非线性系统和EKF"><a href="#1-3-非线性系统和EKF" class="headerlink" title="1.3 非线性系统和EKF"></a>1.3 非线性系统和EKF</h2><p>卡尔曼滤波是针对线性方程，当系统非线性时需要通过一些操作来近似，这就是<strong>扩展卡尔曼滤波(Extended Kalman Filter, EKF)</strong></p>
+<p>EKF的做法主要有两点：</p>
+<p><strong>其一</strong>是在工作点$\overset{\wedge }{x}<em>{k-1},\overset{-}{x}</em>{k}$附近进行泰勒展开，将系统线性化：<br>$$<br>\begin{array}{l}{f\left(x_{k-1}, v_{k}, w_{k}\right) \approx f\left(\hat{x}<em>{k-1}, v</em>{k}, 0\right)+\frac{\partial f}{\partial x_{k-1}}\left(x_{k-1}-\hat{x}<em>{k-1}\right)+\frac{\partial f}{\partial w</em>{k}} w_{k}} \ {g\left(x_{k}, n_{k}\right) \approx g\left(\tilde{x}<em>{k}, 0\right)+\frac{\partial g}{\partial x</em>{k}} n_{k}}\end{array}<br>$$<br>这里的偏导数都在工作点附近取值，最后<strong>变成了一个线性系统</strong>。</p>
+<p><strong>其二</strong>是在线性系统近似下，把噪声项和状态都当成了<strong>高斯分布</strong>。经过这两项近似以后得到的结果和普通卡尔曼滤波就一样了：<br>$$<br>\begin{aligned} \tilde{P}<em>{k} &amp;=F</em>{k-1} \hat{P}<em>{k-1} F</em>{k-1}^{T}+Q_{k}^{\prime} \ \tilde{x}<em>{k} &amp;=f\left(\hat{x}</em>{k-1}, v_{k}, 0\right) \ K_{k} &amp;=\tilde{P}<em>{k} G</em>{k}^{T}\left(G_{k} \tilde{P}<em>{k} G</em>{k}^{T}+R_{k}^{\prime}\right)^{-1} \ \hat{P}<em>{k} &amp;=\left(I-K</em>{k} G_{k}\right) \tilde{P}<em>{k} \ \hat{x}</em>{k} &amp;=\tilde{x}<em>{k}+K</em>{k}\left(y_{k}-g\left(\tilde{x}<em>{k}, 0\right)\right) \<br>\mathbf{其中，}\F</em>{k-1} &amp;=\left.\frac{\partial f}{\partial x_{k-1}}\right|<em>{\hat{x}</em>{k-1}}, G_{k}=\left.\frac{\partial f}{\partial x_{k}}\right|<em>{\bar{x}</em>{k}} \end{aligned}<br>$$</p>
+<h2 id="1-4-EKF的问题讨论"><a href="#1-4-EKF的问题讨论" class="headerlink" title="1.4 EKF的问题讨论"></a>1.4 EKF的问题讨论</h2><p>EKF主要有三个问题：</p>
+<ul>
+<li><p>滤波器方法假设了<strong>马尔可夫性</strong>，也就是 k 时刻的状态只与 k−1 时刻相关，而与 k −1 之前的状态和观测都无关。这比较像视觉里程计的原理，但是如果当前帧确实和以前的数据有关（例如回环检测），滤波器就无法应对。</p>
+</li>
+<li><p>由非线性转化到线性时我们安排了两个假设：<strong>展开点取一次项，把噪声项和状态都当成了高斯分布</strong>。系统本身线性化过程中，<strong>丢掉了高阶项</strong>。即使是高斯分布<strong>，经过一个非线性变换后也不是高斯分布</strong>。举个例子，假设一个$x\sim N(0,1)$，那么$y=x^2$服从的是<strong>卡方分布</strong>，当卡方分布n较大时，比较接近高斯分布，这样我们就可以很好近似。但是当n比较小近似的结果就很差。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812105722.png" alt="img"></p>
+</li>
+<li><p>从程序实现上来说，EKF 需要存储状态量的均值和方差，并对它们进行维护和更新。 如果把路标也放进状态的话，由于视觉 SLAM 中路标数量很大，这个存储量是相当可观的，且<strong>与状态量呈平方增长</strong>（因为要存储协方差矩阵）。因此，EKF普遍被认为不可适用于大型场景SLAM。</p>
+</li>
+</ul>
+<h1 id="2-现代优化方法：BA与图优化"><a href="#2-现代优化方法：BA与图优化" class="headerlink" title="2. 现代优化方法：BA与图优化"></a>2. 现代优化方法：BA与图优化</h1><p>见专题</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" data-id="ck4o2turz0013u4vy7dkd6luf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础5-非线性优化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" class="article-date">
+  <time datetime="2019-12-17T11:05:19.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/">SLAM基础5-非线性优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-状态估计问题"><a href="#1-状态估计问题" class="headerlink" title="1. 状态估计问题"></a>1. 状态估计问题</h1><h2 id="1-1-最大似然概念"><a href="#1-1-最大似然概念" class="headerlink" title="1.1 最大似然概念"></a>1.1 最大似然概念</h2><p>极大似然估计，通俗理解来说，就是利用<strong>已知的样本结果信息</strong>，反推最<strong>具有可能</strong>（最大概率）导致这些样本结果出现的<strong>模型参数值</strong>。</p>
+<p>对于函数$p(x|\theta)$输入有两个：$x$表示具体观测数据，$\theta$表示模型的参数。如果$\theta$是确定的，$x$是变量，这函数叫做概率函数(probability function)，他表述了<strong>在一个模型下，样本点$x$出现的概率是多少</strong>。</p>
+<p>反之，如果$x$是确定的，$\theta$是变量，这个函数叫做似然函数(likelihood function)，它描述了<strong>在不同的模型下，样本点$x$出现的概率是多少。</p>
+<p>举例说明：假如有一个罐子，里面有黑白两种颜色的球，数目多少不知，两种颜色的比例也不知。现在我们可以每次任意从已经摇匀的罐中拿一个球出来，记录球的颜色，然后把拿出来的球再放回罐中。假如在前面的一百次重复记录中，<strong>有七十次是白球</strong>，请问罐中白球所占的比例最有可能是多少？<br>$$<br>P(x_1,x_2…,x_{100}|Model)<br>=P(x_1|M)P(x_2|M)…P(x_{100}|M)<br>=p^{70}(1-p)^{30}<br>$$<br>要求这个式子的最大值，对他求导即可，得到的结果是：p=0.7时，结果最大，符合我们的日常逻辑认知。</p>
+<h2 id="1-2-SLAM中的最大后验与最大似然"><a href="#1-2-SLAM中的最大后验与最大似然" class="headerlink" title="1.2 SLAM中的最大后验与最大似然"></a>1.2 SLAM中的最大后验与最大似然</h2><p>对于SLAM经典模型，我们知道是由一个运动方程和一个观测方程构成，如下方程：<br>$$<br>\left{\begin{matrix} \mathit{x}<em>{k}=f(\mathit{x}</em>{k-1},\mathit{u}<em>{k})+\mathit{w}</em>{k} \ {z}<em>{k,j}=f(\mathit{y}</em>{j},\mathit{x}<em>{k})+\mathit{v}</em>{k,j} \end{matrix}\right.<br>$$<br>其中$\mathit{x}<em>{k}$为相机位姿，$u_k$为传感器采集到的数据；$z</em>{k,j}$为图像的像素位置，$y_j$为观测到的路标。</p>
+<p>在运动方程和观测方程中，假设<strong>假设噪声都满足于均值为0的高斯分布</strong>：<br>$$<br>\mathit{w}<em>{k}\sim N(0,\mathit{R}</em>{k}),\mathit{v}<em>{k}\sim N(0,\mathit{Q}</em>{k,j})<br>$$<br>因此这个问题变成了：<strong>我们希望通过带噪声的数据 z 和 u来推断位姿 x 和地图 y(以及他们的概率分布)</strong>，在已知传感器采集数据u和图像数据z的情况下，x的条件概率为：<br>$$<br>P(x|z,u)<br>$$<br>如果没有传感器采集数据，只有一张张图片时，就变成了：<br>$$<br>P(x|z)=\frac{P(z|x)P(x)}{P(z)}\propto P(z|x)P(x)<br>$$<br>其中$P(x|z)$为后验概率，$P(z|x)$为似然，$P(x)$为先验概率。直接求后验概率比较困难，我们可以先求出一个最有可能的模型（$P(z|x)$最大），与先验概率相结合，就可以求出在这个模型下，以后x的可能结果。即：<strong>最大后验概率=最大似然×先验概率</strong>。</p>
+<p>当不知道机器人在哪里时，我们缺乏先验概率，因此需要直接求解最大似然估计(MLE)：<br>$$<br>x^{*}_{MLE}=\mathrm{arg} max P(z|x)<br>$$<br>其中$argmax F(x)$返回的是函数F取得最大时的$x$</p>
+<h2 id="1-3-最小二乘法的引出"><a href="#1-3-最小二乘法的引出" class="headerlink" title="1.3 最小二乘法的引出"></a>1.3 最小二乘法的引出</h2><p>多变量的高维高斯分布$x\sim N(u,\Sigma)$它的概率密度函数展开形式为：<br>$$<br>P(\boldsymbol{x})=\frac{1}{\sqrt{(2 \pi)^{N} \operatorname{det}(\boldsymbol{\Sigma})}} \exp \left(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\right)<br>$$<br>取负对数可知：<br>$$<br>-\ln (P(x))=\frac{1}{2} \ln \left((2 \pi)^{N} \operatorname{det}(\Sigma)\right)+\frac{1}{2}(x-\mu)^{T} \Sigma^{-1}(x-\mu)<br>$$<br>对于观测模型${z}<em>{k,j}=f(\mathit{y}</em>{j},\mathit{x}<em>{k})+\mathit{v}</em>{k,j} $来说，由于我们设置了噪声项$v_k\sim N(0,Q_{k,j})$，因此观测到的数据的条件概率是：<br>$$<br>P(z|x_k,y_j)=N(h(y_j,x_k),Q_{k,j})<br>$$<br>按照高维高斯模型，第一项和x无关，因此我们可以忽略。最后问题转化为求第二项取最小时，x的取值。</p>
+<p>我们定义数据与估计值之间的误差：<br>$$<br>\left{\begin{matrix} e_{v,k}=x_{k}-f(x_{k-1},u_{k})\ e_{y,j,k}=z_{k,j}-h(x_{k},y_{j}) \end{matrix}\right.<br>$$<br>并求该误差的平方和：<br>$$<br>J(x)=\sum_{k}e_{v,k}^{T}R_{k}^{-1}e_{v,k}+\sum_{k}\sum_{j}e_{y,k,j}^{T}Q_{k,j}^{-1}e_{y,k,j}<br>$$<br>这就得到了一个总体意义下的最小二乘问题（Least Square Problem）。我们明白它的<strong>最优解等价于状态的最大似然估计</strong>。</p>
+<h1 id="2-非线性最小二乘"><a href="#2-非线性最小二乘" class="headerlink" title="2.非线性最小二乘"></a>2.非线性最小二乘</h1><p>对于一个简单的最小二乘问题${min}\frac{1}{2}\left | f(x) \right |^{2}_{2}$，要求取他的最小值，只需要求取导数即可，通过比较这些极小值，能得到<strong>全局最优解</strong>，这样一般适用于线性最小二乘。对于非线性最小二乘，最好采用<strong>迭代</strong>的方式求取，但只能得到<strong>局部最优解</strong>(极小值)。其步骤如下:</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，寻找增量$\Delta x_k$，使得$||f(x_k+\Delta x_k)||^2$达到最小。</li>
+<li>若$\Delta x_k$足够小，则停止；否则令$x_{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>所以现在的问题时，<strong>如何选取$\Delta x_k$</strong></p>
+<h2 id="2-1-一阶和二阶梯度法"><a href="#2-1-一阶和二阶梯度法" class="headerlink" title="2.1 一阶和二阶梯度法"></a>2.1 一阶和二阶梯度法</h2><p>求解增量最直观的方式是将目标函数在 x 附近进行泰勒展开，得到：<br>$$<br>\left | f(x+\Delta x) \right |^{2}<em>{2}\approx \left | f(x) \right |^{2}</em>{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x<br>$$<br>这里的$J$是$||f(x)||^2$关于x的一阶导数（雅克比矩阵），H则是二阶导数（黑塞矩阵），其中黑塞矩阵是对称矩阵。<br>$$<br>\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{1}}{\partial x_{n}}} \ {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial f_{m}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]<br>$$</p>
+<p>$$<br>\mathbf{H}=\left[\begin{array}{cccc}{\frac{\partial^{2} f}{\partial x_{1}^{2}}} &amp; {\frac{\partial^{2} f}{\partial x_{1} \partial x_{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{1} \partial x_{n}}} \ {\frac{\partial^{2} f}{\partial x_{2} \partial x_{1}}} &amp; {\frac{\partial^{2} f}{\partial x_{2}^{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{2} \partial x_{n}}} \ {\vdots} &amp; {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial^{2} f}{\partial x_{n} \partial x_{1}}} &amp; {\frac{\partial^{2} f}{\partial x_{n} \partial x_{2}}} &amp; {\cdots} &amp; {\frac{\partial^{2} f}{\partial x_{n}^{2}}}\end{array}\right]<br>$$</p>
+<p>其中$J(x)$是一阶梯度，$\frac{1}{2}\Delta x^TH$是二阶梯度，我们可以选择保留泰勒展开的一阶或二阶项，对应的求解方法则为一阶梯度或二阶梯度法。</p>
+<p>首先考虑只<strong>保留一阶梯度</strong>。梯度下降的时候我们需要<strong>确定下降$\Delta x$的方向</strong>，这就是所谓梯度下降法，下降的方向就是梯度的反方向$-J^T(x)$</p>
+<blockquote>
+<p>在$y$是标量的情况下，$J^T$便是梯度，在$y$是高维的情况下，$J^T$每个列向量都是对应的$y_i$的梯度。</p>
+</blockquote>
+<p>同时还需要添加一个步长$\lambda$，<strong>有了方向和步长</strong>，就可以的到$\Delta x$顺利求取局部最小值了。步长通过公式求解，越接近目标值，步长越小，前进越慢。这种方法被称为<strong>最速下降法</strong>。<br>$$<br>\Delta x^<em>=-\lambda J^T(x)<br>$$<br>另一方面，*</em>如果保留二阶梯度信息**，那么增量方程为：<br>$$<br>\left | f(x+\Delta x) \right |^{2}<em>{2}\approx \left | f(x) \right |^{2}</em>{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x<br>$$<br>我们知道当$f’(x)=0$时函数有极小值，对右侧关于$\Delta x$求导就得到了增量解：<br>$$<br>J(x)^T+\frac{1}{2}(H\Delta x+H^T\Delta x)=0<br>$$<br>化简以后可得：<br>$$<br>H\Delta x=-J^T<br>$$</p>
+<blockquote>
+<p>矩阵求导公式：<br>$$<br>\frac{\partial (X^TAX)}{\partial X}=(A^T+A)X<br>$$<br>黑塞矩阵是一个对称矩阵$H^T=H$</p>
+</blockquote>
+<p>这种方法又称为<strong>牛顿法</strong>。由于泰勒展开之后函数变成了多项式， 所以求解增量时只需解线性方程即可，避免了直接求导函数为零这样的非线性方程的困难。</p>
+<p>牛顿法与最速下降法的<strong>区别</strong>在于：牛顿法是二阶收敛，最速下降法是一阶收敛。最速下降法每次只从你当前所处位置<strong>选一个坡度最大的方向走一步</strong>，在局部进行下降，然后步步逼近极值，往往是<strong>走之字型</strong>的。</p>
+<p>牛顿法在二阶导数的作用下，从函数的凸性出发，直接搜索怎样到达极值点。在选择方向时，不仅会考虑坡度是否够大，还会考虑你<strong>走了一步之后，坡度是否会变得更大</strong>。所以，可以说牛顿法比最速下降法看得更远一点，能更快地走到最底部。如图，红色代表牛顿法，绿色代表最速下降法。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812101218.png" alt="img"></p>
+<p>这两种方法的<strong>缺点</strong>在于：最速下降法<strong>过于贪心，容易走出锯齿路线</strong>，反而增加了迭代次数。牛顿法<strong>需要计算H矩阵，十分繁琐</strong>。牛顿法则需要计算目标函数的 H 矩阵，这在问题规模较大时非常困难。</p>
+<h2 id="2-2-高斯牛顿法-GN优化"><a href="#2-2-高斯牛顿法-GN优化" class="headerlink" title="2.2 高斯牛顿法 GN优化"></a>2.2 高斯牛顿法 GN优化</h2><p>高斯牛顿法，它的思想是将$f(x)$进行泰勒展开<strong>（目标函数不是$f(x)$的二范数</strong>，和2.1的内容前提相区别）：<br>$$<br>f(x+\Delta x)\approx f(x)+J(x)\Delta x<br>$$<br>根据前面的框架，需要求得下降矢量$\Delta x$使得$||f(x+\Delta x)||^{2}$最小，如果将$\Delta x$看做变量，就会得到如下的最小二乘问题：<br>$$<br>\Delta x^*=argmin||f(x)+J(x)\Delta x||^2<br>$$<br>目标函数展开后可得：<br>$$<br>\begin{aligned} \frac{1}{2}|f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}|^{2} &amp;=\frac{1}{2}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x})^{T}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}) \ &amp;=\frac{1}{2}\left(|f(\boldsymbol{x})|_{2}^{2}+2 f(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}+\Delta \boldsymbol{x}^{T} \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}\right) \end{aligned}<br>$$<br>对目标函数的$\Delta x$求导，并令其等于0：<br>$$<br>2 \boldsymbol{J}(\boldsymbol{x})^{T} f(\boldsymbol{x})+2 \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}=\mathbf{0}<br>$$<br>最后得到：<br>$$<br>J(x)^{T}J(x)\Delta x=-J(x)^{T}f(x)<br>$$</p>
+<blockquote>
+<p>$||A||_2=\sqrt \lambda$其中$\lambda$是谱范数，即$A^TA$的最大特征值</p>
+<p>这里认为$f(x)^TJ(x)\Delta x$是对称矩阵</p>
+</blockquote>
+<p>这个方程称之为<strong>增量方程</strong>，也称之为<strong>高斯牛顿方程</strong>。将左边的系数设为$H$右边的系数设为$g$，则有：<br>$$<br>H\Delta x=g<br>$$<br>注意这里并不是真正的黑塞矩阵，而是<strong>利用$J^TJ$代替了牛顿法中的黑塞矩阵</strong>，简化了计算。</p>
+<p><strong>求解增量方程是整个优化问题的核心所在。</strong>其步骤可以写为：</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，求出当前的雅克比矩阵$J(x_{k})$和误差$f(x_k)$</li>
+<li>求解增量方程$H\Delta x=g$</li>
+<li>若$\Delta x_k$足够小，则停止；否则令$x_{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>缺点在于$H$是半正定矩阵，可能是奇异矩阵(不可逆)导致算法不收敛，且即使可逆，如果步长太长可能导致局部近似不准确，甚至不收敛。</p>
+<h2 id="2-3-列文伯格-马夸尔特法-LM优化"><a href="#2-3-列文伯格-马夸尔特法-LM优化" class="headerlink" title="2.3 列文伯格-马夸尔特法 LM优化"></a>2.3 列文伯格-马夸尔特法 LM优化</h2><p>高斯牛顿法只能在展开点附近有比较好的效果，所以我们可以给$\Delta x$添加一个信赖区域(Trust Region)。</p>
+<p>那么如何确定这个信赖区域的范围呢？一个比较好的方法是根据我们的近似模型跟实际函数之间的差异来确定这个范围：如果差异小，我们就让范围尽可能大；如果差异大，我们就缩小这个近似范围。因此，考虑使用：<br>$$<br>\rho=\frac{f(\boldsymbol{x}+\Delta \boldsymbol{x})-f(\boldsymbol{x})}{\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}}<br>$$<br>分子是实际函数下降的值，分母是近似模型下降的值。<strong>如果 ρ 接近于 1，则近似是好的</strong>。<strong>如果 ρ 太小，说明实际减小的值远少于近似减小的值</strong>，则认为近似比较差，需要缩小近似范围。反之，如果 ρ 比较大，则说明实际下降的比预计的更大，我们可以放大近似范围。</p>
+<p>具体算法步骤如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809142904.png" alt="img"></p>
+<p>这里近似范围扩大的倍数和阈值都是经验值，可以替换成其他数值。上述约束中相当于把增量限定在<strong>半径为u的球</strong>里面，认为在球内的才有效。<strong>带上D后成为椭圆</strong>。</p>
+<p>在上述求解中，由于是有约束优化，可以利用拉格朗日乘子将其转化为一个无约束优化问题(其中λ为拉格朗日乘子)：<br>$$<br>\underset{\Delta x_{k}}{min}\frac{1}{2}||f(x_{k})+J(x_{k}\Delta x_{k})||^{2}+\frac{\lambda }{2}||D\Delta x||^{2}<br>$$<br>展开后可得：<br>$$<br>(H+\lambda D^{T}D)\Delta x = g<br>$$<br>当参数λ较小时，H占主导地位，<strong>说明二次近似模型在该范围内是比较好的</strong>，<strong>该方法接近于高斯牛顿法</strong>。当参数λ较大时，λ所在项<strong>接近于一阶梯度下降法</strong>。该方法可在一定程度上避免线性方程组的系数矩阵的非奇异和病态问题。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-id="ck4o2tus00015u4vy2jp5hb0i" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础4-相机模型" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2019-12-17T10:45:35.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/">SLAM基础4-相机模型</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-针孔模型"><a href="#1-针孔模型" class="headerlink" title="1. 针孔模型"></a>1. 针孔模型</h1><h2 id="1-1-小孔成像"><a href="#1-1-小孔成像" class="headerlink" title="1.1 小孔成像"></a>1.1 小孔成像</h2><p>相机可以抽象为最简单的形式：一个小孔和一个成像平面，小孔位于成像平面和真实的三维场景之间。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806143137.png" alt="img"></p>
+<p>描述小孔的成像过程前，首先来定义两个坐标系：</p>
+<ul>
+<li>相机坐标系：相机的中心被称为焦点或者光心，以焦点$O_c$为原点和坐标轴$；X_c,Y_c,Z_c$组成了<strong>相机坐标系</strong></li>
+<li>图像坐标系：以成像平面$O’$为原点和坐标轴$x’,y’$组成了<strong>图像坐标系</strong></li>
+</ul>
+<p>小孔成像实际就是将相机坐标系中的三维点变换到成像平面中的图像坐标系中的二维点。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806143459.png" alt="img"></p>
+<p>假设相机坐标系下P点的坐标为$P_c=[X,Y,Z]^T$，则其在图像坐标系下为$p=[x,y]^T$，由相似三角形可以得到：<br>$$<br>\frac{Z}{f}=\frac{X}{x}=\frac{Y}{y}\<br>\left{<br>\begin{array}{l}<br>x = f\frac{X}{Z} \<br>y = f\frac{Y}{Z} \<br>z = f<br>\end{array}<br>\right.<br>$$</p>
+<h2 id="1-2-内参数"><a href="#1-2-内参数" class="headerlink" title="1.2 内参数"></a>1.2 内参数</h2><p>从<strong>成像平面坐标系</strong>到<strong>像素坐标系</strong>的变换。上面推导中使用的像点坐标$p=(x,y)$是成像平面坐标系下，以成像平面的中心为原点。而实际像素点的表示方法是以像素来描述，坐标原点通常是图像的左上角，X轴沿着水平方向向左，Y轴竖直向下。</p>
+<p>像素是一个矩形块，这里假设其在水平和竖直方向的长度分别为：α和β。所以像素坐标和成像平面坐标之间，相差了一个<strong>缩放</strong>和<strong>平移</strong>。</p>
+<p>假设像素坐标的水平方向的轴为μ，竖直方向的轴为ν，那么将一个成像平面的坐标(x,y)在水平方向上缩放α倍，在竖直方向上缩放β倍，同时平移(cx,cy)，就可以得到像素坐标系的坐标(μ,ν)，其公式如下：<br>$$<br>\begin{array}{c}<br>u = \alpha\cdot x+ c_x \<br>v = \beta \cdot y + c_y<br>\end{array}<br>$$<br>将上面求得的$(x,y)$带入上面公式可得到：<br>$$<br>\left{\begin{array}{c}<br>u = \alpha\cdot f\frac{X}{Z}+ c_x \<br>v = \beta \cdot f\frac{Y}{Z} + c_y<br>\end{array}\right. \Rightarrow \left{\begin{array}{c}<br>u = f_x\frac{X}{Z}+ c_x \<br>v = f_y\frac{Y}{Z} + c_y<br>\end{array}\right. 其中，f_x = \alpha \cdot f,f_y = \beta \cdot f<br>$$<br>写成齐次坐标后：<br>$$<br>\left[\begin{array}{c}\mu\\nu\1\end{array}\right] = \frac{1}{Z}\left[<br>\begin{array}{ccc}f_x&amp;0&amp;c_x\0&amp;f_y&amp;c_y\0&amp;0&amp;1\end{array}\right]\left[\begin{array}{c}X_c\Y_c\Z_c\end{array}\right]<br>$$<br>通过上面的的推导，就得到了相机的<strong>内参数矩阵（Camera Intrinsic）K</strong><br>$$<br>K=\left[<br>\begin{array}{ccc}f_x&amp;0&amp;c_x\0&amp;f_y&amp;c_y\0&amp;0&amp;1\end{array}\right]<br>$$<br>$K$有4个未知数和相机的构造相关，$f_x,f_y$和相机的焦距，像素的大小有关；$c_x,c_y$是平移的距离。这些参数在出厂时就设置好，也可以用标定板确定。</p>
+<h2 id="1-3-外参数"><a href="#1-3-外参数" class="headerlink" title="1.3 外参数"></a>1.3 外参数</h2><p>通过上面的推导，知道了相机成像的过程：<br>$$<br>p = KP<br>$$<br>其中，p是图像中像点的像素坐标，K是相机的内参数矩阵，<strong>P</strong>是<strong>相机坐标系</strong>下的三维点坐标。上面推导使用的三维点坐标是在相机坐标系下的，<strong>相机坐标系并是“不稳定”的坐标系</strong>，其会随着相机的移动而改变坐标的原点和各个坐标轴的方向。</p>
+<p>因此需要引进一个稳定不变坐标系：<strong>世界坐标系</strong>，该坐标系是绝对不变，SLAM中的视觉里程计就是求解相机在世界坐标系下的运动轨迹。</p>
+<p>设$P_c$是$P$在相机坐标系坐标，是$P_w$其在世界坐标系下的坐标，可以使用一个旋转矩阵和一个平移向量，将变换为：<br>$$<br>P_c = RP_w + t<br>$$</p>
+<p>改写为齐次形式就是：<br>$$<br>\left[\begin{array}{c}X_c\Y_c\Z_c\1\end{array}\right] = \left[\begin{array}{cc}R&amp;t\0^T&amp;1\end{array}\right]\left[\begin{array}{c}X_w\Y_w\Z_w\1\end{array}\right]<br>$$<br>上面就推导得到相机的<strong>外参数（Camera Extrinsic）T</strong><br>$$<br>T = \left[\begin{array}{cc}R&amp;t\0^T&amp;1\end{array}\right]<br>$$</p>
+<h2 id="1-4-内外参组合"><a href="#1-4-内外参组合" class="headerlink" title="1.4 内外参组合"></a>1.4 内外参组合</h2><p>$p=(\mu,\nu)$是图像中的像点，其坐标系是像素坐标系$P_c=(X_c,Y_c,Z_c)$是场景中的三维点，是相机坐标系。依托上面的公式，进过两次<strong>齐次化</strong>后，可以推导，像素坐标和世界坐标的关系：<br>$$<br>\left[\begin{array}{c}\mu\\nu\1\end{array}\right] = \frac{1}{Z}\left[<br>\begin{array}{ccc}f_x&amp;0&amp;c_x\0&amp;f_y&amp;c_y\0&amp;0&amp;1\end{array}\right]\left[\begin{array}{c}X_c\Y_c\Z_c\end{array}\right]\<br>\left[\begin{array}{c}\mu\\nu\1\end{array}\right] = \frac{1}{Z}\left[</p>
+<p>\begin{array}{ccc}f_x&amp;0&amp;c_x&amp;0\0&amp;f_y&amp;c_y&amp;0\0&amp;0&amp;1&amp;0\end{array}\right] \left[\begin{array}{cc}R&amp;t\0^T&amp;1\end{array}\right]\left[\begin{array}{c}X_W\Y_W\Z_W\1\end{array}\right]<br>$$</p>
+<h1 id="2-双目相机模型"><a href="#2-双目相机模型" class="headerlink" title="2. 双目相机模型"></a>2. 双目相机模型</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806151141.png" alt="img"></p>
+<p>由相似三角形可知：<br>$$<br>\frac{z-f}{z}=\frac{b-(u_l-u_r)}{b}<br>$$<br>整理后可得:<br>$$<br>z=\frac{fb}{d},  \ d=u_l-u_r<br>$$<br>$d$为左右图的横坐标之差，称为视差（Disparity）。根据视差，我们可以估计一个像素离相机的距离。视差与距离成反比：视差越大，距离越近</p>
+<h1 id="3-RGB-D相机模型"><a href="#3-RGB-D相机模型" class="headerlink" title="3. RGB-D相机模型"></a>3. RGB-D相机模型</h1><p>RGB-D相机是主动探测深度，一般分为结构光和脉冲光(TOF),也叫飞行时间法(Time of Flight)。</p>
+<p>ToF 原理和激光传感器十分相似，不过激光是通过逐点扫描来获取距离，而 ToF 相机则可以获得整个图像的像素深度，这也正是 RGB-D 相机的特点。</p>
+<p>我们可以在同一个图像位置， 读取到色彩信息和距离信息，计算像素的 3D 相机坐标，生成点云（Point Cloud）</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" data-id="ck4o2turz0014u4vyeqi36e35" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础3-李群和李代数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" class="article-date">
+  <time datetime="2019-12-17T09:45:56.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/17/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">SLAM基础3-李群和李代数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><p>李群李代数主要用于SLAM算法中平移以及旋转来的<strong>求导</strong>。由于旋转矩阵为矩阵形式，<strong>不能用$R+\Delta R$表示变化量</strong>。</p>
+<p>三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵则构成了<strong>特殊欧式群</strong>$SE(3)$<br>$$<br>\begin{array}{c}{S O(3)=\left{\boldsymbol{R} \in \mathbb{R}^{3 \times 3} | \boldsymbol{R} \boldsymbol{R}^{T}=\boldsymbol{I}, \operatorname{det}(\boldsymbol{R})=1\right}} \ {S E(3)=\left{\boldsymbol{T}=\left[\begin{array}{cc}{\boldsymbol{R}} &amp; {t} \ {0^{T}} &amp; {1}\end{array}\right] \in \mathbb{R}^{4 \times 4} | \boldsymbol{R} \in S O(3), \boldsymbol{t} \in \mathbb{R}^{3}\right}}\end{array}<br>$$<br>群（Group）是<strong>一种集合</strong>加上<strong>一种运算</strong>的代数结构。<strong>李群则是光滑的群</strong>(整数群就不光滑不连续)。<strong>李代数描述了李群的局部性质</strong>（变化率,相当于求导数）。</p>
+<p>对于任意旋转矩阵$R$，由于它是正交矩阵，所以满足$RR^T=I$，如果$R$连续随时间变化，则我们用$R(t)$表示：<br>$$<br>R(t)R(t)^T=I<br>$$<br>对其求导可得：<br>$$<br>\dot{R}(t)R(t)^T+R(t)\dot{R}(t)^T=0\<br>\dot{R}(t)R(t)^T=-R(t)\dot{R}(t)^T=-(\dot{R}(t)R(t)^T)^T<br>$$</p>
+<blockquote>
+<p>如果矩阵A满足$A^T=-A$，则称之为反对称矩阵。它的展开形式一定是:<br>$$<br>\left[\begin{array}{ccc}{0} &amp; {-a_{3}} &amp; {a_{2}} \ {a_{3}} &amp; {0} &amp; {-a_{1}} \ {-a_{2}} &amp; {a_{1}} &amp; {0}\end{array}\right]<br>$$<br>所以我们可以用向量$[a_1,a_2,a_3]\land$表示</p>
+</blockquote>
+<p>由于$\dot{R}(t)R(t)^T$是一个反对称矩阵，我们可以找到一个三维向量 与之对应。于是有：<br>$$<br>\dot{R}(t)R(t)^T=\phi(t)\land<br>$$<br>等式左右两边乘以$R(t)$，由于$R$是正交矩阵，所以有：<br>$$<br>\dot{\boldsymbol{R}}(t)=\phi(t)^{\wedge} \boldsymbol{R}(t)=\left[\begin{array}{ccc}{0} &amp; {-\phi_{3}} &amp; {\phi_{2}} \ {\phi_{3}} &amp; {0} &amp; {-\phi_{1}} \ {-\phi_{2}} &amp; {\phi_{1}} &amp; {0}\end{array}\right] \boldsymbol{R}(t)<br>$$<br>可以看到，每对旋转矩阵求一次导数，只需左乘一个 $\phi(t)\land$ 矩阵即可。为方便讨论，我们设 $t_0=0$，并设此时旋转矩阵为 $R(0)=I$，按照导数定义，可以把 $R(t)$ 在 0 附近进行 一阶泰勒展开：<br>$$<br>\begin{aligned} \boldsymbol{R}(t) &amp; \approx \boldsymbol{R}\left(t_{0}\right)+\dot{\boldsymbol{R}}\left(t_{0}\right)\left(t-t_{0}\right) \ &amp;=\boldsymbol{I}+\phi\left(t_{0}\right)^{\wedge}(t) \end{aligned}<br>$$<br>同时在 $t_0$ 附近，设$\phi$ 保持为常数$\phi(t_0)=\phi_0$(保证$\phi{}$在 $t_0 $附近保持不变)则可以推导得出：<br>$$<br>\dot{\boldsymbol{R}}(t)=\phi\left(t_{0}\right)^{\wedge} \boldsymbol{R}(t)=\phi_{0}^{\wedge} \boldsymbol{R}(t)<br>$$<br>解微分方程可以得到：<br>$$<br>\boldsymbol{R(t)}=\exp({\phi_0}^{\land} t)<br>$$<br><strong>由此可知给定某时刻的 $R$，我们就能求得一个 $\phi$，它描述了 $R$ 在局部的导数关系，它是一个李代数。</strong></p>
+<h1 id="2-映射关系"><a href="#2-映射关系" class="headerlink" title="2. 映射关系"></a>2. 映射关系</h1><p>以下关系专门针对三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵构成的<strong>特殊欧式群</strong>$SE(3)$，$\mathfrak{so}(3)$表示特殊正交群的李代数，<strong>此时旋转通过对数映射用$\phi$表示</strong>，$\mathfrak{se}(3)$表示特殊欧式群的李代数，<strong>变换用$\xi$</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809092612.png" alt="img"></p>
+<h2 id="2-1-SO-3-上的映射"><a href="#2-1-SO-3-上的映射" class="headerlink" title="2.1  SO(3)上的映射"></a>2.1  SO(3)上的映射</h2><p>$\exp(ϕ∧)$ 是如何计算的？它是一个矩阵的指数，在李群和李代数中，称为指数映射（Exponential Map）</p>
+<p>任意矩阵的指数映射可以写成一个泰勒展开：<br>$$<br>exp(A)=\sum_{n=0}^\infty{\frac{1}{n!}A^n}<br>$$<br>替换A得到：<br>$$<br>exp(\phi\land)=\sum_{n=0}^\infty{\frac{1}{n!}(\phi\land)^n}<br>$$<br>对于反对称矩阵有两条特殊性质：<br>$$<br>a^\land a^\land=aa^T-I\<br>a^\land a^\land a^\land=-a^\land<br>$$<br>展开可以得到：<br>$$<br>\begin{aligned} \exp \left(\phi^{\wedge}\right) &amp;=\exp \left(\theta \boldsymbol{a}^{\wedge}\right)=\sum_{n=0} \frac{1}{n !}\left(\theta \boldsymbol{a}^{\wedge}\right)^{n} \ &amp;=\boldsymbol{I}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{4}+\ldots \ &amp;=\boldsymbol{a} \boldsymbol{a}^{T}-\boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}-\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge}-\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{2}+\ldots \ &amp;=\boldsymbol{a} \boldsymbol{a}^{T}+\left(\theta-\frac{1}{3 !} \theta^{3}+\frac{1}{5 !} \theta^{5}-\ldots\right) \boldsymbol{a}^{\wedge}-\left(1-\frac{1}{2 !} \theta^{2}+\frac{1}{4 !} \theta^{4}-\ldots\right) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \ &amp;=(1-\cos \theta) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\boldsymbol{I}+\sin \theta \boldsymbol{a}^{\wedge} \ &amp;=\cos \theta \boldsymbol{I}+(1-\cos \theta) \boldsymbol{a} \boldsymbol{a}^{T}+\sin \theta \boldsymbol{a}^{\wedge} \end{aligned}<br>$$<br>最后就得到了类似罗德里格斯公式的式子：<br>$$<br>\exp(\theta a^\land)=\cos(\theta)I+(1-\cos\theta)aa^T+\sin(\theta)a^\land<br>$$<br>罗德里格斯公式如下：<br>$$<br>\mathbf{R}=\cos\theta \mathbf\cdot \mathbf{I}+(1-\cos\theta)\mathbf{nn^T}+\sin\theta\cdot \mathbf{n} {\land}<br>$$<br>因此我们可以知道，$\mathfrak{so}(3)$ 实际上就是由所谓的<strong>旋转向量组成的空间</strong>，而指数映射即<strong>罗德里格斯公式</strong></p>
+<p>反之也可以定义对数映射：<br>$$<br>\phi=\ln (\boldsymbol{R})^{\vee}=\left(\sum_{n=0}^{\infty} \frac{(-1)^{n}}{n+1}(\boldsymbol{R}-\boldsymbol{I})^{n+1}\right)^{\vee}<br>$$</p>
+<h2 id="2-2-SE-3-上的指数映射"><a href="#2-2-SE-3-上的指数映射" class="headerlink" title="2.2 SE(3)上的指数映射"></a>2.2 SE(3)上的指数映射</h2><p>相较于之前，我们把旋转矩阵$R$替换为变换矩阵$T$：<br>$$<br>\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}<br>$$<br>解微分方程可以得到：<br>$$<br>\mathbf{T(t)}=\exp({\xi_0}^{\land} t)<br>$$<br>仿照前面的指数展开可以得到：<br>$$<br>\begin{aligned} \exp \left(\boldsymbol{\xi}^{\wedge}\right) &amp;=\left[\begin{array}{cc}{\sum_{n=0}^{\infty} \frac{1}{n !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n}} &amp; {\sum_{n=0}^{\infty} \frac{1}{(n+1) !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n} \boldsymbol{\rho}} \ {0^{T}} &amp; {1}\end{array}\right] \ &amp; \triangleq\left[\begin{array}{cc}{\boldsymbol{R}} &amp; {\boldsymbol{J} \boldsymbol{\rho}} \ {\boldsymbol{0}^{T}} &amp; {1}\end{array}\right]=\boldsymbol{T} \end{aligned}<br>$$<br>右上角的 $J$ 可整理为：<br>$$<br>J=\frac{\sin \theta}{\theta} I+\left(1-\frac{\sin \theta}{\theta}\right) a a^{T}+\frac{1-\cos \theta}{\theta} a^{\wedge}<br>$$</p>
+<h1 id="3-李代数求导"><a href="#3-李代数求导" class="headerlink" title="3. 李代数求导"></a>3. 李代数求导</h1><h2 id="3-1-BCH公式与近似形式"><a href="#3-1-BCH公式与近似形式" class="headerlink" title="3.1 BCH公式与近似形式"></a>3.1 BCH公式与近似形式</h2><p>在$SO3$中完成两个矩阵乘法时，在$\mathfrak{so}(3)$是否对应着加法？如果成立的话，相当于：<br>$$<br>\exp(\phi_1^\land)\exp(\phi_2^\land)=\exp((\phi_1+\phi_2)^\land)<br>$$<br>换言之，我们需要研究下述公式是否成立：<br>$$<br>\ln(\exp(A)\exp(B))=A+B<br>$$<br>然而这个式子<strong>在矩阵时并不成立</strong>，他真实的成立条件由<strong>BCH公式</strong>给出：<br>$$<br>\ln \left( {\exp \left( A \right)\exp \left( B \right)} \right) = A + B + \frac{1}{2}\left[ {A,B} \right] + \frac{1}{12}\left[ {A,\left[ {A,B} \right]} \right] - \frac{1}{12}\left[ {B,\left[ {A,B} \right]} \right] +  \cdots<br>$$<br><strong>其中[ ]为李括号</strong>。</p>
+<blockquote>
+<p>一般来说李括号$\left[ {A,B} \right] = AB - BA$，若满足$\mathbf{\phi}$为反对称矩阵，则李括号的结果为：<br>$$<br>[\phi_1,\phi_2]=(\Phi_1\Phi_2-\Phi_2\Phi_1)^\lor<br>$$</p>
+</blockquote>
+<p><strong>取近似项可得</strong>：<br>$$<br>\begin{equation} \ln {\left( {R_1}{R_2} \right)^ \vee } \approx \left{ \begin{array}{l} {J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1} + {\phi _2}\ {J_r}{\left( {\phi _1} \right)^{ - 1}}{\phi _2} + {\phi _1} \end{array} \right. \end{equation}<br>$$<br>在 $\phi_1$ 较小时，使用第一个式；在在 $\phi_2$ 较小时，使用第二个式（换句话说依据是左乘一个微小位移还是右乘）。</p>
+<p>以第一个近似为例。该式告诉我们，当对<strong>一个旋转矩阵 $R_2$李代数为 $\phi_2$左乘一个微小旋转矩阵 $R_1$李代数为 $\phi_1$时</strong>，可以近似地看作，在原有的李代数 $\phi_2$ 上，加上了一 项 ${J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1}$</p>
+<p>这里的 $J_l$ 和 $J_r$ 也称为左/右雅可比&mdash;&mdash;从而李代数就分成了<strong>左右两种模型</strong>（因此，李代数程序库会声明它使用的是左乘模型还是右乘模型）</p>
+<p>这两个雅克比矩阵可以表示为如下形式，他和旋转向量$\theta a$的关系<br>$$<br>\begin{equation} {J_l} = J = \sum\limits_{n = 0}^\infty  {\frac{1}{\left( {n + 1} \right)!}{\left( {\phi ^ \wedge } \right)}^n} ,{J_r} = J\left( { - \phi } \right) \end{equation}<br>$$</p>
+<blockquote>
+<p>雅克比矩阵表示的是m个n元函数的一阶导数组成的矩阵<br>$$<br>\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{1}}{\partial x_{n}}} \ {\vdots} &amp; {\ddots} &amp; {\vdots} \ {\frac{\partial f_{m}}{\partial x_{1}}} &amp; {\cdots} &amp; {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]<br>$$</p>
+</blockquote>
+<h2 id="3-2-李代数求导模型"><a href="#3-2-李代数求导模型" class="headerlink" title="3.2 李代数求导模型"></a>3.2 李代数求导模型</h2><p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：<br>$$<br>\frac{\partial(Rp)}{\partial R}<br>$$<br>按照李代数的写法：<br>$$<br>\frac{\partial(\exp(\phi^\land)p)}{\partial\phi}<br>$$<br>按照3.1所推导的结论：<br>$$<br>\begin{aligned} \frac{\partial\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)}{\partial \boldsymbol{\phi}} &amp;=\lim <em>{\delta \phi \rightarrow 0} \frac{\exp \left((\phi+\delta \phi)^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp;=\lim _{\delta \phi \rightarrow 0} \frac{\exp \left(\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp; \approx \lim <em>{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{I}+\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \ &amp;=\lim <em>{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{J}</em>{l} \delta \phi\right)^{\wedge} \exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}<em>{l} \ &amp;=\lim _{\delta \phi \rightarrow 0} \frac{-\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)^{\wedge} \boldsymbol{J}</em>{l} \delta \phi}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}_{l} \end{aligned}<br>$$<br>第二行的近似为 BCH 线性近似，第三行为泰勒展开舍去高阶项后近似，第四行至第 五行将反对称符号看作叉积，交换之后变号。于是，我们推导了旋转后的点相对于李代数的导数：<br>$$<br>\frac{d\left( {RP} \right)}{d\phi }= {(-RP)^ \wedge }{J_l}<br>$$<br>得到的结果中包含雅克比矩阵，<strong>我们希望进一步简化，因此可以采用扰动模型</strong>。</p>
+<h2 id="3-3-扰动模型"><a href="#3-3-扰动模型" class="headerlink" title="3.3 扰动模型"></a>3.3 扰动模型</h2><p>上一种求导方式比较复杂，下面介绍另一种另一种求导方式，是对 $R$ 进行一次扰动 $∆R$。这个扰动可以乘在左边也可以乘在右 边，最后结果会有一点儿微小的差异。</p>
+<p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：<br>$$<br>\frac{\partial(\boldsymbol{R} \boldsymbol{p})}{\partial \boldsymbol{\varphi}}=\lim _{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\varphi}<br>$$<br>这里和李代数求导模型有很大区别，李代数求导模型是老老实实按照求导定义来的，因此出现了李代数加法从而引出了雅克比矩阵，而扰动模型用乘法来近似。</p>
+<p>近似后可以得到：<br>$$<br>\begin{aligned} \frac{\partial(\boldsymbol{R} p)}{\partial \varphi} &amp;=\lim <em>{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \ &amp; \approx \lim _{\varphi \rightarrow 0} \frac{\left(1+\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \ &amp;=\lim _{\varphi \rightarrow 0} \frac{\varphi^{\wedge} R p}{\varphi}=\lim _{\varphi \rightarrow 0} \frac{-(R p)^{\wedge} \varphi}{\varphi}=-(R p)^{\wedge} \end{aligned}<br>$$<br>同理在SE3上的李代数求导结果为<br>$$<br>\frac{\partial(\boldsymbol{T} \boldsymbol{p})}{\partial \delta \boldsymbol{\xi}}=\left[\begin{array}{cc}{\boldsymbol{I}} &amp; {-(\boldsymbol{R} \boldsymbol{p}+\boldsymbol{t})^{\wedge}} \ {\boldsymbol{0}^{T}} &amp; {\boldsymbol{0}^{T}}\end{array}\right] \triangleq(\boldsymbol{T} \boldsymbol{p})^{\odot}<br>$$<br>其中⊙算符把一个4×4的矩阵变换成一个4×6的矩阵，计算方式如下：<br>$$<br>\begin{equation} p = \left[ \begin{array}{l} x</em>{3 \times 1}\ w_{1 \times 1} \end{array} \right], \quad {p^ \odot } = \left[ {\begin{array}{*{20}{c}} w{I_{3 \times 3}}&amp;{ - {x^ \wedge }<em>{3 \times 3}}\ {0^T}</em>{3 \times 1}&amp;{0^T}_{3 \times 1} \end{array}} \right] \end{equation}<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/17/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-id="ck4o2turx0012u4vy2bus1rda" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SLAM基础2-三维刚体运动" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/16/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" class="article-date">
+  <time datetime="2019-12-16T15:39:12.000Z" itemprop="datePublished">2019-12-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/16/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/">SLAM基础2-三维刚体运动</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-旋转矩阵"><a href="#1-旋转矩阵" class="headerlink" title="1. 旋转矩阵"></a>1. 旋转矩阵</h1><h2 id="1-1-向量积"><a href="#1-1-向量积" class="headerlink" title="1.1 向量积"></a>1.1 向量积</h2><p>质点在空间中可由 $xyz$ 坐标确定，但如果考虑<strong>刚体</strong>，需要考虑姿态问题。</p>
+<p>点积$\mathbf {a  \cdot b}=x_1x_2+y_1y_2+z_1z_2$，表示两个向量在同一方向的乘积。叉积表示垂直于两个方向的积。<br>$$<br>\mathbf{a\times b}=\begin{bmatrix}<br>    \mathbf{i}    &amp;    \mathbf{j}    &amp;    \mathbf{k}\<br>    x_1    &amp;    y_1    &amp;    z_1\<br>    x_2    &amp;    y_2    &amp;    z_2<br>\end{bmatrix}<br>$$<br>点积可以描述向量间的投影关系。叉积可以表示向量的旋转。对于外积，我们引入了 $∧$符号，把 a 写成一个矩阵。事实上是一个反<strong>对称矩阵 （Skew-symmetric）</strong>，可以将 $∧$ 记成一个反对称符号。这样就把外积 $a×b$，写成了矩阵与向量的乘法 $a∧b$，把它<strong>变成了线性运算</strong>。<br>$$<br>a \times b=\left[\begin{array}{lll}{i} &amp; {j} &amp; {k} \ {a_{1}} &amp; {a_{2}} &amp; {a_{3}} \ {b_{1}} &amp; {b_{2}} &amp; {b_{3}}\end{array}\right]=\left[\begin{array}{l}{a_{2} b_{3}-a_{3} b_{2}} \ {a_{3} b_{1}-a_{1} b_{3}} \ {a_{1} b_{2}-a_{2} b_{1}}\end{array}\right]=\left[\begin{array}{ccc}{0} &amp; {-a_{3}} &amp; {a_{2}} \ {a_{3}} &amp; {0} &amp; {-a_{1}} \ {-a_{2}} &amp; {a_{1}} &amp; {0}\end{array}\right] b \triangleq a^{\wedge} b<br>$$<br>我们可以<strong>用一个向量来描述三维空间中两个向量的旋转关系</strong>。在右手法则下，我们用<strong>右手的四个指头从 a 转向 b，其大拇指朝向就是旋转向量的方向</strong>，事实上也是 $a×b$ 的方向。a 到 b 的旋转可以由向量 $\mathbf{w}$ 来描述。</p>
+<img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805152337.png" alt="img" style="zoom:80%;" />
+
+<h2 id="1-2-坐标系的欧氏变换"><a href="#1-2-坐标系的欧氏变换" class="headerlink" title="1.2 坐标系的欧氏变换"></a>1.2 坐标系的欧氏变换</h2><p>我们可以描述<strong>两个坐标系之间的旋转和平移，统称为坐标系之间的变换关系</strong>。欧氏变换则是指<strong>同一个向量在各个坐标系下的长度和夹角都不会发生变化</strong>。比如把手机抛到空中，在它落地摔碎之前，只可能有空间位置和姿态的不同，而它自己的长度、各个面的角度等性质不会有任何变化。</p>
+<p>每一个欧氏变换由<strong>旋转</strong>和<strong>平移</strong>组成。</p>
+<p>首先考虑<strong>旋转</strong>。我们设某个单位正交基 $(e_1,e_2,e_3)$ 经过一次旋转，变成了  $(e_1’ ,e_2’,e_3’)$ 。那么，对于同一个向量 $\mathbf{a}$（注意该向量并没有 随着坐标系的旋转而发生运动，它在两个坐标系下的坐标为 $[a_1,a_2,a_3]^T$ 和 $[a_1’,a_2’,a_3’]^T$。 根据坐标的定义<br>$$<br>\left[e_{1}, e_{2}, e_{3}\right]\left[\begin{array}{c}{a_{1}} \ {a_{2}} \ {a_{3}}\end{array}\right]=\left[\begin{array}{ccc}{e_{1}^{\prime}} &amp; {e_{2}^{\prime}} &amp; {e_{3}^{\prime}}\end{array}\right]\left[\begin{array}{c}{a_{1}^{\prime}} \ {a_{2}^{\prime}} \ {a_{3}^{\prime}}\end{array}\right]<br>$$<br>为了描述两个坐标之间的关系，我们对上面等式左右同时乘$\begin{bmatrix}    e_1^T    \    e_    2^T\    e_3^T \end{bmatrix}$</p>
+<p>那么左边的系数变成了单位矩阵。<br>$$<br>\begin{bmatrix} a_1\a_2\a_3\end{bmatrix}<br>=<br>\begin{bmatrix} e_1^T e_1’ &amp; e_1^T e_2’ &amp; e_1^T e_3’\e_2^T e_1’&amp;e_2^T e_2’&amp;e_1^T e_3’\e_3^T e_1’&amp;e_3^T e_2’&amp;e_3^T e_3’\end{bmatrix}<br>\begin{bmatrix} a_1’\a_2’\a_3’\end{bmatrix}<br>=Ra’<br>$$<br>我们把中间的阵拿出来，定义成一个矩阵 $R$ ，这个矩阵由两组基之间的内积组成，刻画了旋转前后同一个向量的坐标变换关系。只要旋转是一样的，那么 这个矩阵也是一样的， $R$ 就是<strong>旋转矩阵</strong></p>
+<p><strong>旋转矩阵是一个行列式为 1 的正交矩阵（orthogonal matrix）</strong>。反之，行列式为1的正交矩阵也是一个旋转矩阵。</p>
+<p>它的逆（即转置）描述了一个相反的旋转。即 $R^T$ 刻画了一个相反的旋转。</p>
+<blockquote>
+<p>$$<br>Q^{T}=Q^{-1} \Leftrightarrow Q^{T} Q=Q Q^{T}=I<br>$$</p>
+<p>正交矩阵的转置和逆矩阵相等，正交矩阵与转置矩阵相乘得到单位矩阵</p>
+</blockquote>
+<p>然后考虑<strong>平移</strong>。考虑世界坐标系中的向量  $\mathbf{a}$，经过一次旋转（用 $R$ 描述）和一次平移 $t$ 后，得到了 ，那么$\mathbf{a’}$把旋转和平移合到一起，有：<br>$$<br>a^{\prime}=R a+t<br>$$</p>
+<h2 id="1-3-变换矩阵与齐次坐标"><a href="#1-3-变换矩阵与齐次坐标" class="headerlink" title="1.3 变换矩阵与齐次坐标"></a>1.3 变换矩阵与齐次坐标</h2><p>我们把<strong>一个三维向量的末尾添加 1，变成了四维向量</strong>，称为齐次坐标。对于这个四维向量，我们可以把旋转和平移写在一个矩阵里面，使得整个关系变成 了线性关系。<strong>矩阵 T 称为变换矩阵</strong>（Transform Matrix）。<br>$$<br>\left[\begin{array}{c}{a^{\prime}} \ {1}\end{array}\right]=\left[\begin{array}{cc}{R} &amp; {t} \ {0^{T}} &amp; {1}\end{array}\right]\left[\begin{array}{l}{a} \ {1}\end{array}\right] \triangleq T\left[\begin{array}{l}{a} \ {1}\end{array}\right]<br>$$</p>
+<h1 id="2-旋转向量与欧拉角"><a href="#2-旋转向量与欧拉角" class="headerlink" title="2. 旋转向量与欧拉角"></a>2. 旋转向量与欧拉角</h1><h2 id="2-1-旋转向量"><a href="#2-1-旋转向量" class="headerlink" title="2.1 旋转向量"></a>2.1 旋转向量</h2><p>由旋转矩阵来描述旋转，变换矩阵描述一个六自由度的三维刚体运动，但这样过于冗余。旋转矩阵有九个量，但一次旋转只有三个自由度。变换矩阵用十六个量表达了六自由度的变换。需要使用新的表达方式来精简。</p>
+<p>外积可以将两个向量的旋转关系表达为一个向量，即<strong>任意旋转都可以用一个旋转轴和一个旋转角来刻画。</strong>于是，我们可以使用一个向量，其方向与旋转轴一致，而长度等于旋转角（为了更紧凑的表达，旋转轴的长度为旋转角）。这种向量，称为<strong>旋转向量</strong>。这种表示法只需一个三维向量即可描述旋转。同样，对于变换矩阵，我们使用一个旋转向量和一个平移向量即可表达一次变换。这时的维数正好是六维。</p>
+<p>假设有一个旋转轴为 $\mathbf{n}$，角度为 $θ$ 的旋转，显然，它对应的旋转向量为 $θ\cdot \mathbf{n}$ 。旋转向量与旋转矩阵的转化方式可以由<strong>罗德里格斯公式</strong>表明：<br>$$<br>\mathbf{R}=\cos\theta \mathbf\cdot \mathbf{I}+(1-\cos\theta)\mathbf{nn^T}+\sin\theta\cdot \mathbf{n} {\land}<br>$$</p>
+<h2 id="2-2-欧拉角"><a href="#2-2-欧拉角" class="headerlink" title="2.2 欧拉角"></a>2.2 欧拉角</h2><p>无论是旋转矩阵、旋转向量，虽然它们能描述旋转，但对我们人类是非常不直观的。欧拉角使用三个分离的转角，把一个旋转分解成三次绕不同轴的旋转。</p>
+<ol>
+<li>绕物体的 Z 轴旋转，得到<strong>偏航角</strong> yaw；</li>
+<li><strong>绕旋转之后</strong>的 Y 轴旋转，得到<strong>俯仰角</strong> pitch；</li>
+<li><strong>绕旋转之后</strong>的 X 轴旋转，得到<strong>滚转角</strong> roll。</li>
+</ol>
+<p>这种旋转方式称之为<strong>rpy角</strong>。</p>
+<p>欧拉角的一个重大缺点是会碰到著名的万向锁问题（Gimbal Lock)，若第二次旋转90°，则会使得物体与X轴垂直，使得系统丢失了一个自由度。</p>
+<p>一般不会在程序中直接使用欧拉角表达姿态，同样不会在滤波或优化中使用欧拉角表达旋转。不过，若想验证自己算法是否有错时，转换成欧拉角能够快速辨认结果的正确与否。</p>
+<h1 id="3-四元数"><a href="#3-四元数" class="headerlink" title="3. 四元数"></a>3. 四元数</h1><h2 id="3-1-四元数的定义"><a href="#3-1-四元数的定义" class="headerlink" title="3.1 四元数的定义"></a>3.1 四元数的定义</h2><p>四元数拥有一个实部和三个虚部，可定义为:<br>$$<br>\textbf{q}=q_0+q_1i+q_2j+q_3k<br>$$<br>其中$i,j,k$是四元数的三个虚部，满足关系式：<br>$$<br>\begin{equation}<br>\left{<br>             \begin{array}\<br>             i^2=j^2=k^2=-1 &amp;  \<br>             ij=k, ji=-k &amp;\<br>             jk=i,kj=-i&amp; \<br>             ki=j,ik=-j<br>             \end{array}<br>\right.<br>\end{equation}<br>$$<br>有时候也可以用一个标量和一个矢量来表示四元数：<br>$$<br>\textbf{q}=[s,\textbf{v}],\quad s=q_0\in \mathbb{R},\textbf{v}=[q_1,q_2,q_3]^T\in\mathbb{R}^3<br>$$<br>$s$ 称为四元数的实部，而$v$ 称为它的虚部。如果一个四元数虚部为 0，称之为实四元数。反之，若它的实部为 0，称之为虚四元数。</p>
+<p>假设某个旋转是绕单位向量$\textbf{n}=[n_x,n_y,n_z]^T$旋转了$θ$，那么这个旋转就可以用四元数表示为：<br>$$<br>\textbf{q}=[\cos\frac{\theta}{2},n_x\sin\frac{\theta}{2},n_y\sin\frac{\theta}{2},n_z\sin\frac{\theta}{2}]^T<br>$$<br>反之，我们亦可从单位四元数中计算出对应旋转轴与夹角：<br>$$<br>\begin{equation}<br>\left{<br>             \begin{array}\<br>                \theta=2\arccos{q_0}\<br>                [n_x,n_y,n_z]^T=[q_1,q_2,q_3]^T/ \sin\frac{\theta}{2}</p>
+<pre><code>\end{array}  </code></pre><p>\right.<br>\end{equation}<br>$$</p>
+<h2 id="3-2-四元数旋转"><a href="#3-2-四元数旋转" class="headerlink" title="3.2 四元数旋转"></a>3.2 四元数旋转</h2><p>假设空间有三维点$p=[x,y,z]$，如果绕着轴$\mathbf{n}$以$θ$旋转，则将其表示为四元数形式有：<br>$$<br>p=[0,x,y,z]=[0,\textbf{v}]<br>$$<br>用四元数$q$表示这个旋转：<br>$$<br>q=[\cos\frac{\theta}{2},\textbf{n}\sin\frac{\theta}{2}]<br>$$<br>旋转后$p’$就可以表示为:<br>$$<br>p’=qpq^{-1}<br>$$<br>上面描述了某个点的旋转，下面表示的是<strong>如何由旋转四元数表示旋转矩阵</strong>：<br>$$<br>\mathbf{R} = \left[ {\begin{array}{<em>{20}{c}} {1 - 2q_2^2 - 2q_3^2}&amp;{2{q_1}{q_2} + 2{q_0}{q_3}}&amp;{2{q_1}{q_3} - 2{q_0}{q_2}}\ {2{q_1}{q_2} - 2{q_0}{q_3}}&amp;{1 - 2q_1^2 - 2q_3^2}&amp;{2{q_2}{q_3} + 2{q_0}{q_1}}\ {2{q_1}{q_3} + 2{q_0}{q_2}}&amp;{2{q_2}{q_3} - 2{q_0}{q_1}}&amp;{1 - 2q_1^2 - 2q_2^2} \end{array}} \right]<br>$$<br>反之*</em>旋转轴四元数也可以由旋转矩阵**求取：<br>$$<br>q_{0}=\frac{\sqrt{\operatorname{tr}(R)+1}}{2}, q_{1}=\frac{m_{23}-m_{32}}{4 q_{0}}, q_{2}=\frac{m_{31}-m_{13}}{4 q_{0}}, q_{3}=\frac{m_{12}-m_{21}}{4 q_{0}}<br>$$</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/16/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" data-id="ck4o2turw0011u4vy7h3wco48" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Socket网络编程原理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-12-15T13:54:01.000Z" itemprop="datePublished">2019-12-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/">Socket网络编程原理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-网络模型"><a href="#1-网络模型" class="headerlink" title="1. 网络模型"></a>1. 网络模型</h1><p>TCP/IP模型，又称<strong>传输控制协议/网际协议(Transmission Control Protocol/Internet Protocol)</strong>。</p>
+<p>简单来说，此协议的通信过程如同<strong>数据出栈入栈</strong>的过程。</p>
+<ul>
+<li>入栈：数据发送方每层不断地封装头部和尾部，向中间添加传输信息</li>
+<li>出栈：数据接收方每层不断拆除头部尾部，读取中间的传输信息</li>
+</ul>
+<p>TCP/IP协议借鉴了OSI参考模型(Open System Interconnect)，主要针对计算机网络体系。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/ed88f97317decd70.png" alt="img" style="zoom: 80%;" />
+
+<ul>
+<li>应用层：具有HTTP和FTP等协议</li>
+<li>传输层：具有TCP和UDP(User Datagram Protocol)用户数据报协议</li>
+<li>网络层：包含了IP协议</li>
+<li>数据链路层：也称网络接口层，为等待传送的数据加入一个以太网协议头，为传输做好准备</li>
+</ul>
+<p>如果用发快递作比喻</p>
+<ul>
+<li>应用层：帮客户打包</li>
+<li>传输层：从快递点送到集散中心</li>
+<li>网络层：集散中心确定将要发送的地址</li>
+<li>数据链路层：将小包裹打包成集装箱（装帧），由此控制发送流量等信息</li>
+<li>物理层：高速路、铁路送走</li>
+</ul>
+<h1 id="2-Socket原理"><a href="#2-Socket原理" class="headerlink" title="2. Socket原理"></a>2. Socket原理</h1><h2 id="2-1-概念"><a href="#2-1-概念" class="headerlink" title="2.1 概念"></a>2.1 概念</h2><p>socket是<strong>应用层</strong>和<strong>传输层</strong>之间的抽象层，他是一组接口，<strong>将复杂的传输层和网络层协议隐藏到socket接口后面</strong>。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/5c01a97cd467d222.png" alt="img" style="zoom:80%;" />
+
+<p>socket是从Unix/Linux引入的概念，而Unix/Linux的哲学就是：<strong>一切皆文件，都可以用”open–&gt;write/read–&gt;close”模式进行操作</strong>。同样的，socket的思路也是打开、读写IO、关闭。</p>
+<h2 id="2-2-三次握手"><a href="#2-2-三次握手" class="headerlink" title="2.2 三次握手"></a>2.2 三次握手</h2><p>所谓三次握手是指<strong>建立</strong>一个TCP连接时，<strong>需要客户端和服务器发送3个包</strong>。</p>
+<img src="https://i.bmp.ovh/imgs/2019/07/8dabc100eb0549e0.png" alt="img"  />
+
+<p>名词解释：</p>
+<ul>
+<li>SYN：Synchronize，同步标志位，为1时表示序列号有效</li>
+<li>ACK：Acknowledgment，确认标志位</li>
+<li>seq：Synchronize Sequence Number，同步序列号</li>
+<li>ack：确认序列号</li>
+</ul>
+<p>握手过程：</p>
+<ol>
+<li>第一次握手：客户端发送SYN标志为1的包，以及同步序列号x，并指明打算连接的服务器端口。此时，connect进入阻塞状态。</li>
+<li>第二次握手：服务器收到后，发送SYN和ACK标志为1的包，同时也发送一个自己的同步序列号y，外加一个确认序列号ack=x+1。此时accept进入阻塞状态。</li>
+<li>第三次握手：客户端收到后，再次发送ACK=1，以及同步序列号seq和确认序列号ack，与此同时，connect返回。当服务器收到ACK=1时，accept返回。</li>
+</ol>
+<h2 id="2-3-四次挥手"><a href="#2-3-四次挥手" class="headerlink" title="2.3 四次挥手"></a>2.3 四次挥手</h2><p>指<strong>中断</strong>连接时需要发送4个包，此<strong>时客户端和服务器均可主动发起</strong>挥手操作，只需要调用close()函数即可。</p>
+<p><img src="https://i.bmp.ovh/imgs/2019/07/074e5304e133a22c.png" alt="img"></p>
+<p>B收到FIN结束消息时，干两件事：发送确认标志和通知其他进程准备关闭（这也是为什么要多一次挥手）。当准备完毕时，发送FIN。</p>
+<p>A收到FIN时，也干两件事：发送确认标志和等待2MSL(Maximum Segment Lifetime)</p>
+<h2 id="2-4-常见问题"><a href="#2-4-常见问题" class="headerlink" title="2.4 常见问题"></a>2.4 常见问题</h2><p><strong>为什么不能用两次握手连接</strong></p>
+<p>三次握手完成两个重要功能：</p>
+<ul>
+<li>双方都知道彼此已经准备好</li>
+<li>确认彼此的序列号</li>
+</ul>
+<p>假设只有两次握手，A向B发送连接请求，B收到后回复消息，B认为此时已经连接成功，开始发送数据。然而，如果B的回复消息丢失了，A没有收到确认消息，只有再次发送连接请求，而此时B有在向A发送数据，这样就会造成<strong>死锁</strong>。</p>
+<p><strong>为什么连接是三次握手，而关闭时是四次？</strong></p>
+<p>关闭连接时，服务端需要回复两次</p>
+<ul>
+<li>第一次告诉客户端，我已经收到了你的请求了，但我的剩余报文还没有处理完，等一等。客户端收到后不再发送请求，开始默默等待。</li>
+<li>第二次告诉客户端处理完成。</li>
+</ul>
+<p><strong>为什么TIME_WAIT状态需要经过2MSL？</strong></p>
+<p>2MSL是一次发送和回复的最大时间，客户端最后一次发送ACK可能会丢失，如果此时冒然关闭，会导致服务器没收到ACK，然后一直发一直发。所以需要等2MSL，如果超过这个时间，都还没有收到服务器的信息，说明已经完成，可以关闭。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/15/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" data-id="ck4o2tus4001au4vy5k412bx1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">Next &amp;raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

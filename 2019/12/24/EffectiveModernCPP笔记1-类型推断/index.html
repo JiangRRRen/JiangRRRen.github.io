@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>EffectiveModernCPP笔记1-类型推断 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Item 1:Understand template type deduction在模板的使用过程中，我们需要区分两个类型T和Paramtype。T是基本类型，paramtype是包含CV修饰后的结果。 12345template&lt;typename T&gt; void f(const T&amp; param); int expr &#x3D; 0;f(expr);  解释一下param type是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记1-类型推断">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;24&#x2F;EffectiveModernCPP%E7%AC%94%E8%AE%B01-%E7%B1%BB%E5%9E%8B%E6%8E%A8%E6%96%AD&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Item 1:Understand template type deduction在模板的使用过程中，我们需要区分两个类型T和Paramtype。T是基本类型，paramtype是包含CV修饰后的结果。 12345template&lt;typename T&gt; void f(const T&amp; param); int expr &#x3D; 0;f(expr);  解释一下param type是">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191103165229.png">
+<meta property="article:published_time" content="2019-12-24T13:06:44.000Z">
+<meta property="article:modified_time" content="2019-12-24T13:45:54.854Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20191103165229.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-EffectiveModernCPP笔记1-类型推断" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/24/EffectiveModernCPP%E7%AC%94%E8%AE%B01-%E7%B1%BB%E5%9E%8B%E6%8E%A8%E6%96%AD/" class="article-date">
+  <time datetime="2019-12-24T13:06:44.000Z" itemprop="datePublished">2019-12-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      EffectiveModernCPP笔记1-类型推断
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Item-1-Understand-template-type-deduction"><a href="#Item-1-Understand-template-type-deduction" class="headerlink" title="Item 1:Understand template type deduction"></a>Item 1:Understand template type deduction</h1><p>在模板的使用过程中，我们需要区分两个类型<code>T</code>和<code>Paramtype</code>。<code>T</code>是基本类型，<code>paramtype</code>是包含CV修饰后的结果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> T&amp; param)</span></span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> expr = <span class="number">0</span>;</span><br><span class="line">f(expr);</span><br></pre></td></tr></table></figure>
+
+<p>解释一下<code>param type</code>是<code>param</code>最后的类型</p>
+<p>下面就围绕<code>T</code>, <code>expr</code>, <code>param type</code>展开讨论：</p>
+<p><strong>（1）Case 1:ParamType is a Reference or Pointer, but not a Universal Reference</strong></p>
+<p>当<code>param type</code>是<strong>引用或者指针</strong>类型时，它的推断遵从<strong>两个原则</strong>：</p>
+<ol>
+<li>忽略<code>expr</code>中<code>param type</code>包含的部分得到T</li>
+<li>将<code>T</code>与<code>param type</code>配对的到<code>param</code></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;       <span class="comment">// param is a reference</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;             <span class="comment">// x is an int </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;       <span class="comment">// cx is a const int </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;      <span class="comment">// rx is a reference to x as a const int</span></span><br><span class="line"></span><br><span class="line">f(x);     <span class="comment">// T is int, param's type is int&amp;</span></span><br><span class="line">f(cx);    <span class="comment">// T is const int,                     </span></span><br><span class="line">        <span class="comment">// param's type is const int&amp;</span></span><br><span class="line">f(rx);    <span class="comment">// T is const int,                     </span></span><br><span class="line">        <span class="comment">// param's type is const int&amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//////////////////////////////</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> T&amp; param)</span></span>;  <span class="comment">// param is now a ref-to-const</span></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;              <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;        <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;       <span class="comment">// as before</span></span><br><span class="line">f(x);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line">f(cx);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line">f(rx);     <span class="comment">// T is int, param's type is const int&amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="comment">//指针也适用这个原则</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T* param)</span></span>;        </span><br><span class="line"><span class="comment">// param is now a pointer</span></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;                 <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *px = &amp;x;         <span class="comment">// px is a ptr to x as a const int</span></span><br><span class="line">f(&amp;x);    <span class="comment">// T is int, param's type is int*</span></span><br><span class="line">f(px);  <span class="comment">// T is const int,               </span></span><br><span class="line">        <span class="comment">// param's type is const int*</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）Case 2: ParamType is a Universal Reference</strong></p>
+<p>当考虑全局引用(universal reference, <code>T&amp;&amp;</code>)的时候，情况会变得有些不一样。他遵循两个原则：</p>
+<ol>
+<li>如果expr是左值，T和param都被推为<strong>左值引用</strong>(不管有没有统统加上引用符)</li>
+<li>如果是右值，T不变，<code>param</code>加上&amp;&amp;。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;       <span class="comment">// param is now a universal reference</span></span><br><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;              <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;        <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;       <span class="comment">// as before</span></span><br><span class="line">f(x);                   <span class="comment">// x is lvalue, so T is int&amp;, </span></span><br><span class="line">                        <span class="comment">// param's type is also int&amp;</span></span><br><span class="line">f(cx);                  <span class="comment">// cx is lvalue, so T is const int&amp;,   </span></span><br><span class="line">                        <span class="comment">// param's type is also const int&amp;</span></span><br><span class="line">f(rx);                  <span class="comment">// rx is lvalue, so T is const int&amp;,   </span></span><br><span class="line">                        <span class="comment">// param's type is also const int&amp;</span></span><br><span class="line">f(<span class="number">27</span>);                  <span class="comment">// 27 is rvalue, so T is int,           </span></span><br><span class="line">                        <span class="comment">// param's type is therefore int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）case3: ParamType is Neither a Pointer nor a Reference</strong></p>
+<p>这就是最基本的值传递。意味着，<code>param</code>复制了一个传入的参数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> </span><br><span class="line">f(T param);         <span class="comment">// param is now passed by value</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果<code>expr</code>是引用，忽略引用的部分</li>
+<li>如果忽略引用后，<code>expr</code>是<code>const</code>类型或<code>volatile</code>类型，忽略。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">27</span>;          <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = x;    <span class="comment">// as before </span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; rx = x;   <span class="comment">// as before</span></span><br><span class="line">f(x);                <span class="comment">// T's and param's types are both int</span></span><br><span class="line">f(cx);               <span class="comment">// T's and param's types are again both int</span></span><br><span class="line">f(rx);               <span class="comment">// T's and param's types are still both int</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：<strong>只是忽略引用，指针还是不变</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;         </span><br><span class="line"><span class="comment">// param is still passed by value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> ptr =<span class="string">"Fun with pointers"</span>;  </span><br><span class="line"><span class="comment">// ptr is const pointer to const object  </span></span><br><span class="line">f(ptr);                  </span><br><span class="line"><span class="comment">// pass arg of type const char * const</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> theAnswer = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> x = theAnswer;</span><br><span class="line"><span class="keyword">auto</span> y = &amp;theAnswer; <span class="comment">// const int* 取引用相当于转成了指针</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>首先要澄清一个误区：<strong>数组类型和指针类型是完全不一样的</strong>(虽然他们在使用时可以混用)。由于C语言老祖宗的继承关系，C++依然保留了这些特性，导致很多人误以为数组和指针参数是一样的。</p>
+<p>在传递过程中，<strong>数组会退化为它第一个元素的指针</strong>。注意，这里是<strong>退化</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;      <span class="comment">// template with by-value parameter</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> name[] = <span class="string">"J. P. Briggs"</span>;  <span class="comment">// name's type is const char[13]</span></span><br><span class="line"></span><br><span class="line">f(name); <span class="comment">// name is array, but T deduced as const char*</span></span><br></pre></td></tr></table></figure>
+
+<p>这种退化导致有用的信息(数组长度)丢失<strong>。然而声明引用，可以使得模板推断保留成数组的形式</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line">f(name);  <span class="comment">//deduce to const char[13]</span></span><br></pre></td></tr></table></figure>
+
+<p>根据原则：<strong>忽略paramtype包含的部分T，T加上包含的部分得到param。</strong>在这个例子中<code>T</code>被推导为<code>const char[13]</code>，<code>param</code>则被推导为<code>const char(&amp;)[13]</code>。</p>
+<p>如果改为<code>T&amp;&amp;</code>，根据原则：<strong>统统推导为左值引用</strong>。则<code>T</code>和<code>param</code>都被推为<code>const char(&amp;)[13]</code></p>
+<p>利用这一特性，我们在对模板函数声明为一个指向数组的引用使得我们可以在模板函数中推导出数组的大小：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="built_in">std</span>::<span class="keyword">size_t</span> N&gt;                </span><br><span class="line"><span class="keyword">constexpr</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> arraySize(T (&amp;)[N]) <span class="keyword">noexcept</span> </span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">return</span> N; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键词<code>constexpr</code>能够让结果在编译时有效，从而实现以下的效果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> keyVals[] = &#123; <span class="number">1</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">22</span>, <span class="number">35</span> &#125;;      <span class="comment">// keyVals has 7 elements</span></span><br><span class="line"><span class="keyword">int</span> mappedVals[arraySize(keyVals)];</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>讲完数组，再来讲讲函数。在C++中不止是数组会退化为指针，函数类型也会<strong>退化为一个函数指针</strong>，我们对于数组的全部讨论都可以应用到函数来：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">double</span>)</span></span>;  <span class="comment">// someFunc is a function;</span></span><br><span class="line">                             <span class="comment">// type is void(int, double)</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;     <span class="comment">// in f1, param passed by value</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;    <span class="comment">// in f2, param passed by ref</span></span><br><span class="line">f1(someFunc);               <span class="comment">// param deduced as ptr-to-func;</span></span><br><span class="line">                            <span class="comment">// type is void (*)(int, double)</span></span><br><span class="line">f2(someFunc);               <span class="comment">// param deduced as ref-to-func;</span></span><br><span class="line">                            <span class="comment">// type is void (&amp;)(int, double)</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-2-Understand-auto-type-deduction"><a href="#Item-2-Understand-auto-type-deduction" class="headerlink" title="Item 2:Understand auto type deduction."></a>Item 2:Understand auto type deduction.</h1><p><code>auto</code>推断和模板推断具有清晰的映射关系，也分为3+1种情况：</p>
+<p><strong>（1） 参数类型为指针或引用，但不是universal reference</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x=<span class="number">7</span>;</span><br><span class="line"><span class="keyword">auto</span>&amp; rx = x; <span class="comment">//rx is int &amp;</span></span><br><span class="line"><span class="keyword">int</span>&amp; z = x;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">auto</span>&amp; rx = z; <span class="comment">// rx is const int&amp;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）参数类型为universal reference</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = <span class="number">7</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> cx = <span class="number">7</span>;</span><br><span class="line"><span class="keyword">auto</span> &amp;&amp;uref1 = x;  <span class="comment">// uref1的类型为int &amp;</span></span><br><span class="line"><span class="keyword">auto</span> &amp;&amp;uref2 = cx; <span class="comment">// uref2的类型为const int &amp;</span></span><br><span class="line"><span class="keyword">auto</span> &amp;&amp;uref3 = <span class="number">27</span>; <span class="comment">// uref3的类型为int &amp;&amp;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（3）参数类型为pass-by-value</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = <span class="number">7</span>; <span class="comment">// x is int</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; y=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">auto</span> rx = y; <span class="comment">// rx is int</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Tips:</strong> 我们在使用<code>for-auto</code>语句时，以下两种情况完全不同，一个可以改变原有的值一个不能。原因就是<code>auto&amp;</code>把<code>x</code>推断为 <code>int&amp;</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> x:nums)</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span>&amp; x:nums)</span><br></pre></td></tr></table></figure>
+
+<p><strong>（4） 数组和函数</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> name[] = [...]           <span class="comment">// name's type is const char[13]  "R. N. Briggs";</span></span><br><span class="line"><span class="keyword">auto</span> arr1 = name;              <span class="comment">// arr1's type is const char*</span></span><br><span class="line"><span class="keyword">auto</span>&amp; arr2 = name;             <span class="comment">// arr2's type is const char (&amp;)[13]</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">double</span>)</span></span>;       <span class="comment">// someFunc is a function;</span></span><br><span class="line">                                <span class="comment">// type is void(int, double)</span></span><br><span class="line"><span class="keyword">auto</span> func1 = someFunc;            <span class="comment">// func1's type is</span></span><br><span class="line">                                <span class="comment">// void (*)(int, double)</span></span><br><span class="line"><span class="keyword">auto</span>&amp; func2 = someFunc;           <span class="comment">// func2's type is </span></span><br><span class="line">                                <span class="comment">// void (&amp;)(int, double)</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>下面来说说<code>auto</code>和模板推断不一样的地方：</strong></p>
+<p>在C++中<code>auto</code>初始化有四种方式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x1 = <span class="number">27</span>; </span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">x2</span><span class="params">(<span class="number">27</span>)</span></span>; </span><br><span class="line"><span class="keyword">auto</span> x3 = &#123; <span class="number">27</span> &#125;; </span><br><span class="line"><span class="keyword">auto</span> x4&#123; <span class="number">27</span> &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>前两个会被推导为<code>int</code>类型，后两个则是<code>std::initial izer_list</code>。这是因为当<code>auto</code>遇到花括号时会做自动转化，因此，以下情况是不允许的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x5 = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span> &#125;;   <span class="comment">// error!</span></span><br></pre></td></tr></table></figure>
+
+<p>与模板推断不同的地方如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123; <span class="number">11</span>, <span class="number">23</span>, <span class="number">9</span> &#125;;   <span class="comment">// x's type is std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;     </span><br><span class="line">f(&#123; <span class="number">11</span>, <span class="number">23</span>, <span class="number">9</span> &#125;);         <span class="comment">// error! can't deduce type for T</span></span><br></pre></td></tr></table></figure>
+
+<p>如果我们改一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;T&gt; initList)</span></span>;</span><br><span class="line">f(&#123; <span class="number">11</span>, <span class="number">23</span>, <span class="number">9</span> &#125;);         <span class="comment">// T deduced as int, and initList's type is std::initializer_list&lt;int&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>值得注意的是C++14允许<code>auto</code>用于函数返回值并会被推导（参见Item3），而且C++14的<code>lambda</code>函数也允许在形参中使用<code>auto</code>。在<strong>表面上使用的是auto但是实际上是模板类型推导的那一套规则在工作</strong>，所以说下面这样的代码不会通过编译：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createInitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;     <span class="comment">//错误！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-3-Understand-Decltype"><a href="#Item-3-Understand-Decltype" class="headerlink" title="Item 3:Understand Decltype."></a>Item 3:Understand Decltype.</h1><p><code>decltype</code>不像是<code>auto</code>和模板推断那样有着很多奇奇怪怪的限制。它，简单直观，是什么类型就一定返回什么类型。举一些例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> i = <span class="number">0</span>;           <span class="comment">// decltype(i) is const int</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> Widget&amp; w)</span></span>;   <span class="comment">// decltype(w) is const Widget&amp; </span></span><br><span class="line">                            <span class="comment">// decltype(f) is bool(const Widget&amp;)</span></span><br><span class="line">Widget w;                  <span class="comment">// decltype(w) is Widget</span></span><br><span class="line"><span class="keyword">if</span> (f(w)) …                <span class="comment">// decltype(f(w)) is bool</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;             <span class="comment">// decltype(v) is vector&lt;int&gt; </span></span><br><span class="line"><span class="keyword">if</span> (v[<span class="number">0</span>] == <span class="number">0</span>)               <span class="comment">// decltype(v[0]) is int&amp;</span></span><br></pre></td></tr></table></figure>
+
+<p>在C++11中<code>decltype</code>结合<code>auto</code>还可以完成<strong>函数返回值的类型推导</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line">auto AccessContainer(Container&amp; c,Index i) -&gt; decltype(c[i]) &#123;</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到了C++14的时候就可以省略掉后面的<code>-&gt; decltype(c[i])</code>了，变成下面的样子。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">AccessContainer</span><span class="params">(Container&amp; c,Index i)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>更高级的可以改为如下形式。它的作用原理是：<code>auto</code>声明表示“我要进行推断了”，而<code>decltype</code>则表示“<code>auto</code>你听我说，必须按照我<code>decltype</code>的方法推断（原封不动）”</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) AccessContainer(Container&amp; c,Index i) &#123;</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>decltype</code>保证返回变量的本来类型这一特性，保证不丢失<code>CV</code>限制符，和引用等，因此<strong>在C++14中可以通过<code>decltype</code>和<code>auto</code>来声明变量，保证变量的类型和赋值的类型一模一样</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; cw = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">auto</span> autoia = cw;             <span class="comment">//推导出的类型是int，引用和CV限制符都会忽略</span></span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) deautoia = cw; <span class="comment">//const int&amp; 保证和cw的类型一模一样</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的方案通过<code>decltype</code>和<code>auto</code>让返回值的类型变的完美，但是如果用户传入一个<code>const</code>的容器，将会导致编译出错。因为<code>AccessContainer</code>的参数类型是非常量引用，为了让他可以接收常量和非常量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) AccessContainer(<span class="keyword">const</span> Container&amp; c,Index i) &#123;</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这带来的另外一个问题就是，<code>c[i]</code>，返回的是常量引用，无法修改。好在C++11中引入了右值引用，它可以接收左值，右值还有带<code>const</code>的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) AccessContainer(Container&amp;&amp; c,Index i) &#123;</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于传入后，会把<code>c</code>的原本的形式给整没，也就是说：如果用户传入的是一个右值，通过移动语义传递给了<code>AccessContainer</code>的参数<code>c</code>，c变成了一个左值，如果在<code>AccessContainer</code>中需要把<code>c</code>再次传递给其他的函数的话就不能再次利用右值的移动语义了，带来了不必要的拷贝开销。那么就需要用到<strong>完美转发</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container,<span class="keyword">typename</span> Index&gt;</span><br><span class="line"><span class="keyword">decltype</span>(<span class="keyword">auto</span>) AccessContainer(Container&amp;&amp; c,Index i) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::forward&lt;Container&gt;(c)[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Item-4-Know-how-to-view-deduced-types"><a href="#Item-4-Know-how-to-view-deduced-types" class="headerlink" title="Item 4:Know how to view deduced types."></a>Item 4:Know how to view deduced types.</h1><p>这一节主要针对实际问题做讨论，做一下简化，只讨论可能用得到的。</p>
+<p>查看类型推导最简单的方法就是在IDE里面，把鼠标移到变量上查看。大部分情况下是很好用的，但不能适用于很复杂的情况。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191103165229.png" alt="img"></p>
+<p>如果要在运行时推断，有两种方法：</p>
+<p>（1）<code>typeid</code>的应用。简单明了，但忽略了CV限定符和引用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;typeinfo&gt;</span></span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; m = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="keyword">typeid</span>(<span class="keyword">decltype</span>(m)).name() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>; <span class="comment">//输出int</span></span><br></pre></td></tr></table></figure>
+
+<p>（2）boost库函数。能准确提取结果，但需要额外安装boost库。<a href="https://blog.csdn.net/fsac213330/article/details/52748223" target="_blank" rel="noopener">windows安装方法</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">const</span> T&amp; param)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::<span class="built_in">cout</span>;</span><br><span class="line">    <span class="keyword">using</span> boost::typeindex::type_id_with_cvr;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"param = "</span></span><br><span class="line">        &lt;&lt; type_id_with_cvr&lt;T&gt;().pretty_name()</span><br><span class="line">        &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"param = "</span></span><br><span class="line">        &lt;&lt; type_id_with_cvr&lt;<span class="keyword">decltype</span>(param)&gt;().pretty_name()</span><br><span class="line">        &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>&amp; m = <span class="number">10</span>;</span><br><span class="line">f(m);</span><br><span class="line"><span class="comment">//output: </span></span><br><span class="line">param = <span class="keyword">int</span></span><br><span class="line">param = <span class="keyword">int</span> <span class="keyword">const</span> &amp; __ptr64</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/24/EffectiveModernCPP%E7%AC%94%E8%AE%B01-%E7%B1%BB%E5%9E%8B%E6%8E%A8%E6%96%AD/" data-id="ck4o2tur00006u4vyae0b9640" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/26/EffectiveModernCPP%E7%AC%94%E8%AE%B02-auto%E7%9A%84%E4%BD%BF%E7%94%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          EffectiveModernCPP笔记2-auto的使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/24/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Leetcode题目总结11-其他</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

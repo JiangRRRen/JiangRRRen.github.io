@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Sim3变换 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 概述常见的欧式变换由6个自由度($R,T$各三个)，在SLAM问题中，可能会存在尺度的改变，因此自由度就变成了7个，见下图：  Sim3(Similarity Transformation)的提出就是为了解决两个坐标系之间的相似变换问题，只要我们能得到3对匹配好的点在两个坐标系下的坐标，我们就能解出相似变换。 从几何上理解：在欧式变换中，我们只需要两对匹配的点就可以求解，因为两个点构成向量，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sim3变换">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;18&#x2F;Sim3%E5%8F%98%E6%8D%A2&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 概述常见的欧式变换由6个自由度($R,T$各三个)，在SLAM问题中，可能会存在尺度的改变，因此自由度就变成了7个，见下图：  Sim3(Similarity Transformation)的提出就是为了解决两个坐标系之间的相似变换问题，只要我们能得到3对匹配好的点在两个坐标系下的坐标，我们就能解出相似变换。 从几何上理解：在欧式变换中，我们只需要两对匹配的点就可以求解，因为两个点构成向量，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190828131603.png">
+<meta property="article:published_time" content="2019-12-18T14:56:43.000Z">
+<meta property="article:modified_time" content="2019-12-18T15:06:30.259Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;bucket-1259555870.cos.ap-chengdu.myqcloud.com&#x2F;20190828131603.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Sim3变换" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/18/Sim3%E5%8F%98%E6%8D%A2/" class="article-date">
+  <time datetime="2019-12-18T14:56:43.000Z" itemprop="datePublished">2019-12-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Sim3变换
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>常见的欧式变换由6个自由度($R,T$各三个)，在SLAM问题中，可能会存在尺度的改变，因此自由度就变成了7个，见下图：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828131603.png" alt="img"></p>
+<p>Sim3(<strong>Similarity Transformation</strong>)的提出就是为了解决两个坐标系之间的相似变换问题，只要我们能得到<strong>3对匹配好的点在两个坐标系下的坐标</strong>，我们就能解出相似变换。</p>
+<p>从<strong>几何</strong>上理解：在欧式变换中，我们只需要两对匹配的点就可以求解，因为两个点构成向量，通过<strong>比较向量在两个空间的平移量和旋转量</strong>，就可以得到欧式变换的结果。而在相似变换中，通过增加一个点，三个点构成三角形，通过<strong>法向量能计算旋转量</strong>，通过<strong>面积相似性能计算尺度变化</strong>，利用$R,s$将两个面平行，通过<strong>计算面距离得到平移量</strong>。</p>
+<p>从<strong>代数</strong>上理解：两组三维点，能构成6个方程，解6个未知数；三组三维点，构成9个方程，超定方程解7个未知数。</p>
+<p>在SLAM中主要用于回环检测，因为回环过程中会产生尺度的漂移，需要计算当前帧和候选帧之间的sim3变换。</p>
+<h1 id="2-算法"><a href="#2-算法" class="headerlink" title="2. 算法"></a>2. 算法</h1><h2 id="2-1-坐标系"><a href="#2-1-坐标系" class="headerlink" title="2.1 坐标系"></a>2.1 坐标系</h2><p>假设3个点在左右两个坐标系下的坐标分别是$r_{l,1},r_{l,2},r_{l,3}$和$r_{r,1},r_{r,2},r_{r,3}$，令$r_{l,1}$和$r_{r,1}$分别为左右两个坐标系的原点，则我们可以算出这两个坐标系的$x,y,z$轴方向的单位向量：</p>
+<p>$X$方向：$x_l=r_{l,2}-r_{l,1}$,则单位向量$\hat x_l=x_l/|x_l|$</p>
+<p>$Y$方向：$y_l=(r_{l,3}-r_{l,1})-[(r_{l,3}-r_{l,1})·\hat x_l]\hat x_l$ ，则单位向量$\hat y_l=y_l/|y_l|$</p>
+<blockquote>
+<p>上面式子中$(r_{l,3}-r_{l,1})·\hat x_l$大小为$r_{l,3}-r_{l,1}$在$x$轴的投影（没有方向），再乘以$\hat x_l$得到了方向。做差后得到了与$x$轴垂直的方向。</p>
+</blockquote>
+<p>$Z$方向：$\hat z_l=\hat x_l \times \hat y_l$</p>
+<p>根据所得的坐标系单位向量，可以得到左右两侧坐标系的各个方向单位向量构成的基底矩阵：<br>$$<br>M_l=|\hat x_l \hat y_l \hat z_l| \ M_r=|\hat x_r \hat y_r \hat z_r|<br>$$<br>假设左边坐标系有一个向量 $r_l$ ,那么： $M_l^Tr_l$ 是 $r_l$ 在 $M_l$ 基底下的坐标，左乘 $M_r$ 变成右坐标系： $r_r=M_rM_l^Tr_l$变换为： $R=M_rM_l^T$ </p>
+<h2 id="2-2-计算平移量"><a href="#2-2-计算平移量" class="headerlink" title="2.2 计算平移量"></a>2.2 计算平移量</h2><p>设有n个点，在左右坐标系中分别表示为 ${r_{l,i}}$  和 ${r_{r,j}}$ ,我们的目的是找到如下的变换形式： $r_r=sR(r_l)+r_0$，其中$r_0$为平移偏移量。</p>
+<p>实际当中，两个坐标系之间的变换不会那么容易计算出精确的变换向量，一般使用最小二乘法来求解。此时，这里的误差为：<br>$$<br>e_i=r_{r,i}-sR(r_{l,i})-r_0<br>$$<br>那么，求解的最小二乘问题变成了求解：<br>$$<br>\sum^n_{i=1}|e_i|^2<br>$$<br>首先计算左右两个坐标系所有点的质心：<br>$$<br>r_l^-=\frac{1}{n}\sum^n_{i=1}r_{l,i}\   r_r^-=\frac{1}{n}\sum^n_{i=1}r_{r,i}<br>$$<br>则每一个点距离质心的距离为：<br>$$<br>r_{l,i}’=r_{l,i}-r^-<em>l \  r</em>{r,i}’=r_{r,i}-r^-<em>r\  \sum</em>{i=1}^n r_{l,i}’=0 \   \sum_{i=1}^nr_{r,i}’=0<br>$$<br>由此得出：<br>$$<br>\begin{eqnarray}<br>&amp;&amp;r_{r,i}’=sR(r_{l,i}’)-r_0’  \ &amp;&amp;\Longrightarrow   r_0’=r_{r,i}’-sR(r_{l,i}’)\<br>&amp;&amp;\Longrightarrow   r_0’=r_{r,i}’-sR(r_{l,i}-\overline r_l)\<br>&amp;&amp;\Longrightarrow   r_0’=r_{r,i}’-sR(r_{l,i})+sR(\overline r_l)\<br>&amp;&amp;\Longrightarrow r_0’=r_0-r_r^-+sR(\overline r_l)\<br>\end{eqnarray}<br>$$<br>优化函数变为：<br>$$<br>\begin{eqnarray}<br>\sum_{i=1}^n|e_i|^2&amp;&amp;=\sum_{i=1}^n|r_{r,i}’-[sR(r_{r,i}’)+r_0’|^2]\<br>&amp;&amp;=\sum_{i=1}^n|r_{r,i}’-sR(r_{l,i}’)|^2-2r_0’\cdot\sum_{i=1}^n[r_{r,i}’-sR(r_{l,i}’)]+n|r_0’|^2<br>\end{eqnarray}<br>$$<br>最后一项明显不为负，所以当最后一项等于0时最小，由此可以计算出<strong>平移量</strong>$t$：<br>$$<br>\begin{eqnarray}<br>t&amp;&amp;=r_0=r_r^–sR(r_l^-)<br>\end{eqnarray}<br>$$</p>
+<h2 id="2-3-尺度计算"><a href="#2-3-尺度计算" class="headerlink" title="2.3 尺度计算"></a>2.3 尺度计算</h2><p>旋转尺度不变性： $|R(r_{l,i}’)|^2=|r_{l,i}’|^2$ ，对误差式展开得：<br>$$<br>\sum_{i=1}^n|r’<em>{r,i}|^2-2s\sum</em>{i=1}^nr’<em>{r,i} \cdot R(r’</em>{l,i})+s^2\sum|r’_{l,i}|^2<br>$$<br>将上式写成：<br>$$<br>S_r-2sD+s^2S_l<br>$$</p>
+<p> 进一步拆分成：<br>$$<br>(s\sqrt{S_l}-D/\sqrt{S_l})^2+(S_rS_l-D^2)/S_l<br>$$<br>上面的式子只有第一项与s有关，所以当第一项等于0时达到最小，即 $s=D/S_l$ :<br>$$<br>s=\sum_{i=1}^nr’<em>{r,i} \cdot R(r’</em>{l,i})/\sum_{i=1}^n|r’<em>{l,i}|^2<br>$$<br>在误差模型中除一个根号s：<br>$$<br>e_i=\frac{1}{\sqrt{s}}r’</em>{r,i}-\sqrt{s}R(r’_{i,j})<br>$$<br>我们只是求误差的最小值，除以一个系数是没关系的，这样做的好处是最后求得的s与旋转因子无关，并且便于后面求解。</p>
+<p>最后得到：<br>$$<br>s=(\sum_{i=1}^n|r’<em>{r,i}|^2/\sum</em>{i=1}^n|r’_{i=1}|^2)^{1/2}<br>$$<br>因此只有在<strong>D取得最大的情况下，误差才会最小</strong>，现在就把问题变为了求D的过程。</p>
+<p><strong>引入四元数qq表示旋转</strong>(具体推导见三维刚体运动那一部分)：<br>$$<br>\sum_{i=1}^n r’<em>{r,i} \cdot R(r’</em>{l,i})=<br> \sum_{i=1}^n(q’r’<em>{l,i}q’^*) \cdot r’</em>{r,i}=\sum_{i=1}^n(q’r’<em>{l,i}) \cdot (r’</em>{r,i}q’)<br>$$<br>左边等于：<br>$$<br>q’r’<em>{l,i}=\left[\begin{matrix}    0 &amp; -x’</em>{l,i} &amp; -y’<em>{l,i} &amp; -z’</em>{l,i}\    x’<em>{l,i} &amp; 0 &amp; z’</em>{l,i} &amp; -y’<em>{l,i} \    y’</em>{l,i} &amp; -z’<em>{l,i} &amp; 0 &amp; x’</em>{l,i} \   z’<em>{l,i} &amp; y’</em>{l,i} &amp; -x’<em>{l,i} &amp; 0   \end{matrix}\right]q’=R</em>{l,i}q’<br>$$<br>右边等于：<br>$$<br>r’<em>{r,i}q’=\left[\begin{matrix}    0 &amp; -x’</em>{r,i} &amp; -y’<em>{r,i} &amp; -z’</em>{r,i}\    x’<em>{r,i} &amp; 0 &amp; -z’</em>{r,i} &amp; y’<em>{r,i} \    y’</em>{r,i} &amp; z’<em>{r,i} &amp; 0 &amp; -x’</em>{r,i} \   z’<em>{r,i} &amp; -y’</em>{r,i} &amp; x’<em>{r,i} &amp; 0   \end{matrix}\right]q’= R</em>{r,i}q’<br>$$<br>所以又可以表达为：<br>$$<br>\sum_{i=1}^n(R_{l,i}q’) \cdot (R_{r,i}q’)=\sum_{i=1}^nq’^TR_{l,i}^TR_{r,i}q’=q’^TNq’<br>$$<br>为了求解$N$，先引入一个$M$矩阵：<br>$$<br>M=\sum_{i=1}^nr’<em>{l,i}r’^T</em>{r,i}=\left[\begin{matrix}<br>S_{xx} &amp; S_{xy} &amp; S_{xz}\<br>S_{yx} &amp; S_{yy} &amp; S_{yz} \<br>   S_{zx} &amp; S_{zy} &amp; S_{zz}<br>  \end{matrix}\right]<br>$$<br>则$N$矩阵就可以表示为:<br>$$<br>N=\left[\begin{matrix}<br>(S_{xx}+S_{yy}+S_{zz}) &amp; S_{yz} -S_{zy} &amp; S_{zx}-S_{xz} &amp; S_{xy}-S_{yx}\<br>S_{yz}-S_{zy} &amp; (S_{xx}-S_{yy}-S_{zz}) &amp; S_{xy}+S_{yx} &amp; S_{zx}+S_{xz}\<br>   S_{zx}-S_{xz} &amp; S_{xy}-S_{yx} &amp; (-S_{xx}+S_{yy}-S_{zz}) &amp; S_{yz}+S_{zy}   \<br>   S_{xy} -S_{yx} &amp; S_{zx}+S_{xz} &amp; S_{yz}-S_{zy} &amp;(-S_{xx}-S_{yy}+S_{zz})<br>  \end{matrix}\right]<br>$$<br>引出$M$来就是为了让其中的量来表示$N$，如上式。将$N$进行<strong>特征分解</strong>，求得最大特征值对应的特征向量为四元数表示的旋转。之后平移和尺度关系也能相应求解。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/18/Sim3%E5%8F%98%E6%8D%A2/" data-id="ck4o2tus40019u4vyero1dpca" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/18/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SVD解超定方程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/18/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ORB_SLAM2源码解析-LoopClosing回环检测</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B4-%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程4-可变参数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/">CPP泛型编程3-非类型的模板参数</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">CPP泛型编程2-类模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/27/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/">CPP泛型编程1-函数模板</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">CPP多线程总结4-并发数据结构设计实例</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
