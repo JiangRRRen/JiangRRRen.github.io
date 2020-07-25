@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>面向对象的继承思想 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Objective-C,面试经验">
+    <meta name="description" content="探讨面向对象的两大流派。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面向对象的继承思想">
+<meta property="og:url" content="jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="探讨面向对象的两大流派。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/image-20200626220254360.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/figure8.1.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/image-20200627130127799.png">
+<meta property="article:published_time" content="2020-07-25T05:33:18.000Z">
+<meta property="article:modified_time" content="2020-07-25T05:48:55.848Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="Objective-C">
+<meta property="article:tag" content="面试经验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/image-20200626220254360.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">面向对象的继承思想</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">面向对象的继承思想</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-07-25T05:33:18.000Z" itemprop="datePublished" class="page-time">
+  2020-07-25
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Objective-C/">Objective-C</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-继承的分类"><span class="post-toc-text">1. 继承的分类</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-类继承和原型继承"><span class="post-toc-text">1.1 类继承和原型继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-哲学思想"><span class="post-toc-text">1.2 哲学思想</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-原型继承举例"><span class="post-toc-text">2. 原型继承举例</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-菱形继承的问题"><span class="post-toc-text">3.菱形继承的问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#"><span class="post-toc-text"> </span></a></li></ol></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-面向对象的继承思想"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">面向对象的继承思想</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-07-25 13:33:18" datetime="2020-07-25T05:33:18.000Z"  itemprop="datePublished">2020-07-25</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Objective-C/">Objective-C</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>探讨面向对象的两大流派。</p>
+<a id="more"></a>
+<h1 id="1-继承的分类"><a href="#1-继承的分类" class="headerlink" title="1. 继承的分类"></a>1. 继承的分类</h1><h2 id="1-1-类继承和原型继承"><a href="#1-1-类继承和原型继承" class="headerlink" title="1.1 类继承和原型继承"></a>1.1 类继承和原型继承</h2><p>OOP有两大类别：class-based和prototype-based。</p>
+<p>对于C++和Java来说，他们的面向对象基于：类和实例，</p>
+<ul>
+<li>一个<em>类(class)</em>定义了某一对象集合所具有的特征性属性。类是抽象的，而不是其所描述的对象集合中的任何特定的个体。例如 <code>Employee</code> 类可以用来表示所有雇员的集合。</li>
+<li>一个<em>实例(instance)</em>是一个<em>类</em>的实例化。例如， <code>Tom</code> 可以是 <code>Employee</code> 类的一个实例，表示一个特定的雇员个体。实例具有和其父类完全一致的属性，不多也不少。</li>
+</ul>
+<p>对于JavaScript来说，它只有对象。基于原型的语言具有所谓<strong>原型对象(prototypical object)</strong>的概念。原型对象可以作为一个模板，新对象可以从中获得原始的属性。</p>
+<hr>
+<p>举例对比：</p>
+<ul>
+<li>Class-based：假设 <code>Employee</code> 类只有 <code>name</code> 和 <code>dept</code> 属性，而 <code>Manager</code> 是 <code>Employee</code> 的子类并添加了 <code>reports</code> 属性。这时，<code>Manager</code> 类的实例将具有所有三个属性：<code>name</code>，<code>dept</code>和<code>reports</code>。</li>
+<li>Prototype-based：<ol>
+<li>首先，定义Employee构造函数，在该构造函数内定义name、dept属性；</li>
+<li>接下来，定义Manager构造函数，在该构造函数内调用Employee构造函数，并定义reports属性。</li>
+<li>最后，将一个获得了Employee.prototype(Employee构造函数原型)的新对象赋予manager构造函数，以作为Manager构造函数的原型。之后当你创建新的Manager对象实例时，该实例会从Employee对象继承name、dept属性。</li>
+</ol>
+</li>
+</ul>
+<hr>
+<p>总结：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/image-20200626220254360.png" alt="image-20200626220254360" title="">
+                </div>
+                <div class="image-caption">image-20200626220254360</div>
+            </figure>
+<h2 id="1-2-哲学思想"><a href="#1-2-哲学思想" class="headerlink" title="1.2 哲学思想"></a>1.2 哲学思想</h2><p>Class-based强调belongs to，prototype-based强调is a。在后者的思想里，其实本质上没有真正的继承关系，只是声明自己支持某个<strong>协议/接口/prototype</strong>，然后想办法真的去支持这个协议即可。</p>
+<p>在《设计模式：可复用面向对象软件的基础》一书的开头，作者提出了面向对象设计的两大基本原则：</p>
+<ul>
+<li>Program to an interface, not an implementation. 面向接口而非面向实现</li>
+<li>Favor object composition over class inheritance. 使用对象组合而非继承</li>
+</ul>
+<p>形象一点说就是：<strong>类继承类似于高达模型</strong>。模型的零件必须按照正确的方式组装起来，如果装错了，整个体系就搭建不起来。<strong>组合更像是乐高积木</strong>。各式各样的零件并不只能与指定的零件组合。相反，每一块积木都被设计为可以与其它零件任意组合。</p>
+<p>类继承会带来4个问题：</p>
+<ul>
+<li><strong>强耦合</strong>。父类的方法和属性完全暴露给子类。</li>
+<li><strong>多重继承十分复杂</strong>。</li>
+<li><strong>脆弱的架构</strong>。由于强耦合的存在，通常很难对一个使用了“错误”设计的类进行重构，因为有太多既有功能依赖这些既有设计。</li>
+<li><strong>大猩猩与香蕉问题</strong>。你想要一个香蕉，而你却必须抱着一个拿着香蕉的大猩猩。（只想使用父类的一些属性和方法，却必须拥有整个父类）</li>
+</ul>
+<p>晚出现的一些语言，比如go，直接就走了prototype-based的道路。</p>
+<h1 id="2-原型继承举例"><a href="#2-原型继承举例" class="headerlink" title="2. 原型继承举例"></a>2. 原型继承举例</h1><p>利用原型继承，实现如下结构：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/figure8.1.png" alt="img" title="">
+                </div>
+                <div class="image-caption">img</div>
+            </figure>
+<p>在原型继承中，第一步是思考如何创建构造器：</p>
+<pre><code class="lang-js">function Employee () {
+  this.name = &quot;&quot;;
+  this.dept = &quot;general&quot;;
+}
+</code></pre>
+<p>在 JavaScript 中，会添加一个<strong>原型实例</strong>作为构造器函数prototype 属性的值，然后将<strong>该构造函数原型的构造器重载为其自身</strong>。</p>
+<pre><code class="lang-js">function Manager() {
+  Employee.call(this);
+  this.reports = [];
+}
+Manager.prototype = Object.create(Employee.prototype);
+
+function WorkerBee() {
+  Employee.call(this);
+  this.projects = [];
+}
+WorkerBee.prototype = Object.create(Employee.prototype);
+</code></pre>
+<hr>
+<p>在使用New创建实例<code>var Tom = new WorkerBee;</code>时，实际上发生了以下事情：</p>
+<ol>
+<li>开辟内存，创建一个普通对象</li>
+<li>将这个普通对象中的<code>prototype</code>指向<code>WorkerBee.prototype</code></li>
+<li>把这个普通对象设置为执行 <code>WorkerBee</code> 构造函数时 <code>this</code> 的值。</li>
+<li>执行完毕后，JavaScript 返回之前创建的对象，通过赋值语句将它的引用赋值给变量 <code>mark</code>。</li>
+</ol>
+<hr>
+<p>当访问<code>Tom</code>的属性时，</p>
+<ol>
+<li>检查自身是否含有这个属性</li>
+<li>顺着原型链检查其中的对象是是否含有这个属性</li>
+<li>如果都没有，则返回<code>undefined</code></li>
+</ol>
+<h1 id="3-菱形继承的问题"><a href="#3-菱形继承的问题" class="headerlink" title="3.菱形继承的问题"></a>3.菱形继承的问题</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/image-20200627130127799.png" alt="image-20200627130127799" style="zoom:50%;" /></p>
+<p>容易出现二义性的问题：</p>
+<pre><code class="lang-objective-c">class A{
+public:
+    A():a(1){};
+    void printA(){cout&lt;&lt;a&lt;&lt;endl;}
+    int a;
+};
+
+class B : public A{
+};
+
+class C : public A{
+};
+
+class D:  public B ,  public C{
+};
+
+D d;
+d.a=10;////error C2385: 对“a”的访问不明确
+</code></pre>
+<p>C++使用了虚继承的方法来解决：对给定的虚基类，无论该类在派生层次中作为虚基类出现多少次，<strong>只继承一个共享的基类子对象</strong>。下面的代码中在派生类 D 中就只保留了一份成员变量 m_a，直接访问就不会再有歧义了。</p>
+<pre><code class="lang-CPP">//间接基类A
+class A{
+protected:
+    int m_a;
+};
+//直接基类B
+class B: virtual public A{  //虚继承
+protected:
+    int m_b;
+};
+//直接基类C
+class C: virtual public A{  //虚继承
+protected:
+    int m_c;
+};
+//派生类D
+class D: public B, public C{
+public:
+    void seta(int a){ m_a = a; }  //正确
+    void setb(int b){ m_b = b; }  //正确
+    void setc(int c){ m_c = c; }  //正确
+    void setd(int d){ m_d = d; }  //正确
+private:
+    int m_d;
+};
+</code></pre>
+<h3 id=""><a href="#" class="headerlink" title=" "></a> </h3>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" target="_blank" rel="external">jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/" rel="tag">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E7%BB%8F%E9%AA%8C/" rel="tag">面试经验</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&title=《面向对象的继承思想》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&title=《面向对象的继承思想》 — JR's Blog&source=探讨面向对象的两大流派。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面向对象的继承思想》 — JR's Blog&url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/03/02/GoWeb%E5%AE%9E%E6%88%982-%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E9%A9%AC%E8%B5%9B%E5%85%8B%E5%9B%BE%E7%89%87/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">GoWeb实战2-并发处理马赛克图片</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&title=《面向对象的继承思想》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&title=《面向对象的继承思想》 — JR's Blog&source=探讨面向对象的两大流派。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面向对象的继承思想》 — JR's Blog&url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/07/25/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%A7%E6%89%BF%E6%80%9D%E6%83%B3/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>
