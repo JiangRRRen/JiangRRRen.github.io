@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>高斯金字塔与拉普拉斯金字塔 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,图像处理,算法,计算机视觉">
+    <meta name="description" content="介绍高斯金字塔、拉普拉斯金字塔原理，以及他们的应用——图像融合。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高斯金字塔与拉普拉斯金字塔">
+<meta property="og:url" content="jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="介绍高斯金字塔、拉普拉斯金字塔原理，以及他们的应用——图像融合。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217150618.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217151040.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152619.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152416.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152827.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217154749.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155514.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155712.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160453.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160613.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217161305.png">
+<meta property="article:published_time" content="2019-08-10T03:43:35.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:57:45.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="图像处理">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217150618.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">高斯金字塔与拉普拉斯金字塔</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">高斯金字塔与拉普拉斯金字塔</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-10T03:43:35.000Z" itemprop="datePublished" class="page-time">
+  2019-08-10
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-高斯金字塔"><span class="post-toc-text">1. 高斯金字塔</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-拉普拉斯金字塔"><span class="post-toc-text">2. 拉普拉斯金字塔</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-金字塔的应用-图像融合"><span class="post-toc-text">3. 金字塔的应用-图像融合</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-高斯金字塔与拉普拉斯金字塔"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">高斯金字塔与拉普拉斯金字塔</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-10 11:43:35" datetime="2019-08-10T03:43:35.000Z"  itemprop="datePublished">2019-08-10</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>介绍高斯金字塔、拉普拉斯金字塔原理，以及他们的应用——图像融合。<a id="more"></a></p>
+<h1 id="1-高斯金字塔"><a href="#1-高斯金字塔" class="headerlink" title="1. 高斯金字塔"></a>1. 高斯金字塔</h1><p>高斯金字塔本质上是信号的在不同尺度上的表达，即将同一图片多次进行高斯模糊，并向下采样，产生不同尺度下的多组信号或图片以进行后续的处理。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217150618.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>为了获取层级为$G_{i+1}$的金子塔图像，我们采用如下办法：</p>
+<ol>
+<li>对图像$G_i$进行高斯平滑</li>
+<li>将所有偶数行去除</li>
+</ol>
+<p>得到的图像即为$G_{i+1}$的图像。显然，整个图像的大小只有原图的1/4。不断重复操作就能得到整个金字塔。</p>
+<p>高斯内核如下：</p>
+<script type="math/tex; mode=display">
+\frac{1}{256}\left[\begin{array}{ccccc}{1} & {4} & {6} & {4} & {1} \\ {4} & {16} & {24} & {16} & {4} \\ {6} & {24} & {36} & {24} & {6} \\ {4} & {16} & {24} & {16} & {4} \\ {1} & {4} & {6} & {4} & {1}\end{array}\right]</script><p>降采样过程如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217151040.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在Opencv中调用<code>pyrDown</code>函数即可，默认输出参数为<code>Size((src.cols+1)/2, (src.rows+1)/2)</code></p>
+<pre><code class="lang-CPP">void cv::pyrDown    (    InputArray     src,
+                     OutputArray     dst,
+                     const Size &amp;     dstsize = Size(),
+                     int     borderType = BORDER_DEFAULT 
+                    )
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152619.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="2-拉普拉斯金字塔"><a href="#2-拉普拉斯金字塔" class="headerlink" title="2. 拉普拉斯金字塔"></a>2. 拉普拉斯金字塔</h1><p>拉普拉斯金字塔式高斯金字塔的逆过程，又称差分金字塔(DOG)。</p>
+<p>假设我们现在拥有高斯采样图$G_{i + 1}$和$G_i $，则拉普拉斯金字塔计算方式如下：</p>
+<ol>
+<li>将$G<em>i $每列每行赋值一遍，插入到隔行隔列中间，这样图像$G</em>{i+1}^{\prime}$大小和$G_{i+1}$相同</li>
+<li>两者做差$G<em>{i+1}^{\prime}-G</em>{i+1}$，得到的结果就是拉普拉斯金字塔</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152416.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>同样的在opencv中也有：</p>
+<pre><code class="lang-CPP">void cv::pyrUp    (    InputArray     src,
+                 OutputArray     dst,
+                 const Size &amp;     dstsize = Size(),
+                 int     borderType = BORDER_DEFAULT 
+                )
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217152827.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="3-金字塔的应用-图像融合"><a href="#3-金字塔的应用-图像融合" class="headerlink" title="3. 金字塔的应用-图像融合"></a>3. 金字塔的应用-图像融合</h1><p>如12所示，我们能够按如下方法得到图像的高斯金字塔和拉普拉斯金字塔：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217154749.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在最底层，我们认为高斯等于拉普拉斯，由此我们希望以此为开始，融合两张图片。</p>
+<p>首先我们需要准备一个掩模M</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155514.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>通过掩模对两张图像的拉普拉斯每一层做运算，然后相加：</p>
+<script type="math/tex; mode=display">
+LS_i=LA_i\cdot M+LB_i\cdot (1-M)</script><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217155712.png" style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>随后将得到的图片进行扩展，然后加上下一层的图片：</p>
+<script type="math/tex; mode=display">
+Res_i = LS_i+expand(LS_{i+1})</script><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160453.png" style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>另一种简单的办法是feathr blending，对于交接区域我们做简答的加权即可。</p>
+<script type="math/tex; mode=display">
+PB(i,j) = (1-w)*PA(i,j) + w*PB(i,j)</script><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217160613.png" style="zoom:67%;" /></p>
+<p>这种办法对图像的质量要求很高，如果两张图片存在曝光差异(exposure differences)，算法结果就会很差。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217161305.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" target="_blank" rel="external">jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag">计算机视觉</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&title=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&title=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&source=介绍高斯金字塔、拉普拉斯金字塔原理，以及他们的应用——图像融合。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/10/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SLAM基础4-相机模型</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础3-李群和李代数</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&title=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&title=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&source=介绍高斯金字塔、拉普拉斯金字塔原理，以及他们的应用——图像融合。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高斯金字塔与拉普拉斯金字塔》 — JR's Blog&url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

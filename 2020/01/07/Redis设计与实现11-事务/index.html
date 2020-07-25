@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis设计与实现11-事务 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="Redis通过MULTI、EXEC、WATCH等命令来实现事务（transaction）功能。事务将一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制，并且在事务执行期间，服务器不会中断事务而改去执行其他客户端的命令请求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis设计与实现11-事务">
+<meta property="og:url" content="jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="Redis通过MULTI、EXEC、WATCH等命令来实现事务（transaction）功能。事务将一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制，并且在事务执行期间，服务器不会中断事务而改去执行其他客户端的命令请求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107143029.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107145421.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200115124435.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107152901.png">
+<meta property="article:published_time" content="2020-01-07T05:54:21.000Z">
+<meta property="article:modified_time" content="2020-01-15T13:01:49.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107143029.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis设计与实现11-事务</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis设计与实现11-事务</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-07T05:54:21.000Z" itemprop="datePublished" class="page-time">
+  2020-01-07
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-事务的实现"><span class="post-toc-text">1. 事务的实现</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-WATCH命令的实现"><span class="post-toc-text">2. WATCH命令的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-监视原理"><span class="post-toc-text">2.1 监视原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-监视触发"><span class="post-toc-text">2.2 监视触发</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-判断事务是否安全"><span class="post-toc-text">2.3 判断事务是否安全</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-事务的ACID性质"><span class="post-toc-text">3. 事务的ACID性质</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis设计与实现11-事务"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis设计与实现11-事务</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-07 13:54:21" datetime="2020-01-07T05:54:21.000Z"  itemprop="datePublished">2020-01-07</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>Redis通过MULTI、EXEC、WATCH等命令来实现事务（transaction）功能。事务将<strong>一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制</strong>，并且在事务执行期间，<strong>服务器不会中断事务</strong>而改去执行其他客户端的命令请求。<a id="more"></a></p>
+<pre><code class="lang-C">redis-&gt;MULTI
+OK
+
+redis-&gt;SET &quot;name&quot; &quot;hellp&quot;
+QUEUED
+
+redis-&gt;GET &quot;name&quot;
+QUEUED
+
+redis-&gt;EXEC
+1)OK
+2)&quot;hellp&quot;
+</code></pre>
+<h1 id="1-事务的实现"><a href="#1-事务的实现" class="headerlink" title="1. 事务的实现"></a>1. 事务的实现</h1><p>一个事务从开始到结束会经历三个阶段：</p>
+<ul>
+<li>事务开始</li>
+<li>命令入队</li>
+<li>事务执行</li>
+</ul>
+<p><strong>（1）事务开始</strong></p>
+<p>通过MULTI命令可以将执行该命令的客户端<strong>从非事务状态切换至事务状态</strong>，这一切换是通过在客户端状态的flags属性中打开REDIS_MULTI标识来完成的。</p>
+<p>当一个客户端已经处于非事务状态时，这个客户端发送的<strong>命令会被服务器执行</strong>。然而当切换到事务状态后，服务器会根据这个客户端发来的不同命令执行不同的操作：</p>
+<ul>
+<li>如果客户端发送EXEC，DISCARD，WATCH，MULTI这四个命令，则立即执行。</li>
+<li>如果发送的是其他命令，则放到事务队列里面，向客户端返回QUEUED回复。</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107143029.png"  style="zoom:66%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>（2）命令入队</strong></p>
+<p>事务的关键实现在于<strong>命令入队</strong>，每个Redis客户端都有自己的<strong>事务状态</strong>，这个事务状态保存在客户端状态的mstate属性里面：</p>
+<pre><code class="lang-C">typedef struct redisClient
+{
+    //...
+    multiState mstate;
+    //...
+}
+</code></pre>
+<p>而<strong>事务状态结构体</strong>又包含了一个<strong>事务队列</strong>，以及一个<strong>已入队命令的计数器</strong>。</p>
+<pre><code class="lang-C">typedef struct multiState 
+{ 
+    // 事务队列，FIFO顺序 
+    multiCmd *commands; 
+    // 已入队命令计数 
+    int count;
+} multiState;
+</code></pre>
+<p><strong>事务队列</strong>是一个结构体，实现了队列数据结构，执行FIFO先进先出的策略。真实结构是一个数组。</p>
+<pre><code class="lang-c">typedef struct multiCmd 
+{ 
+    // 参数 
+    robj **argv; 
+    // 参数数量
+    int argc; 
+    // 命令指针 
+    struct redisCommand *cmd;
+} multiCmd;
+</code></pre>
+<p>事务结构具体的包含逻辑是：<strong>客户端-&gt;事务状态multiState-&gt;事务队列multiCmd-&gt;具体命令cmd</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107145421.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>（3）执行事务</strong></p>
+<p>当一个处于事务状态的客户端向服务器发送EXEC命令时，这个EXEC命令将立即被服务器执行。<strong>服务器会遍历这个客户端的事务队列，执行队列中保存的所有命令，最后将执行命令所得的结果全部返回给客户端。</strong></p>
+<ol>
+<li>创建空白回复队列</li>
+<li>抽取一条命令，读取参数、参数个数以及要执行的函数</li>
+<li>执行命令，取得返回值</li>
+<li>将返回值追加到1中的队列末尾，重复步骤2</li>
+</ol>
+<p>完成所有命令后，将<strong>清除REDIS_MULTI标志</strong>，让客户端变为非事务状态，同时清<strong>零入队命令计数器，并释放事务队列。</strong></p>
+<h1 id="2-WATCH命令的实现"><a href="#2-WATCH命令的实现" class="headerlink" title="2. WATCH命令的实现"></a>2. WATCH命令的实现</h1><p>WATCH可以别翻译为<strong>监视器</strong>。WATCH命令是一个<strong>乐观锁（optimistic locking）</strong>。</p>
+<blockquote>
+<p>悲观锁：有罪推定原则，每次有人操作数据时都会假定他要修改，每次都会上互斥锁。</p>
+<p>乐观锁：无罪推定原则，每次别人拿数据都假定他不修改，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据。</p>
+</blockquote>
+<p>它可以<strong>在EXEC命令执行之前</strong>，<strong>监视任意数量的数据库键</strong>，并在EXEC命令执行时，<strong>检查被监视的键是否至少有一个已经被修改过了</strong>，<strong>如果是的话，服务器将拒绝执行事务</strong>，并向客户端返回代表事务执行失败的空回复。</p>
+<pre><code class="lang-C">redis-&gt; WATCH &quot;name&quot;
+OK
+
+redis-&gt; MULTI
+OK
+
+redis-&gt; SET &quot;name&quot; &quot;peter&quot;
+QUEUED
+
+redis-&gt; EXEC
+(nil)
+</code></pre>
+<p>上面的例子中，WATCH监视器发现了其他客户端事务修改了name的值，因此拒绝执行该事务，返回空回复。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200115124435.png"/></p>
+<p>比如我们可以通过WATCH来解决自增冲突的问题：</p>
+<pre><code class="lang-C">WATCH mykey
+
+val = GET mykey
+val = val + 1
+
+MULTI
+SET mykey $val
+EXEC
+</code></pre>
+<h2 id="2-1-监视原理"><a href="#2-1-监视原理" class="headerlink" title="2.1 监视原理"></a>2.1 监视原理</h2><p>每个Redis数据库都保存着一个<code>watched_keys</code>字典，这个字典的<strong>键是某个被WATCH命令监视的数据库键</strong>，而<strong>字典的值则是一个链表，链表中记录了所有监视相应数据库键的客户端：</strong></p>
+<pre><code class="lang-C">typedef struct redisDb 
+{ 
+    // ... 
+    // 正在被WATCH命令监视的键 
+    dict *watched_keys;
+    // ...
+} redisDb;
+</code></pre>
+<p>下图说明：c1和c2客户端正在监视键”name”，c3客户端正在监视”age”….</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200107152901.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="2-2-监视触发"><a href="#2-2-监视触发" class="headerlink" title="2.2 监视触发"></a>2.2 监视触发</h2><p>对数据库<strong>执行修改命令</strong>时，比如SET、LPUSH、SADD、ZREM、DEL、FLUSHDB等等，在执行之后都会调用<code>multi.c/touchWatchKey</code>函数对<code>watched_keys</code>字典进行检查。<strong>查看当前命令修改的键是否在<code>watched_keys</code>字典中</strong>，如果有，则客户端的<code>REDIS_DIRTY_CAS</code>标识打开<strong>，表示该客户端的事务安全性已经被破坏</strong>。</p>
+<h2 id="2-3-判断事务是否安全"><a href="#2-3-判断事务是否安全" class="headerlink" title="2.3 判断事务是否安全"></a>2.3 判断事务是否安全</h2><p>当服务器接收到一个客户端发来的EXEC命令时，服务器会根据这个客户端是否打开了<code>REDIS_DIRTY_CAS</code>标识来决定是否执行事务。</p>
+<ul>
+<li>如果标志被打开，则说明哨兵监视的键中被修改过了，所以当前提交的事务不再安全，拒绝执行客户端提交的事务。</li>
+<li>反之，是安全的，继续执行。</li>
+</ul>
+<h1 id="3-事务的ACID性质"><a href="#3-事务的ACID性质" class="headerlink" title="3. 事务的ACID性质"></a>3. 事务的ACID性质</h1><p>所谓ACID性质是指：<strong>有原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、耐久性（Durability）。</strong></p>
+<p><strong>（1）原子性</strong></p>
+<p>所谓原子性就是某个操作不可再分，比如汇编语言里面的<code>MOV DST,SRC</code>。事务的定义就是：将多个命令打包成一个实现，<strong>要么全部执行，要么都不执行</strong>。<strong>在命令入队的时候，用WATCH进行检查</strong>，不符合要求就直接返回。</p>
+<p>Redis的事务和传统的关系型数据库事务的最大区别在于，<strong>Redis不支持事务回滚机制（rollback）</strong>。作者认为Redis追求简单高效，回滚机制太复杂。</p>
+<blockquote>
+<p>回滚(rollback)是指当事务中某一条命令执行出错时，意味着前面的命令可能也不安全，这时候就会释放掉前面的操作，恢复到执行事务之前的状态。MySQL数据库支持回滚操作。</p>
+</blockquote>
+<p><strong>（2）一致性</strong></p>
+<p>“<strong>一致”指的是数据符合数据库本身的定义和要求，没有包含非法或者无效的错误数据。</strong>如果数据库在执行事务之前是一致的，那么在事务执行之后，无论事务是否执行成功，数据库也应该仍然是一致的。Redis保证一致性的方法如下：</p>
+<ul>
+<li><strong>入队错误</strong>：事务入队时命令格式不正确，则Redis拒绝执行</li>
+<li><strong>执行错误</strong>：执行时操作不正确，会被服务器识别，并做错误处理，所以这些出错命令不会对数据库做任何修改</li>
+<li><strong>服务器停机</strong>：停机分三种情况，<ul>
+<li>无持久化：重启后清空，数据总是一致的</li>
+<li>RDB模式：根据RDB恢复数据，还原为一致状态</li>
+<li>AOF模式：根据AOF恢复数据，还原为一致状态</li>
+</ul>
+</li>
+</ul>
+<p><strong>（3）隔离性</strong></p>
+<p>隔离性也可被理解为<strong>不存在竞争</strong>。即使数据库中有多个事务并发地执行，各个事务之间也不会互相影响。</p>
+<p>因为Redis使用<strong>单线程</strong>的方式来执行事务（以及事务队列中的命令），并且服务器保证，在执行事务期间<strong>不会对事务进行中断</strong>。这种<strong>串行</strong>的方式保证了事务也总是具有隔离性的。</p>
+<p><strong>（4）耐久性</strong></p>
+<p>事务的耐久性指的是，当一个事务执行完毕时，执行这个事务所得的结果已经<strong>被保存到永久性存储介质</strong>（比如硬盘）里面了，即使服务器在事务执行完毕之后停机，执行事务所得的结果也不会丢失。</p>
+<p>Redis事务只是简答包裹了一组Redis命令，耐久性由持久化实现。前面提到持久化分不同的情况</p>
+<ul>
+<li>RDB模式下，只有特定条件被满足时才会执行BGSAVE，不具有耐久性。</li>
+<li>AOF模式根据appendfsync选项来决定<ul>
+<li>always，每次执行命令后都会调用同步函数，具有耐久性。</li>
+<li>everysec，每一秒才会同步到硬盘，不具有耐久性。</li>
+<li>no，程序会交由操作系统来决定何时将命令数据同步到硬盘。不具有耐久性。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>总的来说，Redis事务<strong>一定</strong>具有原子性，一致性和隔离性，但<strong>只有在特定条件</strong>下才具有耐久性。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" target="_blank" rel="external">jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&title=《Redis设计与实现11-事务》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&title=《Redis设计与实现11-事务》 — JR's Blog&source=Redis通过MULTI、EXEC、WATCH等命令来实现事务（transaction）功能。事务将一种将多个命令请求打包，然后一次性、按顺序地执行多个命..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现11-事务》 — JR's Blog&url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/08/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B012-Lua%E8%84%9A%E6%9C%AC/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Redis设计与实现12-Lua脚本</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B010-%E5%8F%91%E5%B8%83%E4%B8%8E%E8%AE%A2%E9%98%85/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis设计与实现10-发布与订阅</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&title=《Redis设计与实现11-事务》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&title=《Redis设计与实现11-事务》 — JR's Blog&source=Redis通过MULTI、EXEC、WATCH等命令来实现事务（transaction）功能。事务将一种将多个命令请求打包，然后一次性、按顺序地执行多个命..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现11-事务》 — JR's Blog&url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B011-%E4%BA%8B%E5%8A%A1/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

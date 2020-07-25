@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis设计与实现9-集群 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="Redis集群是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis设计与实现9-集群">
+<meta property="og:url" content="jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="Redis集群是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111112438.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111112558.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111113941.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111114635.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111123632.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112104732.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112100142.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112102348.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112103121.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112103137.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112105535.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112105711.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112111238.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112112014.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112111957.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112112220.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112113144.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112133931.png">
+<meta property="article:published_time" content="2020-01-06T10:17:06.000Z">
+<meta property="article:modified_time" content="2020-01-12T16:19:09.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111112438.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis设计与实现9-集群</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis设计与实现9-集群</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-06T10:17:06.000Z" itemprop="datePublished" class="page-time">
+  2020-01-06
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-节点"><span class="post-toc-text">1. 节点</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-节点是什么"><span class="post-toc-text">1.1 节点是什么</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-启动节点"><span class="post-toc-text">1.2 启动节点</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-集群数据结构"><span class="post-toc-text">1.3 集群数据结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-实现CLUSTER-MEET命令"><span class="post-toc-text">1.4 实现CLUSTER MEET命令</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-槽指派"><span class="post-toc-text">2. 槽指派</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-当前节点的槽指派信息"><span class="post-toc-text">2.1 当前节点的槽指派信息</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-传播节点的槽指派信息"><span class="post-toc-text">2.2 传播节点的槽指派信息</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-集群所有槽的指派信息"><span class="post-toc-text">2.3 集群所有槽的指派信息</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-槽的保存方式"><span class="post-toc-text">2.4 槽的保存方式</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-MOVED错误"><span class="post-toc-text">3. MOVED错误</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-判断槽是否自己负责"><span class="post-toc-text">3.1 判断槽是否自己负责</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-MOVED错误实现"><span class="post-toc-text">3.2 MOVED错误实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-重新分片"><span class="post-toc-text">4. 重新分片</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-ASK错误"><span class="post-toc-text">5. ASK错误</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-1-关键命令"><span class="post-toc-text">5.1 关键命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-2-ASKING命令"><span class="post-toc-text">5.2 ASKING命令</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#6-节点的复制与故障转移"><span class="post-toc-text">6. 节点的复制与故障转移</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-1-设置从节点"><span class="post-toc-text">6.1 设置从节点</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-2-故障检测"><span class="post-toc-text">6.2 故障检测</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-3-故障转移"><span class="post-toc-text">6.3 故障转移</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#7-消息"><span class="post-toc-text">7. 消息</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#7-1-消息的结构"><span class="post-toc-text">7.1 消息的结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#7-2-消息的实现"><span class="post-toc-text">7.2 消息的实现</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis设计与实现9-集群"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis设计与实现9-集群</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-06 18:17:06" datetime="2020-01-06T10:17:06.000Z"  itemprop="datePublished">2020-01-06</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>Redis集群是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能。<a id="more"></a></p>
+<h1 id="1-节点"><a href="#1-节点" class="headerlink" title="1. 节点"></a>1. 节点</h1><h2 id="1-1-节点是什么"><a href="#1-1-节点是什么" class="headerlink" title="1.1 节点是什么"></a>1.1 节点是什么</h2><p>节点时Redis中数据存储的单位。一个Redis集群通常由多个节点（node）组成，<strong>在刚开始的时候，每个节点都是相互独立的</strong>，它们都处于一个只包含自己的集群当中，要组建一个真正可工作的集群，我们必须<strong>将各个独立的节点连接起来，构成一个包含多个节点的集群。</strong></p>
+<p>使用<code>CLUSTER MEET</code>命令来完成，该命令的格式如下：</p>
+<pre><code class="lang-C">CLUSTER MEET &lt;ip&gt; &lt;port&gt;
+</code></pre>
+<p>当前节点发送<code>CLUSTER MEET</code>命令，可以与<strong>ip和port所指定的节点进行握手（handshake）</strong>，当握手成功时，node节点就会将ip和port所指定的节点添加到node节点当前所在的集群中。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111112438.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-2-启动节点"><a href="#1-2-启动节点" class="headerlink" title="1.2 启动节点"></a>1.2 启动节点</h2><p><strong>一个节点就是一个运行在集群模式下的Redis服务器</strong>，Redis服务器在启动时会根据<code>cluster-enabled</code>配置选项是否为yes来决定是否开启服务器的集群模式:</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111112558.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-3-集群数据结构"><a href="#1-3-集群数据结构" class="headerlink" title="1.3 集群数据结构"></a>1.3 集群数据结构</h2><p><code>clusterNode</code>结构保存了一个节点的当前状态，比如节点的创建时间、节点的名字、节点当前的配置纪元、节点的IP地址和端口号等等。<strong>每个节点都会使用一个<code>clusterNode</code>结构来记录自己的状态，并为集群中的所有其他节点（包括主节点和从节点）都创建一个相应的clusterNode结构，以此来记录其他节点的状态：</strong></p>
+<pre><code class="lang-C">struct clusterNode {
+
+    // 创建节点的时间
+    mstime_t ctime;
+
+    // 节点的名字，由 40 个十六进制字符组成
+    // 例如 68eef66df23420a5862208ef5b1a7005b806f2ff
+    char name[REDIS_CLUSTER_NAMELEN];
+
+    // 节点标识
+    // 使用各种不同的标识值记录节点的角色（比如主节点或者从节点），
+    // 以及节点目前所处的状态（比如在线或者下线）。
+    int flags;
+
+    // 节点当前的配置纪元，用于实现故障转移
+    uint64_t configEpoch;
+
+    // 节点的 IP 地址
+    char ip[REDIS_IP_STR_LEN];
+
+    // 节点的端口号
+    int port;
+
+    // 保存连接节点所需的有关信息
+    clusterLink *link;
+    // ...
+};
+</code></pre>
+<p><code>clusterNode</code> 结构的 <code>link</code> 属性是一个 <code>clusterLink</code> 结构， 该结构保存了<strong>连接节点所需的有关信息</strong>， 比如套接字描述符， 输入缓冲区和输出缓冲区：</p>
+<pre><code class="lang-C">typedef struct clusterLink {
+
+    // 连接的创建时间
+    mstime_t ctime;
+
+    // TCP 套接字描述符
+    int fd;
+
+    // 输出缓冲区，保存着等待发送给其他节点的消息（message）。
+    sds sndbuf;
+
+    // 输入缓冲区，保存着从其他节点接收到的消息。
+    sds rcvbuf;
+
+    // 与这个连接相关联的节点，如果没有的话就为 NULL
+    struct clusterNode *node;
+
+} clusterLink;
+</code></pre>
+<p>假设现在有三个独立的节点127.0.0.1:7000、127.0.0.1:7001、127.0.0.1:7002，将他们创立为集群后，数据结构如下：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111113941.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>总的来说：</p>
+<ul>
+<li>clusterState保存<strong>集群状态</strong>，<strong>每个节点都保存着一个这样的状态</strong>，记录了它们眼中的集群的样子。</li>
+<li>clusterNode保存了<strong>某个节点的状态</strong>，同时通过指针指向其他节点，达到关联的目的</li>
+<li>clusterLink保存了<strong>和其他节点通信的信息</strong>。</li>
+</ul>
+<h2 id="1-4-实现CLUSTER-MEET命令"><a href="#1-4-实现CLUSTER-MEET命令" class="headerlink" title="1.4 实现CLUSTER MEET命令"></a>1.4 实现CLUSTER MEET命令</h2><p><strong>向A</strong>发送命令，<strong>希望A和B形成集群</strong>，则：</p>
+<ol>
+<li>节点A会为节点B创建一个clusterNode结构，并将该结构添加到自己的<code>clusterState.nodes</code>字典里面。</li>
+<li>根据命令给定的IP和端口，节点A向B发送一条MEET消息</li>
+<li>B收到以后，为节点A创建一个clusterNode结构，并将该结构添加到自己的clusterState.nodes字典里面。</li>
+<li>B向A返回一条PONG消息</li>
+<li>A收到PONG后向B返回一条PING</li>
+<li>B收到PING后，握手完成。</li>
+</ol>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111114635.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="2-槽指派"><a href="#2-槽指派" class="headerlink" title="2. 槽指派"></a>2. 槽指派</h1><p>Redis集群通过分片的方式来保存数据库中的键值对：<strong>集群的整个数据库被分为16384个槽（slot）</strong>，<strong>数据库中的每个键都属于这16384个槽的其中一个</strong>，集群中的每个节点可以处理0个或最多16384个槽。</p>
+<p>当数据库中的16384个槽<strong>都有</strong>节点在处理时，<strong>集群处于上线状态（ok）</strong>；相反地，如果数据库中有任何一个槽没有得到处理，那么集群处于下线状态（fail）。</p>
+<p>换句话说，只有完全分配了16384个槽才会进入上线状态。</p>
+<h2 id="2-1-当前节点的槽指派信息"><a href="#2-1-当前节点的槽指派信息" class="headerlink" title="2.1 当前节点的槽指派信息"></a>2.1 当前节点的槽指派信息</h2><p>clusterNode结构的<code>slots</code>属性和<code>numslot</code>属性记录了节点负责处理哪些槽：</p>
+<pre><code class="lang-C">struct clusterNode 
+{ 
+    // ... 
+    unsigned char slots[16384/8]; 
+    int numslots; 
+    // ...
+};
+</code></pre>
+<p><code>slots</code>属性是一个二进制位数组（bit array），这个数组的长度为16384/8=2048个字节，共包含16384个二进制位。通过判断二进制的01状态来判断，此槽是否属于。</p>
+<p>下图表示这个节点负责处理槽0至7，</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200111123632.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>因为数组自带索引，所以取出某个槽是否使用的时间复杂的为$O(1)$。</p>
+<h2 id="2-2-传播节点的槽指派信息"><a href="#2-2-传播节点的槽指派信息" class="headerlink" title="2.2 传播节点的槽指派信息"></a>2.2 传播节点的槽指派信息</h2><p>一个节点除了会将自己负责处理的槽记录在clusterNode结构的slots属性和numslots属性之外，它<strong>还会将自己的slots数组通过消息发送给集群中的其他节点，以此来告知其他节点自己目前负责处理哪些槽。</strong></p>
+<p>当节点A通过消息从节点B那里接收到节点B的<code>slots</code>数组时，节点A会在自己的<code>clusterState.nodes</code>字典中<strong>查找节点B对应的clusterNode结构，并对结构中的<code>slots</code>数组进行保存或者更新。</strong></p>
+<p>因此，集群中的<strong>每个节点</strong>都会知道数据库中的16384个槽分别被指派给了集群中的哪些节点。</p>
+<p>在clusterState中有一个myself指针，指向当前节点clusterNode，这个结构中包含了一个二进制数组，记录当前节点的槽指派情况。而clusterState中还有一个<code>clusterNode *slots[REDIS_CLUSTER_SLOTS];</code>，记录了其他节点的槽指派情况。例如 <code>slots[i] = clusterNode_A</code> 表示槽 i 由节点 A 处理</p>
+<h2 id="2-3-集群所有槽的指派信息"><a href="#2-3-集群所有槽的指派信息" class="headerlink" title="2.3 集群所有槽的指派信息"></a>2.3 集群所有槽的指派信息</h2><p>clusterState结构中的<code>slots</code>数组记录了集群中所有16384个槽的指派信息：</p>
+<pre><code class="lang-C">typedef struct clusterState 
+{ 
+    // ... 
+    clusterNode *slots[16384]; 
+    // ...
+} clusterState;
+</code></pre>
+<p>每个数组都是指向<code>clusterNode</code>结构的指针：</p>
+<ul>
+<li>如果指向NULL，表示尚未指派给任何节点。</li>
+<li>如果指向某一个clusterNode，则表示槽i指派给了某一个节点。</li>
+</ul>
+<p>如果只将槽指派信息保存在各个节点的<code>clusterNode.slots</code>数组里，会出现一些无法高效地解决的问题，而<code>clusterState.slots</code>数组的存在解决了这些问题：</p>
+<ul>
+<li>如果想知道某个槽是否被指派以及被指派给了谁，需要遍历所有clusterNode结构。</li>
+<li>通过<code>clusterState</code>保存的数组，可以以$O(1)$的时间取得结果。</li>
+</ul>
+<h2 id="2-4-槽的保存方式"><a href="#2-4-槽的保存方式" class="headerlink" title="2.4 槽的保存方式"></a>2.4 槽的保存方式</h2><p>节点还会用<code>clusterState</code>结构中的<code>slots_to_keys</code><strong>跳跃表</strong>来保存槽和键之间的关系:</p>
+<pre><code class="lang-C">typedef struct clusterState 
+{ 
+    // ... 
+    zskiplist *slots_to_keys; 
+    // ...
+} clusterState;
+</code></pre>
+<p><code>slots_to_keys</code>跳跃表每个节点的分值（score）都是一个槽号，而每个节点的成员（member）都是一个数据库键：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112104732.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="3-MOVED错误"><a href="#3-MOVED错误" class="headerlink" title="3. MOVED错误"></a>3. MOVED错误</h1><p>前面提到，指派完槽以后，集群会进入上线状态，此时客户端可以向集群中的节点发送数据命令。</p>
+<p>当客户端向节点发送与数据库键有关的命令时，<strong>接收命令的节点会计算出命令要处理的数据库键属于哪个槽，并检查这个槽是否指派给了自己：</strong></p>
+<ul>
+<li>如果指派给自己，执行</li>
+<li>否则，返回MOVED错误，并<strong>将客户端指向正确的节点</strong>。</li>
+</ul>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112100142.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>比如，date键所在的槽正好是节点7000负责，正常执行。</p>
+<pre><code class="lang-C">127.0.0.1:7000&gt; SET date &quot;2013-12-31&quot;
+OK
+</code></pre>
+<p>如果是如下的情况，客户端会被自动转到正确的节点。</p>
+<pre><code class="lang-c">127.0.0.1:7000&gt; SET msg &quot;happy new year!&quot;
+-&gt; Redirected to slot [6257] located at 127.0.0.1:7001
+OK
+
+127.0.0.1:7001&gt; GET msg
+&quot;happy new year!&quot;
+</code></pre>
+<p>要完成上面的操作，需要至少两步：</p>
+<ul>
+<li>判断槽是否自己负责</li>
+<li>MOVED错误的实现方法</li>
+</ul>
+<h2 id="3-1-判断槽是否自己负责"><a href="#3-1-判断槽是否自己负责" class="headerlink" title="3.1 判断槽是否自己负责"></a>3.1 判断槽是否自己负责</h2><p>键属于哪个槽需要用到CRC-16校验的办法：</p>
+<pre><code class="lang-C">slot_number = CRC16(key)&amp;16383
+</code></pre>
+<p>这样就可以计算出一个介于0至16383之间的整数作为键key的槽号。</p>
+<p>当节点计算出键所属的槽i之后，节点就会检查自己在<code>clusterState.slots</code>数组中的项i，判断键所在的槽是否由自己负责：</p>
+<ul>
+<li>如果<code>clusterState.slots[i]</code>等于<code>clusterState.myself</code>，那么说明槽i由当前节点负责，节点可以执行客户端发送的命令。</li>
+<li>反之，则记下指向clusterNode结构所记录的IP和端口号</li>
+</ul>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112102348.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-2-MOVED错误实现"><a href="#3-2-MOVED错误实现" class="headerlink" title="3.2 MOVED错误实现"></a>3.2 MOVED错误实现</h2><p>MOVED错误的格式为：</p>
+<pre><code>MOVED &lt;slot&gt; &lt;ip&gt;:&lt;port&gt;
+</code></pre><p>其中slot为键所在的槽，而ip和port则是负责处理槽slot的节点的IP地址和端口号。</p>
+<p>当客户端接收到节点返回的MOVED错误时，客户端会根据MOVED错误中提供的IP地址和端口号，转向至负责处理槽slot的节点，并向该节点重新发送之前想要执行的命令。</p>
+<pre><code class="lang-C">127.0.0.1:7000&gt; SET msg &quot;happy new year!&quot;
+-&gt; Redirected to slot [6257] located at 127.0.0.1:7001
+OK
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112103121.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112103137.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="4-重新分片"><a href="#4-重新分片" class="headerlink" title="4. 重新分片"></a>4. 重新分片</h1><p>Redis集群的重新分片操作可以将<strong>任意数量已经指派给某个节点（源节点）的槽改为指派给另一个节点（目标节点）</strong>，并且相关槽所属的键值对也会从源节点被移动到目标节点。</p>
+<p>重新分片操作可以<strong>在线（online）进行</strong>，在重新分片的过程中，集群不需要下线，并且<strong>源节点和目标节点都可以继续处理命令请求</strong>。</p>
+<p>Redis集群的重新分片操作是由Redis的集群管理软件<strong>redis-trib</strong>负责执行的，<strong>Redis提供了进行重新分片所需的所有命令</strong>，而redis-trib则<strong>通过向源节点和目标节点发送命令来进行重新分片操作。</strong></p>
+<p>重新分配步骤如下：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112105535.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如果重新分片涉及多个槽，那么redis-trib将对每个给定的槽分别执行上面给出的步骤。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112105711.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="5-ASK错误"><a href="#5-ASK错误" class="headerlink" title="5. ASK错误"></a>5. ASK错误</h1><p><strong>正在重新分片时</strong>，属于被迁移槽的一部分键值对保存在源节点里面，而另一部分键值对则保存在目标节点里面。</p>
+<p>当客户端向源节点发送一个与数据库键有关的命令，并且命令要处理的数据库键恰好就属于正在被迁移的槽时：</p>
+<ul>
+<li>槽在自己这里，执行客户端命令。</li>
+<li>槽不在，返回ASK错误，指引客户端转向正在导入槽的目标节点。</li>
+</ul>
+<p>下面讲解ASK错误的实现原理：</p>
+<h2 id="5-1-关键命令"><a href="#5-1-关键命令" class="headerlink" title="5.1 关键命令"></a>5.1 关键命令</h2><p><strong>（1）CLUSTER SETSLOT IMPORTING命令的实现</strong></p>
+<p><code>clusterState</code>结构的<code>importing_slots_from</code>数组记录了当前节点正在从其他节点导入的槽：</p>
+<pre><code class="lang-c">typedef struct clusterState 
+{ 
+    // ... 
+    clusterNode *importing_slots_from[16384]; 
+    // ...
+} clusterState;
+</code></pre>
+<p>如果<code>importing_slots_from[i]</code>的值不为NULL，而是指向一个clusterNode结构，那么表示<strong>当前节点正在从clusterNode所代表的节点导入槽i。</strong></p>
+<p>在对集群进行重新分片的时候，向目标节点发送命令：</p>
+<pre><code class="lang-C">CLUSTER SETSLOT &lt;i&gt; IMPORTING &lt;source_id&gt;
+</code></pre>
+<p>假如，客户端向节点7003发送命令：</p>
+<pre><code class="lang-C"># 9dfb... 是节点7002 的ID
+127.0.0.1:7003&gt; CLUSTER SETSLOT 16198 IMPORTING 
+9dfb4c4e016e627d9769e4c9bb0d4fa208e65c26OK
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112111238.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>（2）CLUSTER SETSLOT MIGRATING命令的实现</strong></p>
+<p><code>clusterState</code>结构的<code>migrating_slots_to</code>数组记录了当前节点正在迁移至其他节点的槽：</p>
+<pre><code class="lang-C">typedef struct clusterState 
+{ 
+    // ... 
+    clusterNode *migrating_slots_to[16384]; 
+    // ...
+} clusterState;
+</code></pre>
+<p>同理，如果索引i不为NULL，则表示当前节点正在将槽i迁移至目标节点。</p>
+<p>在对集群进行重新分片的时候，向源节点发送命令：</p>
+<pre><code class="lang-C">CLUSTER SETSLOT &lt;i&gt; MIGRATING &lt;target_id&gt;
+</code></pre>
+<p>可以将源节点<code>clusterState.migrating_slots_to[i]</code>的值设置为target_id所代表节点的clusterNode结构。</p>
+<h2 id="5-2-ASKING命令"><a href="#5-2-ASKING命令" class="headerlink" title="5.2 ASKING命令"></a>5.2 ASKING命令</h2><p>通过<code>migrating_slots_to</code>这个数组，我们知道当前节点的某个键是否正在迁移。如果是则返回ASK错误。</p>
+<pre><code class="lang-C">ASK 16198 127.0.0.1:7003
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112112014.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>接到ASK错误的客户端会根据错误提供的IP地址和端口号，<strong>转向至正在导入槽的目标节点，然后首先向目标节点发送一个ASKING命令</strong>，之后再重新发送原本想要执行的命令。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112111957.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>ASKING命令的目的就是打开REDIS_ASKING标识，而且<strong>是一次性的打开</strong>，意味着使用完后会被关闭。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112112220.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>ASK错误和MOVED错误的区别：</p>
+<ul>
+<li><strong>相同点</strong>：都会导致客户端转向</li>
+<li><strong>不同点：</strong><ul>
+<li>MOVED错误代表槽的<strong>负责权已经从一个节点转移到了另一个节点</strong>：在客户端收到关于槽i的MOVED错误之后，客户端<strong>每次遇到</strong>关于槽i的命令请求时，都可以直接将命令请求发送至MOVED错误所指向的节点。</li>
+<li>ASK错误只是两个节点在迁移槽的<strong>过程中使用的一种临时措施</strong>：在客户端收到关于槽i的ASK错误之后，客户端只会在<strong>接下来的一次命令请求中将关于槽i的命令请求发送至ASK错误所指示的节点</strong>，但这种转向不会对客户端今后发送关于槽i的命令请求产生任何影响，<strong>客户端仍然会将关于槽i的命令请求发送至目前负责处理槽i的节点</strong>，除非ASK错误再次出现。</li>
+</ul>
+</li>
+</ul>
+<h1 id="6-节点的复制与故障转移"><a href="#6-节点的复制与故障转移" class="headerlink" title="6. 节点的复制与故障转移"></a>6. 节点的复制与故障转移</h1><p>和主从服务器的关系非常相似，不过<strong>在集群模式下服务器被替换为节点。</strong>Redis集群中的节点分为主节点（master）和从节点（slave），其中主节点用于处理槽，而从节点则用于复制某个主节点，并在被复制的主节点下线时，代替下线主节点继续处理命令请求。</p>
+<h2 id="6-1-设置从节点"><a href="#6-1-设置从节点" class="headerlink" title="6.1 设置从节点"></a>6.1 设置从节点</h2><p>向一个节点发送命令：</p>
+<pre><code class="lang-C">CLUSTER REPLICATE &lt;node_id&gt;
+</code></pre>
+<p>可以让接收命令的节点成为node_id所指定节点的从节点，并开始对主节点进行复制，步骤如下：</p>
+<p><strong>（1）修改指针指向</strong></p>
+<p>接收到该命令的节点首先会在自己的<code>clusterState.nodes</code>字典中找到node_id所对应节点的clusterNode结构，<strong>并将自己的<code>clusterState.myself.slaveof</code>指针指向这个结构</strong>，以此来记录这个节点正在复制的主节点：</p>
+<pre><code class="lang-C">struct clusterNode 
+{ 
+    // ... 
+    // 如果这是一个从节点，那么指向主节点 
+    struct clusterNode *slaveof;
+};
+</code></pre>
+<p><strong>（2）修改标识</strong></p>
+<p>然后节点会修改自己在<code>clusterState.myself.flags</code>中的属性，关闭原本的<code>REDIS_NODE_MASTER</code>标识，打开<code>REDIS_NODE_SLAVE</code>标识。</p>
+<p><strong>（3）调用复制代码</strong></p>
+<p>根据<code>clusterState.my-self.slaveof</code>指向的clusterNode结构所保存的IP地址和端口号，对主节点进行复制。因为<strong>节点的复制功能和单机Redis服务器的复制功能使用了相同的代码</strong>，所以让从节点复制主节点相当于向从节点发送命令SLAVEOF。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112113144.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>一个节点成为从节点，并开始复制某个主节点这一信息<strong>会通过消息发送给集群中的其他节点，最终集群中的所有节点都会知道某个从节点正在复制某个主节点。</strong></p>
+<p>集群中的所有节点都会在代表主节点的clusterNode结构的<code>slaves</code>属性和<code>numslaves</code>属性中记录正在复制这个主节点的从节点名单：</p>
+<pre><code class="lang-C">struct clusterNode 
+{ 
+    // ... 
+    // 正在复制这个主节点的从节点数量
+    int numslaves;
+    // 一个数组 
+    // 每个数组项指向一个正在复制这个主节点的从节点的clusterNode结构 
+    struct clusterNode **slaves;
+    //....
+}
+</code></pre>
+<h2 id="6-2-故障检测"><a href="#6-2-故障检测" class="headerlink" title="6.2 故障检测"></a>6.2 故障检测</h2><p>集群中的每个节点都会定期地向集群中的其他节点发送PING消息，如果接收PING消息的节点没有在规定的时间内返回PONG，那么发送PING消息的节点就会将接收PING消息的节点<strong>标记为疑似下线（probable fail，PFAIL）</strong></p>
+<p>集群中的各个节点会通过<strong>互相发送消息</strong>的方式来交换集群中各个节点的状态信息，例如某个节点是处于<strong>在线状态、疑似下线状态（PFAIL），还是已下线状态（FAIL）。</strong></p>
+<p>当一个主节点A通过消息得知主节点B认为主节点C进入了疑似下线状态时，主节点A会在自己的<code>clusterState.nodes</code>字典中找到主节点C所对应的clusterNode结构，<strong>并将主节点B的下线报告（failure report）添加到clusterNode结构的<code>fail_reports</code>链表里面：</strong></p>
+<pre><code class="lang-C">struct clusterNode 
+{ 
+    // ...
+    // 一个链表，记录了所有其他节点对该节点的下线报告 
+    list *fail_reports;
+     // ...
+};
+</code></pre>
+<p>如果在一个集群里面，<strong>半数以上负责处理槽的主节点都将某个主节点x报告为疑似下线，那么这个主节点x将被标记为已下线（FAIL</strong>），将主节点x标记为已下线的节点<strong>会向集群广播一条关于主节点x的FAIL消息，所有收到这条FAIL消息的节点都会立即将主节点x标记为已下线。</strong></p>
+<h2 id="6-3-故障转移"><a href="#6-3-故障转移" class="headerlink" title="6.3 故障转移"></a>6.3 故障转移</h2><p>当一个从节点发现自己正在复制的主节点进入了已下线状态时，从节点将开始对下线主节点进行故障转移，以下是故障转移的执行步骤：</p>
+<ol>
+<li>从已下线主节点中选出一个从节点</li>
+<li>从节点执行SLAVEOF no one命令，成为新的主节点</li>
+<li>新的主节点会撤销所有对已下线主节点的槽指派，并将这些槽全部指派给自己。</li>
+<li>新的主节点向集群广播一条PONG消息，这条PONG消息可以让集群中的其他节点立即知道这个节点已经由从节点变成了主节点。</li>
+<li>新的主节点开始接收和自己负责处理的槽有关的命令请求，故障转移完成。</li>
+</ol>
+<h1 id="7-消息"><a href="#7-消息" class="headerlink" title="7. 消息"></a>7. 消息</h1><p>集群中的各个节点通过发送和接收消息（message）来进行通信，节点发送的消息主要有以下五种：</p>
+<ul>
+<li><strong>MEET消息：</strong>当发送者接到客户端发送的CLUSTER MEET命令时，发送者会<strong>向接收者</strong>发送MEET消息，请求接收者加入到发送者当前所处的集群里面。</li>
+<li><strong>PING消息：</strong>集群里的每个节点默认每隔一秒钟就会从<strong>已知节点列表中随机选出五个节点</strong>，然后对这五个节点中最长时间没有发送过PING消息的节点发送PING消息，以此来检测被选中的节点是否在线。</li>
+<li><strong>PONG消息：</strong>当接收者收到发送者发来的MEET消息或者PING消息时，为了向发送者确认这条MEET消息或者PING消息已到达，接收者<strong>会向发送者</strong>返回一条PONG消息。另外，一个节点也可以通过向<strong>集群广播</strong>自己的PONG消息来让集群中的其他节点立即刷新关于这个节点的认识。</li>
+<li><strong>FAIL消息：</strong>当一个主节点A判断另一个主节点B已经进入FAIL状态时，节点A会<strong>向集群广播</strong>一条关于节点B的FAIL消息，所有收到这条消息的节点都会立即将节点B标记为已下线。</li>
+<li><strong>PUBLISH消息</strong>：当节点接收到一个PUBLISH命令时，节点会执行这个命令，并<strong>向集群广播</strong>一条PUBLISH消息，所有接收到这条PUBLISH消息的节点都会执行相同的PUBLISH命令。</li>
+</ul>
+<h2 id="7-1-消息的结构"><a href="#7-1-消息的结构" class="headerlink" title="7.1 消息的结构"></a>7.1 消息的结构</h2><p>一条消息由消息头（header）和消息正文（data）组成</p>
+<p>每个消息头都由一个<code>cluster.h/clusterMsg</code>结构表示：</p>
+<pre><code class="lang-C">// 用来表示集群消息的结构（消息头，header）
+typedef struct {
+    //...
+    // 消息的长度（包括这个消息头的长度和消息正文的长度）
+    uint32_t totlen;   
+
+    // 消息的类型
+    uint16_t type;    
+
+    // 消息正文包含的节点信息数量
+    // 只在发送 MEET 、 PING 和 PONG 这三种 Gossip 协议消息时使用
+    uint16_t count;   
+
+    // 消息发送者的配置纪元
+    uint64_t currentEpoch;  
+
+    // 如果消息发送者是一个主节点，那么这里记录的是消息发送者的配置纪元
+    // 如果消息发送者是一个从节点，那么这里记录的是消息发送者正在复制的主节点的配置纪元
+    uint64_t configEpoch; 
+
+    // 节点的复制偏移量
+    uint64_t offset;   
+
+    // 消息发送者的名字（ID）
+    char sender[REDIS_CLUSTER_NAMELEN]; /
+
+    // 消息发送者目前的槽指派信息
+    unsigned char myslots[REDIS_CLUSTER_SLOTS/8];
+
+    // 如果消息发送者是一个从节点，那么这里记录的是消息发送者正在复制的主节点的名字
+    // 如果消息发送者是一个主节点，那么这里记录的是 REDIS_NODE_NULL_NAME
+    // （一个 40 字节长，值全为 0 的字节数组）
+    char slaveof[REDIS_CLUSTER_NAMELEN];
+
+    // 消息发送者的端口号
+    uint16_t port;      /* Sender TCP base port */
+
+    // 消息发送者的标识值
+    uint16_t flags;     /* Sender node flags */
+
+    // 消息发送者所处集群的状态
+    unsigned char state; /* Cluster state from the POV of the sender */
+
+    // 消息标志
+    unsigned char mflags[3]; 
+
+    // 消息的正文（或者说，内容）
+    union clusterMsgData data;
+
+} clusterMsg;
+</code></pre>
+<p>datas属性指向联合<code>cluster.h/clusterMsgData</code>，也就是消息的正文</p>
+<pre><code class="lang-C">nion clusterMsgData {
+
+    /* PING, MEET and PONG */
+    struct {
+        // 每条消息都包含两个 clusterMsgDataGossip 结构
+        clusterMsgDataGossip gossip[1]; //gossip八卦，小道消息，闲话的意思
+    } ping;
+
+    /* FAIL */
+    struct {
+        clusterMsgDataFail about;
+    } fail;
+
+    /* PUBLISH */
+    struct {
+        clusterMsgDataPublish msg;
+    } publish;
+    //...
+
+};
+</code></pre>
+<h2 id="7-2-消息的实现"><a href="#7-2-消息的实现" class="headerlink" title="7.2 消息的实现"></a>7.2 消息的实现</h2><p><strong>（1）Gossip消息的实现</strong></p>
+<p>gossip是八卦，小道消息，闲话的意思，专指MEET、PING、PONG这几个消息。这三种消息的正文都由<strong>两个</strong><code>cluster.h/clusterMsgDataGossip</code>结构组成。</p>
+<p>因为MEET、PING、PONG三种消息都使用相同的消息正文，所以节点通过消息头的type属性来判断一条消息是MEET消息、PING消息还是PONG消息。</p>
+<p>每次发送MEET、PING、PONG消息时，发送者都从自己的已知节点列表中<strong>随机选出两个节点</strong>（可以是主节点或者从节点），并将这两个被选中节点的信息分别保存到两个clusterMsg-DataGossip结构里面。</p>
+<p>接受者接收到MEET、PING、PONG消息时，根据保存的两个节点是否认识来选择进行哪种操作：</p>
+<ul>
+<li>不认识，说明接收者<strong>第一次接触被选中节点</strong>，则接收者与被选中节点握手</li>
+<li>认识，根据结构信息进行更新。</li>
+</ul>
+<p>比如A节点发送的PING给B，携带了CD两个节点，然后B回复PONG携带了EF两个节点，这样就完成了ABCDEF六个节点的信息交换。<strong>每个节点按照周期向不同节点传播PING-PONG信息，就能完成整个集群的状态更新。</strong></p>
+<p><strong>（2）FAIL消息的实现</strong></p>
+<p>Gossip协议传播速度很慢，而主节点下线的消息需要立即通知给所有人。</p>
+<p>FAIL消息的正文由<code>cluster.h/clusterMsgDataFail</code>结构表示，这个结构只包含一个nodename属性，该属性记录了已下线节点的名字：</p>
+<pre><code class="lang-C">typedef struct 
+{ 
+    char nodename[REDIS_CLUSTER_NAMELEN];
+} clusterMsgDataFail;
+</code></pre>
+<p>因为集群里的所有节点都有一个独一无二的名字，所以FAIL消息里面只需要保存下线节点的名字，接收到消息的节点就可以根据这个名字来判断是哪个节点下线了。</p>
+<p><strong>（3）PUBLISH消息的实现</strong></p>
+<p>当客户端向集群中的某个节点发送命令：</p>
+<pre><code class="lang-C">PUBLISH &lt;channel&gt; &lt;message&gt;
+</code></pre>
+<p>接收到PUBLISH命令的节点<strong>不仅会向channel频道发送消息message，它还会向集群广播一条PUBLISH消息，所有接收到这条PUBLISH消息的节点都会向channel频道发送message消息</strong>。</p>
+<p>也就是说，向集群发送<code>PUBLISH &lt;channel&gt; &lt;message&gt;</code>，会导致集群所有节点都向channel发送message消息。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200112133931.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" target="_blank" rel="external">jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&title=《Redis设计与实现9-集群》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&title=《Redis设计与实现9-集群》 — JR's Blog&source=Redis集群是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现9-集群》 — JR's Blog&url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/07/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B010-%E5%8F%91%E5%B8%83%E4%B8%8E%E8%AE%A2%E9%98%85/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Redis设计与实现10-发布与订阅</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B08-Sentinel/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis设计与实现8-Sentinel</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&title=《Redis设计与实现9-集群》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&title=《Redis设计与实现9-集群》 — JR's Blog&source=Redis集群是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现9-集群》 — JR's Blog&url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/06/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B09-%E9%9B%86%E7%BE%A4/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

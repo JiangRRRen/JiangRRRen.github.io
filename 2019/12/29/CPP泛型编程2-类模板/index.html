@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>CPP泛型编程2-类模板 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,读书笔记">
+    <meta name="description" content="泛型编程中对类使用模板。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP泛型编程2-类模板">
+<meta property="og:url" content="jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="泛型编程中对类使用模板。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-29T11:57:46.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:24:45.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">CPP泛型编程2-类模板</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">CPP泛型编程2-类模板</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-12-29T11:57:46.000Z" itemprop="datePublished" class="page-time">
+  2019-12-29
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-简单使用类模板"><span class="post-toc-text">1. 简单使用类模板</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-友元"><span class="post-toc-text">2. 友元</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-特化与偏特化"><span class="post-toc-text">3. 特化与偏特化</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-模板化聚合"><span class="post-toc-text">4. 模板化聚合</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-CPP泛型编程2-类模板"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">CPP泛型编程2-类模板</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-12-29 19:57:46" datetime="2019-12-29T11:57:46.000Z"  itemprop="datePublished">2019-12-29</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>泛型编程中对类使用模板。<a id="more"></a></p>
+<h1 id="1-简单使用类模板"><a href="#1-简单使用类模板" class="headerlink" title="1. 简单使用类模板"></a>1. 简单使用类模板</h1><p>以stack为例，展示类模板的特性，先写出一个stack的样例。与函数模板一样，类模板也需要在前面加上模板声明。需要注意的是，类的成员函数的实现可以不放在类中，<strong>放在外面也需要加上模板声明</strong>。</p>
+<pre><code class="lang-cpp">template &lt;typename T&gt;
+class stack{
+private:
+    vector&lt;T&gt; elems;
+public:
+    void push(T const&amp; elem);
+    void pop();
+    T const&amp; top();
+    bool empty(){return elems.empty()};
+};
+template&lt;typename T&gt;
+void stack&lt;T&gt;::push(T const&amp; elem)
+{
+    elems.push_back(elem);
+}
+template&lt;typename T&gt;
+void stack&lt;T&gt;::pop()
+{
+    assert(!elems.empty());
+    elems.pop_back();
+}
+template&lt;typename T&gt;
+T const&amp; stack&lt;T&gt;::top()
+{
+    assert(!elems.empty());
+    return elems.back();
+}
+</code></pre>
+<p>我们可以继续为其添加拷贝构造函数和赋值运算符：</p>
+<pre><code class="lang-cpp">stack(stack&lt;T&gt; const&amp;);
+stack&lt;T&gt;&amp; operator=(stack&lt;T&gt; const&amp;);
+</code></pre>
+<hr>
+<p>通过上面这个例子，我们熟悉类类模板的一些特性。使用类模板时必须要 <strong>显式地特化模板参数</strong>(specify the template arguments explictly)</p>
+<pre><code class="lang-cpp">Stack&lt; int&gt;    intStack;// stack of ints
+Stack&lt;std::string&gt; stringStack;  // stack of string
+</code></pre>
+<p>当然也可以使用<code>using</code>或<code>typedef</code>来简化：</p>
+<pre><code class="lang-cpp">using IntStack = Stack&lt;int&gt;; 
+typedef Stack&lt;int&gt; IntStack
+</code></pre>
+<p>类模板可以实现<strong>部分使用(partial usage)</strong>，这意味着模板参数只需要提供必要的操作，而不是所有。下面这个例子中模板类<code>stack</code>中包含了一个<code>printOn</code>函数，而<code>pair</code>类型不能与<code>printOn</code>相适应，但我们依然可以创建并执行一些必要的操作，但不能使用<code>printOn</code>.（因为无法使用操作符<code>&lt;&lt;</code>）</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt; 
+class Stack {
+    ...
+    void printOn(std::ostream&amp;) const;
+};
+
+template &lt;typename T&gt;
+void Stack&lt;T&gt;::printOn(std::ostream&amp; os) const
+{
+    for (const T&amp; x : v) os &lt;&lt; x &lt;&lt; &#39; &#39;;
+}
+
+Stack&lt;std::pair&lt;int, int&gt;&gt; s; // std::pair没有定义operator&lt;&lt;
+s.push({1, 2}); // OK
+s.push({3, 4}); // OK
+std::cout &lt;&lt; s.top().first &lt;&lt; s.top().second; // 34
+s.printOn(std::cout); // 错误：元素类型不支持operator&lt;&lt;
+</code></pre>
+<hr>
+<p>类模板也可以使用<strong>默认实参</strong>。当然这并不意味着传入的参数被强制规定为<code>std::vector</code>，而是作为一种选择，<code>&lt;Stack&gt; doubleStack;</code>这样依然是ok的。</p>
+<pre><code class="lang-cpp">template&lt;typename T, typename Cont = std::vector&lt;T&gt;&gt;
+class Stack { 
+private:
+    Cont v;
+public: 
+    void push(const T&amp; x);
+    void pop();
+    const T&amp; top() const;
+    bool empty() const;
+};
+</code></pre>
+<h1 id="2-友元"><a href="#2-友元" class="headerlink" title="2. 友元"></a>2. 友元</h1><p>假设我们重载&lt;&lt;运算符来替代<code>printOn</code>函数：</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt; 
+class Stack {
+    ...
+    void printOn(std::ostream&amp; os) const
+    {
+        for (const T&amp; x : v) os &lt;&lt; x &lt;&lt; &#39; &#39;;
+    }
+    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const Stack&lt;T&gt;&amp; stack) {
+        stack.printOn(os); 
+        return os;
+    }
+};
+</code></pre>
+<p>但是，如果<strong>将友元的定义和实现放在类外就会出一些问题</strong>：</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt; 
+class Stack {
+    ...
+    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, const Stack&lt;T&gt;);
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,
+    const Stack&lt;T&gt;&amp; stack) // 错误：类模板参数T不可见
+{
+    stack.printOn(os);
+    return os;
+}
+</code></pre>
+<p>由于友元并不属于这个类，所以没法享受到类型推导的成果，自然就会报错。这个问题的解决方案有很多，我挑选了一种我认为比较好的办法：<strong>隐式声明一个新的函数模板，并使用不同的模板参数</strong></p>
+<pre><code class="lang-cpp">template&lt;typename T&gt; 
+class Stack {
+    … 
+    template&lt;typename U&gt; 
+    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, const Stack&lt;U&gt;&amp;);
+};
+
+// 类外定义
+template&lt;typename U&gt;
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const Stack&lt;U&gt;&amp; stack)
+{
+    stack.printOn(os);
+    return os;
+}
+</code></pre>
+<h1 id="3-特化与偏特化"><a href="#3-特化与偏特化" class="headerlink" title="3. 特化与偏特化"></a>3. 特化与偏特化</h1><p><strong>特化(specify)</strong>，可以<strong>直接指定模板的类型</strong>，标志是<code>template&lt;&gt;</code>。由于是直接指定的方式，所以声明模板类型时就不必要再添东西了。</p>
+<pre><code class="lang-cpp">template&lt;&gt;
+class Stack&lt;std::string&gt; {
+    std::deque&lt;std::string&gt; v;
+public:
+    void push(const std::string&amp;);
+    void pop();
+    std::string const&amp; top() const;
+    bool empty() const;
+};
+void Stack&lt;std::string&gt;::push(const std::string&amp; x)
+{
+    v.emplace_back(x);
+}
+</code></pre>
+<p>在上面的例子中，我们直接指定stack为string类型。注意在类外定义的时候，也必须带上string。</p>
+<hr>
+<p><strong>偏特化(partial specify)</strong>，在已经声明某一个模板的前提下，再对他进行声明。</p>
+<p><strong>（1）指定指针</strong></p>
+<pre><code class="lang-cpp">#include &quot;stack1.h&quot; //非常重要
+
+template&lt;typename T&gt;
+class Stack&lt;T*&gt; {
+    std::vector&lt;T*&gt; v;
+public:
+    void push(T*);
+    T* pop();
+    T* top() const;
+    bool empty() const;
+};
+
+template&lt;typename T&gt;
+void Stack&lt;T*&gt;::push(T* x)
+{
+    v.emplace_back(x);
+}
+...
+Stack&lt; int*&gt; ptrStack; //用法展示
+ptrStack.push(new int{42});
+</code></pre>
+<p>必须要在<code>stack1.h</code>中声明成如下形式，否则无法通过编译。</p>
+<pre><code class="lang-cpp">template&lt;typename T,typename M&gt;
+class Stack {
+
+};
+</code></pre>
+<p><strong>（2）指定部分模板参数</strong></p>
+<pre><code class="lang-cpp">template&lt;typename T1, typename T2&gt; 
+class A
+{};
+
+// 偏特化：两个模板参数有相同类型
+template&lt;typename T&gt; 
+class A&lt;T, T&gt;
+{};
+
+// 偏特化：第二个模板参数类型为int
+template&lt;typename T&gt; 
+class A&lt;T, int&gt;
+{};
+
+// 偏特化：两个模板参数都是指针类型
+template&lt;typename T1, typename T2&gt; 
+class A&lt;T1*, T2*&gt;
+{};
+
+A&lt;int, double&gt; a; // A&lt;T1, T2&gt;
+A&lt;double, float&gt; b; // A&lt;T, T&gt;
+A&lt;double, int&gt; c; // A&lt;T, int&gt;
+A&lt;int*, double*&gt; d; // A&lt;T1*, T2*&gt;
+</code></pre>
+<p>要注意避免歧义性错误：</p>
+<pre><code class="lang-cpp">A&lt;int, int&gt; e; // 错误：同时匹配A&lt;T, T&gt;和A&lt;T, int&gt;
+A&lt;int*, int*&gt; f; // 错误：同时匹配A&lt;T, T&gt;和A&lt;T1*, T2*&gt;
+</code></pre>
+<h1 id="4-模板化聚合"><a href="#4-模板化聚合" class="headerlink" title="4. 模板化聚合"></a>4. 模板化聚合</h1><p>当一个类的对象拥有另一个类的对象时就发生类聚合。这种聚合不依赖与继承、友元等关系存在。</p>
+<pre><code class="lang-cpp">struct C
+{
+  int a;
+};
+
+struct D
+{
+  double b;
+  C c;
+};
+</code></pre>
+<p>事实上，聚合类也能作为模板存在：</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt; 
+struct A {
+    T x;
+    std::string s;
+};
+</code></pre>
+<p>这样可以为了参数化值而定义一个聚合:</p>
+<pre><code class="lang-cpp">A&lt;int&gt; a;
+a.x = 42;
+a.s = &quot;initial value&quot;;
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" target="_blank" rel="external">jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&title=《CPP泛型编程2-类模板》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&title=《CPP泛型编程2-类模板》 — JR's Blog&source=泛型编程中对类使用模板。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP泛型编程2-类模板》 — JR's Blog&url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/12/30/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B3-%E9%9D%9E%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E5%8F%82%E6%95%B0/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CPP泛型编程3-非类型的模板参数</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/12/29/EffectiveModernCPP%E7%AC%94%E8%AE%B08-%E5%B9%B6%E5%8F%91API/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">EffectiveModernCPP笔记8-并发API</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&title=《CPP泛型编程2-类模板》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&title=《CPP泛型编程2-类模板》 — JR's Blog&source=泛型编程中对类使用模板。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP泛型编程2-类模板》 — JR's Blog&url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B2-%E7%B1%BB%E6%A8%A1%E6%9D%BF/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

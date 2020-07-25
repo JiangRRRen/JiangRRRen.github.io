@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>操作系统面试题目汇总 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Linux,面试经验">
+    <meta name="description" content="本章包含了操作系统和计算机组成相关的知识信息，Linux部分被专门分出去了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统面试题目汇总">
+<meta property="og:url" content="jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本章包含了操作系统和计算机组成相关的知识信息，Linux部分被专门分出去了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218111032.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218102010.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200217135006.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218105728.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218110201.png">
+<meta property="article:published_time" content="2020-02-16T05:55:18.000Z">
+<meta property="article:modified_time" content="2020-02-27T19:54:51.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="面试经验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218111032.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">操作系统面试题目汇总</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">操作系统面试题目汇总</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-02-16T05:55:18.000Z" itemprop="datePublished" class="page-time">
+  2020-02-16
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-总体概念"><span class="post-toc-text">1. 总体概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-操作系统的特性是什么？"><span class="post-toc-text">1.1 操作系统的特性是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-操作系统的主要功能有哪些？"><span class="post-toc-text">1.2 操作系统的主要功能有哪些？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-什么是用户态与核心态？"><span class="post-toc-text">1.3 什么是用户态与核心态？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-线程与进程"><span class="post-toc-text">2. 线程与进程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-线程进程协程的区别"><span class="post-toc-text">2.1 线程进程协程的区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-进程有哪些状态，转换条件是什么？"><span class="post-toc-text">2.2 进程有哪些状态，转换条件是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-进程间通信"><span class="post-toc-text">2.3 进程间通信</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-进程间同步"><span class="post-toc-text">2.4 进程间同步</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-线程间同步"><span class="post-toc-text">2.5 线程间同步</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-6-什么是临界区，如何解决冲突？"><span class="post-toc-text">2.6 什么是临界区，如何解决冲突？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-7-线程的分类"><span class="post-toc-text">2.7 线程的分类</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-8-线程池"><span class="post-toc-text">2.8 线程池</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-内存"><span class="post-toc-text">3. 内存</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-逻辑地址、线性地址和物理地址的区别？"><span class="post-toc-text">3.1 逻辑地址、线性地址和物理地址的区别？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-寻址方式有哪些？"><span class="post-toc-text">3.2 寻址方式有哪些？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-什么是虚拟内存？"><span class="post-toc-text">3.3 什么是虚拟内存？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-4-什么是交换空间？"><span class="post-toc-text">3.4 什么是交换空间？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-5-什么是分页？"><span class="post-toc-text">3.5 什么是分页？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-6-什么是分段？"><span class="post-toc-text">3.6 什么是分段？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-7-分页分段的区别是什么？"><span class="post-toc-text">3.7 分页分段的区别是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-8-有哪些页面置换算法？"><span class="post-toc-text">3.8 有哪些页面置换算法？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-系统中断"><span class="post-toc-text">4. 系统中断</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-中断的处理过程"><span class="post-toc-text">4.1 中断的处理过程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-中断和轮询有什么区别？"><span class="post-toc-text">4.2 中断和轮询有什么区别？</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-操作系统面试题目汇总"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">操作系统面试题目汇总</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-02-16 13:55:18" datetime="2020-02-16T05:55:18.000Z"  itemprop="datePublished">2020-02-16</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本章包含了操作系统和计算机组成相关的知识信息，Linux部分被专门分出去了。<a id="more"></a></p>
+<h1 id="1-总体概念"><a href="#1-总体概念" class="headerlink" title="1. 总体概念"></a>1. 总体概念</h1><h2 id="1-1-操作系统的特性是什么？"><a href="#1-1-操作系统的特性是什么？" class="headerlink" title="1.1 操作系统的特性是什么？"></a>1.1 操作系统的特性是什么？</h2><p>四个特性：并发、共享、虚拟、异步。</p>
+<ul>
+<li>同一段时间内(时间片轮转算法)多个程序执行。</li>
+<li>系统中的资源可以被内存中多个并发执行的进线程共同使用。</li>
+<li>虚拟：通过时分复用以及空分复用（如虚拟内存）技术实现把一个物理实体虚拟为多个。</li>
+<li>异步：系统中的进程是以走走停停的方式执行的，且以一种不可预知的速度推进。（同步就是实时处理，比如打电话，异步就是分时处理，比如发短信）</li>
+</ul>
+<h2 id="1-2-操作系统的主要功能有哪些？"><a href="#1-2-操作系统的主要功能有哪些？" class="headerlink" title="1.2 操作系统的主要功能有哪些？"></a>1.2 操作系统的主要功能有哪些？</h2><p>操作系统的本质是<strong>对资源的管理</strong>。包括了：</p>
+<ul>
+<li><strong>处理器管理</strong>：以进程为单位分配资源</li>
+<li><strong>存储器管理</strong>：也叫内存管理</li>
+<li><strong>设备管理</strong>：完成所有的IO请求</li>
+<li><strong>文件管理</strong>：包括磁盘存储空间管理，文件读写管理等等</li>
+</ul>
+<h2 id="1-3-什么是用户态与核心态？"><a href="#1-3-什么是用户态与核心态？" class="headerlink" title="1.3 什么是用户态与核心态？"></a>1.3 什么是用户态与核心态？</h2><p>从整体上讲，操作系统一般可分为<strong>内核（kernel）</strong>和<strong>外壳（shell）</strong>两大部分。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218111032.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>当程序运行在3级特权级上时，就可以称之为运行在<strong>用户态</strong>。反之则是<strong>内核态</strong>。0级特权直接控制硬件，12级特权是系统程序，包括驱动等等，3级特权是用户程序。</p>
+<p>用户态切换到内核态有三种情况：</p>
+<ul>
+<li>系统调用：用户态进程主动要求切换到内核态的一种方式。</li>
+<li>异常：当前运行进程切换到处理此异常的内核相关程序中</li>
+<li>外围设备中断：当外围设备完成用户请求的操作后，会向CPU发出相应的中断信号，这时CPU会暂停执行下一条即将要执行的指令转而去执行与中断信号对应的处理程序。如果先前执行的指令是用户态下的程序，那么这个转换的过程自然也就发生了由用户态到内核态的切换。</li>
+</ul>
+<h1 id="2-线程与进程"><a href="#2-线程与进程" class="headerlink" title="2. 线程与进程"></a>2. 线程与进程</h1><h2 id="2-1-线程进程协程的区别"><a href="#2-1-线程进程协程的区别" class="headerlink" title="2.1 线程进程协程的区别"></a>2.1 线程进程协程的区别</h2><p>对于操作系统来说，<strong>一个任务就是一个进程(Process)</strong>，比如使用word。而一个进程可能不只干一件事（比如word既要打字又要检查拼写），这种<strong>进程内的多个子任务就是线程</strong>（Thread）。</p>
+<p>具体来说：</p>
+<ul>
+<li>进程是操作系统分配资源的单位，而<strong>线程是进程的一个实体</strong>，是CPU调度和分派的基本单位。</li>
+<li>线程没有独立的内存单元，不能够独立执行，必须依存在应用程序中。</li>
+</ul>
+<p><strong>引入线程的好处：</strong>线程快！创建、终止、切换都很快！</p>
+<p><strong>总结：</strong></p>
+<ol>
+<li>一个程序至少有一个进程,一个进程至少有一个线程。</li>
+<li>进程在执行过程中拥有独立的内存单元，而多个线程共享内存</li>
+<li>虽然线程拥有单独的程序运行入口，出口，但不能独立执行。</li>
+</ol>
+<p>协程与线程的区别：协程不再被内核调度，<strong>而是交给了程序自己</strong>，因此golang中专门引入了GMP模式，设立了专门的逻辑处理器。</p>
+<h2 id="2-2-进程有哪些状态，转换条件是什么？"><a href="#2-2-进程有哪些状态，转换条件是什么？" class="headerlink" title="2.2 进程有哪些状态，转换条件是什么？"></a>2.2 进程有哪些状态，转换条件是什么？</h2><p><strong>就绪状态</strong>：进程获得了除CPU之外的一切所需资源</p>
+<p><strong>运行状态</strong>：一个CPU的一个核只能有一个进程处于运行状态。</p>
+<p><strong>阻塞状态</strong>，又称等待状态：进程正在等待某一事件而暂停运行，如等待某资源为可用（不包括处理机）或等待输入/输出完成。即使处理机空闲，该进程也不能运行。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218102010.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>注意区别就绪状态和等待状态：</strong>就绪状态是指进程仅缺少处理机，只要获得处理机资源就立即执行；而等待状态是指进程需要其他资源（除了处理机）或等待某一事件</p>
+<h2 id="2-3-进程间通信"><a href="#2-3-进程间通信" class="headerlink" title="2.3 进程间通信"></a>2.3 进程间通信</h2><p>也就是所谓的IPC(Interprocess communication)问题，主要是指<strong>进程间交换数据的方式</strong>。</p>
+<p>进程是相互独立的，并不需要条件变量、互斥锁这些机制，要锁也是文件锁这种大锁。而线程需要互斥锁的原因是：<strong>线程之间的资源室共享的，需要程序员来完成变量级别的同步。</strong></p>
+<p>进程间通信分为<strong>低级通信</strong>和<strong>高级通信</strong>。</p>
+<ul>
+<li>低级通信：信号量</li>
+<li>高级通信：<ul>
+<li>管道</li>
+<li>消息队列</li>
+<li>共享内存</li>
+</ul>
+</li>
+</ul>
+<p><strong>信号量</strong>是一个计数器，防止多个进程将资源拿光，防止某进程正在访问共享资源时，其他进程也访问该资源。</p>
+<p><strong>管道</strong>是指用于<strong>连接一个读进程和一个写进程的一个共享文件</strong>，又名pipe文件，以<strong>字符流形式</strong>将数据写入文件。管道分为<strong>无名管道</strong>和<strong>有名管道</strong>：</p>
+<ul>
+<li>无名管道是半双工的通信方式，数据只能单向流动，只能在父子进程中流通；</li>
+<li>有名管道也是半双工，但是它允许无亲缘关系进程间通信。</li>
+</ul>
+<p><strong>消息队列</strong>指的是<strong>进程间的数据交换是以格式化的消息(Message)为单位的</strong>，再由消息组成的链表，形成队列。</p>
+<p><strong>共享内存</strong>指在通信的进程之间存在一块可直接访问的共享空间，通过对这片共享空间进行写/读操作实现进程之间的信息交换。在对共享空间进行写/读操作时，需要使用同步互斥工具（如 P操作、V操作），对共享空间的写/读进行控制。</p>
+<h2 id="2-4-进程间同步"><a href="#2-4-进程间同步" class="headerlink" title="2.4 进程间同步"></a>2.4 进程间同步</h2><p>多进程虽然提高了系统资源利用率和吞吐量，但是由于进程的异步性可能造成系统的混乱。进程同步的任务就是对<strong>多个相关进程在执行顺序上进行协调</strong>。</p>
+<p>同步手段有：</p>
+<ul>
+<li>临界区</li>
+<li>互斥量</li>
+<li>信号量</li>
+<li>事件： 通过通知操作的方式来保持线程的同步</li>
+</ul>
+<p>其中：互斥量与临界区的作用非常相似，但互斥量是可以命名的，也就是说它可以跨越进程使用。所以创建互斥量需要的资源更多。</p>
+<h2 id="2-5-线程间同步"><a href="#2-5-线程间同步" class="headerlink" title="2.5 线程间同步"></a>2.5 线程间同步</h2><p>由于线程间的资源可以共享，同步的方式就会更加细致：</p>
+<ul>
+<li><strong>互斥量</strong></li>
+<li><strong>信号量</strong>，只能用于一个资源的互斥访问，不能实现多个资源的多线程互斥问题</li>
+<li><strong>读写锁</strong>，可以被多个读者拥有，但是只能被一个写者拥有的锁</li>
+<li><strong>条件变量</strong>，线程 A 等待某个条件并挂起，直到线程 B 设置了这个条件，并通知条件变量，然后线程 A 被唤醒</li>
+<li><strong>原子操作</strong></li>
+<li><strong>通道</strong></li>
+</ul>
+<h2 id="2-6-什么是临界区，如何解决冲突？"><a href="#2-6-什么是临界区，如何解决冲突？" class="headerlink" title="2.6 什么是临界区，如何解决冲突？"></a>2.6 什么是临界区，如何解决冲突？</h2><p>每个进程中访问临界资源的那段程序称为临界区，<strong>一次仅允许一个进程使用的资源称为临界资源。</strong></p>
+<p>解决冲突的办法：</p>
+<ul>
+<li>如果有若干进程要求进入空闲的临界区，<strong>一次仅允许一个进程进入</strong>，如已有进程进入自己的临界区，则其它所有试图进入临界区的进程必须等待；</li>
+<li>进入临界区的进程要在<strong>有限时间内退出</strong>。</li>
+<li>如果进程不能进入自己的临界区，则应<strong>让出CPU</strong>，避免进程出现“忙等”现象。</li>
+</ul>
+<h2 id="2-7-线程的分类"><a href="#2-7-线程的分类" class="headerlink" title="2.7 线程的分类"></a>2.7 线程的分类</h2><p><strong>内核级线程</strong>：这类线程依赖于内核，又称为内核支持的线程或轻量级进程。无论是在用户程序中的线程还是系统进程中的线程，它们的创建、撤销和切换都由内核实现。比如英特尔i5-8250U是4核8线程，这里的线程就是内核级线程</p>
+<p><strong>用户级线程</strong>：它仅存在于用户级中，这种线程是<strong>不依赖于操作系统核心</strong>的。应用进程利用<strong>线程库来完成其创建和管理</strong>，速度比较快，<strong>操作系统内核无法感知用户级线程的存在</strong>。</p>
+<h2 id="2-8-线程池"><a href="#2-8-线程池" class="headerlink" title="2.8 线程池"></a>2.8 线程池</h2><p>线程池就是提前创建若干个线程，如果有任务需要处理，线程池里的线程就会处理任务，<strong>处理完之后线程并不会被销毁，而是等待下一个任务</strong>。由于创建和销毁线程都是消耗系统资源的，所以池化技术能提升性能。</p>
+<p>go实现线程池如下。创建两个通道，通道queue中传入任务函数，通道result传入结果：</p>
+<ul>
+<li>创建结构</li>
+<li>初始化</li>
+<li>开门接客</li>
+<li>关门送客</li>
+<li>辅助函数:添加任务、回调</li>
+</ul>
+<pre><code class="lang-go">type pool struct{
+    Queue chan func() error
+    Number int //协程数
+    Total int //任务数
+
+    result chan error
+    finishCallback func()
+}
+
+func (p *pool) Init(number, total int){
+    p.Queue=make(chan func() error,total)
+    p.Number=number
+    p.Total=total
+    p.result=make(chan error,total)
+}
+// 开门接客
+func (p *pool) Start(){
+    // 开启Number个goroutine
+    for i:=0;i&lt;p.Number;i++{
+        go func(){
+            for {
+                task, ok := &lt;-p.Queue
+                if !ok { //所有任务已经完成，跳出循环
+                    break
+                }
+                err:=task() //执行任务，每个协程阻塞在此
+                p.result&lt;-err 
+            }
+        }()
+    }
+
+    // 获得每个work的执行结果
+    for i:=0;i&lt;p.Total;i++{
+        res:=&lt;-p.result //阻塞形式
+        if res!=nil{
+            fmt.Println(res)
+        }
+    }
+
+    // main传入回调函数才可以执行
+    if p.finishCallback!=nil{
+        p.finishCallback()
+    }
+}
+
+// 关门送客
+func (p *pool) Stop() {
+       close(p.Queue)
+    close(p.result)
+}
+//添加任务
+func (p *pool)addTask(task func() error){
+    p.Queue&lt;-task
+}
+//设置结束回调
+func (p *pool) setFinishCallback(callback func()){
+    p.finishCallback=callback
+</code></pre>
+<p>使用过程：</p>
+<pre><code class="lang-go">ool := new(GoroutinePool)
+pool.Init(3, 10) //开启3个协程处理10个任务
+for i:=0;i&lt;10;i++{
+    pool.addTask(func() error{
+        //从taskName中获取任务要求
+        return doTask(taskName[i])
+    })
+}
+
+isFinish:=false
+pool.setFinishCallback(func(){
+    func(isFinish *bool){
+        *isFinish=true
+    }(&amp;isFinish)
+})
+
+pool.Start()
+for{
+    if isFinished{
+        break
+    }
+    time.Sleep(time.Millisecond*100)
+}
+
+pool.Stop()
+fmt.Println(&quot;Finished!&quot;)
+</code></pre>
+<h1 id="3-内存"><a href="#3-内存" class="headerlink" title="3. 内存"></a>3. 内存</h1><h2 id="3-1-逻辑地址、线性地址和物理地址的区别？"><a href="#3-1-逻辑地址、线性地址和物理地址的区别？" class="headerlink" title="3.1 逻辑地址、线性地址和物理地址的区别？"></a>3.1 逻辑地址、线性地址和物理地址的区别？</h2><p><strong>逻辑地址（Logic Address）</strong>是指<strong>由程序产生的与段相关的偏移地址部分</strong>，因此一个逻辑地址<strong>由段标识符和段内偏移量</strong>组成，有时也称<strong>虚拟地址</strong>。比如，在C程序中，<strong>可以使用&amp;操作读取指针变量本身的值，实际上这个值就是逻辑地址</strong>。逻辑地址和绝对的物理地址不相干。</p>
+<p><strong>线性地址（Linear Address）</strong>是逻辑地址到物理地址变换之间的中间层。程序代码会产生逻辑地址，或说是段中的偏移地址，<strong>加上相应段的基地址就生成了一个线性地址。</strong></p>
+<p><strong>物理地址（Physical Address）</strong>是CPU外部地址总线上的地址，也是地址变换的最终地址。</p>
+<h2 id="3-2-寻址方式有哪些？"><a href="#3-2-寻址方式有哪些？" class="headerlink" title="3.2 寻址方式有哪些？"></a>3.2 寻址方式有哪些？</h2><p>寻址寻的都是物理地址。分三组：立即寻址+寄存器寻址；直接间接寻址；相对寻址+2个基变址寻址。</p>
+<ul>
+<li><p><strong>立即寻址</strong>：操作数在指令中给出，作为指令的一部分。</p>
+<pre><code class="lang-assembly">MOV AL,5
+</code></pre>
+</li>
+<li><p><strong>寄存器寻址</strong>：操作数在CPU内部的寄存器中，指令指定寄存器。<strong>不需要访问存储器</strong>，所以速度快。</p>
+<pre><code class="lang-assembly">MOV AX,BX
+</code></pre>
+</li>
+<li><p><strong>直接寻址</strong>：<strong>操作数在寄存器中</strong>，指令直接包含有操作数的有效地址。</p>
+<pre><code class="lang-assembly">MOV AX,[8054]
+</code></pre>
+</li>
+<li><p><strong>间接寻址</strong>：存储操作数的寄存器的地址另一个在寄存器中</p>
+<pre><code class="lang-assembly">MOV AX,[SI]
+</code></pre>
+</li>
+<li><p><strong>相对寻址</strong>：操作数在存储器中，形式为<strong>基地址+偏移地址</strong>。假设数据段DS地址为5000，DI为3678，最终地址为5000+3678+1223。</p>
+<pre><code class="lang-assembly">MOV AX,[DI+1223H]
+</code></pre>
+</li>
+<li><p><strong>基变址绝对寻址</strong>：操作数在寄存器中，形式为<strong>基地址寄存器+变址寄存器</strong>。BX基地址+DI变址得到操作数存放的地址。</p>
+<pre><code class="lang-assembly">MOV AX,[BX][DI]
+</code></pre>
+</li>
+<li><p><strong>基变址相对寻址</strong>：操作数在存储器中，形式为：<strong>基地址寄存器+变址寄存器+偏移地址</strong></p>
+<pre><code class="lang-assembly">MOV AX,[BX+DI-2]
+</code></pre>
+</li>
+</ul>
+<h2 id="3-3-什么是虚拟内存？"><a href="#3-3-什么是虚拟内存？" class="headerlink" title="3.3 什么是虚拟内存？"></a>3.3 什么是虚拟内存？</h2><p>多任务会带来进程对内存的操作冲突，需要虚拟内存来解决。假设现在有一块物理内存，<strong>操作系统让两个进程共用这一块内存</strong>，彼此并不打扰。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200217135006.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-4-什么是交换空间？"><a href="#3-4-什么是交换空间？" class="headerlink" title="3.4 什么是交换空间？"></a>3.4 什么是交换空间？</h2><p>操作系统把物理内存(physical RAM)分成一块一块的小内存，每一块内存被称为<strong>页(page)</strong>。当内存资源不足时，<strong>Linux把某些页的内容转移至硬盘上的一块空间上，以释放内存空间</strong>。硬盘上的那块空间叫做<strong>交换空间</strong>(swap space),而这一过程被称为交换(swapping)。<strong>物理内存和交换空间的总容量就是虚拟内存的可用容量。</strong></p>
+<p>用途：</p>
+<ul>
+<li>物理内存不足时一些不常用的页可以被交换出去，腾给系统。</li>
+<li>程序启动时很多内存页被用来初始化，之后便不再需要，可以交换出去。</li>
+</ul>
+<h2 id="3-5-什么是分页？"><a href="#3-5-什么是分页？" class="headerlink" title="3.5 什么是分页？"></a>3.5 什么是分页？</h2><p>把内存空间划分为<strong>大小相等且固定的块</strong>，作为主存的基本单位。因为程序数据存储在不同的页面中，而页面又离散的分布在内存中，<strong>因此需要一个页表来记录映射关系，以实现从页号到物理块号的映射。</strong></p>
+<p>访问分页系统中内存数据需要<strong>两次的内存访问</strong> (一次是从内存中访问页表，从中找到指定的物理块号，加上页内偏移得到实际物理地址；第二次就是根据第一次得到的物理地址访问内存取出数据)。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218105728.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-6-什么是分段？"><a href="#3-6-什么是分段？" class="headerlink" title="3.6 什么是分段？"></a>3.6 什么是分段？</h2><p><strong>分页是为了提高内存利用率，而分段是为了满足程序员在编写代码的时候的一些逻辑需求(比如数据共享，数据保护，动态链接等)。</strong></p>
+<p>分段内存管理当中，<strong>地址是二维的，一维是段号，二维是段内地址；其中每个段的长度是不一样的，而且每个段内部都是从0开始编址的</strong>。由于分段管理中，每个段内部是连续内存分配，但是段和段之间是离散分配的，因此也存在一个逻辑地址到物理地址的映射关系，相应的就是段表机制。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218110201.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-7-分页分段的区别是什么？"><a href="#3-7-分页分段的区别是什么？" class="headerlink" title="3.7 分页分段的区别是什么？"></a>3.7 分页分段的区别是什么？</h2><ul>
+<li>属性：页是信息的物理单位，对用户不可见，段是逻辑单位，用户可见。</li>
+<li>大小：分页固定，分段不固定</li>
+<li>决定权：分页在于系统，分段在于用户</li>
+<li>目的：分页有利于资源的利用，分段方便用户管理内存</li>
+</ul>
+<h2 id="3-8-有哪些页面置换算法？"><a href="#3-8-有哪些页面置换算法？" class="headerlink" title="3.8 有哪些页面置换算法？"></a>3.8 有哪些页面置换算法？</h2><p><strong>缺页中断</strong>：在请求分页系统中，可以通过查询页表中的状态位来确定所要访问的页面是否存在于内存中。每当所要访问的页面不在内存是，会产生一次缺页中断，此时操作系统会根据页表中的外存地址在外存中找到所缺的一页，将其调入内存。</p>
+<p>有时候操作系统必须在内存选择一个页面将其移出内存，以便为即将调入的页面让出空间。而用来选择淘汰哪一页的规则叫做页面置换算法。</p>
+<ul>
+<li>先进先出FIFO：总是选择在主存中停留时间最长（即最老）的一页置换</li>
+<li>LRU：选择在最近一段时间里<strong>最久没有使用</strong>过的页面予以置换</li>
+<li>LFU(least frequent)：统计页的使用频率，选择在<strong>最近时期使用最少的页面</strong>作为淘汰页</li>
+</ul>
+<h1 id="4-系统中断"><a href="#4-系统中断" class="headerlink" title="4. 系统中断"></a>4. 系统中断</h1><h2 id="4-1-中断的处理过程"><a href="#4-1-中断的处理过程" class="headerlink" title="4.1 中断的处理过程"></a>4.1 中断的处理过程</h2><ol>
+<li>保护现场：将当前执行程序的相关数据保存在寄存器中，然后入栈</li>
+<li>开中断：以便执行中断时能响应较高级别的中断请求。</li>
+<li>中断处理</li>
+<li>关中断：保证恢复现场时不被新中断打扰</li>
+<li>恢复现场：从堆栈中按序取出程序数据，恢复中断前的执行状态。</li>
+</ol>
+<h2 id="4-2-中断和轮询有什么区别？"><a href="#4-2-中断和轮询有什么区别？" class="headerlink" title="4.2 中断和轮询有什么区别？"></a>4.2 中断和轮询有什么区别？</h2><p>轮询：CPU对<strong>特定设备</strong>轮流询问。中断：通过<strong>特定事件</strong>提醒CPU。</p>
+<p>轮询：效率低等待时间长，CPU利用率不高。中断：容易遗漏问题，CPU利用率不高。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" target="_blank" rel="external">jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E7%BB%8F%E9%AA%8C/" rel="tag">面试经验</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《操作系统面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《操作系统面试题目汇总》 — JR's Blog&source=本章包含了操作系统和计算机组成相关的知识信息，Linux部分被专门分出去了。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《操作系统面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/02/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">计算机网络面试题目汇总</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/02/14/go%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">go设计模式</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《操作系统面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《操作系统面试题目汇总》 — JR's Blog&source=本章包含了操作系统和计算机组成相关的知识信息，Linux部分被专门分出去了。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《操作系统面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/02/16/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

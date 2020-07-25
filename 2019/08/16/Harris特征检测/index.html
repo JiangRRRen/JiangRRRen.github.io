@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Harris特征检测 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,图像处理,算法,计算机视觉">
+    <meta name="description" content="Harris是一种简单但实用的角点检测手段，本文介绍了他的基本原理，以及优劣势。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Harris特征检测">
+<meta property="og:url" content="jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="Harris是一种简单但实用的角点检测手段，本文介绍了他的基本原理，以及优劣势。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902141152.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165123.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165553.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170000.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170542.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170657.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170808.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171649.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171729.png">
+<meta property="article:published_time" content="2019-08-16T02:56:55.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:37:18.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="图像处理">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902141152.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Harris特征检测</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Harris特征检测</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-16T02:56:55.000Z" itemprop="datePublished" class="page-time">
+  2019-08-16
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基本原理"><span class="post-toc-text">1. 基本原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-计算方法"><span class="post-toc-text">2. 计算方法</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-性质"><span class="post-toc-text">3. 性质</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Harris特征检测"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Harris特征检测</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-16 10:56:55" datetime="2019-08-16T02:56:55.000Z"  itemprop="datePublished">2019-08-16</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>Harris是一种简单但实用的角点检测手段，本文介绍了他的基本原理，以及优劣势。<a id="more"></a></p>
+<h1 id="1-基本原理"><a href="#1-基本原理" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h1><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902141152.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>当一个窗口在图像上移动，在平滑区域如图(a)，窗口在<strong>各个方向上没有变化</strong>。在边缘上如图(b)，窗口在<strong>边缘的方向上没有变化</strong>。在角点处如图(c)，窗口<strong>在各个方向上具有变化</strong>。</p>
+<p>假设图像窗口平移$[u,v]$产生的变化为$E(u,v)$则：</p>
+<script type="math/tex; mode=display">
+E(u, v)=\sum_{x_{s}, y} w(x, y)[I(x+u, y+v)-I(x, y)]^{2}</script><p>泰勒展开可得：</p>
+<script type="math/tex; mode=display">
+I(x+u, y+v)=I(x, y)+I_{x} u+I_{y} v+O\left(u^{2}, v^{2}\right)</script><p>这是单个像素的表达式，当发生微小位移时，忽略无穷小量。现在，我们考虑一个领域窗口内所有像素的移动情况，写成矩阵形式：</p>
+<script type="math/tex; mode=display">
+E(u, v)=\sum_w[u, v]\left[\begin{array}{cc}{I_{x}^{2}} & {I_{x} I_{y}} \\ {I_{x} I_{y}} & {I_{y}^{2}}\end{array}\right]\left[\begin{array}{l}{u} \\ {v}\end{array}\right]=[u, v]M\left[\begin{array}{l}{u} \\ {v}\end{array}\right]</script><p>假设梯度坐标表示为$(I_X,I_Y)$，，这个和上面有区别。不同的纹理特征表现出来的梯度坐标分布不同：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165123.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>注意：样例图片并不是纯色，里面包含了很多的椒盐点，所以梯度分布才会出现散状。</p>
+<p>可以看出，均匀图像的灰度在 $x,y$ 方向几乎没有变化，类似一个<strong>圆</strong>；边缘图像在某一个轴方向变化剧烈，在另一个方向没有变化，近似为一个<strong>扁椭圆</strong>；角点在两个方向变化都很剧烈，近似为一个<strong>卵型</strong>。</p>
+<p>因此判断角点的条件就变为：<strong>长轴短轴都超过某一阈值</strong>，转化为矩阵语言就是$M$<strong>有两个大特征值</strong>。</p>
+<h1 id="2-计算方法"><a href="#2-计算方法" class="headerlink" title="2. 计算方法"></a>2. 计算方法</h1><p>由上可知，我们判断角点的依据就是特征值的大小</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217165553.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>常规思路是进行SVD分解：</p>
+<script type="math/tex; mode=display">
+M=X\Sigma X^T = X \left[ \begin{matrix} \lambda_1& 0\\ 0& \lambda_2\end{matrix} \right] X^T</script><p>但速度比较慢，难以做到视频中实时监测的需求（30帧每秒），所以我们可以采用近似的做法：</p>
+<script type="math/tex; mode=display">
+M(x,y)=\Sigma_w \left[ \begin{matrix} I_x^2& I_xI_y \\ I_xI_y & I_y^2\end{matrix} \right] = \left[ \begin{matrix} A& C\\ C& B\end{matrix} \right]</script><p>采用近似的形式，$\alpha$一般取0.04-0.06：</p>
+<script type="math/tex; mode=display">
+R = detM-\alpha (traceM)^2\\
+detM=\lambda_1 \lambda_2=AB-C^2\\
+traceM=\lambda_1 + \lambda_2 = A+B</script><p>此时判断条件变为：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170000.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="3-性质"><a href="#3-性质" class="headerlink" title="3. 性质"></a>3. 性质</h1><p>一般来说计算的角点会呈块状分布</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170542.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>所以我们需要使用非极大抑制(Non-maxima suppression)处理，得到单个的角点：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170657.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>Harris角点对亮度和对比度的变化并不敏感</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217170808.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>对于亮度来说，整体的上升和下降，并不影响角点的检测。对于对比度来说，按比例拉伸曲线，<strong>并不改变Harris响应的极值点出现的位置</strong>，但是，由于阈值的选择，<strong>可能会影响角点检测的数量</strong>。</p>
+<hr>
+<p>Harris角点检测算子具有旋转不变性。Harris角点检测算子使用的是<strong>角点附近的区域灰度二阶矩矩阵</strong>。而二阶矩矩阵可以表示成一个椭圆，椭圆的长短轴正是二阶矩矩阵特征值平方根的倒数。<strong>当特征椭圆转动时，特征值并不发生变化</strong>，所以判断角点响应值也不发生变化，由此说明Harris角点检测算子具有旋转不变性。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171649.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>Harris角点不具有尺度不变性。当图被缩小时，在检测窗口尺寸不变的前提下，在窗口内所包含图像的内容是完全不同的。左侧的图像可能被检测为边缘或曲线，而右侧的图像则可能被检测为一个角点。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217171729.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>随着尺度的减小，能检测到角点数量也相应降低。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_blank" rel="external">jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag">计算机视觉</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《Harris特征检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《Harris特征检测》 — JR's Blog&source=Harris是一种简单但实用的角点检测手段，本文介绍了他的基本原理，以及优劣势。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Harris特征检测》 — JR's Blog&url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SVD解超定方程</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">ORB特征检测</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《Harris特征检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《Harris特征检测》 — JR's Blog&source=Harris是一种简单但实用的角点检测手段，本文介绍了他的基本原理，以及优劣势。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Harris特征检测》 — JR's Blog&url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

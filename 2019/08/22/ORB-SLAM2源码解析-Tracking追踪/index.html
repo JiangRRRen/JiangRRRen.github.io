@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>ORB_SLAM2源码解析-Tracking追踪 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM">
+    <meta name="description" content="ORBSLAM三大线程之Tracking部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB_SLAM2源码解析-Tracking追踪">
+<meta property="og:url" content="jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="ORBSLAM三大线程之Tracking部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823162051.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190825091340.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821135014.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820164010.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821144145.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821154729.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820142102.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819141906.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823130955.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820154412.png">
+<meta property="article:published_time" content="2019-08-22T01:45:25.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:46:18.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823162051.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">ORB_SLAM2源码解析-Tracking追踪</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">ORB_SLAM2源码解析-Tracking追踪</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-22T01:45:25.000Z" itemprop="datePublished" class="page-time">
+  2019-08-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-概述"><span class="post-toc-text">1. 概述</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-初始化"><span class="post-toc-text">2. 初始化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-双目初始化"><span class="post-toc-text">2.1 双目初始化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-单目初始化"><span class="post-toc-text">2.2 单目初始化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#2-2-1-初始化的基本流程"><span class="post-toc-text">2.2.1 初始化的基本流程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#2-2-2-单目三角化点包装成地图点"><span class="post-toc-text">2.2.2 单目三角化点包装成地图点</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-追踪模型"><span class="post-toc-text">3. 追踪模型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-TrackWithMotionModel"><span class="post-toc-text">3.1 TrackWithMotionModel</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3-1-1-更新地图点-UpdateLastFrame"><span class="post-toc-text">3.1.1 更新地图点 UpdateLastFrame</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#3-1-2-整体思路"><span class="post-toc-text">3.1.2 整体思路</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-TrackReferenceKeyFrame"><span class="post-toc-text">3.2 TrackReferenceKeyFrame</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-Relocalization"><span class="post-toc-text">3.3 Relocalization</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-局部地图匹配-TrackLocalMap"><span class="post-toc-text">4. 局部地图匹配 TrackLocalMap</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-总体思路"><span class="post-toc-text">4.1 总体思路</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-更新局部关键帧和局部地图点"><span class="post-toc-text">4.2 更新局部关键帧和局部地图点</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4-2-1-更新局部关键帧"><span class="post-toc-text">4.2.1 更新局部关键帧</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#4-2-2-更新局部地图点"><span class="post-toc-text">4.2.2 更新局部地图点</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-3-进一步筛选局部地图点"><span class="post-toc-text">4.3 进一步筛选局部地图点</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-4-优化"><span class="post-toc-text">4.4 优化</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-创建新的关键帧"><span class="post-toc-text">5. 创建新的关键帧</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-1-是否需要加入关键帧"><span class="post-toc-text">5.1 是否需要加入关键帧</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-2-创建关键帧"><span class="post-toc-text">5.2 创建关键帧</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-ORB-SLAM2源码解析-Tracking追踪"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">ORB_SLAM2源码解析-Tracking追踪</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-22 09:45:25" datetime="2019-08-22T01:45:25.000Z"  itemprop="datePublished">2019-08-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>ORBSLAM三大线程之Tracking部分。<a id="more"></a></p>
+<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>程序分为两种模式：<strong>SLAM模式</strong>和<strong>Localization模式</strong>，由变量<code>mbOnlyTracking</code>标记。SLAM模式中，三个线程全部都在工作，即在定位也在建图。而Localization模式中，只有Tracking线程在工作，即只定位，输出追踪结果（姿态），不会更新地图和关键帧。Localization模式主要用于已经有场景地图的情况下（在SLAM模式下完成建图后可以无缝切换到Localization模式）。Localization模式下追踪方法涉及到的关键函数是一样的，只是策略有所不同。</p>
+<p>tracking中包含了<strong>5种状态</strong>：</p>
+<ul>
+<li><strong>SYSTEM_NOT_READY</strong> 系统没有准备好的状态（启动后加载配置文件和词典时）</li>
+<li><strong>NO_IMAGES_YET</strong> 当前无图像（图像复位、或者第一次运行时）</li>
+<li><strong>NOT_INITIALIZED</strong> 有图像但是没有完成初始化</li>
+<li><strong>OK</strong> 正常时候的工作状态</li>
+<li><strong>LOST</strong> 系统已经跟丢了的状态（TrackLocalMap时匹配成功的MapPoint太少）</li>
+</ul>
+<p>tracking线程的<strong>目的</strong>有三个：<strong>获取精确的位姿，设置地图点，设置关键帧</strong>。程序中所有的内容都紧紧围绕这三个目的展开。</p>
+<p>从流程上说，整个程序分为四大部分：初始化，初始追踪，精确追踪(TrackLocalMap)，加入关键帧。</p>
+<p>整体流程如下图所示（深色表示后面有详细分析）：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823162051.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="2-初始化"><a href="#2-初始化" class="headerlink" title="2. 初始化"></a>2. 初始化</h1><h2 id="2-1-双目初始化"><a href="#2-1-双目初始化" class="headerlink" title="2.1 双目初始化"></a>2.1 双目初始化</h2><p>双目初始化包括了双目相机和RGBD相机（都把他们认为双目），双目初始化的目的是：设定初始位姿，获得初始关键帧，构造初始3D地图点。整个模块都是调用<code>void Tracking::StereoInitialization()</code>初始化。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190825091340.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li><p><strong>设定初始位姿</strong></p>
+<p>需要先加一个判断<code>if(mCurrentFrame.N&gt;500)</code>整个函数只有在当前帧的特征点超过500的时候才会进行。初始位姿由<code>Mat::eye</code>构造，是单位变换矩阵。</p>
+</li>
+<li><p><strong>构造初始关键帧</strong></p>
+<p>构造的时候需要用参数<code>mCurrentFrame</code>，<code>mpMap</code>，<code>mpKeyFrameDB</code>（关键帧数据库用于重定位和回环）。构造完成后需要将关键帧添加到<code>mpMap</code>地图中。</p>
+</li>
+<li><p><strong>特征点构造地图点</strong></p>
+<ol>
+<li><p><strong>判断是否具有正深度</strong></p>
+</li>
+<li><p><strong>反投影获得特征点三维坐标</strong></p>
+</li>
+<li><p><strong>将3D点构造成地图点</strong></p>
+<p>3D点是<code>Mat</code>类需要转化为<code>MapPoint*</code></p>
+</li>
+<li><p><strong>为构造的地图点MapPoint添加属性</strong></p>
+<p>观测到该MapPoint的关键帧；该MapPoint的最佳描述子；该MapPoint的平均观测方向和深度范围</p>
+</li>
+<li><p><strong>向地图中添加MapPoint</strong></p>
+</li>
+<li><p><strong>为关键帧添加特征点和地图点的对应关系</strong></p>
+<p>将地图点和特征点序号添加到关键帧，并构建对应关系（哪个特征点可以观测到哪个3D点），f和e使用了同一个函数<code>AddMapPoint</code>但使用对象不同，e是对地图使用，f是对关键帧使用</p>
+</li>
+</ol>
+</li>
+<li><p><strong>在局部地图中添加该初始关键帧</strong></p>
+<p>除了使用<code>InsertKeyFrame</code>函数插入关键帧以外，每次添加关键帧还需做一些额外操作。</p>
+<ol>
+<li>首先需要将当前帧变上一帧（上一帧=当前帧，上一关键帧ID=当前帧ID，上一关键帧=当前帧）</li>
+<li>然后需要添加到局部关键帧集合和局部地图点集合，并设置参考关键帧（关键帧的参考关键帧就是自己）</li>
+<li>把当前（最新的）局部MapPoints作为ReferenceMapPoints（画图用）</li>
+</ol>
+</li>
+</ol>
+<h2 id="2-2-单目初始化"><a href="#2-2-单目初始化" class="headerlink" title="2.2 单目初始化"></a>2.2 单目初始化</h2><p>单目的SLAM系统需要进行初始化，因为单帧图像数据并不能获取深度信息，也不能生成初始的地图。</p>
+<p>早期的MonoSLAM，系统初始化利用<strong>一个已知尺寸的平面矩形实现</strong>，将相机摆放在该矩形前已知距离的地方，利用平面矩形的四个角点计算初始位姿。</p>
+<p>单目SLAM地图初始化的目标是构建初始的三维点云。由于不能仅仅从单帧得到深度信息，因此需要从图像序列中<strong>选取两帧以上的图像</strong>，估计摄像机姿态并重建出初始的三维点云。</p>
+<p>在ORB-SLAM中，作者<strong>并行计算</strong>基本矩阵和单应矩阵（用<strong>RANSAC</strong>方法），并评估两种方法的对称传输误差来选择合适的模型。完成之后，就会进行适当的分解，恢复出相机的位姿，并三角化生成初始地图点，最后通BA调整优化地图。如果选择的模型导致跟踪质量差，或者图像上的特征匹配较少，初始化就会迅速被系统丢弃，重新进行初始化，这保证了初始化的可靠性。</p>
+<h3 id="2-2-1-初始化的基本流程"><a href="#2-2-1-初始化的基本流程" class="headerlink" title="2.2.1 初始化的基本流程"></a>2.2.1 初始化的基本流程</h3><p>Track线程中的<code>Tracking::MonocularInitialization()</code>，这个函数完成了单目的初始化，并且初始化了地图。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821135014.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li><p><strong>构建初始器，并选择初始器的第一关键帧</strong></p>
+<p>如果初始器还未生成，则开始构建初始器。否则进入第二步。构建初始器：选取一帧提取到的<strong>特征点大数目于100</strong>的图像帧，构建初始器<code>Initializer</code>,并将当前帧图像设为初始化的第一帧，<strong>返回</strong>等待下一帧图像；</p>
+</li>
+<li><p><strong>搜索第二关键帧</strong></p>
+<p>搜索当前帧如果特征点大于100个，就构建为初始化的第二帧，否则需要重新构造初始器(连续两帧大于100才算成功)</p>
+</li>
+<li><p><strong>两帧匹配</strong></p>
+<p>调用匹配器<code>matcher</code>，如果初始化的两帧之间的匹配点太少，重新初始化</p>
+</li>
+<li><p><strong>求取单应矩阵和基本矩阵</strong></p>
+<p>进入初始化器中的<code>Initialize()</code>的过程(主要在initialize.cpp中实现)，完成<code>H</code>矩阵和<code>F</code>矩阵的构建。构建的过程中会判断是构建H矩阵还是F矩阵，并根据构建的矩阵的质量判断是否初始化成果。如果矩阵的质量不好，那么就判断初始化失败，返回第二步，重新寻找初始化的第二帧。</p>
+</li>
+<li><p><strong>删除无法三角化的点</strong></p>
+<p>无法三角化是指三角化的结果差的重投影差的离谱</p>
+</li>
+<li><p><strong>位姿和坐标确定</strong></p>
+<p>删除那些无法进行三角化的匹配点。计算变换矩阵，将初始化的第一帧作为世界坐标系。</p>
+</li>
+<li><p><strong>生成初始地图</strong></p>
+<p>初始化完成R,T还有三角化完成的3D点。接下来就是先删除无法进行三角化的点，然后将第一帧的位姿设为世界坐标的位姿，最后将将三角化得到的3D点包装成MapPoints，加入到新建立的地图<code>CreateInitialMapMonocular()</code>。</p>
+</li>
+</ol>
+<h3 id="2-2-2-单目三角化点包装成地图点"><a href="#2-2-2-单目三角化点包装成地图点" class="headerlink" title="2.2.2 单目三角化点包装成地图点"></a>2.2.2 单目三角化点包装成地图点</h3><p>无论是单目还是双目，将<strong>特征点包装成地图点</strong><code>MapPoint</code>都是必不可少的。区别在于双目镜头可以直接得到特征点的深度信息，因此包装的过程比较简单，所以直接放在初始化函数中<code>StereoInitialization()</code>，而单目的包装过程非常复杂，因此单独拿出来作为一个函数<code>Tracking::CreateInitialMapMonocular()</code></p>
+<p>首先就是用3D点构造MapPoint，之后为初始化用到的这两帧构建连接关系(双目只用到了一帧所以没有这一步)，最后需要对MapPoint的深度归一化。</p>
+<ol>
+<li><p><strong>3D点构造MapPoint</strong></p>
+<p>这一步跟双目构造大同小异</p>
+<ol>
+<li><strong>利用3D点创建一个</strong><code>MapPoint</code></li>
+<li><strong>为<code>MapPoint</code>添加属性</strong>(观测到的关键帧，最佳描述子，平均观测方向，深度范围)</li>
+<li><strong>向地图中添加<code>MapPoint</code></strong></li>
+</ol>
+</li>
+<li><p><strong>更新关键帧间的连接关系</strong></p>
+<p>这里调用<code>KeyFrame::UpdateConnections</code>。在3D点和关键帧之间建立边，每个边有一个权重，边的权重是该关键帧与当前帧公共3D点的个数。</p>
+</li>
+<li><p><strong>BA优化</strong></p>
+<p>优化的对象是当前地图<strong>mpMap</strong>，使用的是全局优化函数<code>Optimizer::GlobalBundleAdjustemnt</code></p>
+</li>
+<li><p><strong>深度归一化</strong></p>
+<ol>
+<li><p><strong>计算归一化系数</strong></p>
+<p>首先计算MapPoint的平均深度，调用<code>KeyFrame::ComputeSceneMedianDepth</code>，然后求倒数</p>
+</li>
+<li><p><strong>判断可行条件</strong></p>
+<p>平均深度大于0||当前帧观测到的地图点大于100，否则Reset</p>
+</li>
+<li><p><strong>归一化变化矩阵</strong></p>
+<p>提取变换矩阵<code>Tc2w</code>的第三列，乘以归一化系数，将两帧之间的变换归一化到平均深度1的尺度下。</p>
+</li>
+<li><p><strong>归一化地图点</strong></p>
+<p>把地图点的尺度也归一化到1，直接将点的世界坐标乘以归一化系数</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>深度归一化的步骤是：首先求得所有MapPoint的深度（相机坐标系下Z的大小）的中位数，再将所有点的深度除以中值深度。这样最后得到的点所有深度的平均深度（中值深度）就为1。</p>
+<p>变换矩阵如下所示，只需要提取$R$的第三行，乘以点的世界坐标就可以得到点在相机坐标系下的深度，再加上平移量$t$，即可求得点的深度。</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix} a_1\\a_2\\a_3\end{bmatrix}
+=
+\begin{bmatrix} e_1^T e_1' & e_1^T e_2' & e_1^T e_3'\\e_2^T e_1'&e_2^T e_2'&e_1^T e_3'\\e_3^T e_1'&e_3^T e_2'&e_3^T e_3'\end{bmatrix}
+\begin{bmatrix} a_1'\\a_2'\\a_3'\end{bmatrix}
+=Ra</script><h1 id="3-追踪模型"><a href="#3-追踪模型" class="headerlink" title="3. 追踪模型"></a>3. 追踪模型</h1><p>初始化完成后，对于相机获取当前图像mCurrentFrame，通过跟踪匹配上一帧mLastFrame特征点的方式，可以获取一个<strong>相机位姿的初始值</strong>；为了兼顾计算量和跟踪鲁棒性，处理了三种模型：</p>
+<ol>
+<li>TrackWithMotionModel 恒速模型</li>
+<li>TrackReferenceKeyFrame 关键帧模型</li>
+<li>Relocalization 重定位模型</li>
+</ol>
+<p>这三种跟踪模型都是为了获取相机位姿一个粗略的初值，后面会通过跟踪局部地图TrackLocalMap<strong>对位姿进行BA优化</strong>。在使用三大追踪模型前我们需要更新上一帧的地图点。</p>
+<h2 id="3-1-TrackWithMotionModel"><a href="#3-1-TrackWithMotionModel" class="headerlink" title="3.1 TrackWithMotionModel"></a>3.1 TrackWithMotionModel</h2><p>该模型根据两帧之间的约束关系来求解估算位姿。假设物体处于<strong>匀速运动</strong>，那么可以用上一帧的位姿和速度来估计当前帧的位姿（认为这两帧之间的相对运动和之前两帧间相对运动相同）。上一帧的速度可以通过前面几帧的位姿计算得到。这个模型适用于运动速度和方向比较一致、没有大转动的情形。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820164010.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如果是静止状态或者运动模型匹配效果不佳（运用恒速模型后反投影发现LastFrame的地图点和CurrentFrame的特征点匹配很少），通过增大参考帧的地图点反投影匹配范围，获取较多匹配后，计算当前位姿；而对于运动比较随意的目标，上述操作失效的。</p>
+<p>在执行恒速模型前需要先判断一下：<strong>速度是否为空</strong>。速度为空意味着刚完成重定位，这时候只能采用关键帧模型。</p>
+<h3 id="3-1-1-更新地图点-UpdateLastFrame"><a href="#3-1-1-更新地图点-UpdateLastFrame" class="headerlink" title="3.1.1 更新地图点 UpdateLastFrame"></a>3.1.1 更新地图点 UpdateLastFrame</h3><p>如果采用关键帧参考模型或重定位模型，参考的帧是关键帧，则其记录了足够丰富的地图点MapPoint信息，<strong>运动模型参考的上一帧可能是普通帧</strong>，包含的地图点信息非常少(<code>mvpMapPoints</code>包含的对应关系特别少)，这样不利于优化，所以我们需要为上一帧添加一些<strong>临时地图点</strong>用于优化（这些点之后会被删除）。这一步<strong>只针对于双目和RGBD相机</strong>（单目为什么不需要目前不清楚）</p>
+<ol>
+<li><p><strong>更新上一帧位姿</strong></p>
+<p>将上一帧的位姿设为参考关键帧的位姿(与上一帧有最多共视关系的参考帧)</p>
+</li>
+<li><p><strong>获取上一帧具有正深度的特征点</strong><br>如果特征点的深度为负，说明根本不在视野范围内，无法重投影。</p>
+</li>
+<li><p><strong>将特征点按深度从小到大排列</strong></p>
+</li>
+<li><p><strong>将距离较近的特征点包装为MapPoint</strong></p>
+<p>如果这个特征点已经是MapPoint了就不管，如果还不是，则需要创建并添加属性。<strong>满足两个条件时</strong>，更新结束：1.当前的点的深度已经超过了远点的阈值<code>mThDepth</code>(<strong>分割远近点的阈值=基线长度*比例系数/焦距)</strong>；2.已经拥有100个MapPoint</p>
+</li>
+</ol>
+<h3 id="3-1-2-整体思路"><a href="#3-1-2-整体思路" class="headerlink" title="3.1.2 整体思路"></a>3.1.2 整体思路</h3><p>步骤如下：</p>
+<ol>
+<li><p><strong>更新地图点</strong></p>
+</li>
+<li><p><strong>根据前两帧速度计算当前位姿</strong></p>
+<script type="math/tex; mode=display">
+v=\frac{T_{n-2}*T_{n-1}}{t}\\ T_{n}=v*t*T_{n-1}​</script></li>
+</ol>
+<p>   前两帧算速度，然后将速度乘以当前帧的前一帧计算粗略位姿。</p>
+<ol>
+<li><p><strong>重投影追踪</strong></p>
+<p>预设一个搜索半径<code>th</code> ，根据上一帧特征点对应的3D点投影的位置缩小特征点匹配范围，计算符合要求的特征点数目。实现方法在<code>ORBmatcher.cpp</code>中。如果得到跟踪点太少，则<strong>扩大搜索半径再来一次</strong>。如果还是不行则认为跟踪失败。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>调用<code>Optimizer::PoseOptimization</code>优化</p>
+</li>
+<li><p><strong>剔除outlier的关键点</strong></p>
+<p>在优化时，将区域分为outliers和inliers，我们将<strong>非常不可能</strong>的测量值（根据测量模型）称为<strong>外点（outlier）</strong>。在优化的过程中就有了对这些外点的标记，outlier不参与下次优化。具体检测方法有RANSAC和卡方分布法。</p>
+</li>
+<li><p><strong>返回ture、false标志</strong></p>
+<p>如果成功匹配到的地图点数目（剔除外点后）数目大于等于10，则返回true，否则返回false</p>
+</li>
+</ol>
+<h2 id="3-2-TrackReferenceKeyFrame"><a href="#3-2-TrackReferenceKeyFrame" class="headerlink" title="3.2 TrackReferenceKeyFrame"></a>3.2 TrackReferenceKeyFrame</h2><p>假如motion model已经失效（返回false），那么首先可以尝试<strong>和最近一个关键帧去做匹配</strong>。毕竟当前帧和上一个关键帧的距离还不是很远。作者利用了bag of words（BoW）来加速匹配。首先，计算当前帧的BoW，并设定初始位姿为上一帧的位姿；其次，根据位姿和BoW词典来寻找特征匹配。</p>
+<blockquote>
+<p>添加到地图中的帧称为关键帧(KeyFrame)，它构建在帧(Frame)的基础上，与地图(Map)关联。换句话说关键帧是对建图和定位比较重要的帧</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821144145.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>步骤如下:</p>
+<ol>
+<li><p><strong>将当前帧的描述子转化为BoW向量</strong></p>
+</li>
+<li><p><strong>通过特征点的BoW加快当前帧与参考帧之间的特征点匹配</strong></p>
+<p>由<code>ORBmatcher</code>提供方法，采用<code>SearchByBoW()</code>专门计算，由<code>vpMapPointMatches</code>存储匹配关系。<strong>参考关键帧就是里当前帧最近的关键帧</strong>。如果匹配数目不够就退出，采用重定位模式。</p>
+</li>
+<li><p><strong>将上一帧的位姿态作为当前帧位姿的初始值</strong></p>
+<p>这里需要拷贝两个东西：把上一帧的位姿<code>mLastFrame.mTcw</code>设置为本帧的位姿（不是上一个关键帧）。另外需要将与关键帧匹配得到的路标点<code>vpMapPointMatches</code>复制到<code>mCurrentFrame.mvpMapPoints</code>中。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>优化3D-2D的重投影误差，依然是<code>Optimizer.cpp</code>内容</p>
+</li>
+<li><p><strong>剔除outlier</strong></p>
+</li>
+<li><p><strong>返回true、false标志</strong></p>
+</li>
+</ol>
+<h2 id="3-3-Relocalization"><a href="#3-3-Relocalization" class="headerlink" title="3.3 Relocalization"></a>3.3 Relocalization</h2><p>假如当前帧与最近邻关键帧的匹配也失败了，意味着此时<strong>当前帧已经丢失</strong>，无法确定其真实位置。此时，只有去<strong>和所有关键帧匹配</strong>，看能否找到合适的位置。</p>
+<p>重定位的方法是利用词袋模型，在关键帧数据库中找到<strong>与当前图像帧相似</strong>的候选关键帧(与回环检测过程不同，回环检测使用参考关键帧去寻找闭环候选帧，这里使用普通帧去寻找候选）。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190821154729.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>步骤如下:</p>
+<ol>
+<li><p><strong>将当前帧的描述子转化为BoW向量</strong></p>
+</li>
+<li><p><strong>初次筛选找到与当前帧相似的候选关键帧</strong></p>
+<p>通过<code>KeyFrameDB.cc</code>中的<code>DetectRelocalizationCandidates</code>进行候选，存储一个容器中<code>vector</code>，筛选的条件比较复杂</p>
+</li>
+<li><p><strong>Bow二次筛选候选帧</strong></p>
+<p>这一步想要确定出<strong>满足进一步要求的候选关键帧</strong>并且为其创建pnp优化器。首先通过BoW进行匹配，筛选条件是单词匹配数，匹配数太小直接放弃此帧，如果合格就初始化PnPsolver。</p>
+</li>
+<li><p><strong>遍历关键帧</strong></p>
+<p>通过Bow二次筛选，我们得到了一个小范围的候选帧。接下来对这些候选帧进行分析。后面每次操作都会判断内点数量<code>nGood</code>有没有超过50，超过了就直接<code>bMatch=true</code>，然后跳出，证明匹配成功</p>
+<ol>
+<li><p><strong>EPnP估算姿态</strong></p>
+<p>估算可以得到位姿和内点数，如果RANSAC迭代后发现效果不好，直接踢掉此帧</p>
+</li>
+<li><p><strong>存入所有内点</strong></p>
+<p>将上一次筛选得到的关键帧的内点<code>vbInliers</code>存入<code>mCurrentFrame.mvpMapPoints</code>和<code>sFound</code>，这个<code>sFound</code>是一个set类型，表示找到地图点的集合。<strong>后续重投影搜索有用</strong>。</p>
+</li>
+<li><p><strong>优化位姿</strong></p>
+<p>如果优化后内点太少，踢掉</p>
+</li>
+<li><p><strong>删除外点更新地图</strong></p>
+</li>
+<li><p><strong>如果内点比较少，一系列骚操作</strong></p>
+<p>这里骚操作实在太多，结构见上图。总的来说就是不断重复：投影找额外点，然后让原本的内点加上额外点一起优化，再投影找额外点，再次共同优化。最后看结果内点有没有超过50，超过了就表示顺利匹配上了，否则说明这个候选帧不行，再选一个从a做起。值得注意的是，不管怎样，<strong>都要在最后检测<code>nGood&gt;50</code></strong></p>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="4-局部地图匹配-TrackLocalMap"><a href="#4-局部地图匹配-TrackLocalMap" class="headerlink" title="4. 局部地图匹配 TrackLocalMap"></a>4. 局部地图匹配 TrackLocalMap</h1><h2 id="4-1-总体思路"><a href="#4-1-总体思路" class="headerlink" title="4.1 总体思路"></a>4.1 总体思路</h2><p>上面的三个跟踪模型得到的位姿和地图点是粗略的。下面需要<strong>进一步优化地图和位姿</strong>。我们还需要通过TrackLocalMap判断我们追踪的结果怎么样，<strong>有没有跟丢</strong>。</p>
+<p>姿态优化部分的主要思路是在当前帧和（局部）地图之间<strong>寻找尽可能多的对应关系</strong>，来优化当前帧的位姿。实际程序中，作者选取了非常多的关键帧和地图点。在跑Euroc数据集MH_01_easy时，几乎有一半以上的关键帧和地图点（后期&gt;3000个）会在这一步被选中。然而，每一帧中只有200~300个地图点可以在当前帧上找到特征匹配点。这一步保证了非关键帧姿态估计的精度和鲁棒性。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820142102.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>匹配的步骤如下:</p>
+<ol>
+<li><p><strong>更新局部关键帧和局部地图点</strong></p>
+<p>更新局部关键帧<code>mvpLocalKeyFrames</code>和局部地图点<code>mvpLocalMapPoints</code></p>
+</li>
+<li><p><strong>进一步筛选局部地图点</strong></p>
+<p>投影范围超出相机画面、观测视角和地图点平均观测方向相差60°以上、特征点的尺度和地图点的尺度不匹配。</p>
+</li>
+<li><p><strong>再次优化</strong></p>
+<p>通过更新和抛弃，再次调用<code>Optimizer::PoseOptimization</code>优化得到位姿</p>
+</li>
+<li><p><strong>更新当前帧的MapPoints被观测程度</strong></p>
+<p>通过优化我们得到了<strong>精确的位姿</strong>和<strong>当前帧对应的地图点</strong>。判断<code>mvpMapPoints</code>是不是外点（主要针对单目），如果不是外点，说明能被观测到，被观测统计量<code>Found</code>+1，匹配内点数<code>mnMatchesInliers</code>+1。这些参数用于判别是否跟踪成功。</p>
+</li>
+<li><p><strong>判别是否跟踪成功</strong></p>
+<p>如果最近刚刚发生了重定位,那么至少跟踪上了50个点<code>mnMatchesInliers</code>我们才认为是跟踪上了。如果是正常的状态话只要跟踪的地图点大于30个我们就认为成功了。</p>
+</li>
+</ol>
+<h2 id="4-2-更新局部关键帧和局部地图点"><a href="#4-2-更新局部关键帧和局部地图点" class="headerlink" title="4.2 更新局部关键帧和局部地图点"></a>4.2 更新局部关键帧和局部地图点</h2><p>首先第一步更新局部关键帧和局部地图点的目的是为了<strong>给优化提供样本</strong>。</p>
+<p>局部地图包括：当前帧POS3，与当前帧有共视关系的关键帧POS2，与POS2有密切关系的关键帧POS1；局部关键帧对应的所有地图点X1X2。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819141906.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h3 id="4-2-1-更新局部关键帧"><a href="#4-2-1-更新局部关键帧" class="headerlink" title="4.2.1 更新局部关键帧"></a>4.2.1 更新局部关键帧</h3><p>在论文里作者定义局部地图关键帧的方式如下。简单来说局部关键帧包含了两个集合(set)：第一，<strong>与当前帧</strong>有共视关系(share map points)的关键帧，记作集合K1；第二，<strong>与集合K1</strong>在共视图中(covisibility graph)有良好共视关系的帧（具体见下），记作K2。</p>
+<blockquote>
+<p>作者原文：This local map contains the set of keyframes <strong>K1</strong>, that share map points with the current frame, and a set <strong>K2</strong> with neighbors to the keyframes K1 in the covisibility graph.</p>
+</blockquote>
+<p>K1比较好理解，凡是和当前帧有共同的MapPoint的关键帧都可以被归为这一集合。K2比较麻烦，总体来说是和K1比较密切的帧的集合。这里的密切有三种条件：</p>
+<ul>
+<li>与K1有良好共视关系的子关键帧(作者选取了最佳共视的10帧)</li>
+<li>K1中元素的子关键帧</li>
+<li>K1中元素的父关键帧</li>
+</ul>
+<p><strong>满足其中一种条件</strong>的关键帧都可以被归为K2集合。</p>
+<p>在处理完<strong>局部关键帧</strong>后，还需要添加<strong>参考关键帧</strong>。<strong>与当前帧共视程度最高</strong>（有最多share map points）的关键帧作为参考关键帧。</p>
+<h3 id="4-2-2-更新局部地图点"><a href="#4-2-2-更新局部地图点" class="headerlink" title="4.2.2 更新局部地图点"></a>4.2.2 更新局部地图点</h3><p>比较简单。上一步得到了所有的局部关键帧，这一步只需要<strong>把局部关键帧中对应的<code>MapPoints</code>全部添加到<code>mvpLocalMapPoints</code>中</strong>即可。注意，在添加之前需要将<code>mvpLocalMapPoints</code>清空才行。</p>
+<h2 id="4-3-进一步筛选局部地图点"><a href="#4-3-进一步筛选局部地图点" class="headerlink" title="4.3 进一步筛选局部地图点"></a>4.3 进一步筛选局部地图点</h2><p>4.2得到了一大堆局部地图点，这些点有很多是不能用的，所以需要进一步做筛选。</p>
+<ol>
+<li><p><strong>遍历当前帧mvpMapPoints</strong></p>
+<p>MapPoint一定是没有问题的，是我们可以用来做优化样本的，所以在这一步标记一下，之后不参与判断，默认放行。需要注意的是：MapPoint是地图点，在tracking三大模型中经过层层筛选得到的，一帧有很多特征点，只有少数才能被遴选为MapPoint。因此<strong>除了MapPoint，当前帧还有很多特征点和其他帧有共视关系</strong>，这就是我们需要在这一步筛选的。</p>
+</li>
+<li><p><strong>将所有局部地图点投影到当前帧，判断是否在视野内</strong></p>
+<ol>
+<li>检查这个地图点在当前帧的相机坐标系下，是否有正的深度。如果是负的，就说明它在当前帧下不在相机视野中。</li>
+<li>将MapPoint投影到当前帧, 并判断是否在图像内（即是否在图像边界中）</li>
+<li>MapPoint到相机中心的距离是否在范围内。如果里的太远或者太近这个点就不合适。</li>
+<li>计算当前视角和平均视角夹角的余弦值, 需要小于60°才能合格</li>
+</ol>
+<p>经过4个关卡的重重考验后，这些MapPoint被认为能够作为最后优化的样本。然后为他们添加一些信息：点到光心的距离；置位标记（true表示要被投影）；这个点在图像中的投影坐标；当前视角和平均视角夹角的余弦值。</p>
+</li>
+<li><p><strong>为合格的地图点确立投影匹配关系</strong></p>
+<p>要先设立一个阈值th，如果匹配关系落在阈值内就表示匹配成功，正式成为优化样本一员。</p>
+</li>
+</ol>
+<h2 id="4-4-优化"><a href="#4-4-优化" class="headerlink" title="4.4 优化"></a>4.4 优化</h2><p>这里采用的是g2o优化器优化，顶点是当前位姿和合格地图点，需要进行4次优化。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190823130955.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>优化图如上所示，顶点有<strong>当前帧位姿</strong>和<strong>所有的合格地图点</strong>，其中地图点<strong>固定</strong>。这里采用的是<code>EdgeSE3ProjectXYZOnlyPose</code>和<code>EdgeStereoSE3ProjectXYZOnlyPose</code>类型，这是g2o中提供的模板，用于优化位姿，地图点默认固定。</p>
+<p>优化结束后就进行信息记录和判别是否追踪成功，具体内容见4.1总体思路部分。</p>
+<h1 id="5-创建新的关键帧"><a href="#5-创建新的关键帧" class="headerlink" title="5. 创建新的关键帧"></a>5. 创建新的关键帧</h1><p>ORB-SLAM中关键帧的加入是比较密集的，这样确保了定位的精度，同时在LocalMapping线程最后会进行关键帧的剔除，确保了关键帧的数量不会无限增加，不会对large scale的场景造成计算负担。</p>
+<p>以下条件必须同时满足，才可以加入关键帧：</p>
+<ul>
+<li>距离上一次重定位距离至少1S</li>
+<li>当前帧跟踪至少50个点，保证精度</li>
+<li>当前帧跟踪到LocalMap中参考帧的地图点数量少于90%，确保关键帧之间有明显的视觉变化</li>
+<li>局部地图线程空闲 或者 距离上一次加入关键帧过去了20帧(如果需要关键帧插入过了20帧。而LocalMapping线程忙，则发送信号给线程，停止局部地图优化，使得新的关键帧可以被及时处理)</li>
+</ul>
+<p>调用函数创建完成后，将关键帧传递到LocalMapping线程。</p>
+<blockquote>
+<p><strong>注意</strong>：这里只是判断是否需要将当前帧创建为关键帧，并没有真的加入全局地图，因为Tracking线程的主要功能是局部定位，而处理地图中的关键帧、地图点，包括如何加入、如何删除的工作是在LocalMapping线程完成的，Tracking负责localization，LocalMapping负责Mapping。</p>
+</blockquote>
+<h2 id="5-1-是否需要加入关键帧"><a href="#5-1-是否需要加入关键帧" class="headerlink" title="5.1 是否需要加入关键帧"></a>5.1 是否需要加入关键帧</h2><p>首先是<code>NeedNewKeyFrame()</code>判断是否加入关键帧：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190820154412.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li><p><strong>判断是否重定位</strong></p>
+<p>由于插入关键帧过程中会生成MapPoint，因此用户选择重定位后地图上的点云和关键帧都不会再增加。</p>
+</li>
+<li><p><strong>判断局部地图是否被闭环检测使用</strong></p>
+<p>如果局部地图被闭环检测使用，则不插入关键帧</p>
+</li>
+<li><p><strong>获取参考关键帧跟踪到的MapPoints数量</strong></p>
+<p>在 UpdateLocalKeyFrames 函数中会将与当前关键帧共视程度最高的关键帧设定为当前帧的参考关键帧</p>
+</li>
+<li><p><strong>查询localMapper是否繁忙</strong></p>
+</li>
+<li><p><strong>统计可以添加和跟踪到地图中的的MapPoint数量</strong></p>
+</li>
+<li><p><strong>决策是否插入关键帧</strong>（必须满足a-e所有条件）</p>
+<ol>
+<li><p><strong>长时间没有插入关键帧</strong></p>
+</li>
+<li><p><strong>localMapper处于空闲状态</strong></p>
+</li>
+<li><p><strong>地图点匹配数目和跟踪成功比例很小，即将撑不下去</strong></p>
+<p>radio=被关键帧观测到的mappoints数/总共可以添加的mappoints数(如果是近点,并且这个特征点的深度合法,就可以被添加到地图中)；这个radio比例太小，说明track is weak</p>
+</li>
+<li><p><strong>与之前的参考帧重复度不高</strong></p>
+<p>共视的地图点不是很多</p>
+</li>
+<li><p><strong>如果localMapper繁忙，等待队列等待数需要小于3</strong></p>
+<p>前面判断localMapper是否繁忙，用的是<code>mpLocalMapper-&gt;AcceptKeyFrames()</code>也就是说是否接受关键帧。这里判断的是关键帧等待队列是否阻塞严重(&gt;3)</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="5-2-创建关键帧"><a href="#5-2-创建关键帧" class="headerlink" title="5.2 创建关键帧"></a>5.2 创建关键帧</h2><p>之后利用<code>CreateNewKeyFrame()</code>创建关键帧</p>
+<ol>
+<li><p><strong>构造关键帧</strong></p>
+</li>
+<li><p><strong>当前关键帧设置为当前帧的参考关键帧</strong></p>
+<p>关键帧的参考关键帧就是他自己。</p>
+</li>
+<li><p><strong>根据Tcw计算额外矩阵</strong></p>
+<p>普通帧为了节省计算量，只计算了TcwTcw相机坐标到世界坐标的转化（也就是相机变换矩阵或者相机姿态），而关键帧由于在很多地方有特殊用途所以还需要额外计算一些矩阵。</p>
+<ol>
+<li><strong>mRcw</strong> 旋转矩阵</li>
+<li><strong>mRwc</strong> 旋转矩阵的逆</li>
+<li><strong>mtcw</strong> 平移向量</li>
+<li><strong>mOw</strong> 光心在世界坐标系下的坐标</li>
+</ol>
+</li>
+<li><p><strong>获取正深度特征点</strong></p>
+<p>用于重新构建<code>MapPoint</code></p>
+</li>
+<li><p><strong>按照深度从小到大排序</strong></p>
+</li>
+<li><p><strong>将距离比较近的点包装成MapPoints</strong></p>
+<p>如果当前帧中无这个地图点，或者是刚刚创立（观测者<code>Observations&lt;1</code>），就在全局地图中创建地图点。每次创建MapPoint都需要添加属性。如果当前已经处理了超过100个点且深度已超过阈值，就停止。</p>
+</li>
+<li><p><strong>插入关键帧</strong></p>
+<p>执行插入关键帧的操作,其实也是在列表中等待。同时需要然后现在允许局部建图器停止，并且让当前帧成为新的关键帧。</p>
+</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" target="_blank" rel="external">jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&title=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&title=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&source=ORBSLAM三大线程之Tracking部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">ORB_SLAM2源码解析-LocalMapping建图</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/19/%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">单应矩阵与对极几何</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&title=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&title=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&source=ORBSLAM三大线程之Tracking部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-Tracking追踪》 — JR's Blog&url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

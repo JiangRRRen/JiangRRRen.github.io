@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis设计与实现3-数据库 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="本章将对Redis服务器的数据库实现进行介绍，介绍键空间、过期键，数据库通知的实现方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis设计与实现3-数据库">
+<meta property="og:url" content="jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本章将对Redis服务器的数据库实现进行介绍，介绍键空间、过期键，数据库通知的实现方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104100601.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104103307.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104105103.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104125252.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104130057.png">
+<meta property="article:published_time" content="2020-01-04T01:59:28.000Z">
+<meta property="article:modified_time" content="2020-01-12T13:51:54.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104100601.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis设计与实现3-数据库</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis设计与实现3-数据库</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-04T01:59:28.000Z" itemprop="datePublished" class="page-time">
+  2020-01-04
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-数据库的切换"><span class="post-toc-text">1. 数据库的切换</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-数据库键空间"><span class="post-toc-text">2. 数据库键空间</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-键空间结构"><span class="post-toc-text">2.1 键空间结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-键空间的增删改查"><span class="post-toc-text">2.2 键空间的增删改查</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-过期键"><span class="post-toc-text">3. 过期键</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-设置过期时间"><span class="post-toc-text">3.1 设置过期时间</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-过期键的删除策略"><span class="post-toc-text">3.2 过期键的删除策略</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-数据库通知"><span class="post-toc-text">4. 数据库通知</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-订阅通知"><span class="post-toc-text">4.1 订阅通知</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-发送通知"><span class="post-toc-text">4.2 发送通知</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis设计与实现3-数据库"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis设计与实现3-数据库</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-04 09:59:28" datetime="2020-01-04T01:59:28.000Z"  itemprop="datePublished">2020-01-04</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本章将对Redis服务器的数据库实现进行介绍，介绍键空间、过期键，数据库通知的实现方法。<a id="more"></a></p>
+<h1 id="1-数据库的切换"><a href="#1-数据库的切换" class="headerlink" title="1. 数据库的切换"></a>1. 数据库的切换</h1><p>Redis服务器将所有数据库都保存在<strong>服务器状态</strong><code>redis.h/redisServer</code>结构的db数组中，db数组的每个项都是一个<code>redis.h/redisDb</code>结构，<strong>每个redisDb结构代表一个数据库</strong>：</p>
+<pre><code class="lang-C">struct redisServer 
+{ 
+    // ... 
+    redisDb *db; 
+    int dbnum;
+    // ...
+};
+</code></pre>
+<p>初始化时，程序会根据当前服务器的<code>dbnum</code>属性来<strong>决定建立数据库的个数</strong>，默认创建16个。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104100601.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>每个Redis客户端都有自己的目标数据库，当客户端执行读写命令时，就需要<strong>切换数据库</strong>。</p>
+<p>默认情况下，Redis客户端的目标数据库为0号数据库，但客户端可以通过执行<strong>SELECT命令</strong>来切换目标数据库。</p>
+<pre><code class="lang-c">redis&gt; SET msg &quot;hello world&quot;
+OK
+
+redis&gt; GET msg
+&quot;hello world&quot;
+
+redis&gt; SELECT 2
+OK
+
+redis[2]&gt; GET msg
+(nil)
+</code></pre>
+<p>在服务器内部，<strong>客户端状态</strong>redisClient结构的db属性记录了<strong>客户端当前的目标数据库</strong>，这个属性是一个指向redisDb结构的指针：</p>
+<pre><code class="lang-C">typedef struct redisClient 
+{
+    // ...
+    //记录客户端当前正在使用的数据库
+    redisDb *db;
+    // ...
+} redisClient;
+</code></pre>
+<p>如果某个<strong>客户端的目标数据库</strong>为1号数据库，那么这个客户端所对应的客户端状态和<strong>服务器状态</strong>之间的关系如图：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104103307.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>通过修改指针，使他指向服务器中不同的数据库，从而达到切换的目的。</p>
+<h1 id="2-数据库键空间"><a href="#2-数据库键空间" class="headerlink" title="2. 数据库键空间"></a>2. 数据库键空间</h1><h2 id="2-1-键空间结构"><a href="#2-1-键空间结构" class="headerlink" title="2.1 键空间结构"></a>2.1 键空间结构</h2><p>Redis是一个<strong>键值对数据库服务器</strong>，每个数据库都是一个redis.h/redisDb结构。<strong>其中<code>dict</code>字典保存了数据库中所有的键值对</strong>，我们将这个字典称为<strong>键空间(key space)</strong>。</p>
+<pre><code class="lang-C">typedef struct redisDb 
+{ // ... 
+    // 数据库键空间，保存着数据库中的所有键值对 
+    dict *dict; 
+    // ...
+} redisDb;
+</code></pre>
+<p>键空间的键就是数据库的键，每个键是一个<strong>字符串对象</strong>。键空间的值就是数据库的值，可以是字符串对象、列表对象、哈希表对象、集合对象和有序集合对象中的一种。</p>
+<p>当我们输入以下命令时：</p>
+<pre><code class="lang-C">redis&gt; SET message &quot;hello world&quot;
+OK
+
+redis&gt; RPUSH alphabet &quot;a&quot; &quot;b&quot; &quot;c&quot;
+(integer)3
+
+redis&gt; HSET book name &quot;Redis in Action&quot;
+(integer) 1
+
+redis&gt; HSET book author &quot;Josiah L. Carlson&quot;
+(integer) 1
+
+redis&gt; HSET book publisher &quot;Manning&quot;
+(integer) 1
+</code></pre>
+<p>数据库的键空间结构如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104105103.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="2-2-键空间的增删改查"><a href="#2-2-键空间的增删改查" class="headerlink" title="2.2 键空间的增删改查"></a>2.2 键空间的增删改查</h2><p><strong>（1）添加和修改键</strong></p>
+<p>添加新键值对和修改键值的操作是一样的，<strong>区别在于键是新的是旧的</strong>。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对象</th>
+<th style="text-align:left">命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串对象</td>
+<td style="text-align:left"><strong>SET</strong>  date  2020/1/1<br /><strong>MSET</strong> date1 19 date2 20</td>
+</tr>
+<tr>
+<td style="text-align:center">哈希对象</td>
+<td style="text-align:left"><strong>HSET</strong>  book  name  C++primer <br /><strong>HMSET</strong>  fruit  name apple size  large</td>
+</tr>
+<tr>
+<td style="text-align:center">列表对象</td>
+<td style="text-align:left"><strong>LSET</strong>  cloth   0 shirt<br /><strong>LPUSH</strong>  food  potato <br /><strong>RPUSH</strong>  brand  apple<br /><strong>LRANGE</strong>  level  0 5</td>
+</tr>
+<tr>
+<td style="text-align:center">集合对象</td>
+<td style="text-align:left"><strong>SADD</strong>  occupation  firefighter</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:left"><strong>ZADD</strong>  grade  87 Tom  65 Terry<br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>（2）删除键</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对象</th>
+<th style="text-align:left">命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串对象</td>
+<td style="text-align:left"><strong>DEL</strong>  date</td>
+</tr>
+<tr>
+<td style="text-align:center">哈希对象</td>
+<td style="text-align:left"><strong>HDEL</strong>  myhash field1  myhash field2</td>
+</tr>
+<tr>
+<td style="text-align:center">列表对象</td>
+<td style="text-align:left"><strong>BLPOP</strong> list1 100<br /><strong>BRPOP</strong> list1 150<br /><strong>LPOP</strong> list2<br /><strong>LREM</strong> list3 -2 “hello”</td>
+</tr>
+<tr>
+<td style="text-align:center">集合对象</td>
+<td style="text-align:left"><strong>SPOP</strong> food “rice”<br /><strong>SREM</strong> food “noodle”</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:left"><strong>ZREM</strong> website google.com<br /><strong>ZREMRANGEBYLEX</strong> drink [sprit (coco<br /><strong>ZREMRANGEBYRANK</strong> salary 0 2<br /><strong>ZREMRANGEBYSCORE</strong> salary 1500 3500</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>POP在删除的同时，会返回结果，打印到控制台，而REM则是单纯的删除。BLPOP在移除元素时，如果列表没有元素则会等待至超时或发现元素为止。</p>
+<p>有序集合范围删除中，LEX表示键， [ ( 表示区间开闭。而<code>ZREMRANGEBYRANK salary 0 2</code>表示删除salary最高的三个。</p>
+<p><strong>（3）查询键</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对象</th>
+<th style="text-align:left">命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串对象</td>
+<td style="text-align:left"><strong>GET</strong>  time<br /><strong>MGET</strong>  time1  time2</td>
+</tr>
+<tr>
+<td style="text-align:center">哈希对象</td>
+<td style="text-align:left"><strong>HGET</strong>  site  baidu<br /><strong>HMGET</strong> site baidu google<br /><strong>HGETALL</strong> site<br /><strong>HKEYS</strong> site</td>
+</tr>
+<tr>
+<td style="text-align:center">列表对象</td>
+<td style="text-align:left"><strong>LINDEX</strong> mylist 2<br /><strong>LRANGE</strong> mylist 0 2</td>
+</tr>
+<tr>
+<td style="text-align:center">集合对象</td>
+<td style="text-align:left"><strong>SISMEMBER</strong> myset1 “hello”</td>
+</tr>
+<tr>
+<td style="text-align:center">有序集合</td>
+<td style="text-align:left">…</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>HGET是根据键返回值，HGETALL则返回所有键值对，HKEYS返回所有键。列表对象根据主要根据下标返回结果。</p>
+<h1 id="3-过期键"><a href="#3-过期键" class="headerlink" title="3. 过期键"></a>3. 过期键</h1><h2 id="3-1-设置过期时间"><a href="#3-1-设置过期时间" class="headerlink" title="3.1 设置过期时间"></a>3.1 设置过期时间</h2><p>通过<strong>EXPIRE命令</strong>或者<strong>PEXPIRE命令</strong>，<strong>客户端</strong>可以以<strong>秒</strong>或者<strong>毫秒</strong>精度某个键设置<strong>生存时间（Time To Live，TTL）</strong>，在经过指定的秒数或者毫秒数之后，服务器就会<strong>自动删除生存时间为0的键</strong>：</p>
+<pre><code class="lang-C">redis&gt; SET key value
+OK
+
+redis&gt; EXPIRE key 5
+(integer) 1
+
+redis&gt; GET key // 5秒之内
+&quot;value&quot;
+redis&gt; GET key // 5秒之后
+(nil)
+</code></pre>
+<p>与前面相似，客户端可以通过<strong>EXPIREAT命令</strong>或<strong>PEXPIREAT命令</strong>，以秒或者毫秒精度给数据库中的某个键设置<strong>过期时间（expire time）</strong>。过期时间由UNIX时间戳表示。</p>
+<p>而<strong>TTL命令</strong>和<strong>PTTL命令</strong>则返回<strong>一个键的剩余生存时间。</strong></p>
+<p>所有的命令在Redis中<strong>最终都会转化为PEXPIREAT</strong>执行。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104125252.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>在RedisDb结构中，<strong>在键空间之外</strong>，有一个expires字典专门保存所有键的过期时间，我们称之为<strong>过期字典</strong>。过期字典保存的值是long long 类型整数，<strong>保存一个毫秒精度的UNIX时间戳</strong>。</p>
+<pre><code class="lang-C">typedef struct redisDb 
+{ // ... 
+    // 过期字典，保存着键的过期时间 
+    dict *expires; 
+    // ...
+} redisDb;
+</code></pre>
+<p>虽然键空间和过期时间都有相同的键，但他们以指针形式指向同一个键，不会造成空间浪费。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104130057.png"  style="zoom:72%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-2-过期键的删除策略"><a href="#3-2-过期键的删除策略" class="headerlink" title="3.2 过期键的删除策略"></a>3.2 过期键的删除策略</h2><p>通过过期字典知道了哪些键已经过期，那么<strong>过期的键什么时候会被删除呢？</strong>删除策略有三种：</p>
+<ul>
+<li>定时删除：在设置键的过期时间的同时，创建一个定时器（timer），定时结束后删除。</li>
+<li>惰性删除：放着不管，每次从键空间获取时检查是否过期，过期就删除。</li>
+<li>定期删除：每隔一段时间，程序检查一次数据库，删除过期键。</li>
+</ul>
+<p><strong>（1）定时删除</strong></p>
+<p>定时删除<strong>有利于内存管理</strong>，但<strong>对CPU不友好</strong>。如果过期键太多，删除会占用相当一部分CPU。</p>
+<p>所以策略应该是：当有大量命令请求服务器处理时，并且服务器内存充足，就应该优先将CPU资源安排在处理客户端请求上，而不是删除过期键。</p>
+<p>创建一个定时器需要用到Redis服务器中的<strong>时间事件</strong>，而当前时间事件的实现方式——无序链表，查找一个事件的时间复杂度为$O(N)$，并<strong>不能高效地处理大量时间事件</strong>。</p>
+<p><strong>（2）惰性删除</strong></p>
+<p><strong>对CPU最友好</strong>，<strong>但浪费内存</strong>。如果数据库中有很多过期键，而这些过期键永远也不会被访问的话，他们就会永远占据空间，可视为<strong>内存泄漏</strong>。</p>
+<p>一些和时间有关的数据，比如日志，在某个时间点后，他们的访问就会很少。如果这类过期数据大量积压，会造成严重的内存浪费。</p>
+<p><strong>（3）定期删除</strong></p>
+<p>定期删除是一种折中，通过选择较为空闲的时间点来处理过期键，减少CPU压力。同时也能及时释放内存，避免内存泄漏。</p>
+<hr>
+<p>在Redis中，<strong>实际使用的是惰性删除和定期删除这两种</strong>。</p>
+<p><strong>（1）Redis中的惰性删除</strong></p>
+<p>存在于<code>db.c/expireIfNeeded</code>函数。<strong>所有读写数据库的Redis命令在执行之前都会调用<code>expireIfNeeded</code>函数对输入键进行检查</strong>：</p>
+<ul>
+<li>过期，函数将输入键删除</li>
+<li>不过期，函数不动作</li>
+</ul>
+<p><strong>（2）Redis中的定期删除</strong></p>
+<p>过期键的定期删除策略由<code>redis.c/activeExpireCycle</code>函数实现，<strong>每当Redis的服务器周期性操作<code>redis.c/serverCron</code>函数执行时</strong>，<code>activeExpireCycle</code>函数就会被调用，它在规定的时间内，<strong>分多次遍历服务器中的各个数据库</strong>，从数据库的expires字典中<strong>随机检查一部分键的过期时间</strong>，并删除其中的过期键。</p>
+<p>全局变量<code>current_db</code>会<strong>记录当前<code>activeExpireCycle</code>函数检查的进度</strong>，并在<strong>下一次检查时接着上一次的进度进行处理</strong>。比如说，如果当前<code>activeExpireCycle</code>函数在遍历10号数据库时返回了，那么下次就会从11号数据库开始工作。</p>
+<p>如果所有数据库都被检查了一遍，则<code>current_db</code>将会被置0，然后开始新一轮检查。</p>
+<h1 id="4-数据库通知"><a href="#4-数据库通知" class="headerlink" title="4. 数据库通知"></a>4. 数据库通知</h1><p>通知是Redis2.8新增的功能，可以<strong>让客户端通过订阅给定的频道或者模式，来获知数据库中键的变化，以及数据库中命令的执行情况。</strong></p>
+<h2 id="4-1-订阅通知"><a href="#4-1-订阅通知" class="headerlink" title="4.1 订阅通知"></a>4.1 订阅通知</h2><p>订阅有两种模式：</p>
+<ul>
+<li>订阅某一个键，返回键的所有操作</li>
+<li>订阅某一个操作，返回执行这个操作的键</li>
+</ul>
+<p>情况1，从0号数据库订阅了键message的消息。如果此时有其他客户端操作了message，则会将消息通知到此处。</p>
+<pre><code class="lang-C">127.0.0.1:6379&gt; SUBSCRIBE _ _keyspace@0_ _:message
+Reading messages... (press Ctrl-C to quit)
+
+1) &quot;subscribe&quot; // 订阅信息
+2) &quot;__keyspace@0__:message&quot;
+3) (integer) 1
+
+1) &quot;message&quot; //执行SET命令
+2) &quot;_ _keyspace@0_ _:message&quot;
+3) &quot;set&quot;
+
+1) &quot;message&quot; //执行EXPIRE命令
+2) &quot;_ _keyspace@0_ _:message&quot;
+3) &quot;expire&quot;
+</code></pre>
+<p>情况2，客户端订阅了0号数据库中的DEL命令。</p>
+<pre><code class="lang-C">127.0.0.1:6379&gt; SUBSCRIBE _ _keyevent@0_ _:del
+Reading messages... (press Ctrl-C to quit)
+1) &quot;subscribe&quot; // 订阅信息
+2) &quot;_ _keyevent@0_ _:del&quot;
+3) (integer) 1
+
+1) &quot;message&quot; //键key执行了DEL命令
+2) &quot;_ _keyevent@0_ _:del&quot;
+3) &quot;key&quot;
+
+1) &quot;message&quot; //键number执行了DEL命令
+2) &quot;_ _keyevent@0_ _:del&quot;
+3) &quot;number&quot;
+</code></pre>
+<h2 id="4-2-发送通知"><a href="#4-2-发送通知" class="headerlink" title="4.2 发送通知"></a>4.2 发送通知</h2><p>发送数据库通知的功能是由<code>notify.c/notifyKeyspaceEvent</code>函数实现，函数声明如下：</p>
+<pre><code class="lang-C">void notifyKeyspaceEvent(int type,char *event,robj *key,int dbid);
+</code></pre>
+<p><strong>type参数是发送的通知的类型，event、keys和dbid分别是事件的名称、产生事件的键，以及产生事件的数据库编号</strong>，函数会根据type参数以及这三个参数来构建事件通知的内容，以及接收通知的频道名。</p>
+<p>比如SADD命令的实现函数中，通知的发送方式是</p>
+<pre><code class="lang-C">void saddCommand(redisClient* c)
+{
+    //...
+    if(added)
+    {
+        //...添加成功，发送通知
+           notifyKeyspaceEvent(REDIS_NOTIFY_SET,&quot;add&quot;,c-&gt;argv[1],c-&gt;db-&gt;id);
+        //...
+    }
+}
+</code></pre>
+<p>当SADD命令成功地向集合添加了一个集合元素之后，命令就会发送通知，<strong>该通知的类型为REDIS_NOTIFY_SET（表示这是一个集合键通知）</strong>，名称为sadd（表示这是执行SADD命令所产生的通知）。</p>
+<p>发布时调用的<code>notifyKeyspaceEvent</code>函数逻辑是：</p>
+<ol>
+<li>检查服务器是否允许发送此类通知，如果不允许就返回</li>
+<li>是否允许发送<strong>键空间通知</strong>（4.1提到的情况1），允许就发送</li>
+<li>是否允许发送<strong>键事件通知</strong>（4.2提到的情况2），允许就发送</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" target="_blank" rel="external">jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&title=《Redis设计与实现3-数据库》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&title=《Redis设计与实现3-数据库》 — JR's Blog&source=本章将对Redis服务器的数据库实现进行介绍，介绍键空间、过期键，数据库通知的实现方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现3-数据库》 — JR's Blog&url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Redis设计与实现4-RDB和AOF持久化</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis设计与实现2-对象</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&title=《Redis设计与实现3-数据库》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&title=《Redis设计与实现3-数据库》 — JR's Blog&source=本章将对Redis服务器的数据库实现进行介绍，介绍键空间、过期键，数据库通知的实现方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现3-数据库》 — JR's Blog&url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

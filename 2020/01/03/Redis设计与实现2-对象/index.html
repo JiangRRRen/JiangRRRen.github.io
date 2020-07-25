@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis设计与实现2-对象 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="前一章介绍了Redis的主要数据结构，但Redis并没有直接使用这些数据结构来实现键值对数据库， 而是基于这些数据结构创建了一个对象系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis设计与实现2-对象">
+<meta property="og:url" content="jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="前一章介绍了Redis的主要数据结构，但Redis并没有直接使用这些数据结构来实现键值对数据库， 而是基于这些数据结构创建了一个对象系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103112739.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103112837.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103113250.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132547.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132714.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132918.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103133909.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134109.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134827.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134945.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103135248.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103140005.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103141637.png">
+<meta property="article:published_time" content="2020-01-03T03:01:39.000Z">
+<meta property="article:modified_time" content="2020-01-07T12:47:04.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103112739.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis设计与实现2-对象</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis设计与实现2-对象</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-03T03:01:39.000Z" itemprop="datePublished" class="page-time">
+  2020-01-03
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-对象的类型与编码"><span class="post-toc-text">1. 对象的类型与编码</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-字符串对象"><span class="post-toc-text">2. 字符串对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-编码方式"><span class="post-toc-text">2.1 编码方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-编码转换"><span class="post-toc-text">2.2 编码转换</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-列表对象"><span class="post-toc-text">3. 列表对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-编码方式"><span class="post-toc-text">3.1 编码方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-编码转换"><span class="post-toc-text">3.2 编码转换</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-哈希对象"><span class="post-toc-text">4. 哈希对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-编码方式"><span class="post-toc-text">4.1 编码方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-编码转换"><span class="post-toc-text">4.2 编码转换</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-集合对象"><span class="post-toc-text">5. 集合对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-1-编码方式"><span class="post-toc-text">5.1 编码方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-2-编码的转换"><span class="post-toc-text">5.2 编码的转换</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#6-有序集合对象"><span class="post-toc-text">6. 有序集合对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-1-编码方式"><span class="post-toc-text">6.1 编码方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-2-编码转换"><span class="post-toc-text">6.2 编码转换</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#7-内存回收、对象共享和空转时长"><span class="post-toc-text">7. 内存回收、对象共享和空转时长</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis设计与实现2-对象"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis设计与实现2-对象</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-03 11:01:39" datetime="2020-01-03T03:01:39.000Z"  itemprop="datePublished">2020-01-03</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>前一章介绍了Redis的主要数据结构，但Redis并没有直接使用这些数据结构来实现键值对数据库， 而是基于这些数据结构创建了一个对象系统<a id="more"></a> ，<strong>这个系统包含字符串对象、列表对象、哈希对象、集合对象和有序集合对象</strong>这五种类型的对象。</p>
+<p>使用对象有两个好处：</p>
+<ul>
+<li>执行命令前，根据对象类型来<strong>判断是否可以执行此命令</strong>。</li>
+<li>针对不同使用场景，为对象<strong>设置多种不同的数据结构实现</strong>，达到优化的目的。</li>
+</ul>
+<p>此外，对象系统还引入了<strong>引用计数实现内存回收机制</strong>，以及<strong>对象共享</strong>。</p>
+<h1 id="1-对象的类型与编码"><a href="#1-对象的类型与编码" class="headerlink" title="1. 对象的类型与编码"></a>1. 对象的类型与编码</h1><p>Redis 中的<strong>每个键值对的键和值都是一个对象，每个对象都由一个 <code>redisObject</code> 结构表示</strong>， 该结构中和保存数据有关的三个属性分别是 <code>type</code> 属性、 <code>encoding</code> 属性和 <code>ptr</code> 属性：</p>
+<pre><code class="lang-C">typedef struct redisObject {
+    // 类型
+    unsigned type:4;
+    // 编码
+    unsigned encoding:4;
+    // 指向底层实现数据结构的指针
+    void *ptr;
+    ...
+
+} robj;
+</code></pre>
+<blockquote>
+<p>结构体的冒号表示位域，表示该变量占用的二进制位数</p>
+</blockquote>
+<hr>
+<p>对象的 <code>type</code> 属性记录了<strong>对象的类型</strong>，属性的值如下表所示：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">类型常量</th>
+<th style="text-align:center">对象的名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>REDIS_STRING</code></td>
+<td style="text-align:center">字符串对象</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_LIST</code></td>
+<td style="text-align:center">列表对象</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_HASH</code></td>
+<td style="text-align:center">哈希对象</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_SET</code></td>
+<td style="text-align:center">集合对象</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ZSET</code></td>
+<td style="text-align:center">有序集合对象</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对于 Redis 数据库保存的键值对来说， <strong>键总是一个字符串对象</strong>， 而值则可以是上表中的其中一个。</p>
+<p>所以，当我们称呼一个数据库键为“字符串键”时， 我们指的是“这个数据库键所对应的<strong>值</strong>为字符串对象”；同理，当我们称呼一个键为“列表键”时， 我们指的是“这个数据库键所对应的<strong>值</strong>为列表对象”。</p>
+<hr>
+<p>对象的 <code>ptr</code> 指针指向对象的底层实现数据结构， 而这些数据结构由对象的 <code>encoding</code> 属性决定。<code>encoding</code> 属性如下表所示：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">编码常量</th>
+<th style="text-align:center">编码所对应的底层数据结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_INT</code></td>
+<td style="text-align:center"><code>long</code> 类型的整数</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_EMBSTR</code></td>
+<td style="text-align:center"><code>embstr</code> 编码的简单动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_RAW</code></td>
+<td style="text-align:center">简单动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_HT</code></td>
+<td style="text-align:center">字典</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_LINKEDLIST</code></td>
+<td style="text-align:center">双端链表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_ZIPLIST</code></td>
+<td style="text-align:center">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_INTSET</code></td>
+<td style="text-align:center">整数集合</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>REDIS_ENCODING_SKIPLIST</code></td>
+<td style="text-align:center">跳跃表和字典</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="2-字符串对象"><a href="#2-字符串对象" class="headerlink" title="2. 字符串对象"></a>2. 字符串对象</h1><h2 id="2-1-编码方式"><a href="#2-1-编码方式" class="headerlink" title="2.1 编码方式"></a>2.1 编码方式</h2><p>字符串对象的编码可以是 <code>int</code> 、 <code>raw</code> 或者 <code>embstr</code> 。</p>
+<p>（1）如果一个字符串对象保存的是<strong>整数值</strong>， 并且这个整数值可以用 <code>long</code> 类型来表示， 那么字符串对象会<strong>将整数值保存在字符串对象结构的 <code>ptr</code>属性里面</strong>（将 <code>void*</code> 转换成 <code>long</code> ）， 并将字符串对象的编码设置为 <code>int</code> 。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103112739.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>（2）如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度<strong>大于</strong> <code>39</code> 字节， 那么字符串对象将<strong>使用一个简单动态字符串（SDS）来保存这个字符串值</strong>， 并将对象的编码设置为 <code>raw</code> 。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103112837.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>（3）如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度<strong>小于等于</strong> <code>39</code> 字节， 那么字符串对象将使用 <code>embstr</code> 编码的方式来保存这个字符串值。</p>
+<p><code>embstr</code> 编码是<strong>专门用于保存短字符串</strong>的一种优化编码方式。这种编码和 <code>raw</code> 编码一样， 都使用 <code>redisObject</code> 结构和 <code>sdshdr</code> 结构来表示字符串对象，区别在于：</p>
+<ul>
+<li><code>raw</code> 编码会<strong>调用两次内存分配</strong>函数来<strong>分别</strong>创建 <code>redisObject</code> 结构和 <code>sdshdr</code> 结构。</li>
+<li><code>embstr</code> 编码则通过<strong>调用一次</strong>内存分配函数来分配一块<strong>连续的空间</strong>。</li>
+</ul>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103113250.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>由于减少了内存分配的次数，以及将零散的内存整合到一起，这种编码的字符串对象比起 <code>raw</code> 编码能够<strong>更好地利用缓存带来的优势</strong>。</p>
+<p>如果保存浮点数，则会先转化为字符串类型保存。比如保存3.14就会先转化为<code>&quot;3.14&quot;</code>。下表是值和对应的编码类型</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">值</th>
+<th style="text-align:center">编码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">可以用 <code>long</code> 类型保存的整数。</td>
+<td style="text-align:center"><code>int</code></td>
+</tr>
+<tr>
+<td style="text-align:center">可以用 <code>long double</code> 类型保存的浮点数。</td>
+<td style="text-align:center"><code>embstr</code> 或者 <code>raw</code></td>
+</tr>
+<tr>
+<td style="text-align:center">字符串值，长度太大没办法用 <code>long</code> 类型表示的整数。</td>
+<td style="text-align:center"><code>embstr</code> 或者 <code>raw</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="2-2-编码转换"><a href="#2-2-编码转换" class="headerlink" title="2.2 编码转换"></a>2.2 编码转换</h2><p>编码之间也会有<strong>互相转换</strong>的情况。对于 <code>int</code> 编码的字符串对象来说，如果因为命令导致这个对象保存的不再是整数值， 而是一个字符串值， 那么字符串对象的编码将从 <code>int</code> 变为 <code>raw</code> 。</p>
+<pre><code class="lang-C">redis&gt; SET number 10086
+OK
+
+redis&gt; OBJECT ENCODING number
+&quot;int&quot;
+
+redis&gt; APPEND number &quot; is a good number!&quot;
+(integer) 23
+
+redis&gt; GET number
+&quot;10086 is a good number!&quot;
+
+redis&gt; OBJECT ENCODING number
+&quot;raw&quot;
+</code></pre>
+<p> 因为 Redis 没有为 <code>embstr</code> 编码的字符串对象编写任何相应的修改程序 ， 所以 <code>embstr</code> 编码的字符串对象<strong>实际上是只读的</strong>。当修改<code>embstr</code> 编码的字符串对象， 程序会<strong>先将对象的编码从 <code>embstr</code> 转换成 <code>raw</code> ， 然后再执行修改命令</strong>。</p>
+<pre><code class="lang-C">redis&gt; SET msg &quot;hello world&quot;
+OK
+
+redis&gt; OBJECT ENCODING msg
+&quot;embstr&quot;
+
+redis&gt; APPEND msg &quot; again!&quot;
+(integer) 18
+
+redis&gt; OBJECT ENCODING msg
+&quot;raw&quot;
+</code></pre>
+<h1 id="3-列表对象"><a href="#3-列表对象" class="headerlink" title="3. 列表对象"></a>3. 列表对象</h1><h2 id="3-1-编码方式"><a href="#3-1-编码方式" class="headerlink" title="3.1 编码方式"></a>3.1 编码方式</h2><p>列表对象的编码可以是 <code>ziplist</code> 或者 <code>linkedlist</code>。</p>
+<p>如同前面提到的，<strong>压缩列表每个节点(entry)只保存一个列表元素</strong>。下面例子中，我们输入数字1，字符”three”和数字5，</p>
+<pre><code class="lang-C">redis&gt; RPUSH numbers 1 &quot;three&quot; 5
+(integer) 3
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132547.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>如果使用的不是 <code>ziplist</code> 编码， 而是 <code>linkedlist</code>双端链表 编码， 那么 </p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132714.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>这其实是一个<strong>嵌套编码</strong>，Redis使用了一个带有 <code>StringObject</code> 来表示一个字符串对象，编码方式如同上面提到的那三种。<strong>如果编码对象时字符串值</strong>，展开后就是：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103132918.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-2-编码转换"><a href="#3-2-编码转换" class="headerlink" title="3.2 编码转换"></a>3.2 编码转换</h2><p>当列表对象可以同时满足以下两个条件时， 列表对象使用 <code>ziplist</code> 编码：</p>
+<ol>
+<li>列表对象保存的<strong>所有</strong>字符串元素的长度都小于 <code>64</code> 字节；</li>
+<li>列表对象保存的元素数量小于 <code>512</code> 个；</li>
+</ol>
+<p>当上述条件任意一个不满足时，就会执行<strong>转换操作</strong>： 原本保存在压缩列表里的所有列表元素都会被转移并保存到双端链表里面， 对象的编码也会从 <code>ziplist</code> 变为 <code>linkedlist</code> 。</p>
+<h1 id="4-哈希对象"><a href="#4-哈希对象" class="headerlink" title="4. 哈希对象"></a>4. 哈希对象</h1><h2 id="4-1-编码方式"><a href="#4-1-编码方式" class="headerlink" title="4.1 编码方式"></a>4.1 编码方式</h2><p>哈希对象的编码可以是 <code>ziplist</code> 或者 <code>hashtable</code> 。</p>
+<p><code>ziplist</code> 编码时，每当有新的键值对要加入到哈希对象时， 程序会<strong>先将保存了键</strong>的压缩列表节点推入到压缩列表表尾， 然后<strong>再将保存了值</strong>的压缩列表节点推入到压缩列表表尾， 因此：</p>
+<ul>
+<li>保存了同一键值对的两个节点总是<strong>紧挨在一起， 键前值后。</strong></li>
+<li><strong>先添加</strong>到哈希对象中的键值对会被放在压缩列表的<strong>表头方向</strong>， 而<strong>后来添加</strong>到哈希对象中的键值对会被放在压缩列表的<strong>表尾方向</strong>。</li>
+</ul>
+<p>比如：</p>
+<pre><code class="lang-C">redis&gt; HSET profile name &quot;Tom&quot;
+(integer) 1
+
+redis&gt; HSET profile age 25
+(integer) 1
+
+redis&gt; HSET profile career &quot;Programmer&quot;
+(integer) 1
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103133909.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p><code>hashtable</code> 编码时， 哈希对象中的每个键值对都使用一个字典键值对来保存：</p>
+<ul>
+<li>字典的每个键都是一个<strong>字符串对象</strong>， 对象中保存了键值对的键；</li>
+<li>字典的每个值都是一个<strong>字符串对象</strong>， 对象中保存了键值对的值。</li>
+</ul>
+<p>比如，上面的例子改为<code>hashtable</code> 编码</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134109.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="4-2-编码转换"><a href="#4-2-编码转换" class="headerlink" title="4.2 编码转换"></a>4.2 编码转换</h2><p>当哈希对象可以同时满足以下两个条件时， 哈希对象使用 <code>ziplist</code> 编码：</p>
+<ol>
+<li>哈希对象保存的所有键值对的键和值的字符串长度都小于 <code>64</code> 字节；</li>
+<li>哈希对象保存的键值对数量小于 <code>512</code> 个；</li>
+</ol>
+<p>和列表对象一样，不满足条件时原本保存在压缩列表里的所有键值对都会被转移并保存到字典里面， 对象的编码也会从 <code>ziplist</code> 变为 <code>hashtable</code> 。</p>
+<h1 id="5-集合对象"><a href="#5-集合对象" class="headerlink" title="5. 集合对象"></a>5. 集合对象</h1><p>Redis中集合和列表结构相似，但<strong>集合具有唯一性，列表不具有</strong>。</p>
+<h2 id="5-1-编码方式"><a href="#5-1-编码方式" class="headerlink" title="5.1 编码方式"></a>5.1 编码方式</h2><p>集合对象的编码可以是 <code>intset</code> 或者 <code>hashtable</code> 。</p>
+<p><code>intset</code> 编码时，元素将被密集得堆叠在位上，比如</p>
+<pre><code class="lang-C">redis&gt; SADD numbers 1 3 5
+(integer) 3
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134827.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>另一方面， <code>hashtable</code> 编码的集合对象使用字典作为底层实现， 字典的<strong>每个键都是一个字符串对象</strong>， 每个字符串对象包含了一个集合元素， 而<strong>字典的值则全部被设置为 <code>NULL</code> 。</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103134945.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="5-2-编码的转换"><a href="#5-2-编码的转换" class="headerlink" title="5.2 编码的转换"></a>5.2 编码的转换</h2><p>当集合对象可以同时满足以下两个条件时， 对象使用 <code>intset</code> 编码：</p>
+<ol>
+<li>集合对象保存的所有元素<strong>都是整数值</strong>；</li>
+<li>集合对象保存的元素数量不超过 <code>512</code> 个；</li>
+</ol>
+<p>当使用 <code>intset</code> 编码所需的两个条件的任意一个不能被满足时， 对象的编码转换操作就会被执行： 原本保存在整数集合中的所有元素都会被转移并保存到字典里面， 并且对象的编码也会从 <code>intset</code> 变为 <code>hashtable</code> 。</p>
+<h1 id="6-有序集合对象"><a href="#6-有序集合对象" class="headerlink" title="6. 有序集合对象"></a>6. 有序集合对象</h1><h2 id="6-1-编码方式"><a href="#6-1-编码方式" class="headerlink" title="6.1 编码方式"></a>6.1 编码方式</h2><p>有序集合的编码可以是 <code>ziplist</code> 或者 <code>skiplist</code> 。</p>
+<p><code>ziplist</code> 编码的有序集合对象使用压缩列表作为底层实现， 每个集合元素使用两个紧挨在一起的压缩列表节点来保存， 第一个节点保存元素的成员（member）， 而第二个元素则保存元素的分值（score）。</p>
+<pre><code class="lang-C">redis&gt; ZADD price 8.5 apple 5.0 banana 6.0 cherry
+(integer) 3
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103135248.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p><code>skiplist</code> 编码的有序集合对象使用 <code>zset</code> 结构作为底层实现， 一个 <code>zset</code> 结构同时<strong>包含一个字典和一个跳跃表</strong>：</p>
+<pre><code class="lang-C">typedef struct zset {
+    zskiplist *zsl;
+    dict *dict;
+} zset;
+</code></pre>
+<p>起作用主要是跳跃表，字典是辅助加速用。<strong>字典的键记录了元素的成员，而值则保存了元素的分值</strong>。通过字典，能实现$O(1)$复杂度的查找给定成员分值。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103140005.png"  style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>有序集合<strong>每个元素的成员都是一个字符串对象</strong>， 而每个元素的<strong>分值都是一个 <code>double</code> 类型的浮点数</strong>。</p>
+<p>虽然 <code>zset</code> 结构同时使用跳跃表和字典来保存有序集合元素， 但这两种数据结构都会<strong>通过指针来共享相同元素的成员和分值</strong>， 所以同时使用跳跃表和字典来保存集合元素不会产生任何重复成员或者分值， 也不会因此而浪费额外的内存。</p>
+<h2 id="6-2-编码转换"><a href="#6-2-编码转换" class="headerlink" title="6.2 编码转换"></a>6.2 编码转换</h2><p>当有序集合对象可以同时满足以下两个条件时， 对象使用 <code>ziplist</code> 编码：</p>
+<ol>
+<li>有序集合保存的元素数量小于 <code>128</code> 个；</li>
+<li>有序集合保存的所有元素成员的长度都小于 <code>64</code> 字节；</li>
+</ol>
+<p>不能满足以上两个条件的有序集合对象将使用 <code>skiplist</code> 编码。</p>
+<h1 id="7-内存回收、对象共享和空转时长"><a href="#7-内存回收、对象共享和空转时长" class="headerlink" title="7. 内存回收、对象共享和空转时长"></a>7. 内存回收、对象共享和空转时长</h1><p>对象中包括了一个引用计数器：</p>
+<pre><code class="lang-C">typedef struct redisObject {
+    // ...
+    // 引用计数
+    int refcount;
+    // ...
+} robj;
+</code></pre>
+<p>对象的引用计数信息会随着对象的使用状态而不断变化：</p>
+<ul>
+<li>在创建一个新对象时， 引用计数的值会被初始化为 <code>1</code> ；</li>
+<li>当对象被引用时，计数值+1；</li>
+<li>当对象不再被引用时，计数值-1；</li>
+<li>当对象的引用计数值变为 <code>0</code> 时， 对象所占用的内存会被释放。</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">函数</th>
+<th style="text-align:center">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>incrRefCount</code></td>
+<td style="text-align:center">将对象的引用计数值增一。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>decrRefCount</code></td>
+<td style="text-align:center">将对象的引用计数值减一， 当对象的引用计数值等于 <code>0</code> 时， 释放对象。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>resetRefCount</code></td>
+<td style="text-align:center">将对象的引用计数值设置为 <code>0</code> ， 但并不释放对象， 这个函数通常在需要重新设置对象的引用计数值时使用。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+<p>通过引用机制，还能实现对象共享。共享<strong>只针对整数值对象，不针对包含字符串的对象。</strong></p>
+<p> 假设键 A 创建了一个包含整数值 <code>100</code> 的字符串对象作为值对象，</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200103141637.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如果这时键 B 也要创建一个同样保存了整数值 <code>100</code> 的字符串对象作为值对象， 那么服务器有以下两种做法：</p>
+<ol>
+<li>为键 B 新创建一个包含整数值 <code>100</code> 的字符串对象；</li>
+<li>让键 A 和键 B 共享同一个字符串对象；</li>
+</ol>
+<p>以上两种方法很明显是第二种方法更节约内存。在 Redis 中， 让多个键共享同一个值对象需要执行以下两个步骤：</p>
+<ol>
+<li>将数据库键的值指针指向一个现有的值对象；</li>
+<li><p>将被共享的值对象的引用计数增一。</p>
+<p>Redis 会在初始化服务器时， 创建一万个<strong>字符串对象</strong>， 这些对象包含了从 <code>0</code> 到 <code>9999</code> 的所有整数值， 当服务器需要用到值为 <code>0</code>到 <code>9999</code> 的字符串对象时， 服务器就会使用这些共享对象， 而不是新创建对象。</p>
+</li>
+</ol>
+<p>为什么 Redis 不共享包含字符串的对象？</p>
+<p>判断是否共享时要检验<strong>共享对象和目标对象是否相同</strong>。复杂度如下，</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">共享对象</th>
+<th style="text-align:center">复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">保存整数值字符串对象</td>
+<td style="text-align:center">$O( 1)$</td>
+</tr>
+<tr>
+<td style="text-align:center">保存字符串值的字符串对象</td>
+<td style="text-align:center">$O(N)$</td>
+</tr>
+<tr>
+<td style="text-align:center">包含了多个值的对象（列表或哈希）</td>
+<td style="text-align:center">$O(N^2)$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+<p><code>redisObject</code> 结构包含的最后一个属性为 <code>lru</code> 属性， 该属性记录了对象最后一次被命令程序访问的时间：</p>
+<pre><code class="lang-C">typedef struct redisObject {
+    // ...
+    unsigned lru:22;
+    // ...
+
+} robj;
+</code></pre>
+<p><code>OBJECT IDLETIME</code> 命令可以打印出给定键的空转时长， 这一空转时长就是通过将当前时间减去键的值对象的 <code>lru</code> 时间计算得出的：</p>
+<pre><code class="lang-C">redis&gt; SET msg &quot;hello world&quot;
+OK
+
+# 等待一小段时间
+redis&gt; OBJECT IDLETIME msg
+(integer) 20
+</code></pre>
+<p>注意<code>OBJECT IDLETIME</code> 命令的实现是特殊的， 这个命令在访问键的值对象时， <strong>不会修改值对象的 <code>lru</code> 属性</strong>。这类似于<code>std::weak_ptr</code>的作用。</p>
+<p>当内存满时，空转时长较长的键会被优先释放。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" target="_blank" rel="external">jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&title=《Redis设计与实现2-对象》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&title=《Redis设计与实现2-对象》 — JR's Blog&source=前一章介绍了Redis的主要数据结构，但Redis并没有直接使用这些数据结构来实现键值对数据库， 而是基于这些数据结构创建了一个对象系统" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现2-对象》 — JR's Blog&url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Redis设计与实现3-数据库</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/02/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B01-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis设计与实现1-数据结构</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&title=《Redis设计与实现2-对象》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&title=《Redis设计与实现2-对象》 — JR's Blog&source=前一章介绍了Redis的主要数据结构，但Redis并没有直接使用这些数据结构来实现键值对数据库， 而是基于这些数据结构创建了一个对象系统" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现2-对象》 — JR's Blog&url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/03/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B02-%E5%AF%B9%E8%B1%A1/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

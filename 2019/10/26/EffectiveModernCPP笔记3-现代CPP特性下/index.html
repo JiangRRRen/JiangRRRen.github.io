@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>EffectiveModernCPP笔记4-现代CPP特性下 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,读书笔记">
+    <meta name="description" content="介绍六个特性：overriding，const_iterator，noexcept，constexpr，const线程安全，类的特殊成员函数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记4-现代CPP特性下">
+<meta property="og:url" content="jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="介绍六个特性：overriding，const_iterator，noexcept，constexpr，const线程安全，类的特殊成员函数。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106111508.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106114436.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106135004.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191107125425.png">
+<meta property="article:published_time" content="2019-10-26T01:51:27.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:16:40.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106111508.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">EffectiveModernCPP笔记4-现代CPP特性下</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">EffectiveModernCPP笔记4-现代CPP特性下</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-10-26T01:51:27.000Z" itemprop="datePublished" class="page-time">
+  2019-10-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-12-Declare-overriding-functions-override"><span class="post-toc-text">Item 12:Declare overriding functions override.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-13-Prefer-const-iterators-to-iterators"><span class="post-toc-text">Item 13:Prefer const_iterators to iterators.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-14-Declare-functions-noexcept-if-they-won’t-emit-exceptions"><span class="post-toc-text">Item 14:Declare functions noexcept if they won’t emit exceptions.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-15-Use-constexpr-whenever-possible"><span class="post-toc-text">Item 15:Use constexpr whenever possible.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-16-Make-const-member-functions-thread-safe"><span class="post-toc-text">Item 16:Make const member functions thread safe</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-17-Understand-special-member-function-generation"><span class="post-toc-text">Item 17:Understand special member function generation</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-EffectiveModernCPP笔记3-现代CPP特性下"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">EffectiveModernCPP笔记4-现代CPP特性下</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-10-26 09:51:27" datetime="2019-10-26T01:51:27.000Z"  itemprop="datePublished">2019-10-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>介绍六个特性：overriding，const_iterator，noexcept，constexpr，const线程安全，类的特殊成员函数。<a id="more"></a></p>
+<h1 id="Item-12-Declare-overriding-functions-override"><a href="#Item-12-Declare-overriding-functions-override" class="headerlink" title="Item 12:Declare overriding functions override."></a>Item 12:Declare overriding functions override.</h1><p>在派生和继承中，常常涉及虚函数的使用。</p>
+<blockquote>
+<p>C++多态(polymorphism)是通过虚函数来实现的，虚函数允许子类重新定义成员函数，而子类重新定义父类的做法称为覆盖(override)，或者称为重写。</p>
+</blockquote>
+<p>然而虚函数能够重写的条件很苛刻，他需要满足很多条件，我们编程时很容易搞错。他需要满足以下要求：</p>
+<ul>
+<li>基类函数必须是<code>virtual</code></li>
+<li>基类和派生类函数名必须完全一样</li>
+<li>基类和派生类函数参数必须完全一样</li>
+<li>基类和派生类函数常量性(constness)必须完全一样</li>
+<li>基类和派生类函数的返回值和异常说明(exception specifications)必须兼容</li>
+<li>基类和派生类函数的引用限定符（reference qualifiers）必须完全一样。</li>
+</ul>
+<p>下面的代码展示了这些错误：</p>
+<pre><code class="lang-cpp">class Base {
+public:
+    virtual void mf1() const;
+    virtual void mf2(int x);
+    virtual void mf3() &amp;;
+    void mf4() const;
+};
+class Derived: public Base {
+public:
+    virtual void mf1();
+    virtual void mf2(unsigned int x);
+    virtual void mf3() &amp;&amp;;
+    void mf4() const;
+};
+</code></pre>
+<p>最可气的是，编译器根本不会报错，最多只是给个warning，但编译时根本不会重写，所以我们需要将它<strong>显式声明</strong>为<code>override</code>。</p>
+<pre><code class="lang-cpp">class Base {
+public:
+    virtual void mf1() const;
+    virtual void mf2(int x);
+    virtual void mf3() &amp;;
+    virtual void mf4() const;
+};
+class Derived: public Base {
+public:
+    virtual void mf1() const override;
+    virtual void mf2(int x) override;
+    virtual void mf3() &amp; override;
+    void mf4() const override; // 可以添加virtual，但不是必要
+};
+</code></pre>
+<p>比起让编译器通过warnings告诉你重写实际不会重写，不如给你的派生类成员函数全都加上<code>override</code>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106111508.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="Item-13-Prefer-const-iterators-to-iterators"><a href="#Item-13-Prefer-const-iterators-to-iterators" class="headerlink" title="Item 13:Prefer const_iterators to iterators."></a>Item 13:Prefer const_iterators to iterators.</h1><p>在STL中<code>const_iterator</code>等价于常量指针，他们<strong>指向不能被修改的值</strong>。C98中支持得不是很好，而在11中：<code>const_iterator</code>即容易获取又容易使用。容器的成员函数<code>cbegin</code>和<code>cend</code>产出<code>const_iterator</code></p>
+<pre><code class="lang-cpp">std::vector&lt;int&gt; values{1,2,3,4};
+auto ci = std::find(values.cbegin(), values.cend(), 3);
+*ci = 10; //error
+</code></pre>
+<p>这其中，<code>ci</code>就直接被划定为<code>const_iterator</code>，所以就不能做修改</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106114436.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="Item-14-Declare-functions-noexcept-if-they-won’t-emit-exceptions"><a href="#Item-14-Declare-functions-noexcept-if-they-won’t-emit-exceptions" class="headerlink" title="Item 14:Declare functions noexcept if they won’t emit exceptions."></a>Item 14:Declare functions noexcept if they won’t emit exceptions.</h1><p>在C++中人们认为异常信息最有用的在于：<strong>一个函数是否会抛出异常</strong>，这是一个二元性判断，即会和不会。就其本身而言，函数是否为<strong>noexcept</strong>和成员函数是否<strong>const</strong>一样重要。这个可以影响到调用代码的异常安全性和效率。原因如下：</p>
+<p><strong>1）避免运行时栈展开</strong></p>
+<p>C++98和11有不同的不抛出异常声明方式：</p>
+<pre><code class="lang-cpp">int f(int x) throw(); // C++98风格
+int f(int x) noexcept; // C++11风格
+</code></pre>
+<p>他们最大的不同在于：在C++98的异常说明中，调用栈<strong>会展开</strong>至<code>f</code>的调用者，一些不合适的动作比如程序终止也会发生。C++11异常说明的运行时行为明显不同：调用栈<strong>只是可能</strong>在程序终止前展开。一个必然一个可能，这两者会对代码生成产生巨大的影响。<strong>在一个<code>noexcept</code>函数中，当异常传播到函数外，优化器不需要保证运行时栈的可展开状态，也不需要保证<code>noexcept</code>函数中的对象按照构造的反序析构。</strong>而<code>throw()</code>标注的异常声明缺少这样的优化灵活性，它和没加一样。</p>
+<pre><code class="lang-cpp">RetType function(params) noexcept;   // 极尽所能优化
+RetType function(params) throw();    // 较少优化
+RetType function(params);            // 较少优化
+</code></pre>
+<p><strong>（2）保证移动语义能充分发挥作用</strong></p>
+<p>当新元素添加到<code>std::vector</code>，<code>std::vector</code>可能没地方放它，这时候，<code>std::vector</code>会分配一片的新的大块内存用于存放，然后将元素从已经存在的内存移动到新内存。在C++98中，移动是<strong>通过复制</strong>老内存区的每一个元素到新内存区完成的，然后<strong>老内存区的每个元素发生析构</strong>。<br>这种方法使得<code>push_back</code>可以提供很强的异常安全保证：<strong>如果在复制元素期间抛出异常，<code>std::vector</code>状态保持不变，因为老内存元素析构必须建立在它们已经成功复制到新内存的前提下。</strong></p>
+<p>在C++11中，一个很自然的优化就是将上述复制操作<strong>替换为移动操作</strong>。但是很不幸，破坏了<code>push_back</code>的异常安全。如果异常在移动中抛出，那么<code>push_back</code>操作就不能完成。但是原始的<code>std::vector</code>已经被修改。</p>
+<p>因此容器们演化出了一种策略：<strong>如果可以就移动，如果必要则复制</strong>，比如说<code>std::vector::push_back</code>，<code>std::vector::reverse</code>，<code>std:;deque::insert</code>等等。而判断可不可以移动的关键就在于，<strong>移动中是否可能产生异常</strong>！如何判断？<strong>检查是否声明noexcept</strong></p>
+<p><strong>那么哪些函数可以写为noexcept呢？</strong></p>
+<p>具体来说，<strong>移动操作和swap</strong>可以写为不抛出异常，有助于程序优化。宽泛点来说，我们需要讨论<strong>宽泛契约(wild contracts)和严格契约(narrow contracts)函数</strong></p>
+<blockquote>
+<p>有宽泛契约的函数没有前置条件。这种函数<strong>不管程序状态如何都能调用</strong>，<strong>它对调用者传来的实参不设约束</strong>。反之，没有宽泛契约的函数就有严格契约。对于这些函数，如果违反<strong>前置条件</strong>，结果将会是未定义的。</p>
+</blockquote>
+<p>假如现在有一个函数，我想在里面加一个前置条件冲突检查<code>s.size()&lt;32</code>，那么我就不能声明为<code>noexcept</code>，我需要在里面写一个异常抛出函数，抛出<code>&quot;precondition was violated&quot;</code>异常。</p>
+<pre><code class="lang-cpp">void f(const std::string&amp; s) noexcept;
+</code></pre>
+<h1 id="Item-15-Use-constexpr-whenever-possible"><a href="#Item-15-Use-constexpr-whenever-possible" class="headerlink" title="Item 15:Use constexpr whenever possible."></a>Item 15:Use constexpr whenever possible.</h1><p><code>const</code>是一个古老的关键词，他从C++诞生之日就存在，在漫长的岁月中它承担了很多很多功能，在11中，人们觉得<code>const</code>干太多活，让它太难顶了，于是搞了一个<code>constexpr</code>来帮他分担一些工作，并且使得一些功能更加明确。</p>
+<p>总的来说<code>constexpr</code>就是指<strong>编译期可知</strong>，潜台词是：告诉编译器我可以是编译期间可知的，尽情的优化我吧。而<code>const</code><strong>专门用来声明不变量</strong>，潜台词是：告诉程序员没人动得了我，放心的把我传出去；或者放心的把变量交给我，我啥也不动就瞅瞅。</p>
+<p><strong>（1）关于常量</strong></p>
+<p>这一部分比较简单，往往用于C++要求出现整数常量表达式（ <strong>integral constant expression</strong> ）的上下文。这类上下文包括<strong>数组大小，整数模板参数（包括<code>std::array</code>对象的长度），枚举量，对齐修饰符</strong>（<a href="https://en.cppreference.com/w/cpp/language/alignas" target="_blank" rel="noopener"><code>alignas(val)</code></a>），等等。</p>
+<pre><code class="lang-cpp">int sz;                             // 非constexpr变量
+…
+constexpr auto arraySize1 = sz;     // 错误! sz的值在编译期不可知
+std::array&lt;int, sz&gt; data1;          // 错误!一样的问题
+constexpr auto arraySize2 = 10;     // 没问题，10是编译期可知常量
+std::array&lt;int, arraySize2&gt; data2;  // 没问题, arraySize2是constexpr
+</code></pre>
+<p>注意const不提供constexpr所能保证之事，因为const对象不需要在编译期初始化它的值。简而言之，<strong>所有constexpr对象都是const，但不是所有const对象都是constexpr。</strong></p>
+<pre><code class="lang-cpp">int sz;                            // 和之前一样
+const auto arraySize = sz;         // 没问题，arraySize是sz的常量复制
+std::array&lt;int, arraySize&gt; data;   // 错误，arraySize值在编译期不可知
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191106135004.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>（2）关于函数</strong></p>
+<p><strong>如果实参是编译期常量，它们将产出编译期值；如果是运行时值，它们就将产出运行时值</strong>。</p>
+<p>如果传给constexpr函数的实参是在编译期可知的，结果就将在编译期计算完成。如果不可知，函数就不理你。</p>
+<p>换句话说，当一个constexpr函数被一个或者多个编译期不可知值调用时，它就像普通函数一样，运行时计算它的结果。<strong>这意味着你不需要两个函数</strong>，一个用于编译期计算，一个用于运行时计算。</p>
+<p><strong>例子1：</strong>假如我来测量电位，把他们的结果评估为高、中、低三种情况，现在我测量了n组样本，那么得到的组合就是<code>3^n</code>。我们需要一个方法在编译期计算<code>3^n</code>。C++标准库提供了<code>std::pow</code>，这里还有两个问题。</p>
+<ul>
+<li>第一，<code>std::pow</code>是为浮点类型设计的 我们需要整型结果。</li>
+<li>第二，<code>std::pow</code>不是constexpr。因此我们需要自己来写：</li>
+</ul>
+<pre><code class="lang-cpp">constexpr int pow(int base, int exp) noexcept // C++11
+    return (exp == 0 ? 1 : base * pow(base, exp - 1));
+
+constexpr int pow(int base, int exp) noexcept  // C++14
+{
+  auto result = 1;
+  for (int i = 0; i &lt; exp; ++i) result *= base;
+  return result;
+}
+</code></pre>
+<p>因为11的要求是<strong>constexpr函数的代码不超过一行语句</strong>，所以需要采用三目运算符加递归的方式，非常麻烦，所幸14中得到了解决。</p>
+<p><strong>例子2：</strong>构建一个点类</p>
+<p>在C++11中，除了void外的所有内置类型可以是<strong>constexpr</strong>：</p>
+<pre><code class="lang-cpp">class Point {
+  public:
+    constexpr Point(double xVal = 0, double yVal = 0) noexcept : x(xVal), y(yVal){}
+    constexpr double xValue() const noexcept { return x; } 
+    constexpr double yValue() const noexcept { return y; }
+
+    void setX(double newX) noexcept { x = newX; }
+    void setY(double newY) noexcept { y = newY; }
+  private:
+    double x, y;
+};
+</code></pre>
+<p>Point的构造函数被声明为constexpr，因为如果传入的参数在编译期可知，Point的数据成员也能在编译器可知。因此Point就能被初始化为constexpr：</p>
+<pre><code class="lang-cpp">constexpr Point p1(9.4, 27.7); // 没问题，构造函数会在编译期“运行”
+constexpr Point p2(28.8, 5.3); // 也没问题
+</code></pre>
+<p>类似的，<code>xValue</code>和<code>yValu</code>的<code>getter</code>函数也能是<code>constexpr</code>，这使得我们可以写一个constexpr函数里面调用Point的getter并初始化constexpr的对象：</p>
+<pre><code class="lang-cpp">constexpr Point midpoint(const Point&amp; p1, const Point&amp; p2) noexcept
+{
+  return { (p1.xValue() + p2.xValue()) / 2, 
+             (p1.yValue() + p2.yValue()) / 2 };
+}
+constexpr auto mid = midpoint(p1, p2);
+</code></pre>
+<p>这就很给力了，因为：</p>
+<ul>
+<li>mid对象通过调用构造函数，getter和成员函数就能在只读内存中创建！</li>
+<li>你可以在模板或者需要枚举量的表达式里面使用像<code>mid.xValue()*10</code>的表达式！</li>
+<li>以前相对严格的某一行代码只能用于编译期，某一行代码只能用于运行时的界限变得模糊，一些运行时的普通计算能并入编译时。越多这样的代码并入，你的程序就越快。（当然，编译会花费更长时间）</li>
+</ul>
+<p>在14中，放开了对void的限制，现在你可以：</p>
+<pre><code class="lang-cpp">class Point {
+  public:
+    ...
+    constexpr void setX(double newX) noexcept { x = newX; }
+    constexpr void setY(double newY) noexcept { y = newY; }
+    ...
+};
+</code></pre>
+<p>也能写这样的函数：</p>
+<pre><code class="lang-cpp">constexpr Point reflection(const Point&amp; p) noexcept
+{
+    Point result; 
+    result.setX(-p.xValue());
+    result.setY(-p.yValue()); 
+    return result;
+}
+</code></pre>
+<p>我们在客户端就能写：</p>
+<pre><code class="lang-cpp">constexpr Point p1(9.4, 27.7);
+constexpr Point p2(28.8, 5.3);
+constexpr auto mid = midpoint(p1, p2);
+constexpr auto reflectedMid =  reflection(mid);
+</code></pre>
+<h1 id="Item-16-Make-const-member-functions-thread-safe"><a href="#Item-16-Make-const-member-functions-thread-safe" class="headerlink" title="Item 16:Make const member functions thread safe"></a>Item 16:Make const member functions thread safe</h1><p>本文解决以下问题：</p>
+<ul>
+<li>是什么导致const成员函数变成了非线程安全</li>
+<li>如何避免非线程安全问题</li>
+</ul>
+<p><strong>什么导致const成员函数变成了非线程安全</strong>？</p>
+<p>首先<strong><code>const</code>的成员函数的线程是绝对安全的</strong>，因为它不允许对类的成员变量进行修改操作，只能读取。<strong>让它变得不安全的是<code>mutable</code>关键词</strong></p>
+<blockquote>
+<p><code>mutable</code> 只能用来修饰类的数据成员；而被 <code>mutable</code> 修饰的数据成员，可以在 <code>const</code> 成员函数中修改。</p>
+</blockquote>
+<p>下面这段代码展示了<code>mutable</code>的作用和为什么线程不安全。<code>roots</code>本身是一个<code>const</code>成员函数，每次返回<code>rootVals</code>，而这个值只有在第一次的时候才需要计算，此后只需要直接返回即可，所以这就<strong>有了一个<code>rootsAreValid</code>来表明这个值是否是已经计算</strong>。</p>
+<p>此时如果有两个线程同时执行<code>roots</code>，第一个线程发现<code>rootsAreValid</code>是<code>false</code>，开始计算<code>rootVals</code>，在计算的过程中，第二个线程开始执行，发现<code>rootsAreValid</code>也是<code>false</code>，也开始计算<code>rootvals</code>，这就会出错。</p>
+<pre><code class="lang-cpp">class Polynomial {
+  public:
+    using RootsType = std::vector&lt;double&gt;;
+    RootsType roots() const {
+      if (!rootsAreValid) {
+        ....
+        rootsAreValid = true
+      }
+      return rootVals;
+    }
+  private:
+    mutable bool rootsAreValid { false };
+    mutable RootsType rootVals{};
+};
+</code></pre>
+<p><strong>如何避免这个问题？</strong></p>
+<p><strong>（1）使用互斥锁</strong></p>
+<pre><code class="lang-cpp">class Polynomial {
+public:
+    using RootsType = std::vector&lt;double&gt;;
+
+    RootsType roots() const
+    {
+        std::lock_guard&lt;std::mutex&gt; g(m);        // lock mutex
+        if (!rootsAreVaild) {                    // 如果缓存无效
+            rootsAreVaild = true;
+        }
+        return rootsVals;
+    }                                            // unlock mutex
+
+private:
+    mutable std::mutex m;
+    mutable bool rootsAreVaild { false };
+    mutable RootsType rootsVals {};
+};
+</code></pre>
+<p>上面的代码中引入了一个<code>mutable</code>的<code>mutex</code>，因为加锁和解锁本身是会对mutex本身有改动，所以是<code>mutable</code>，但这就带来两个问题：</p>
+<ul>
+<li>开销变大了，后面<strong>每次都要</strong>加锁获取<code>rootVals</code>，但是其实<strong>只有第一次是可读可写的，非线程安全的，后面就变成只读的了是线程安全的</strong></li>
+<li><code>mutex</code>本身其实是一个<strong>只具备移动语义的类</strong>，这导致<code>Polynomial</code>类相应也变成了只具备移动语义的类了，限制了<code>Polynomial</code>类的使用范围。</li>
+</ul>
+<p><strong>（2）使用原子变量</strong></p>
+<pre><code class="lang-cpp">class Point {                                    // 2D point
+public:
+    double distanceFromOrigin() const noexcept
+    {
+        ++callCount;                            // 原子的递增
+        return std::sqrt((x * x) + (y * y));
+    }
+private:
+    mutable std::atomic&lt;unsigned&gt; callCount{ 0 };
+    double x, y;
+};
+</code></pre>
+<p>使用<code>atomic</code>确保修饰的counter，<strong>保证其他线程视这个操作为不可分割的</strong>。与<code>std::mutex</code>一样，<code>std::atomic</code>是<code>move-only</code>类型，所以在<code>Point</code>中调用<code>Count</code>的意思就是<code>Point</code>也是<code>move-only</code>的。因为<strong>对<code>std::atomic</code>变量的操作通常比互斥量的获取和释放的消耗更小</strong>，所以可能更倾向与依赖<code>std::atomic</code>。但他也有一个很大的问题：</p>
+<p>下面的代码的问题是：</p>
+<ul>
+<li>一个线程调用<code>Widget::magicValue</code>，将<code>cacheValid</code>视为<code>false</code>，执行这两个昂贵的计算，并将它们的和分配给<code>cachedValue</code>。</li>
+<li>此时，第二个线程调用<code>Widget::magicValue</code>，也将<code>cacheValid</code>视为<code>false</code>，因此执行刚才完成的第一个线程相同的计算。</li>
+</ul>
+<pre><code class="lang-cpp">class Widget {
+public:   
+    int magicValue() const
+    {
+        if (cacheVaild) return cachedValue;
+        else {
+            auto val1 = expensiveComputation1();
+            auto val2 = expensiveComputation2();
+            cachedValue = val1 + val2;                // 第一步
+            cacheVaild = true;                        // 第二步
+            return cachedVaild;
+        }
+    }   
+private:
+    mutable std::atomic&lt;bool&gt; cacheVaild{ false };
+    mutable std::atomic&lt;int&gt; cachedValue;
+};
+</code></pre>
+<p>所以<strong>原子操作只适合于单变量的情况，如果是多变量或多内存位置应使用互斥锁。</strong></p>
+<h1 id="Item-17-Understand-special-member-function-generation"><a href="#Item-17-Understand-special-member-function-generation" class="headerlink" title="Item 17:Understand special member function generation"></a>Item 17:Understand special member function generation</h1><p>在C++术语中，特殊成员函数是指C++自己生成的函数。C++98有四个：<strong>默认构造函数函数，析构函数，拷贝构造函数，拷贝赋值运算符</strong>。这些函数仅在需要的时候才生成。</p>
+<ul>
+<li>class没有任何的<code>constructor</code>，但它内含<code>member object</code>，而后者有默认的构造函数。</li>
+<li>class没有任何的<code>constructor</code>，但是它派生自一个带有默认构造函数的基类。</li>
+<li>带有虚函数的类</li>
+<li>继承自带有虚函数的基类</li>
+</ul>
+<p>只有在满足上述情况下，编译期才会帮我们生成默认的构造函数，帮我们调用成员变量的构造函数进行初始化，或者是创建虚函数表，调用基类的构造函数，初始化基类等工作。下面的代码就不会产生默认构造函数。</p>
+<pre><code class="lang-cpp">class simple {
+  private:
+    int data;
+};
+</code></pre>
+<p>除此以外，11还产生了两个新的特殊成员函数：<strong>移动构造函数，移动赋值操作符</strong>，其声明方式如下：</p>
+<pre><code class="lang-cpp">class Widget {
+  public:
+    .....
+    Widget(Widget&amp;&amp; rhs);
+    Widget&amp; operator=(widget&amp;&amp; rhs);
+};
+</code></pre>
+<p>移动构造函数的生成规则类似于拷贝构造函数，仅仅当编译器需要的时候才会生成，要求<strong>其每一个非<code>static</code>的成员都具有移动语义</strong>。下面给出一个例子，<strong>Private类型不具有移动语义</strong>：</p>
+<pre><code class="lang-cpp">class test {
+public:
+    test() {
+        p = new char(&#39;a&#39;);
+    }
+    test(const test&amp; other) {
+        std::cout &lt;&lt; &quot;copy construct&quot; &lt;&lt; std::endl;
+    }
+
+private:
+    char* p = nullptr;
+};
+
+int main() {
+    test t;
+    test c(std::move(t));
+    return 0;
+}
+</code></pre>
+<p><strong>分析：</strong>当执行<code>test t</code>时，调用默认构造函数，将<code>p</code>赋值为<code>a</code>。执行<code>test c(std::move(t));</code>时，由于成员不具有移动语义，所以并不能移动构造，只能调用拷贝构造函数，输出<code>&quot;copy construct&quot;</code>，同时<code>p</code>也没有赋值，依然是nullptr。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191107125425.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>因此当我们将成员变量改为公有类型，去掉拷贝构造函数，就能使这个类具有移动语义特性时，它就能正确执行：</p>
+<pre><code class="lang-cpp">class test {
+ public:
+  test() {
+    str = &quot;test&quot;;
+  }
+  std::string str;
+};
+
+int main() {
+  test t;
+  test c(std::move(t));
+  return 0;
+}
+</code></pre>
+<p>如果给上面的代码加一个拷贝构造函数：</p>
+<pre><code class="lang-cpp">  test(const test&amp; other) {
+    std::cout &lt;&lt; &quot;copy construct&quot; &lt;&lt; std::endl;
+  }
+</code></pre>
+<p><strong>结果会调用拷贝构造函数，而不是使用移动构造</strong>。所以我们可以总结得到，造成不能移动构造的<strong>罪魁祸首</strong>是<code>test(const test&amp; other)</code>和<code>char* p = nullptr;</code></p>
+<p><strong>那么为什么会这样呢？6个特殊函数的关系如何呢？</strong></p>
+<ul>
+<li><strong>默认构造函数</strong>，在用户没有声明自定义的构造函数的时候并且编译期需要的时候生成</li>
+<li><strong>默认析构函数</strong>，销毁对象时，没有自定义的析构函数就会生成</li>
+<li><strong>拷贝构造函数和拷贝赋值操作符</strong>，用户自定义了移动操作会导致不生成默认的拷贝构造函数，其他和上面写的C98的四条原则一样</li>
+<li><strong>移动构造函数和移动赋值操作符</strong>，仅仅在没有用户自定义的拷贝操作，移动操作和析构操作的时候才会生成</li>
+</ul>
+<p>那么如何在自定义能有效使用默认移动构造函数呢？<strong>使用<code>default</code></strong></p>
+<pre><code class="lang-cpp">class test {
+public:
+    test() {
+        str = &quot;test&quot;;
+    }
+    test(const test&amp; other) {
+        std::cout &lt;&lt; &quot;copy construct&quot; &lt;&lt; std::endl;
+    }
+    test(test&amp;&amp;) = default; //显示的声明默认的移动构造函数
+    test&amp; operator=(test&amp;&amp;) = default;
+    std::string str;
+};
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" target="_blank" rel="external">jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&title=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&title=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&source=介绍六个特性：overriding，const_iterator，noexcept，constexpr，const线程安全，类的特殊成员函数。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">EffectiveModernCPP笔记5-智能指针</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B04-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">EffectiveModernCPP笔记4-现代CPP特性下</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&title=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&title=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&source=介绍六个特性：overriding，const_iterator，noexcept，constexpr，const线程安全，类的特殊成员函数。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记4-现代CPP特性下》 — JR's Blog&url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

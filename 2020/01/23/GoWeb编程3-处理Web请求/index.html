@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>GoWeb编程3-处理Web请求 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go">
+    <meta name="description" content="本节讨论如何利用go处理客户端发来的请求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoWeb编程3-处理Web请求">
+<meta property="og:url" content="jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本节讨论如何利用go处理客户端发来的请求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200124095905.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200124113822.png">
+<meta property="article:published_time" content="2020-01-23T06:09:59.000Z">
+<meta property="article:modified_time" content="2020-01-25T12:19:57.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200124095905.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">GoWeb编程3-处理Web请求</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">GoWeb编程3-处理Web请求</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-23T06:09:59.000Z" itemprop="datePublished" class="page-time">
+  2020-01-23
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-请求方法"><span class="post-toc-text">1. 请求方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-Request结构"><span class="post-toc-text">1.1 Request结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-请求URL"><span class="post-toc-text">1.2 请求URL</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-请求头部"><span class="post-toc-text">1.3 请求头部</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-请求主体"><span class="post-toc-text">1.4 请求主体</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-HTML表单"><span class="post-toc-text">2. HTML表单</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-什么是表单"><span class="post-toc-text">2.1 什么是表单</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-Form字段"><span class="post-toc-text">2.2 Form字段</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-PostForm字段"><span class="post-toc-text">2.3 PostForm字段</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-MultipartForm字段"><span class="post-toc-text">2.4 MultipartForm字段</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-文件"><span class="post-toc-text">2.5 文件</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-响应方法"><span class="post-toc-text">3. 响应方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-Write"><span class="post-toc-text">3.1 Write</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-WriteHeader"><span class="post-toc-text">3.2 WriteHeader</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-Header"><span class="post-toc-text">3.3 Header</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-Cookie"><span class="post-toc-text">4. Cookie</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-Go中的Cookie"><span class="post-toc-text">4.1 Go中的Cookie</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-将cookie发送至浏览器"><span class="post-toc-text">4.2 将cookie发送至浏览器</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-3-从浏览器获取cookie"><span class="post-toc-text">4.3 从浏览器获取cookie</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-4-利用cookie实现闪现消息"><span class="post-toc-text">4.4 利用cookie实现闪现消息</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-GoWeb编程3-处理Web请求"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">GoWeb编程3-处理Web请求</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-23 14:09:59" datetime="2020-01-23T06:09:59.000Z"  itemprop="datePublished">2020-01-23</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本节讨论如何利用go处理客户端发来的请求。<a id="more"></a>Request结构体作为客户端请求的载体，其中HTML作为Request请求的主体，而传入服务器后需要利用相关的响应方法对请求进行相应。Cookie是辅助响应的手段，用于保存状态。</p>
+<p>学习的是如何使用 Go 提供的工具来处理请求，以及如何把响应回传给客户端。<!--more--></p>
+<h1 id="1-请求方法"><a href="#1-请求方法" class="headerlink" title="1. 请求方法"></a>1. 请求方法</h1><h2 id="1-1-Request结构"><a href="#1-1-Request结构" class="headerlink" title="1.1 Request结构"></a>1.1 Request结构</h2><p>Request 结构表示一<strong>个由客户端发送的 HTTP 请求报文</strong>，包括：</p>
+<ul>
+<li>URL字段</li>
+<li>Header字段</li>
+<li>Body字段</li>
+<li>Form，PostForm字段和MultipartForm字段</li>
+</ul>
+<p>虽然 HTTP 请求报文是由一系列文本行组成的，但 Request 结构<strong>并不是完全按照报文逐字逐句定义的</strong>。 实际情况是，这个结构只包含了报文在经过语法分析之后，其中较为重要的信息。</p>
+<h2 id="1-2-请求URL"><a href="#1-2-请求URL" class="headerlink" title="1.2 请求URL"></a>1.2 请求URL</h2><p>Request结构体中包含的URL字段指向了一个<code>url.URL</code>结构体：</p>
+<pre><code class="lang-go">type URL struct {
+    Scheme   string
+    Opaque   string    // 编码后的不透明数据
+    User     *Userinfo // 用户名和密码信息
+    Host     string    // host或host:port
+    ath     string
+    RawQuery string // 编码后的查询字符串，没有&#39;?&#39;
+     Fragment string // 引用的片段（文档位置），没有&#39;#&#39;
+}
+</code></pre>
+<p>URL的一般格式是：</p>
+<pre><code class="lang-go">scheme:// [user info@] host/path [?query] [#fragment]
+</code></pre>
+<p>而scheme之后不带斜线的URL会被解释为：</p>
+<pre><code class="lang-go">scheme:opaque[?query] [#fragment ]
+</code></pre>
+<p>当我们输入<code>http://www.example.com/post?id=123&amp;thread_id=456</code>这个<code>id=123&amp;thread_id=456</code>就是查询字段<code>RawQuery</code></p>
+<h2 id="1-3-请求头部"><a href="#1-3-请求头部" class="headerlink" title="1.3 请求头部"></a>1.3 请求头部</h2><p>请求和响应的首部都使用 Header 类型描述，这种类型<strong>使用一个映射来表示 HTTP 首部中的多个键值对</strong>。 Header 类型拥有 4 种基本方法，这些方法可以根据给定的键执行<strong>添加、 删除、获取和设置值</strong>等操作。 </p>
+<p>下面展示了读取头部的方法：</p>
+<pre><code class="lang-go">func headers(w http.ResponseWriter, r *http.Request){
+    h := r.Header
+    fmt.Fprintln(w,h)
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/headers&quot;,headers)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>在浏览器会输出：</p>
+<pre><code>map[
+Accept:[text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9] 
+
+Accept-Encoding:
+[gzip, deflate, br] 
+
+Accept-Language:
+[zh,en-US;q=0.9,en;q=0.8,zh-CN;q=0.7] 
+
+Connection:
+[keep-alive] 
+
+Cookie:
+[_ga=GA1.1.1969723589.1578322265; _xsrf=2|86b77755|fdefd0fe22a4955aac4be46f30abdbfe|1578603653; ...省略] 
+
+Sec-Fetch-Mode:
+[navigate] 
+Sec-Fetch-Site:
+[none] 
+Sec-Fetch-User:
+[?1] 
+Upgrade-Insecure-Requests:
+[1] 
+
+User-Agent:
+[Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36]
+]
+</code></pre><p>通过这些，我们能知道头部的所有信息，当然我们也能返回特定的信息：</p>
+<pre><code class="lang-go">h:=r.Header[&quot;Accept-Encoding&quot;]
+</code></pre>
+<h2 id="1-4-请求主体"><a href="#1-4-请求主体" class="headerlink" title="1.4 请求主体"></a>1.4 请求主体</h2><p>请求和响应的主体都由 <code>Request</code> 结构的 <code>Body</code> 字段表示，这个字段是一个 <code>io.Read</code> <code>Closer</code> 接口，该接口既包含了：</p>
+<ul>
+<li>Reader接口：接口拥有 Read 方法，这个方法<strong>接受一个字节切片为输入</strong>，并在执行之后返回被读取内容的字节数以及一个可选的错误作为结果； </li>
+<li>Closer接口：这个方法不接受任何参数，但会在出错时返回一个错误。 </li>
+</ul>
+<p>下面是一个demo：</p>
+<pre><code class="lang-go">func body(w http.ResponseWriter, r *http.Request){
+    len := r.ContentLength
+    body :=make([]byte,len)
+    r.Body.Read(body)
+    fmt.Fprintln(w,string(body))
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/body&quot;,body)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>由于<strong>GET请求并不包含BODY</strong>，所以我们访问时，控制台没有任何输出。所以如果我们想要测试这个服务器，就需要通<strong>过HTML表单发送 POST 请求</strong>。这里我们不用表单，用cURL命令来测试：</p>
+<pre><code>curl -id &quot;first_name=11&amp;last_name=22&quot; 127.0.0.1:8080/body
+</code></pre><p>在控制台可以看到：</p>
+<pre><code>HTTP/1.1 200 OK
+Date: Thu, 23 Jan 2020 14:53:52 GMT
+Content-Length: 27
+Content-Type: text/plain; charset=utf-8
+
+first_name=11&amp;last_name=22
+</code></pre><h1 id="2-HTML表单"><a href="#2-HTML表单" class="headerlink" title="2. HTML表单"></a>2. HTML表单</h1><h2 id="2-1-什么是表单"><a href="#2-1-什么是表单" class="headerlink" title="2.1 什么是表单"></a>2.1 什么是表单</h2><p>POST 请求都是通过HTML表单发送的，这些表单看上去通常会是下面这个样子：</p>
+<pre><code class="lang-html">&lt;form action=”/process ” method=”post”&gt; &lt;input type=”text” name=”first name” /&gt; &lt;input type=”text” name=”last name&quot;/&gt; &lt;input type=”submit”/&gt; &lt;/form&gt;
+</code></pre>
+<p><strong>&lt;form＞标签可以包围文本行、文本框、单选按钮、复选框以及文件上传等多种HTML表单元素</strong>， 而用户则可以把想要传递给服务器的数据输入到这些元素里面。当用户按下发送按钮、又或者通过某种方式触发了表单的发送操作之后，用户在表单中输入的数据就会被发送至服务器。 </p>
+<p>表单的编码属性由enctype属性的值设置，有两种：</p>
+<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+</ul>
+<p>第一种，浏览器将把 HTML 表单中的数据编码为一个<strong>连续的“长查询字符串”</strong>（ long query string ）：在这个字符串中，<strong>不同的键值对将使用＆符号分隔，而键值对中的键和值则使用等号＝分隔</strong>。 </p>
+<pre><code>first_name=sau%20sheong&amp;last_name=chang
+</code></pre><p>第二种，表单中的数据将被转<strong>换成一条 MIME 报文 (Multipurpose Internet Mail Extensions)</strong>：表单中的<strong>每个键值对都构成了这条报文的一部分，并且每个键值对都带有它们各自的内容类型以及内容配置</strong>（ disposition ） 。 </p>
+<pre><code>------WebKitFormBoundaryMPNjKpe09cLiocMw Content-Disposition : f orm-data ; name=”first name&quot; 
+sau sheong ------WebKitFormBoundaryMPNjKpe09cLiocMw Content- Disposition: form-data; name=”l ast name” 
+chang ------WebKitFormBoundaryMPNjKpe09cLiocMw--
+</code></pre><hr>
+<p>除了post外也可以通过get发送表单</p>
+<pre><code class="lang-html">&lt;form action=”/process ” method=”get&quot;&gt; 
+   ...
+&lt;/form&gt;
+</code></pre>
+<h2 id="2-2-Form字段"><a href="#2-2-Form字段" class="headerlink" title="2.2 Form字段"></a>2.2 Form字段</h2><p>为了提取表单的键值对数据，我们需要对表单进行处理，<code>net/http</code>库提供了许多函数能够满足需求。通过调用 <code>Request</code> 结构提供的方法，用户<strong>可以将 URL、Body数据提取到该结构的 <code>Form</code>, <code>PostForm</code> 和 <code>MultipartForm</code> 等字段当中。</strong> </p>
+<p>过程如下：</p>
+<ol>
+<li>调用 <code>ParseForm</code> 方法或者 <code>ParseMultipartForm</code> 方法，对请求进行语法分析。 </li>
+<li>根据步骤 l 调用的方法，访问相应的 Form 字段、 PostForm 字段或 MultipartForm 字段。</li>
+</ol>
+<p>举个例子：</p>
+<pre><code class="lang-go">func process(w http.ResponseWriter, r *http.Request){
+    r.ParseForm()
+    fmt.Fprintln(w,r.Form)
+    fmt.Println(&quot;收到了&quot;)
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/process&quot;,process)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>然后我们创建一个html文件，包含了：</p>
+<pre><code class="lang-html">&lt;html&gt;
+  &lt;head&gt;    
+    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
+    &lt;title&gt;Go Web Programming&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;form action=&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+      &lt;input type=&quot;text&quot; name=&quot;hello&quot; value=&quot;sau sheong&quot;/&gt;
+      &lt;input type=&quot;text&quot; name=&quot;post&quot; value=&quot;456&quot;/&gt;
+      &lt;input type=&quot;file&quot; name=&quot;uploaded&quot;&gt;
+      &lt;input type=&quot;submit&quot;&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>用浏览器打开这个html文件，点击提交，可以在浏览器看到：</p>
+<pre><code>map[hello:[world] thread:[123]]
+</code></pre><p>在控制台可以看到“收到了”的消息提醒。</p>
+<h2 id="2-3-PostForm字段"><a href="#2-3-PostForm字段" class="headerlink" title="2.3 PostForm字段"></a>2.3 PostForm字段</h2><p>当我们写入<code>r.Form[&quot;post&quot;]</code>时返回一个切片<code>456</code>，但是当我们输入<code>r.Form[&quot;hello&quot;]</code>时却返回了<code>world</code>而不是<code>sau sheong</code>。这是因为<code>hello</code><strong>同时出现在表单和 URL 两个地方的键</strong>。</p>
+<pre><code>&lt;input type=&quot;text&quot; name=&quot;hello&quot; value=&quot;sau sheong&quot;/&gt;
+
+action=&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot;
+</code></pre><p>面对这种情况，我们需要改为<code>r.PostForm</code>语句。</p>
+<h2 id="2-4-MultipartForm字段"><a href="#2-4-MultipartForm字段" class="headerlink" title="2.4 MultipartForm字段"></a>2.4 MultipartForm字段</h2><p>前面的字段针对<code>application/x-www-form-urlencoded</code>类型，而对于另一种<code>multipart/form-data</code>类型，需要使用<code>MultipartForm</code>字段。</p>
+<pre><code class="lang-go">r.ParseMultipartForm(1024) 
+fmt.Fprintln (w,r.MultipartForm)
+</code></pre>
+<p>的第一行代码说明了我们想要从 <code>multipart</code> 编码的表单里面取出多少字节的数据，而第二行语句则会打印请求的 <code>MultipartForm</code> 字段。</p>
+<hr>
+<p>MultipartForm字段<strong>只包含表单键值对，不包含URL键值对</strong>。</p>
+<p>它也不是一个单映射，而是两个映射的组合：<strong>第一个键为字符串，值为字符串组成的切片，第二个映射为空，用来记录用户上传的文件。</strong></p>
+<p>此外还有<code>FormValue</code>和<code>PostFormValue</code>，他们只会从Form结构中取出给定键的第一个值：</p>
+<pre><code class="lang-go">fmt.Fprintln(w, r.ForrnValue (&quot;hello&quot; ))
+</code></pre>
+<p>上面的代码将输出<code>sau sheong</code>。</p>
+<hr>
+<p>对比：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200124095905.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="2-5-文件"><a href="#2-5-文件" class="headerlink" title="2.5 文件"></a>2.5 文件</h2><p><code>multipart/form-data</code>编码，通常用于实现文件上传功能，这种功能需要用到 file 类型的 input 标签:</p>
+<pre><code class="lang-html">&lt;html&gt;
+  &lt;head&gt;    
+    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
+    &lt;title&gt;Go Web Programming&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;form action=&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+      &lt;input type=&quot;text&quot; name=&quot;hello&quot; value=&quot;sau sheong&quot;/&gt;
+      &lt;input type=&quot;text&quot; name=&quot;post&quot; value=&quot;456&quot;/&gt;
+      &lt;input type=&quot;file&quot; name=&quot;uploaded&quot;&gt;
+      &lt;input type=&quot;submit&quot;&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>为了能够接收表单上传的文件，处理器函数也需要做相应的修改：</p>
+<pre><code class="lang-go">func process(w http.ResponseWriter, r *http.Request){
+    r.ParseMultipartForm(1024)
+    fileHeader:= r.MultipartForm.File[&quot;uploaded&quot;][0]
+    file,err := fileHeader.Open()
+    if err == nil {
+        data, err:=ioutil.ReadAll(file)
+        if err == nil{
+            fmt.Fprintln(w,string(data))
+        }
+    }
+}
+</code></pre>
+<p>文件处理步骤可以总结为：</p>
+<ol>
+<li>执行<code>ParseMultipartForm</code>方法解析字段；</li>
+<li>从<code>MultipartForm</code>字段的File字段中提取出文件头<code>FileHeader</code>；</li>
+<li>通过open打开这个文件；</li>
+<li>用<code>ioutil</code>函数将文件内容读取到一个字节数组中。</li>
+</ol>
+<h1 id="3-响应方法"><a href="#3-响应方法" class="headerlink" title="3. 响应方法"></a>3. 响应方法</h1><p>响应时需要用到<code>ResponseWriter</code>接口，处理器可以通过这个接口创建HTTP响应。</p>
+<p>我们知道<code>ServeHTTP</code>接收<code>ResponseWriter</code>接口和一个指向<code>Request</code>结构的指针作为参数。之所以要用指针传递而不是值传递，是<strong>为了探测对<code>Request</code>结构的修改情况</strong>。而<code>ResponseWriter</code>看起来像传值，但实际上它<strong>是response这个非导出结构的接口，也是传引用</strong>。</p>
+<p>ResponseWriter 接口拥有以下 3 个方法：</p>
+<ul>
+<li>Write</li>
+<li>WriteHeader</li>
+<li>Header</li>
+</ul>
+<h2 id="3-1-Write"><a href="#3-1-Write" class="headerlink" title="3.1 Write"></a>3.1 Write</h2><p>Write方法<strong>接受一个字节数组</strong>作为参数，并将数组中的字节写入HTTP响应的主体中。</p>
+<pre><code class="lang-go">func writeExample(w http.ResponseWriter, r *http.Request){
+    str:=
+`&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Go Web&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello world&lt;/h1&gt;&lt;body&gt;
+&lt;/html&gt;`
+    w.Write([]byte(str))
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/write&quot;,writeExample)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>注意这段Demo使用 ` 符号，用于多行字符串。我们用命令行输入:</p>
+<pre><code class="lang-go">curl -i localhost:8080/write
+</code></pre>
+<p>可以得到响应：</p>
+<pre><code class="lang-http">HTTP/1.1 200 OK
+Date: Fri, 24 Jan 2020 10:35:59 GMT
+Content-Length: 82
+Content-Type: text/html; charset=utf-8
+
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Go Web&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello world&lt;/h1&gt;&lt;body&gt;
+&lt;/html&gt;
+</code></pre>
+<h2 id="3-2-WriteHeader"><a href="#3-2-WriteHeader" class="headerlink" title="3.2 WriteHeader"></a>3.2 WriteHeader</h2><p>注意：WriteHeader并不能用于设置响应的头部(Header)。WriteHeader 方法<strong>接受一个代表 HTTP 响应状态码的整数作为参数， 并将这个整数用作 HTTP 响应的返回状态码</strong>；在调用这个方法之后，用户可以继续对 ResponseWriter 进行写人，但是不能对响应的首部做任何写入操作。 <strong>如果用户在调用 Write 方法之前没有执行过 WriteHeader 方法，那么程序默认会使用 200 OK作为响应的状态码。</strong> </p>
+<p>注意别忘了使用 HandleFune 方法将新处理器绑定到 DefaultServeMux多路复用器里面！</p>
+<p>比如，你编写了一个API，但尚未完全实现，所以希望返回一个 501 Not Implemented 状态码：</p>
+<pre><code class="lang-go">func writeExample(w http.ResponseWriter, r *http.Request){
+    str:=
+`&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Go Web&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello world&lt;/h1&gt;&lt;body&gt;
+&lt;/html&gt;`
+    w.Write([]byte(str))
+}
+func writeHeaderExample(w http.ResponseWriter, r *http.Request){
+    w.WriteHeader(501)
+    fmt.Fprintln(w, &quot;TO DO&quot;)
+}
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/write&quot;,writeExample)
+    http.HandleFunc(&quot;/writeheader&quot;,writeHeaderExample)
+    server.ListenAndServe()
+}
+</code></pre>
+<p><strong>通过 cURL 访问刚刚添加的新处理器：</strong></p>
+<pre><code class="lang-go">curl -i localhost:8080/writeheader
+</code></pre>
+<p>我们将得到以下响应：</p>
+<pre><code class="lang-http">HTTP/1.1 501 Not Implemented
+Date: Fri, 24 Jan 2020 10:57:32 GMT
+Content-Length: 6
+Content-Type: text/plain; charset=utf-8
+
+TO DO
+</code></pre>
+<h2 id="3-3-Header"><a href="#3-3-Header" class="headerlink" title="3.3 Header"></a>3.3 Header</h2><p>过调用 Header 方法可以<strong>取得一个由首部组成的映射</strong>，修改这个映射就可以修改首部，修改后的首部将被包含在 HTTP 响应里面， 并随着响应一向发送至客户端。</p>
+<pre><code class="lang-go">func headerExample(w http.ResponseWriter, r *http.Request){
+    w.Header().Set(&quot;Location&quot;,&quot;http://google.com&quot;)
+    w.WriteHeader(302)
+}
+
+func main(){
+    ...
+     http.HandleFunc(&quot;/redirect&quot;,headerExample)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>那么cURL响应将得到以下结果：</p>
+<pre><code class="lang-http">HTTP/1.1 302 Found
+Location: http://google.com
+Date: Fri, 24 Jan 2020 11:04:47 GMT
+Content-Length: 0
+</code></pre>
+<p>除了将状态码设置成了 302 之外， 它还给响应添加了一个名为 Location 的首部，并<strong>将这个首部的值设置成了重定向的目的地</strong>。 需要注意的是，因为 WriteHeader 方法在执行完毕之后就不允许再对首部进行写入了，所以<strong>用户必须先写入 Location 首部，然后再写入状态码。</strong> 现在，如果我们在浏览器里面访问这个处 理器， 那么浏览器将被重定向到 Google。 </p>
+<h1 id="4-Cookie"><a href="#4-Cookie" class="headerlink" title="4. Cookie"></a>4. Cookie</h1><p>cookie 是一种存储在客户端的、体积较小的信息，这些信息最初都是由服务器通过 HTTP 响应报文发送的。 <strong>每当客户端向服务器发送一个 HTTP 请求时， cookie 都会随着请求被一同发送至服务器</strong>。 cookie 的设计本意是要<strong>克服 HTTP 的无状态性</strong>，虽然 cookie 并不是完成这一目的的唯一方法，但它却是最常用也最流行的方法之一：整个计算机行业的收入都建立在 cookie机制之上，对互联网广告领域来说，更是如此<strong>:)</strong>。 </p>
+<h2 id="4-1-Go中的Cookie"><a href="#4-1-Go中的Cookie" class="headerlink" title="4.1 Go中的Cookie"></a>4.1 Go中的Cookie</h2><p>cookie 在 Go 语言里面用 Cookie 结构表示：</p>
+<pre><code class="lang-go">type Cookie struct {
+    Name  string
+    Value string
+
+    Path       string    // optional
+    Domain     string    // optional
+    Expires    time.Time // optional
+    RawExpires string    // for reading cookies only
+
+    MaxAge   int
+    Secure   bool
+    HttpOnly bool
+    Raw      string
+    Unparsed []string // Raw text of unparsed attribute-value pairs
+}
+</code></pre>
+<p>cookie根据是否含有Expires信息分为两种：</p>
+<ul>
+<li><strong>会话cookie</strong>，或者叫临时cookie。<strong>在浏览器关闭的时候就会自动被移除。</strong></li>
+<li><strong>持久cookie</strong>，存在直到<strong>指定的过期时间来临</strong>或者<strong>被手动删除为止</strong>。 </li>
+</ul>
+<p>Expires 宇段和 MaxAge 字段都可以用于设置 cookie 的过期时间：</p>
+<ul>
+<li>Expires，什么时候到期</li>
+<li>MaxAge，能活多少秒</li>
+</ul>
+<h2 id="4-2-将cookie发送至浏览器"><a href="#4-2-将cookie发送至浏览器" class="headerlink" title="4.2 将cookie发送至浏览器"></a>4.2 将cookie发送至浏览器</h2><p>完整的步骤是：</p>
+<ol>
+<li>创建一个cookie结构体</li>
+<li>用Cookie 结构的 String 方法将结构体序列化</li>
+<li>使用set设置cookie</li>
+</ol>
+<pre><code class="lang-go">func setCookie(w http.ResponseWriter, r *http.Request){
+    c1:= http.Cookie{
+        Name:       &quot;first_cookie&quot;,
+        Value:      &quot;Go web&quot;,
+        Path:       &quot;&quot;,
+        Domain:     &quot;&quot;,
+        Expires:    time.Time{},
+        RawExpires: &quot;&quot;,
+        MaxAge:     0,
+        Secure:     false,
+        HttpOnly:   true,
+        SameSite:   0,
+        Raw:        &quot;&quot;,
+        Unparsed:   nil,
+    }
+    w.Header().Set(&quot;Set-Cookie&quot;,c1.String())
+    //w. Header() . Add (&quot;Set-Cookie”, c1. String ()) 也可以
+}
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/set_cookie&quot;,setCookie)
+    server.ListenAndServe()
+}
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200124113822.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>除了 Set 方法和 Add 方法之外 ，Go语言还提供了一种更为快捷方便的 cookie 设置方法:</p>
+<pre><code class="lang-go">http.SetCookie(w, &amp;c1)
+</code></pre>
+<h2 id="4-3-从浏览器获取cookie"><a href="#4-3-从浏览器获取cookie" class="headerlink" title="4.3 从浏览器获取cookie"></a>4.3 从浏览器获取cookie</h2><p>添加：</p>
+<pre><code class="lang-go">func getCookie(w http.ResponseWriter, r *http.Request){
+    h:=r.Header[&quot;Cookie&quot;]
+    fmt.Fprintln(w,h)
+}
+
+http.HandleFunc(&quot;/get_cookie&quot;,getCookie)
+</code></pre>
+<p>当我们进入这个网页时，会显示一大堆cookie信息。如果用户想要取得单独的键值对格式的 cookie，就需要进行分析，go提供了一些分析方法：</p>
+<pre><code class="lang-go">func getCookie(w http.ResponseWriter, r *http.Request){
+    c1,err:=r.Cookie(&quot;first_cookie&quot;)
+    if err!=nil{
+        fmt.Fprintln(w,&quot;Can not find the cookie&quot;)
+    }
+    cs := r.Cookies()
+    fmt.Fprintln(w,c1)
+    fmt.Fprintln(w,cs)
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/set_cookie&quot;,setCookie)
+    http.HandleFunc(&quot;/get_cookie&quot;,getCookie)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>先进入网页<code>/set_cookie</code>，然后进入<code>/get_cookie</code>。第一行显示我们设置的cookie，后面的为所有cookie。</p>
+<pre><code>first_cookie=&quot;Go web&quot;
+
+[_ga=GA1.1.193589.15722265 _xsrf=2|86b77755|fdefd0aac4be46f30abdbfe|1578603653 username-localhost-
+...
+8889|44:OTJhZmZiMjM5OTJiNGY2Y4MTAxNDdkM2UxM2U=|f8d50574e991203f0303f948b092ad1786a2f79c5ecbee1db10cf4c first_cookie=&quot;Go web&quot;]
+</code></pre><h2 id="4-4-利用cookie实现闪现消息"><a href="#4-4-利用cookie实现闪现消息" class="headerlink" title="4.4 利用cookie实现闪现消息"></a>4.4 利用cookie实现闪现消息</h2><p>当某个条件被满足时，在页面上显示一条临时出现的消息，然而当用户在刷新页面之后就不会再看见相同的消息了一一我们把这种<strong>临时出现的消息称为问现消息（ flash message ）。</strong>比如论坛发帖时，因为某种原因失败了，需要弹出失败消息。</p>
+<pre><code class="lang-go">func setMessage(w http.ResponseWriter,r *http.Request){
+    msg:=[]byte(&quot;hello world!&quot;)
+    c :=http.Cookie{
+        Name:       &quot;flash&quot;,
+        Value:      base64.URLEncoding.EncodeToString(msg),
+    }
+    http.SetCookie(w,&amp;c)
+}
+func showMessage(w http.ResponseWriter,r *http.Request){
+    c,err:=r.Cookie(&quot;flash&quot;)
+    if err!=nil{
+        if err==http.ErrNoCookie{
+            fmt.Fprintln(w,&quot;No message&quot;)
+        }
+    }else{
+        rc:=http.Cookie{
+            Name:       &quot;flash&quot;,
+            Expires:    time.Unix(1,0),
+            MaxAge:     -1,
+        }
+        http.SetCookie(w,&amp;rc)
+        val,_:=base64.URLEncoding.DecodeString(c.Value)
+        fmt.Fprintln(w,string((val)))
+    }
+}
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/set_message&quot;,setMessage)
+    http.HandleFunc(&quot;/show_message&quot;,showMessage)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>首先set_message这一段，其实跟之前的set_cookie比较类似，主要区别在于编码：<strong>对消息使用了 Base64URL 编码，以此来满足响应首部对 cookie 值的 URL 编码要求。</strong></p>
+<p>再来看show_message这一段，思路是：</p>
+<ol>
+<li>尝试获取指定的 cookie ， 如果没找到就返回错误</li>
+<li>找到后，创建一个同名cookie，将 MaxAge 值设置为负数，并且将 Expires 值也设置成 一个已经过去的时间； </li>
+<li>使用 SetCookie 方法将刚刚创建的同名 cookie 发送至客户端。</li>
+<li>对原来的cookie解码，显示消息。</li>
+</ol>
+<p>由于新的消息同名，所以会顶替掉原来的cookie，又因为时间是过期时间，会将这个cookie清除，以此来达到闪现的目的。当我们刷新页面时，<code>hello world</code>消失。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" target="_blank" rel="external">jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程3-处理Web请求》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程3-处理Web请求》 — JR's Blog&source=本节讨论如何利用go处理客户端发来的请求。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程3-处理Web请求》 — JR's Blog&url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B4-%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb编程4-内容展示</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">GoWeb编程2-接收Web请求</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程3-处理Web请求》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程3-处理Web请求》 — JR's Blog&source=本节讨论如何利用go处理客户端发来的请求。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程3-处理Web请求》 — JR's Blog&url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

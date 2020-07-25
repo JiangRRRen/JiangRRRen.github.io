@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>详解Epoll-下篇 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,并发,Socket,Linux,Epoll">
+    <meta name="description" content="下篇针对一些特定问题进行分析，主要分析epoll_event结构体，并给出了两个实例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解Epoll-下篇">
+<meta property="og:url" content="jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="下篇针对一些特定问题进行分析，主要分析epoll_event结构体，并给出了两个实例。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-07-31T05:54:35.000Z">
+<meta property="article:modified_time" content="2019-12-29T15:19:34.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="并发">
+<meta property="article:tag" content="Socket">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Epoll">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">详解Epoll-下篇</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">详解Epoll-下篇</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-07-31T05:54:35.000Z" itemprop="datePublished" class="page-time">
+  2019-07-31
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-epoll-event结构体分析"><span class="post-toc-text">1. epoll_event结构体分析</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-epoll-event使用实例"><span class="post-toc-text">2.  epoll_event使用实例</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-实例1：服务器侦听客户端连接"><span class="post-toc-text">2.1 实例1：服务器侦听客户端连接</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-实例2：进程间通信"><span class="post-toc-text">2.2 实例2：进程间通信</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-详解Epoll-下篇"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">详解Epoll-下篇</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-07-31 13:54:35" datetime="2019-07-31T05:54:35.000Z"  itemprop="datePublished">2019-07-31</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>下篇针对一些特定问题进行分析，主要分析epoll_event结构体，并给出了两个实例。<a id="more"></a></p>
+<h1 id="1-epoll-event结构体分析"><a href="#1-epoll-event结构体分析" class="headerlink" title="1. epoll_event结构体分析"></a>1. epoll_event结构体分析</h1><p>上篇我们讲到了<code>epoll_wait</code>函数的功能。</p>
+<pre><code class="lang-CPP">int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+</code></pre>
+<p>这个函数只能获取<strong>是否有注册事件发生</strong>，至于说事件的细节，我们并不清楚。好比一个人在山洞中，只能听到声响，至于这个声响从何发出并不清楚。而这些<strong>关键信息就存储在<code>epoll_event</code>结构中</strong>。</p>
+<p>结构体如下所示：</p>
+<pre><code class="lang-CPP">typedef union epoll_data {
+void *ptr;
+int fd;
+__uint32_t u32;
+__uint64_t u64;
+} epoll_data_t;
+
+struct epoll_event {
+__uint32_t events; /* Epoll events */
+epoll_data_t data; /* User data variable */
+};
+</code></pre>
+<p>它分为<code>events</code>和<code>data</code>两个部分</p>
+<ul>
+<li><code>events</code>是epoll注册的事件，比如<code>EPOLLIN</code>、<code>EPOLLOUT</code>等等，这个参数在<code>epoll_ctl</code>注册事件时，可以明确告知注册事件的类型。</li>
+<li><code>data</code>是一个联合体，用于传递参数。</li>
+</ul>
+<h1 id="2-epoll-event使用实例"><a href="#2-epoll-event使用实例" class="headerlink" title="2.  epoll_event使用实例"></a>2.  epoll_event使用实例</h1><h2 id="2-1-实例1：服务器侦听客户端连接"><a href="#2-1-实例1：服务器侦听客户端连接" class="headerlink" title="2.1 实例1：服务器侦听客户端连接"></a>2.1 实例1：服务器侦听客户端连接</h2><p>这个例子很棒的展示了<code>epoll_data</code>中的<code>int fd</code>该怎么用。先看下面一段代码：</p>
+<pre><code class="lang-CPP">//创建socket
+nSocketListen = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+...
+//绑定地址
+struct sockaddr_in local;
+memset(&amp;local, 0, sizeof(local));
+local.sin_family = AF_INET;
+local.sin_addr.s_addr = htonl(INADDR_ANY);//0.0.0.0所有地址都合法
+local.sin_port = htons(TCP_PORT);
+bind(nSocketListen, (struct sockaddr*) &amp; local, sizeof(local))
+
+//创建epoll
+nListenEpoll = epoll_create(MAX_LISTEN_EVENTS);
+//注册事件
+struct epoll_event Ev;
+memset(&amp;Ev, 0, sizeof(epoll_event));
+Ev.events= EPOLLIN | EPOLLET 
+Ev.data.fd = nSocketListen;
+
+epoll_ctl(nListenEpoll, EPOLL_CTL_ADD, nSocketListen, &amp;Ev);
+//侦听
+int nFdNumber = epoll_wait(nListenEpoll, lpListenEvents, MAX_LISTEN_EVENTS, -1);
+//处理侦听结果
+for (int i = 0; i &lt; nFdNumber; i++)
+{
+    if (lpListenEvents[i].data.fd != nSocketListen) continue;
+    ...
+}
+</code></pre>
+<p>这段代码在网上很常见，作用是建立一个服务器，侦听所有客户端的连接。具体过程是先建立了一个socket，地址设为设为0.0.0.0（所有人都可以连接），然后将这个socket的句柄<code>nSocketListen</code>附加在注册事件<code>Ev.data.fd</code>上。<strong>在wait等到结果后做一个判断，看看接收到和预设的是否一致</strong>。上篇的demo也用到了类似的思路。</p>
+<pre><code class="lang-CPP">if (lpListenEvents[i].data.fd != nSocketListen) 
+    continue;
+</code></pre>
+<p>虽然这段代码用到了fd，但他<strong>并没有体现出fd的作用！</strong>整个程序仅仅设置并注册了一个socket来连接所有IP地址<code>htonl(INADDR_ANY);</code>，<strong>wait收到的消息必然来自于这个唯一的socket，所以这句判断根本是多此一举</strong>。</p>
+<p>正确的用法是：创建多个socket来管理不同的字段，比如：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Socket句柄</th>
+<th style="text-align:center">管理的IP范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">101</td>
+<td style="text-align:center">100-120</td>
+</tr>
+<tr>
+<td style="text-align:center">102</td>
+<td style="text-align:center">121-191</td>
+</tr>
+<tr>
+<td style="text-align:center">103</td>
+<td style="text-align:center">192-255</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>将这三个socket都注册进epoll里面，当wait到来时，我们就可以根据<code>Ev.data.fd</code>传进来的socket句柄来进行处理。</p>
+<p>比如上午8点到10点这个时间段，服务器只允许100-120范围的IP连接进来，就可以做一个判断<code>if (lpListenEvents[i].data.fd == 101)</code>,如果是再接受连接。</p>
+<p>这个例子中，fd传递了socket的句柄，帮助我们管理不同的网络连接。</p>
+<h2 id="2-2-实例2：进程间通信"><a href="#2-2-实例2：进程间通信" class="headerlink" title="2.2 实例2：进程间通信"></a>2.2 实例2：进程间通信</h2><p>epoll常常用于线程间的协同工作。</p>
+<pre><code class="lang-CPP">//线程A代码
+struct epoll_event Ev;
+memset(&amp;Ev, 0, sizeof(Ev));
+Ev.events= EPOLLOUT | EPOLLET | EPOLLERR | EPOLLHUP
+Ev.data.ptr = lpCatList;
+
+epoll_ctl(iClientEpoll, EPOLL_CTL_ADD, lpCatList-&gt;nClientSocket, &amp;Ev);
+</code></pre>
+<pre><code class="lang-CPP">//线程B代码
+int nFdNumber = epoll_wait(iClientEpoll, lpEvent, MAX_CLIENT_EVENTS, -1);
+
+IOPACKHEAD_LIST* RelpCatList = (IOPACKHEAD_LIST*)lpEvent[i].data.ptr;
+</code></pre>
+<p>线程AB都是服务器上的线程。</p>
+<p>线程A功能相当于接线员，跟前面展示的服务器功能相同：监听客户的连接，accept客户的请求，建立客户与服务器间的socket连接通道（此处的建立的socket句柄为<code>nClientSocket</code>）。然后将这些客户连接注册到<code>iClientEpoll</code>中</p>
+<p>这些通道建立后，客户一般不会时刻收发数据，也就是说客户可能<strong>不定时</strong>的使用为他们建立的socket连接通道，线程B的<code>iClientEpoll</code>就是用来监听有没有<strong>已经建立连接的客户</strong>需要收发数据的。</p>
+<p>如果像上一个例子一样，只用<code>Ev.data.fd</code>传一个客户socket的句柄，这样线程B能得到的信息太少了。所以我们需要使用结构体<code>lpCatList</code>来传参。</p>
+<p><code>lpCatList</code>相当于一个令牌，他是一个指针，指向的地址存储了客户的信息（Socket句柄，IP地址，MAC地址，请求时间等等），A线程在接收客户连接后，将他们写到这个令牌中，一并注册到<code>iClientEpoll</code>。B线程就可以利用<code>Ev.data.ptr</code>包含的重要的地址信息。</p>
+<p>这样ptr就相当于一个小纸条，A线程通过<code>iClientEpoll</code>将这个小纸条交到B线程手中，B线程就能了解A线程的信息，实现了线程间的通信。</p>
+<p>下面我们打印一下线程A的<code>lpCatlist</code></p>
+<pre><code class="lang-shell">(gdb) p lpCatList
+$18 = (IOPACKHEAD_LIST *) 0x7ffff0001120
+</code></pre>
+<p>再打印一下线程B的ptr，可以发现他们指向同一个地址<code>0x7ffff0001120</code>，说明参数成功传递</p>
+<pre><code class="lang-SHELL">(gdb) p lpEvent[0]
+$14 = {events = 4, data = {ptr = 0x7ffff0001120, fd = -268431072, u32 = 4026536224, 
+    u64 = 140737219924256}}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" target="_blank" rel="external">jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Epoll/" rel="tag">Epoll</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Socket/" rel="tag">Socket</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&title=《详解Epoll-下篇》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&title=《详解Epoll-下篇》 — JR's Blog&source=下篇针对一些特定问题进行分析，主要分析epoll_event结构体，并给出了两个实例。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《详解Epoll-下篇》 — JR's Blog&url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/01/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Socket网络编程原理</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/07/29/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8A%E7%AF%87/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">详解Epoll-上篇</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&title=《详解Epoll-下篇》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&title=《详解Epoll-下篇》 — JR's Blog&source=下篇针对一些特定问题进行分析，主要分析epoll_event结构体，并给出了两个实例。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《详解Epoll-下篇》 — JR's Blog&url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/07/31/%E8%AF%A6%E8%A7%A3Epoll-%E4%B8%8B%E7%AF%87/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

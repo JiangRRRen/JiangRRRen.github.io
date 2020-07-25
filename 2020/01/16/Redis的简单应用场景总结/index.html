@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis的简单应用场景总结 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="总结redis应用场景。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis的简单应用场景总结">
+<meta property="og:url" content="jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="总结redis应用场景。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-16T08:15:22.000Z">
+<meta property="article:modified_time" content="2020-01-16T16:27:04.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis的简单应用场景总结</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis的简单应用场景总结</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-16T08:15:22.000Z" itemprop="datePublished" class="page-time">
+  2020-01-16
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-缓存"><span class="post-toc-text">1. 缓存</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-排行榜"><span class="post-toc-text">2. 排行榜</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-消息队列"><span class="post-toc-text">3. 消息队列</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-时间轴"><span class="post-toc-text">4. 时间轴</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-实现分布式锁"><span class="post-toc-text">5. 实现分布式锁</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis的简单应用场景总结"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis的简单应用场景总结</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-16 16:15:22" datetime="2020-01-16T08:15:22.000Z"  itemprop="datePublished">2020-01-16</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>总结redis应用场景。<a id="more"></a></p>
+<h1 id="1-缓存"><a href="#1-缓存" class="headerlink" title="1. 缓存"></a>1. 缓存</h1><p>比如我要从数据库查看最新的5000条评论：</p>
+<pre><code class="lang-sql">SELECT comments FROM user 
+ORDER BY time DESC LIMIT 5000
+</code></pre>
+<p>这样的操作随着数据的增加会变得越来越慢，因为要进行排序操作。而且这种排序本身不应该发生：因为我们存的时候是按时间存进去的。</p>
+<p>我们可以使用redis的列表对象来实现，此时列表由Linkedlist数据结构实现。</p>
+<p>每次新评论发表时，我们会将它的ID添加到一个Redis列表<code>LPUSH latest.comments</code>，然后将列表裁剪到5000，<code>LTRIM latest.comments 0 5000</code></p>
+<p>每次我们需要获取最新评论的项目范围时，我们调用一个函数来完成(使用伪代码)：</p>
+<pre><code class="lang-pseudocode">FUNCTION get_latest_comment(num_items):
+    id_list=redis.lrange(&quot;latest.comments&quot;,0,num_items-1)
+    IF id_list&lt;num_items
+        id_list = MySQL(&quot;SELECT ... ORDER BY time LIMIT ...&quot;)
+    END
+    RETURN id_list
+END
+</code></pre>
+<p>只有超过了5000这个限制时，才会去访问数据库。</p>
+<h1 id="2-排行榜"><a href="#2-排行榜" class="headerlink" title="2. 排行榜"></a>2. 排行榜</h1><p>选手报名参加活动，观众可以对选手进行投票，每个观众对同一名选手只能投一票，活动期间最多投四票。后台需要提供以下接口：</p>
+<ul>
+<li>接口1：返回TOP 10的选手信息及投票数</li>
+<li>接口2：返回活动总参与选手数及总投票数</li>
+<li>接口3：对于每个选手，返回自己的投票数，排名，距离上一名差的票数</li>
+</ul>
+<hr>
+<p>如果是Mysql方案，需要建立一个表来记录投票信息。这个表在入表时首先就需要判断是否重复刷票，有两种方法</p>
+<ol>
+<li>在查询时需要组合查询：将投票表和选手信息表组合，统计投票信息，然后排序输出。<strong>耗时较长</strong>。</li>
+<li>新建一个排行榜表，每隔一段时间做组合查询，维护这个表。<strong>缺乏实时性</strong>。</li>
+</ol>
+<hr>
+<p>redis方案可以采用有序集合对象，我们创建一个有序集合<code>vote_activity</code>，然后使用<code>ZINCRBY key increment memeber</code>命令给指定成员的分数加上增量increment，</p>
+<pre><code>redis&gt; ZINCRBY vote_activity 1 Bob
+&quot;1&quot;
+
+redis&gt; ZINCRBY vote_activity 1 Tim
+&quot;1&quot;
+
+redis&gt; ZINCRBY vote_activity 1 Bob
+&quot;2&quot;
+</code></pre><p>有序列表入队时，按分值排好序了，我们可以方便的用<code>ZSCORE key member</code>查询分数。</p>
+<pre><code>redis&gt; zscore vote_activity Bob
+&quot;2&quot;
+</code></pre><p>以及获取某人的排名，获取前10名，获取前10名分数等等，</p>
+<pre><code>#获取Alice排名(从高到低，zero-based)
+redis&gt; zrevrank vote_activity Alice
+(integer) 0
+
+#获取前10名(从高到低)
+redis&gt; zrevrange vote_activity 0 9
+1) &quot;Alice&quot;
+2) &quot;Bob&quot;
+
+#获取前10名及对应的分数(从高到低)
+redis&gt; zrevrange vote_activity 0 9 withscores
+1) &quot;Alice&quot;
+2) &quot;2&quot;
+3) &quot;Bob&quot;
+4) &quot;1&quot;
+</code></pre><h1 id="3-消息队列"><a href="#3-消息队列" class="headerlink" title="3. 消息队列"></a>3. 消息队列</h1><p>一般来说，消息队列有两种场景：一种是<strong>发布者订阅者模式</strong>；一种是生<strong>产者消费者模式</strong>。利用redis这两种场景的消息队列都能够实现。定义：</p>
+<ul>
+<li>生产者消费者模式：生产者生产消息放到队列里，多个消费者同时监听队列，谁先抢到消息谁就会从队列中取走消息；即对于<strong>每个消息只能被最多一个消费者拥有</strong>。（常用于处理高并发写操作）</li>
+<li>发布者订阅者模式：发布者生产消息放到队列里，多个监听队列的消费者都会收到同一份消息；即正常情况下<strong>每个消费者收到的消息应该都是一样的</strong>。（常用来作为日志收集中一份原始数据对多个应用场景）</li>
+</ul>
+<hr>
+<p>发布者订阅者模式可以直接使用pub/sub指令实现。</p>
+<hr>
+<p>生产者消费者模式分两种：</p>
+<ul>
+<li>普通的</li>
+<li>带有优先级的</li>
+</ul>
+<p>普通模式下使用<code>brpop</code>指令，可以以阻塞的形式返回数据列表中新添加的参数：</p>
+<pre><code class="lang-C++">while(true)
+{
+    List&lt;string&gt; msgs = redis.brpop(BLOCK_TIMEOUT,listKey);
+    Handle(msgs);
+}
+</code></pre>
+<p>如果是优先级模式，当优先级不是很多是，可以分为两组：</p>
+<pre><code class="lang-C">while(true)
+{
+    List&lt;string&gt; msgs = redis.brpop([&#39;high_task_queue&#39;, &#39;low_task_queue&#39;],0);
+    Handle(msgs);
+}
+</code></pre>
+<p><code>brpop</code>命令可以输入多个键，如果同时都有元素可读，读先输入的那个键。</p>
+<p>如果优先级划分很多，就需要再用列表排序的办法了（有序集合不好，因为没有阻塞模式）。假如有1000个优先级，我们可以先分组，分为10组，每组按优先级顺序排列，查找时二分查找。</p>
+<h1 id="4-时间轴"><a href="#4-时间轴" class="headerlink" title="4. 时间轴"></a>4. 时间轴</h1><p>所谓时间轴系统就是典型的微博模式：用户在自己的主页可以看到其关注的博主发表的信息列表（按时间排序）；而其它用户可以一个用户的个人主页看到这个人发布的信息列表（按时间排序）。</p>
+<p>解决方案主要有两种：</p>
+<ul>
+<li>推模式：某人发布内容之后推送给所有粉丝，空间换时间，瓶颈在写入；</li>
+<li>拉模式：粉丝从自己的关注列表中读取内容，时间换空间，瓶颈在读取；</li>
+</ul>
+<p>以推模式为例：</p>
+<p><strong>（1）博主发布博文</strong></p>
+<p>我们创建一个哈希对象post，键为博文ID，值为博文内容字符串。存储博文。</p>
+<pre><code>redis&gt; HSET post 4396 &quot;hahahahah&quot;
+</code></pre><p>再使用一个列表，按先后顺序存储该博主的博文：</p>
+<pre><code>redis&gt;LPUSH Dasima 4396
+</code></pre><p>然后使用一个集合，存储该博主的所有粉丝，利用<code>SMEMBERS</code>获取这些粉丝的名单。</p>
+<pre><code>redis&gt; SMEMBERS Dasima
+</code></pre><p>每一个粉丝拥有一个timeline列表，存取所有推送博文的ID。之后对所有粉丝的推送列表进行写入。</p>
+<p><strong>（2）用户读取博文推送</strong></p>
+<p>利用<code>LRANGE</code>从推送中拉取一定数量的博文，根据拉到的博文ID，读取哈希表的内容。</p>
+<pre><code>redis&gt;LRANGE timeline 0 30
+
+redis&gt;HGETALL(4396)
+</code></pre><h1 id="5-实现分布式锁"><a href="#5-实现分布式锁" class="headerlink" title="5. 实现分布式锁"></a>5. 实现分布式锁</h1><p><strong>（1）什么是分布式锁？</strong></p>
+<p>对于单进程的程序，采用普通锁即可防止竞争，而对于多进程分布式系统来说需要采用分布式锁来保证一致性。</p>
+<p><strong>（2）redis如何实现分布式锁</strong></p>
+<p>在 Redis 2.6.12 版本开始，<code>set</code>命令增加了三个参数，替换以前的<code>setnx</code>命令：</p>
+<ul>
+<li><code>EX</code>：设置键的过期时间（单位为秒）</li>
+<li><code>PX</code>：设置键的过期时间（单位为毫秒）</li>
+<li><code>NX</code> | <code>XX</code>：当设置为<code>NX</code>时，仅当 key 存在时才进行操作，设置为<code>XX</code>时，仅当 key 不存在才会进行操作</li>
+</ul>
+<p>我们可以以此实现简单的分布式锁：</p>
+<pre><code>set key &quot;lock&quot; EX 1 XX
+</code></pre><p>如果这个操作返回<code>false</code>，说明 key 的添加不成功，也就是当前有人在占用这把锁。而如果返回<code>true</code>，则说明得了锁，便可以继续进行操作，并且在操作后通过<code>del</code>命令释放掉锁。并且即使程序因为某些原因并没有释放锁，<strong>由于设置了过期时间，该锁也会在 1 秒后自动释放</strong>，不会影响到其他程序的运行。</p>
+<pre><code>del &quot;lock&quot;
+</code></pre>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" target="_blank" rel="external">jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&title=《Redis的简单应用场景总结》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&title=《Redis的简单应用场景总结》 — JR's Blog&source=总结redis应用场景。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis的简单应用场景总结》 — JR's Blog&url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/19/go%E5%B9%B6%E5%8F%91/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">go并发</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/16/Redis%E9%9D%A2%E8%AF%95%E5%B8%B8%E8%A7%81%E5%9F%BA%E6%9C%AC%E9%97%AE%E9%A2%98/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis面试常见基本问题</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&title=《Redis的简单应用场景总结》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&title=《Redis的简单应用场景总结》 — JR's Blog&source=总结redis应用场景。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis的简单应用场景总结》 — JR's Blog&url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/16/Redis%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%80%BB%E7%BB%93/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

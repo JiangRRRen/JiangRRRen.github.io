@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>CPP多线程总结4-并发数据结构设计实例 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,读书笔记,并发">
+    <meta name="description" content="着重介绍基于锁的结构设计，包括queue，map和list。同时稍微讲了一些原子操作的内容。由于原子操作内容过于复杂，我就只涉及了一些皮毛。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP多线程总结4-并发数据结构设计实例">
+<meta property="og:url" content="jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="着重介绍基于锁的结构设计，包括queue，map和list。同时稍微讲了一些原子操作的内容。由于原子操作内容过于复杂，我就只涉及了一些皮毛。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191119123129.png">
+<meta property="article:published_time" content="2019-12-28T07:40:49.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:21:37.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191119123129.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">CPP多线程总结4-并发数据结构设计实例</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">CPP多线程总结4-并发数据结构设计实例</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-12-28T07:40:49.000Z" itemprop="datePublished" class="page-time">
+  2019-12-28
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基于锁的并发数据结构设计"><span class="post-toc-text">1. 基于锁的并发数据结构设计</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-基于细粒度锁和条件变量的线程安全队列"><span class="post-toc-text">1.1 基于细粒度锁和条件变量的线程安全队列</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-基于锁的线程安全查询表"><span class="post-toc-text">1.2 基于锁的线程安全查询表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-支持迭代器的线程安全链表"><span class="post-toc-text">1.3 支持迭代器的线程安全链表</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-无锁数据结构设计"><span class="post-toc-text">2. 无锁数据结构设计</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-前言—原子操作"><span class="post-toc-text">2.1 前言—原子操作</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-无锁的线程安全栈"><span class="post-toc-text">2.2 无锁的线程安全栈</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-CPP多线程总结4-并发数据结构设计实例"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">CPP多线程总结4-并发数据结构设计实例</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-12-28 15:40:49" datetime="2019-12-28T07:40:49.000Z"  itemprop="datePublished">2019-12-28</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>着重介绍基于锁的结构设计，包括queue，map和list。同时稍微讲了一些原子操作的内容。由于原子操作内容过于复杂，我就只涉及了一些皮毛。<a id="more"></a></p>
+<p>设计并发数据结构意味着，<strong>多个线程可以并发的访问这个数据结构</strong>，线程可对这个数据结构做相同或不同的操作，并且每一个线程都能在自己域中看到该数据结构。<strong>多线程环境下，无数据丢失和损毁，所有的数据需要维持原样，且无条件竞争</strong>，这样的数据结构称之为<strong>线程安全</strong>。</p>
+<p>在第二篇中，我们介绍了互斥量，但是本质上：在互斥量的保护下，同一时间内只有一个线程可以获取互斥锁。<strong>互斥量为了保护数据，显式的阻止了线程对数据结构的并发访问</strong>。这中行为称之为<strong>串行化(serialization)</strong>：线程轮流访问被保护的数据。这是对数据进行串行的访问，而非并发。当然我们可以减少保护区域，减少序列化操作，就能提升并发访问的能力。</p>
+<h1 id="1-基于锁的并发数据结构设计"><a href="#1-基于锁的并发数据结构设计" class="headerlink" title="1. 基于锁的并发数据结构设计"></a>1. 基于锁的并发数据结构设计</h1><p>前面在第二篇介绍了<strong>基于锁的线程安全栈</strong>和第三篇<strong>基于锁和条件变量的线程安全队列</strong>，接下来我们再看一些精妙的设计实例。</p>
+<h2 id="1-1-基于细粒度锁和条件变量的线程安全队列"><a href="#1-1-基于细粒度锁和条件变量的线程安全队列" class="headerlink" title="1.1 基于细粒度锁和条件变量的线程安全队列"></a>1.1 基于细粒度锁和条件变量的线程安全队列</h2><p><strong>（1）单线程版本</strong></p>
+<p>我们首先来实现一个单线程版本的队列：</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class queue
+{
+private:
+    struct node
+    {
+        T data;
+        std::unique_ptr&lt;node&gt; next;
+        node(T data_):data(std::move(data_)) {}
+    };
+    std::unique_ptr&lt;node&gt; head;
+    node* tail;
+
+public:
+    queue() {}
+    queue(const queue&amp; other) = delete;
+    queue&amp; operator=(const queue&amp; other) = delete;
+
+    std::shared_ptr&lt;T&gt; try_pop()
+    {
+        if (!head)
+            return std::shared_ptr&lt;T&gt;();
+        std::shared_ptr&lt;T&gt; res{ make_shared&lt;T&gt;(move(head-&gt;data)) };
+        const std::unique_ptr&lt;node&gt; old_head = move(head);
+        head = move(old_head-&gt;next);
+        return res;
+    }
+    void push(T new_value)
+    {
+        std::unique_ptr&lt;node&gt; p(new node(std::move(new_value)) );//**
+        if (!tail)
+            head = std::move(p);
+        else
+            tail-&gt;next = move(p);
+        tail = p.get();
+    }
+};
+</code></pre>
+<p>注意几个点：</p>
+<ul>
+<li>使用了<code>std::unique_ptr</code>来管理节点，因为其能保证节点(其引用数据的值)在删除时候，不需要使用delete操作显式删除。</li>
+<li>使用<code>std::shared_ptr</code>来返回被弹出值，这样可以保证结果能够被多次调用</li>
+<li>要注意考虑<code>head</code>为空的时候的push情况</li>
+<li>注意星号处创建node指针的办法</li>
+<li><code>p.get()</code>能提取被<code>unique_ptr</code>包裹的指针，这样他就是一个正常的指针了。</li>
+</ul>
+<p><strong>（2）通过分离数据实现并发</strong></p>
+<p>单线程版本移植到并发版本时有一个很大的问题，<strong><code>push</code>和<code>pop</code>既访问<code>head</code>又访问<code>tail</code></strong>，当我们的队列只有一个元素时<code>head==tail</code>，如果对两个对象上锁就是<strong>上的同一把锁</strong>。这是我们就需要请出在leetcode刷题中非常非常常见的虚拟节点了。</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class queue
+{
+private:
+    struct node //1
+    {
+        shared_ptr&lt;T&gt; data;
+        unique_ptr&lt;node&gt; next;
+    };
+    unique_ptr&lt;node&gt; head;
+    node* tail;
+public:
+    queue() :head(new node), tail(head.get()) {} //2
+    queue(const queue&amp; other) = delete;
+    queue&amp; operator=(const queue&amp; other) = delete;
+
+    shared_ptr&lt;T&gt; try_pop()
+    {
+        if (head.get() == tail) //3
+            return shared_ptr&lt;T&gt;();
+        const shared_ptr&lt;T&gt; res(head-&gt;data);
+        unique_ptr&lt;node&gt; old_head(move(head));
+        head = move(old_head-&gt;next);
+        return res;
+    }
+    void push(T value) //4
+    {
+        shared_ptr&lt;T&gt; packed_data(make_shared&lt;T&gt;(move(value)));
+        unique_ptr&lt;node&gt; tmp_node(new node);
+        node* new_tail = tmp_node.get();
+
+        tail-&gt;data = packed_data;
+        tail-&gt;next = move(tmp_node);
+        tail = new_tail;
+    }
+};
+</code></pre>
+<p>先来谈谈它和（1）有什么区别：</p>
+<ol>
+<li>结构不一样了，对暴露的data进行了进一步封装，取消了构造函数，因为我们不需要初始化一个节点了。</li>
+<li>默认构造函数不一样了，默认创建一个head和tail，第一个默认构造没有初始化任何东西，所以我们在push和pop时要判断是否为空，现在修改结构以后我们不判断了，所以必须要在这里初始化。</li>
+<li>承接上条，由于我们现在默认构造时都会为head和tail赋予意义，所以需要以这样的方式判断。</li>
+<li>push的方法很不同，data的结构变了，不再是T，所以要先包装data，把它送到tail指向的地方。然后让tail往后移动一个位置，同时新node指向新tail。</li>
+</ol>
+<p>由于分离了<code>head</code>和<code>tail</code>现在它变成了线程安全的队列，并且<strong>现在的<code>push()</code>只能访问<code>tail</code>，而不能访问<code>head</code>。</strong>现在的问题是我们在哪里加锁，而且我们需要上锁的事件尽可能的少。</p>
+<p>对push的上锁是简单的，如前面所说现在只能访问<code>tail</code>把他用到的地方锁上即可。而<code>try_pop</code>就很麻烦了。</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class threadsafe_queue
+{
+private:
+    struct node
+    {
+        std::shared_ptr&lt;T&gt; data;
+        std::unique_ptr&lt;node&gt; next;
+    };
+    std::mutex head_mutex;
+    std::unique_ptr&lt;node&gt; head;
+    std::mutex tail_mutex;
+    node* tail;
+
+    node* get_tail()
+    {
+        std::lock_guard&lt;std::mutex&gt; tail_lock(tail_mutex);
+        return tail;
+    }
+
+    std::unique_ptr&lt;node&gt; pop_head()
+    {
+        std::lock_guard&lt;std::mutex&gt; head_lock(head_mutex);
+        if (head.get() == get_tail())
+        {
+            return nullptr;
+        }
+        std::unique_ptr&lt;node&gt; old_head = std::move(head);
+        head = std::move(old_head-&gt;next);
+        return old_head;
+    }
+public:
+    threadsafe_queue() :
+        head(new node), tail(head.get())
+    {}
+    threadsafe_queue(const threadsafe_queue&amp; other) = delete;
+    threadsafe_queue&amp; operator=(const threadsafe_queue&amp; other) = delete;
+
+    std::shared_ptr&lt;T&gt; try_pop()
+    {
+        std::unique_ptr&lt;node&gt; old_head = pop_head();
+        return old_head ? old_head-&gt;data : std::shared_ptr&lt;T&gt;();
+    }
+
+    void push(T new_value)
+    {
+        std::shared_ptr&lt;T&gt; new_data(
+            std::make_shared&lt;T&gt;(std::move(new_value)));
+        std::unique_ptr&lt;node&gt; p(new node);
+        node* const new_tail = p.get();
+        std::lock_guard&lt;std::mutex&gt; tail_lock(tail_mutex);
+        tail-&gt;data = new_data;
+        tail-&gt;next = std::move(p);
+        tail = new_tail;
+    }
+};
+</code></pre>
+<p>由于<code>guard_lock</code>的局限性，所以我们不得不将<code>try_pop</code>封装成几个函数来实现细粒度锁。需要用到哪个锁，就把这段代码封装为函数。比如，最开始需要比较<code>head</code>和<code>tail</code>就把<code>tail</code>封装起来，相较于直接将两个同时锁住，<code>tail</code>受影响的时间就会小得多。</p>
+<p>下面这段代码是个反例，这显然不是线程安全的。</p>
+<pre><code class="lang-cpp">std::unique_ptr&lt;node&gt; pop_head() // 这是个有缺陷的实现
+{
+  node* const old_tail=get_tail();  // 1 在head_mutex范围外获取旧尾节点的值
+  std::lock_guard&lt;std::mutex&gt; head_lock(head_mutex);
+
+  if(head.get()==old_tail)  // 2
+  {
+    return nullptr;
+  }
+  std::unique_ptr&lt;node&gt; old_head=std::move(head);
+  head=std::move(old_head-&gt;next);  // 3
+  return old_head;
+}
+</code></pre>
+<h2 id="1-2-基于锁的线程安全查询表"><a href="#1-2-基于锁的线程安全查询表" class="headerlink" title="1.2 基于锁的线程安全查询表"></a>1.2 基于锁的线程安全查询表</h2><p>本例的目的是构建一个线程安全的哈希表，这里哈希表是通过”桶”实现的，或者也叫链地址法。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191119123129.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>图中所示的链表就可以具象的理解为一个一个的桶，这些<strong>桶合在一起构成了一个桶组</strong>。因此我们设计这个哈希表应该围绕桶组构成。想要顺利使用桶，我们需要<strong>定义桶，定义桶组，定义搜索桶位置的函数</strong>。</p>
+<p>他的源码有点错误，2那个位置函数签名中的const应该去除。</p>
+<pre><code class="lang-cpp">template&lt;typename Key, typename Value,typename Hash=hash&lt;Key&gt;&gt;
+class threadsafe_lookup_table
+{
+private:
+    class bucket_type
+    {
+    private:
+        typedef std::pair&lt;Key, Value&gt; bucket_value;
+        typedef std::list&lt;bucket_value&gt; bucket_data;
+        using bucket_iterator = typename bucket_data::iterator;
+        bucket_data thisbucket;
+        mutable std::shared_mutex mutex;
+        bucket_iterator a;
+        bucket_iterator find_entry_for(Key const&amp; key)  // 2
+        {
+            auto m =  std::find_if(thisbucket.begin(), thisbucket.end(),
+                [&amp;](bucket_value const&amp; item)
+                {return item.first == key; });
+            bucket_iterator b;
+            return m;
+        }
+
+    public:
+        Value value_for(Key const&amp; key, Value const&amp; default_value)
+        {
+            std::shared_lock&lt;std::shared_mutex&gt; lock(mutex);
+            auto found_entry = find_entry_for(key);
+            return (found_entry == thisbucket.end()) ?
+                default_value : found_entry-&gt;second;
+        }
+        void add_or_update_mapping(Key const&amp; key, Value const&amp; value)
+        {
+            std::unique_lock&lt;std::shared_mutex&gt; lock(mutex);
+            auto found_entry = find_entry_for(key);
+            if (found_entry == thisbucket.end())
+                thisbucket.push_back(bucket_value(key, value));
+            else
+                 found_entry-&gt;second = value;
+        }
+        void remove_mapping(Key const&amp; key)
+        {
+            std::unique_lock&lt;std::shared_mutex&gt; lock(mutex);
+            auto found_entry = find_entry_for(key);
+            if (found_entry != thisbucket.end())
+                thisbucket.erase(found_entry);
+        }
+    };
+
+    vector&lt;unique_ptr&lt;bucket_type&gt;&gt; buckets;
+    Hash hasher;
+    bucket_type&amp; get_bucket_entry(Key const&amp; key)const
+    {
+        auto bucket_index = hasher(key) % buckets.size();
+        return *buckets[bucket_index];
+    }
+
+public:
+    typedef Key key_type;
+    typedef Value mapped_type;
+
+    typedef Hash hash_type;
+    threadsafe_lookup_table(
+        unsigned num_buckets = 19, Hash const&amp; hasher_ = Hash()) :
+        buckets(num_buckets), hasher(hasher_)
+    {
+        for (unsigned i = 0; i &lt; num_buckets; ++i)
+        {
+            buckets[i].reset(new bucket_type);
+        }
+    }
+    threadsafe_lookup_table(threadsafe_lookup_table const&amp; other) = delete;
+    threadsafe_lookup_table&amp; operator=(threadsafe_lookup_table const&amp; other)=delete;
+
+    Value value_for(Key const&amp; key, Value const&amp; default_value = Value())const
+    {
+        return get_bucket_entry(key).value_for(key, default_value);
+    }
+    void add_or_update_mapping(Key const&amp; key, Value const&amp; value)
+    {
+        get_bucket_entry(key).add_or_update_mapping(key, value);
+    }
+    void remove_mapping(Key const&amp; key)
+    {
+        get_bucket_entry(key).remove_mapping(key);
+    }
+};
+</code></pre>
+<h2 id="1-3-支持迭代器的线程安全链表"><a href="#1-3-支持迭代器的线程安全链表" class="headerlink" title="1.3 支持迭代器的线程安全链表"></a>1.3 支持迭代器的线程安全链表</h2><p>代码易懂，有几点很值得学习:</p>
+<ol>
+<li><code>node</code>成员的创建方式，分为可共享和不可共享</li>
+<li>新节点的<code>new</code>创建方式</li>
+<li><code>new_node</code>是指针指向地址，所以需要用箭头，而<code>head</code>是一个实例，可以用点操作符。</li>
+<li>函数模板</li>
+</ol>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class threadsafe_list
+{
+private:
+    struct node
+    {
+        std::mutex m;
+        std::shared_ptr&lt;T&gt; data;//1
+        std::unique_ptr&lt;node&gt; next;
+        node() :next() {}
+        node(T const&amp; value) :data(make_shared&lt;T&gt;(value)) {}
+    };
+    node head;
+public:
+    threadsafe_list() {}
+    threadsafe_list(threadsafe_list const&amp; other) = delete;
+    threadsafe_list&amp; operator=(threadsafe_list const&amp; other) = delete;
+
+    void push_front(T const&amp; value)
+    {
+        std::unique_ptr&lt;node&gt; new_node(new node(value));//2
+        std::lock_guard&lt;mutex&gt; lk(head.m);
+        // head为虚拟节点，无具体值
+        new_node-&gt;next = move(head.next);//3
+        head.next = move(new_node);
+    }
+
+    template&lt;typename Function&gt;//4
+    void for_each(Function f)
+    {
+        auto current = &amp;head; 
+        std::unique_lock&lt;mutex&gt; lk(head.m);
+        while (current-&gt;next.get() != nullptr)
+        {
+            auto next = current-&gt;next.get();
+            std::unique_lock&lt;mutex&gt; next_lk(next-&gt;m);
+            lk.unlock();
+            f(*next-&gt;data);//5
+            current = next;
+            lk = move(next_lk);//6
+        }
+    }
+
+    template&lt;typename Function&gt;
+    shared_ptr&lt;T&gt; find_first_if(Function f)
+    {
+        auto current = &amp;head;
+        unique_lock&lt;mutex&gt; lk(head.m);
+        while (current-&gt;next.get() != nullptr)
+        {
+            unique_lock&lt;mutex&gt; next_lk(next-&gt;m);
+            lk.unlock();
+            if (fun(*next-&gt;data))
+                return next-&gt;data;
+            current = next;
+            lk = std::move(next_lk);
+        }
+    }  
+    template&lt;typename Function&gt;
+    void remove_if(Function f) 
+    {
+        node* current = &amp;head;
+        std::unique_lock&lt;std::mutex&gt; lk(head.m);
+        while (node* const next = current-&gt;next.get())
+        {
+            std::unique_lock&lt;std::mutex&gt; next_lk(next-&gt;m);
+            if (f(*next-&gt;data)) 
+            {
+                std::unique_ptr&lt;node&gt; old_next = std::move(current-&gt;next);
+                current-&gt;next = std::move(next-&gt;next);
+                next_lk.unlock();
+            }  
+            else
+            {
+                lk.unlock();  
+                current = next;
+                lk = std::move(next_lk);
+            }
+        }
+    }
+};
+</code></pre>
+<p>重点讲讲56。</p>
+<p>首先来说6，指针和引用是个老大难的问题，这里做一下梳理：</p>
+<pre><code class="lang-cpp">std::unique_ptr&lt;node&gt; new_node(new node(5)); //被unique_ptr封装好的具有GC机制的指针
+auto m =new_node.get(); //能用的普通指针，指向node的地址
+auto x = *m-&gt;data; //*m 解引用，指向node，x=5
+auto y = new_node-&gt;data; //由于data被std::shared_ptr&lt;T&gt;封装，相当于做了一个指针拷贝
+auto z = y.get(); //从shared_ptr&lt;T&gt;抽取的data指针，解引用*z后等于5
+</code></pre>
+<p>再来说说6，这个操作很精妙。整个操作中需要用到的是当前节点<code>current</code>和下一个节点<code>next</code>，采用滑动锁的形式，以<code>lk</code>为基准，向后滑动，同时创建<code>lk_next</code>锁住<code>next</code></p>
+<h1 id="2-无锁数据结构设计"><a href="#2-无锁数据结构设计" class="headerlink" title="2. 无锁数据结构设计"></a>2. 无锁数据结构设计</h1><h2 id="2-1-前言—原子操作"><a href="#2-1-前言—原子操作" class="headerlink" title="2.1 前言—原子操作"></a>2.1 前言—原子操作</h2><p>原子操作指的是不可分割的操作，这种操作要么做了要么没做，不可能观察到做一半的这种状态。原子操作的关键就是<strong>使用一种同步操作方式</strong>，来替换使用互斥量的同步方式。</p>
+<p><strong>（1）std::atomic</strong></p>
+<p>最基本的原子整型类型就是<code>std::atomic</code>。可以<strong>使用非原子的bool类型进行构造</strong>，所以可以被初始化为true或false。</p>
+<p>下面这段代码完成：</p>
+<ul>
+<li>创建原子变量b</li>
+<li>创建一个普通bool变量x，加载进入原子变量b</li>
+<li>b中的值存储为true</li>
+<li>读取原子变量存储的值，修改为false，再存入(<strong>读-改-写</strong>)</li>
+</ul>
+<pre><code class="lang-cpp">std::atomic&lt;bool&gt; b;
+bool x=b.load(std::memory_order_acquire);
+b.store(true);
+x=b.exchange(false, std::memory_order_acq_rel);
+</code></pre>
+<p>读改写操作是原子变量中非常常见且重要的操作，除了<code>exchange()</code>外还有<strong>比较\交换</strong>操作，对应的函数时<code>compare_exchange_weak()</code>和<code>compare_exchange_strong()</code>成员函数。它比较原子变量的当前值和一个期望值，<strong>当两值相等时，存储所提供的值；当两值不等，期望值就会被更新为原子变量中的值</strong>。</p>
+<p><code>compare_exchange_weak()</code>可以<strong>伪失败</strong>（由于某些计算机本身的特性，导致当前线程不能很好完成这个操作，需要调用其他线程来替代工作，造成这种情况主要是时间不够而不是变量本身的问题），所以我们需要用一个循环来保证。<code>b.compare_exchange_weak(expected,true)</code>返回true时就是成功的时候。</p>
+<pre><code class="lang-cpp">bool expected=false;
+extern atomic&lt;bool&gt; b; // 设置些什么
+while(!b.compare_exchange_weak(expected,true) &amp;&amp; !expected);
+</code></pre>
+<p><strong>（2）<code>std::atomic</code>指针运算</strong></p>
+<p>和<code>atomic</code>一样，<code>std::atomic</code>也有<code>load()</code>, <code>store()</code>, <code>exchange()</code>, <code>compare_exchange_weak()</code>和<code>compare_exchage_strong()</code>成员函数，与<code>std::atomic</code>的语义相同，<strong>获取与返回的类型都是`T*</strong><code>，而不是</code>bool`。</p>
+<p><code>std::atomic</code>为指针运算提供新的操作。基本操作有<code>fetch_add()</code>和<code>fetch_sub()</code>提供，它们在存储地址上做原子加法和减法，为+=, -=, ++和—提供简易的封装。</p>
+<pre><code class="lang-cpp">vector&lt;int&gt; a{ 1, 2, 3, 4, 5 };
+std::atomic&lt;int*&gt; p(&amp;a[0]); //p以int指针形式，指向1
+auto m = p.fetch_add(2); //p右移两个单位，指向3，返回它的原始值（指向1的时）
+auto n = (p -= 1); //p左移一个单位，指向2，返回原始值（指向3时）
+</code></pre>
+<h2 id="2-2-无锁的线程安全栈"><a href="#2-2-无锁的线程安全栈" class="headerlink" title="2.2 无锁的线程安全栈"></a>2.2 无锁的线程安全栈</h2><p>栈是先进后出，我们需要一个head一个tail，放的时候放入head，那么head就是我们需要保护的对象了。</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class lock_free_stack
+{
+private:
+    struct node
+    {
+        T data;
+        node* next;
+        node(T const&amp; data) :data(data_) {}
+    };
+    std::atomic&lt;node*&gt; head;
+public:
+    void push(T const&amp; data)
+    {
+        node* const new_node = new node(data);
+        new_node-&gt;next = head.load();
+        while (!head.compare_exchange_weak(new_node-&gt;next, new_node));
+    }
+};
+</code></pre>
+<p>head是一个原子变量的<code>node*</code>指针，指向栈的头部。<code>push</code>的时候将head指针装载到新节点的next，然后再用新节点去替代head，他自己就成了head。和之前一样需要用循环的办法避免伪失败。</p>
+<p>下面我们来完成pop的操作。我们需要确保当head为空时，程序不会报错，所以要先检查一下。注意，<strong>结构是无锁的，但并不是无等待的</strong>，因为在<code>push()</code>和<code>pop()</code>函数中都有while循环，当<code>compare_exchange_weak()</code>总是失败的时候，循环将会持续下去。</p>
+<pre><code class="lang-cpp">template&lt;typename T&gt;
+class lock_free_stack
+{
+private:
+    struct node
+    {
+        T data;
+        node* next;
+        node(T const&amp; data) :data(std::make_shared&lt;T&gt;(data_)) {}
+    };
+    std::atomic&lt;node*&gt; head;
+public:
+    void push(T const&amp; data)
+    {
+        node* const new_node = new node(data);
+        new_node-&gt;next = head.load();
+        while (!head.compare_exchange_weak(new_node-&gt;next, new_node));
+    }
+    std::shared_ptr&lt;T&gt; pop()
+    {
+        node* old_head = head.load();
+        while (old_head &amp;&amp; !head.compare_exchange_weak
+        (old_head, old_head-&gt;next));
+        return old_head ? old_head-&gt;data : shared_ptr&lt;T&gt;();
+    }
+};
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" target="_blank" rel="external">jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&title=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&title=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&source=着重介绍基于锁的结构设计，包括queue，map和list。同时稍微讲了一些原子操作的内容。由于原子操作内容过于复杂，我就只涉及了一些皮毛。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/12/29/CPP%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B1-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%9D%BF/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CPP泛型编程1-函数模板</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/12/27/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%933-%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">CPP多线程总结3-同步异步并发</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&title=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&title=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&source=着重介绍基于锁的结构设计，包括queue，map和list。同时稍微讲了一些原子操作的内容。由于原子操作内容过于复杂，我就只涉及了一些皮毛。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP多线程总结4-并发数据结构设计实例》 — JR's Blog&url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/12/28/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%934-%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%AE%9E%E4%BE%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Redis设计与实现4-RDB和AOF持久化 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,读书笔记,数据库,Redis">
+    <meta name="description" content="持久化的意思是将数据永久保存在磁盘中。Redis采用RDB和AOF两种策略。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis设计与实现4-RDB和AOF持久化">
+<meta property="og:url" content="jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="持久化的意思是将数据永久保存在磁盘中。Redis采用RDB和AOF两种策略。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104142148.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104154834.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104161007.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104162540.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101246.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101548.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101713.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103613.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103834.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103859.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104226.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104419.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104627.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104715.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105142.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105208.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105658.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105726.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105111552.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105120013.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105120224.png">
+<meta property="article:published_time" content="2020-01-04T06:10:19.000Z">
+<meta property="article:modified_time" content="2020-01-12T14:28:35.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104142148.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Redis设计与实现4-RDB和AOF持久化</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Redis设计与实现4-RDB和AOF持久化</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-04T06:10:19.000Z" itemprop="datePublished" class="page-time">
+  2020-01-04
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-RDB持久化"><span class="post-toc-text">1. RDB持久化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-RDB文件的创建与载入"><span class="post-toc-text">1.1 RDB文件的创建与载入</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-自动间隔性保存"><span class="post-toc-text">1.2 自动间隔性保存</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-RDB文件结构"><span class="post-toc-text">1.3 RDB文件结构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1-3-1-database部分"><span class="post-toc-text">1.3.1 database部分</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1-3-2-key-value-pairs部分"><span class="post-toc-text">1.3.2 key_value_pairs部分</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1-3-3-value部分"><span class="post-toc-text">1.3.3 value部分</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-AOF持久化"><span class="post-toc-text">2. AOF持久化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-AOF实现原理"><span class="post-toc-text">2.1 AOF实现原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-AOF文件的载入与数据还原"><span class="post-toc-text">2.2 AOF文件的载入与数据还原</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-AOF重写"><span class="post-toc-text">2.3 AOF重写</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Redis设计与实现4-RDB持久化和AOF持久化"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Redis设计与实现4-RDB和AOF持久化</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-04 14:10:19" datetime="2020-01-04T06:10:19.000Z"  itemprop="datePublished">2020-01-04</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>持久化的意思是将数据永久保存在磁盘中。Redis采用RDB和AOF两种策略。<a id="more"></a></p>
+<h1 id="1-RDB持久化"><a href="#1-RDB持久化" class="headerlink" title="1. RDB持久化"></a>1. RDB持久化</h1><p>将服务器中的非空数据库以及它们的键值对统称为<strong>数据库状态</strong>。下图三个非空数据库，以及其中的键值对就是该服务器的数据库状态。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104142148.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>在Redis中，只有将数据保存在内存磁盘里才会永久保存，<strong>如果服务器进程退出，服务器中的数据库状态就会消失。</strong>为了解决这个问题，Redis提供了RDB持久化功能，这个功能可以将Redis在内存中的数据库状态保存到磁盘里面。</p>
+<p>RDB持久化产生的RDB文件(Redis Database)是一个<strong>经过压缩的二进制文件，该文件可以被还原为数据库状态</strong>，所以即使服务器停机，服务器的数据还是被安全保存在硬盘中。</p>
+<h2 id="1-1-RDB文件的创建与载入"><a href="#1-1-RDB文件的创建与载入" class="headerlink" title="1.1 RDB文件的创建与载入"></a>1.1 RDB文件的创建与载入</h2><p>有两个Redis命令可以用于生成RDB文件，一个是<strong>SAVE</strong>，另一个是<strong>BGSAVE </strong>(BackGround SAVE)。SAVE命令会<strong>阻塞Redis服务器进程</strong>，直到RDB文件创建完毕为止，在服务器进程阻塞期间，服务器不能处理任何命令请求：</p>
+<pre><code class="lang-C">redis&gt; SAVE //等待直到RDB文件创建完毕
+OK
+</code></pre>
+<p>而BGSAVE命令会<strong>增加一个子进程</strong>，负责创建RDB文件。</p>
+<pre><code class="lang-C">redis&gt; BGSAVE //派生子进程，并由子进程创建RDB文件
+Background saving started
+</code></pre>
+<p>BGSAVE执行时，会阻止SAVE、其他BGSAVE和BGREWRITEAOF这三个命令执行，防止竞争。</p>
+<p>创建RDB文件的实际工作由<code>rdb.c/rdbSave</code>函数完成，SAVE命令和BGSAVE命令会以不同的方式调用这个函数。</p>
+<hr>
+<p>Redis并没有载入RDB文件的命令，只要服务器启动时<strong>检测到RDB文件存在，他就会自动载入。</strong>比如下面日志的第二条：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104154834.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-2-自动间隔性保存"><a href="#1-2-自动间隔性保存" class="headerlink" title="1.2 自动间隔性保存"></a>1.2 自动间隔性保存</h2><p>由于BGSAVE可以不阻塞服务器执行，所以我们可以<strong>设置条件</strong>，让服务器每隔一段时间自动保存。举个例子：</p>
+<pre><code class="lang-C">save 900 1
+save 300 10
+save 60 10000
+</code></pre>
+<p>这些条件的意思是：900秒内对数据库至少进行了1次修改，300秒内对数据库进行了10次修改….</p>
+<p>服务器程序会根据save选项所设置的保存条件，设置服务器状态<code>redisServer</code>结构的<code>saveparams</code>属性：</p>
+<pre><code class="lang-C">struct redisServer 
+{ 
+    // ... 
+    // 记录了保存条件的数组 
+    struct saveparam *saveparams; 
+    // ...
+};
+</code></pre>
+<p><code>saveparams</code>属性是一个数组，数组中的每个元素都是一个<code>saveparam</code>结构，每个<code>saveparam</code>结构都保存了一个save选项设置的保存条件：</p>
+<pre><code class="lang-c">struct saveparam 
+{ 
+    // 秒数 
+    time_t seconds; 
+    // 修改数 
+    int changes;
+};
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104161007.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<hr>
+<p>除了设置保存条件的saveparams数组外，服务器状态还维持着一个<strong>dirty计数器</strong>，以及一个<strong>lastsave属性</strong>：</p>
+<ul>
+<li>dirty计数器记录自上一次SAVE和BGSAVE以后，服务器对数据库状态进行了多少次修改（包括增删改）</li>
+<li>lastsave则是一个时间戳，记录了上一次执行保存的时间。</li>
+</ul>
+<p>当服务器执行修改命令一次以后，dirty计数器就加一。如果是一次性修改多个元素，计数器此时加N</p>
+<pre><code class="lang-C">redis-&gt;SADD database0 apple orange watermelon
+</code></pre>
+<hr>
+<p>Redis的服务器<strong>周期性操作函数serverCron默认每隔100毫秒就会执行一次</strong>，该函数用于对正在运行的服务器进行维护，它的其中一项工作就是检查save选项所设置的保存条件是否已经满足，如果满足的话，就执行BGSAVE命令。</p>
+<p>执行完以后，dirty清0，lastsave更新。</p>
+<h2 id="1-3-RDB文件结构"><a href="#1-3-RDB文件结构" class="headerlink" title="1.3 RDB文件结构"></a>1.3 RDB文件结构</h2><p>完整的RDB文件如下，</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200104162540.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>RDB是一个二进制文件而不是文本文件。</p>
+<blockquote>
+<p>广义来说，所有文件都是二进制文件。狭义来说，文本文件是基于字符编码的文件，常见的编码有<strong>ASCII编码，UNICODE编码</strong>等等；二进制文件是基于值编码的文件，也可以理解为<strong>自定义编码。</strong></p>
+</blockquote>
+<ul>
+<li>开头的REDIS占5个字节，这5个字符<strong>用于检查是不是RDB文件。</strong></li>
+<li>db_version长度为4字节，值被解析为<strong>RDB版本</strong>，比如”0006”就代表第6版。</li>
+<li>database部分包含着<strong>多个数据库的键值对数据</strong>，根据大小不同，长度有所不同。</li>
+<li>EOF占1个字节，结束位标志。</li>
+<li>check_sum是占8字节，保存<strong>校验和</strong>。服务器在载入时会根据读入的实际数据计算出一个数来和校验值比较，以此来检查是否有损坏。</li>
+</ul>
+<h3 id="1-3-1-database部分"><a href="#1-3-1-database部分" class="headerlink" title="1.3.1 database部分"></a>1.3.1 database部分</h3><p>每个非空数据库在RDB文件中都可以保存为<code>SELECTDB</code>、<code>db_number</code>、<code>key_value_pairs</code>三个部分，如图所示。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101246.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<ul>
+<li><code>SELECTDB</code>，1字节，当读取到此值时，程序知道接下来要读入一个数据库号码。</li>
+<li><code>db_number</code>，1、2、5字节，保存数据库号码。</li>
+<li><code>key_value_pairs</code>，保存键值对，包括过期时间。</li>
+</ul>
+<h3 id="1-3-2-key-value-pairs部分"><a href="#1-3-2-key-value-pairs部分" class="headerlink" title="1.3.2 key_value_pairs部分"></a>1.3.2 key_value_pairs部分</h3><p>不带过期时间的键值对在RDB文件中由TYPE、key、value三部分组成，</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101548.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>带有过期时间的键值对在RDB中的结构如下</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105101713.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<ul>
+<li>EPIRETIME_MS，1字节，告诉程序接下来读取一个以毫秒为单位的过期时间。</li>
+<li>ms，8字节带符号整数，记录一个以毫秒为单位的UNIX时间戳。</li>
+</ul>
+<h3 id="1-3-3-value部分"><a href="#1-3-3-value部分" class="headerlink" title="1.3.3 value部分"></a>1.3.3 value部分</h3><p><strong>（1）字符串对象</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_STRING</code>，那么value保存的就是一个字符串对象，字符串对象的编码可以是<code>REDIS_ENCODING_INT</code>或者<code>REDIS_ENCODING_RAW</code>。</p>
+<p>如果是INT，则表示对象是一个<strong>长度不超过32位的整数</strong>，保存方式如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103613.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>其中，<code>ENCODING</code>的值可以是<code>REDIS_RDB_ENC_INT8</code>、<code>REDIS_RDB_ENC_INT16</code>或者<code>REDIS_RDB_ENC_INT32</code>三个常量的其中一个，它们分别代表RDB文件使用8位、16位或者32位来保存整数值integer。</p>
+<p>如果是RAW格式，则说明对象是一个<strong>字符串值</strong>，有压缩和不压缩两种方法来保存。对于没有压缩的字符串，保存格式如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103834.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>压缩后的字符串，保存格式如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105103859.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<ul>
+<li>REDIS_RDB_ENC_LZF，表明已被LZF算法压缩</li>
+<li>compressed_len，被压缩后的字符串长度</li>
+<li>origin_len，原来的长度</li>
+<li>compressed_string，被压缩后的字符串</li>
+</ul>
+<p><strong>（2）列表对象</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_LIST</code>，那么value保存的就是一个<code>REDIS_ENCODING_LINKEDLIST</code>编码的列表对象，RDB文件保存这种对象的结构如图所示。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104226.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>每一个列表项都是一个字符串对象</strong>，所以程序会以字符串对象的方式来保存。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104419.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>结构中，3表示列表长度，5表示第一个列表项长度为5，内容为”hello”。</p>
+<p><strong>（3）集合对象</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_SET</code>，那么value保存的就是一个<code>REDIS_ENCODING_HT</code>编码的集合对象，RDB文件保存这种对象的结构如图所示。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104627.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>图中elem代表集合的元素，<strong>每个集合元素都是一个字符串对象。</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105104715.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>和列表一样，4代表集合大小，5代表元素长度，值为”apple”。</p>
+<p><strong>（4）哈希表对象</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_HASH</code>，那么value保存的就是一个<code>REDIS_ENCODING_HT</code>编码的集合对象，RDB文件保存这种对象的结构如图所示。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105142.png"  style="zoom:77%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>例子如下，</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105208.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>哈希表长度为2，第一个键值对，键长度为1的字符串”a”，值为5的字符串”apple”。</p>
+<p><strong>（5）有序集合对象</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_ZSET</code>，那么value保存的就是一个<code>REDIS_ENCODING_SKIPLIST</code>编码的有序集合对象，RDB文件保存这种对象的结构如图所示。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105658.png" style="zoom:77%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>比如：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105105726.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>大小为2，第一个元素是长度为2的字符串”pi”，分值被转换为长度为4的字符串”3.14”。</p>
+<p><strong>（6）INTSET编码的集合</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_SET_INTSET</code>，那么value保存的就是一个<strong>整数集合对象</strong>，RDB文件保存这种对象的方法是，<strong>先将整数集合转换为字符串对象</strong>，然后将这个字符串对象保存到RDB文件里面。</p>
+<p><strong>（7）ZIPLIST编码的列表、哈希表和有序集合</strong></p>
+<p>如果TYPE的值为<code>REDIS_RDB_TYPE_LIST_ZIPLIST</code>、<code>REDIS_RDB_TYPE_HASH_ZIPLIST</code>或者<code>REDIS_RDB_TYPE_ZSET_ZIPLIST</code>，那么value保存的就是一个<strong>压缩列表对象</strong>，保存策略和上面一一样：先转化为字符串对象。</p>
+<h1 id="2-AOF持久化"><a href="#2-AOF持久化" class="headerlink" title="2. AOF持久化"></a>2. AOF持久化</h1><p>RDB持久化记录的是数据库本身，而AOF(Append Only File)则<strong>记录Redis服务器所执行的写命令</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105111552.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>假如使用如下命令:</p>
+<pre><code class="lang-C">redis&gt; SET msg &quot;hello&quot;
+OK
+</code></pre>
+<p>则AOF记录形式如下：</p>
+<pre><code>*2\r\n$6\r\nSELECT\r\n$1\r\n0\r\n
+*3\r\n$3\r\nSET\r\n$3\r\nmsg\r\n$5\r\nhello\r\n
+</code></pre><h2 id="2-1-AOF实现原理"><a href="#2-1-AOF实现原理" class="headerlink" title="2.1 AOF实现原理"></a>2.1 AOF实现原理</h2><p>AOF如其名所示，Append Only File，AOF持久化功能的实现可以分为<strong>命令追加（append）、文件写入与同步（sync）</strong></p>
+<p><strong>（1）命令追加</strong></p>
+<p>如果AOF被打开，则服务器执行完一个命令后，会以协议格式将命令<strong>追加到服务器状态aof_buf缓冲区的结尾</strong>：</p>
+<pre><code class="lang-C">struct redisServer 
+{ 
+    // ...  
+    sds aof_buf;     // AOF缓冲区
+    // ...
+};
+</code></pre>
+<p>比如执行了<code>SET KEY VALUE</code>后，会将以下协议内容加载到aof_buf缓冲区：</p>
+<pre><code>*3\r\n$3\r\nSET\r\n$3\r\nKEY\r\n$5\r\nVALUE\r\n
+</code></pre><p><strong>（2）AOF文件的写入与同步</strong></p>
+<p>Redis的服务器进程就是一个<strong>事件循环（loop）</strong>，这个循环中的<strong>文件事件负责接收客户端的命令请求</strong>，<strong>以及向客户端发送命令回复</strong>，而<strong>时间事件则负责执行像<code>serverCron</code>函数这样需要定时运行的函数</strong>。</p>
+<p>服务器每次结束一个事件循环之前，它都会调用<code>flushAppendOnlyFile</code>函数，<strong>考虑是否需要将<code>aof_buf</code>缓冲区中的内容写入和保存到AOF文件里面</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105120013.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>这个函数的行为有服务器配置的<code>appendfsync</code>选项来设置，默认为<code>everysec</code>：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20200105120224.png"  style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>默认情况下，距离上次同步过了一秒钟，则服务器会将aof_buf内容写入AOF文件中。</p>
+<h2 id="2-2-AOF文件的载入与数据还原"><a href="#2-2-AOF文件的载入与数据还原" class="headerlink" title="2.2 AOF文件的载入与数据还原"></a>2.2 AOF文件的载入与数据还原</h2><p>因为AOF文件里面包含了重建数据库状态所需的所有写命令，所以服务器只要<strong>读入并重新执行一遍AOF文件里面保存的写命令</strong>，就可以还原服务器关闭之前的数据库状态。</p>
+<p>AOF还原数据库的步骤如下：</p>
+<ol>
+<li>创建一个不带网络连接的<strong>伪客户端（fake client）</strong>：因为Redis的命令只能在客户端上下文中执行。</li>
+<li>从AOF中读出一条命令。</li>
+<li>使用伪客户端执行被读出的写命令。</li>
+<li>重复23步</li>
+</ol>
+<h2 id="2-3-AOF重写"><a href="#2-3-AOF重写" class="headerlink" title="2.3 AOF重写"></a>2.3 AOF重写</h2><p>随着时间的增长，AOF文件的大小将会越来越大。为了解决这个问题，Redis提供了<strong>AOF重写</strong>功能。</p>
+<p>重写后，Redis服务器可以创建一个新的AOF文件来替代现有的AOF文件，新旧两个<strong>AOF文件保存的数据库状态完全相同</strong>。</p>
+<p>如果要保存一个键值对，我们其实只关心它当前的状态。所以重写策略是：首先<strong>从数据库中读取键现在的值，然后用一条命令去记录键值对</strong>，用到了<code>aof_rewrite</code>函数。</p>
+<p>比如，对list进行<code>RPUSH</code>操作填入”A”、”B”、”C”，然后再<code>LPOP</code>一次，我们操作了4次，但其实用<code>RPUSH list A B</code>这一条指令就可以代替。</p>
+<p><code>aof_rewrite</code>函数包含了大量写入操作，调用时会导致线程被长时间阻塞，所以Redis<strong>将AOF重写放入子进程里</strong>。</p>
+<hr>
+<p>还有一个问题：子进程AOF重写时，主进程也在写命令，导致两者状态不一致。因此，<strong>Redis服务器设置了一个AOF重写缓冲区</strong>，这个缓冲区在服务器创建子进程之后开始使用，当Redis服务器执行完一个写命令之后，它会<strong>同时</strong>将这个写命令发送给<strong>AOF缓冲区</strong>和<strong>AOF重写缓冲区</strong>。</p>
+<p>换句话说，子进程执行AOF期间，服务器进程需要：</p>
+<ul>
+<li>执行客户端指令</li>
+<li>将执行后的命令追加到AOF缓冲区</li>
+<li>将执行后的命令追加到AOF重写缓冲区</li>
+</ul>
+<hr>
+<p>子进程执行完AOF后，向父进程发送一个信号。父进程接收后：</p>
+<ol>
+<li>将AOF重写缓冲区的内容写入AOF文件中，保证一致性。</li>
+<li>对新AOF文件改名，原子的(atomic)覆盖现有AOF文件。</li>
+</ol>
+<p>在整个AOF后台重写过程中，<strong>只有信号处理函数执行时会对服务器进程（父进程）造成阻塞</strong>，在其他时候，AOF后台重写都不会阻塞父进程，这将AOF重写对服务器性能造成的影响降到了最低。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" target="_blank" rel="external">jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&title=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&title=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&source=持久化的意思是将数据永久保存在磁盘中。Redis采用RDB和AOF两种策略。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/05/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B05-%E4%BA%8B%E4%BB%B6/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Redis设计与实现5-事件</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B03-%E6%95%B0%E6%8D%AE%E5%BA%93/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Redis设计与实现3-数据库</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&title=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&title=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&source=持久化的意思是将数据永久保存在磁盘中。Redis采用RDB和AOF两种策略。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Redis设计与实现4-RDB和AOF持久化》 — JR's Blog&url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/04/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B04-RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8CAOF%E6%8C%81%E4%B9%85%E5%8C%96/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

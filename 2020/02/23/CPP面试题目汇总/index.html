@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>CPP面试题目汇总 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,面试经验">
+    <meta name="description" content="cpp的内容整理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP面试题目汇总">
+<meta property="og:url" content="jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="cpp的内容整理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200223140158.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200224100335.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120007.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120124.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120452.png">
+<meta property="article:published_time" content="2020-02-23T05:55:39.000Z">
+<meta property="article:modified_time" content="2020-03-26T12:36:00.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="面试经验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200223140158.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">CPP面试题目汇总</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">CPP面试题目汇总</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-02-23T05:55:39.000Z" itemprop="datePublished" class="page-time">
+  2020-02-23
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基本概念"><span class="post-toc-text">1. 基本概念</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-string和char数组的区别"><span class="post-toc-text">1.1 string和char数组的区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-unsigned类型"><span class="post-toc-text">1.2 unsigned类型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-变量初始化方法"><span class="post-toc-text">1.3 变量初始化方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-引用和指针"><span class="post-toc-text">1.4 引用和指针</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-5-类和结构体的区别"><span class="post-toc-text">1.5 类和结构体的区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-6-IO特性"><span class="post-toc-text">1.6 IO特性</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-8-IO刷新缓冲区的原因"><span class="post-toc-text">1.8 IO刷新缓冲区的原因</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-9-全局变量和局部变量有什么区别？编译器是怎么判断的？"><span class="post-toc-text">1.9 全局变量和局部变量有什么区别？编译器是怎么判断的？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-10-生成可执行文件的过程"><span class="post-toc-text">1.10 生成可执行文件的过程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-11-cmake和makefile区别"><span class="post-toc-text">1.11 cmake和makefile区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-12-int-s-10-int-表示的是什么？"><span class="post-toc-text">1.12 int (*s[10])(int) 表示的是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-13-联合"><span class="post-toc-text">1.13 联合</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-关键词和操作符"><span class="post-toc-text">2. 关键词和操作符</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-extern"><span class="post-toc-text">2.1 extern</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-constexpr"><span class="post-toc-text">2.2 constexpr</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-sizeof"><span class="post-toc-text">2.3 sizeof</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-mutable"><span class="post-toc-text">2.4 mutable</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-explicit"><span class="post-toc-text">2.5 explicit</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-6-inline"><span class="post-toc-text">2.6 inline</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-7-volatile"><span class="post-toc-text">2.7 volatile</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-8-typedef-struct"><span class="post-toc-text">2.8 typedef struct</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-new"><span class="post-toc-text">3. new</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-new和delete的执行过程"><span class="post-toc-text">3.1 new和delete的执行过程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-动态数组"><span class="post-toc-text">3.2 动态数组</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-智能指针"><span class="post-toc-text">3.3 智能指针</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-4-new和malloc区别"><span class="post-toc-text">3.4 new和malloc区别</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-const"><span class="post-toc-text">4. const</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-const和-define相比优点是什么？"><span class="post-toc-text">4.1 const和#define相比优点是什么？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。"><span class="post-toc-text">define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-const用处"><span class="post-toc-text">4.2 const用处</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-3-为什么要使用常引用？"><span class="post-toc-text">4.3 为什么要使用常引用？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-4-什么是顶层常量和底层常量？"><span class="post-toc-text">4.4 什么是顶层常量和底层常量？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-5-类的成员函数使用const"><span class="post-toc-text">4.5 类的成员函数使用const</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-类与对象"><span class="post-toc-text">5.类与对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-1-类和结构体区别"><span class="post-toc-text">5.1 类和结构体区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-2-构造函数中const和引用的初始化"><span class="post-toc-text">5.2 构造函数中const和引用的初始化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-3-静态成员"><span class="post-toc-text">5.3 静态成员</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-4-类的特殊成员函数"><span class="post-toc-text">5.4 类的特殊成员函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-5-析构函数注意事项"><span class="post-toc-text">5.5 析构函数注意事项</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-6-合成构造函数"><span class="post-toc-text">5.6 合成构造函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-7-default和delete"><span class="post-toc-text">5.7 default和delete</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-8-如何区分移动和拷贝的重载？"><span class="post-toc-text">5.8 如何区分移动和拷贝的重载？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-9-this指针"><span class="post-toc-text">5.9 this指针</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-10-访问私有成员的办法"><span class="post-toc-text">5.10 访问私有成员的办法</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#6-面向对象"><span class="post-toc-text">6. 面向对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-1-oop特征"><span class="post-toc-text">6.1 oop特征</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-2-虚函数"><span class="post-toc-text">6.2 虚函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-3-虚函数表"><span class="post-toc-text">6.3 虚函数表</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-CPP面试题目汇总"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">CPP面试题目汇总</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-02-23 13:55:39" datetime="2020-02-23T05:55:39.000Z"  itemprop="datePublished">2020-02-23</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>cpp的内容整理。<a id="more"></a></p>
+<h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1. 基本概念"></a>1. 基本概念</h1><h2 id="1-1-string和char数组的区别"><a href="#1-1-string和char数组的区别" class="headerlink" title="1.1 string和char数组的区别"></a>1.1 string和char数组的区别</h2><p>string的<strong>字面值</strong>是char数组，可以将string理解为<code>vector&lt;char&gt;</code>。</p>
+<p>字符串字面值不能相加：</p>
+<pre><code class="lang-CPP">string s5 = &quot;hello&quot; + &quot;, &quot;;  // 错误，两个运算对象都不是 string
+string s1=s2+&quot;1&quot;; //ok
+</code></pre>
+<h2 id="1-2-unsigned类型"><a href="#1-2-unsigned类型" class="headerlink" title="1.2 unsigned类型"></a>1.2 unsigned类型</h2><p><code>unsigned</code>类型是<code>unsigned int</code>的简写。范围0-255，超出结果会wrap around环绕。</p>
+<pre><code class="lang-CPP">int x=1e10; //得到一个随机值
+unsigned s=257 //得到1
+</code></pre>
+<p>要小心：</p>
+<pre><code class="lang-CPP">for (unsigned u = 10; u &gt;= 0; --u)    
+    std::cout &lt;&lt; u &lt;&lt; std::endl //死循环
+</code></pre>
+<h2 id="1-3-变量初始化方法"><a href="#1-3-变量初始化方法" class="headerlink" title="1.3 变量初始化方法"></a>1.3 变量初始化方法</h2><p>初始化的办法有4种：</p>
+<pre><code class="lang-CPP">int a=0;
+int a={0};
+int a(0);
+int a{0};
+</code></pre>
+<p>花括号初始化成为<strong>list initialization</strong>，编译器能帮助我们阻止信息丢失。</p>
+<pre><code class="lang-CPP">long double pi=3.1415926535;
+int a{pi}; //error
+int a=pi; //ok,but loss information
+</code></pre>
+<h2 id="1-4-引用和指针"><a href="#1-4-引用和指针" class="headerlink" title="1.4 引用和指针"></a>1.4 引用和指针</h2><p>引用是另一个<strong>变量</strong>的<strong>别名</strong>。只能绑定某个对象，不能绑定字面值或者表达式的结果，<code>int &amp;a=10;</code>就是错的。</p>
+<p>指针是一个复合类型：<strong>改造符*+基本类型</strong>。我们可以使用解引用(derefence)运算符<em>来访问对象。注意：**定义的时候 </em> 是一个modifier，使用的时候是一个 dereference，概念不一样！**</p>
+<p>空指针的意思是：<strong>没有任何一个对象和指针绑定</strong>。<code>void*</code>是一个特殊的指针类型，可以承载任意类型的对象的地址，但类型时未知的。</p>
+<pre><code class="lang-CPP">double dval =3.14;
+void* pv = &amp;dval;//pv还是 void*类型
+</code></pre>
+<hr>
+<p>二者区别：</p>
+<p>相同点：</p>
+<ul>
+<li>都是复合类型（基本类型+改造符或声明符）</li>
+<li>都是间接访问</li>
+</ul>
+<p>不同点：</p>
+<ul>
+<li>指针<strong>本身就是一个对象</strong>而引用不是，所以指针<strong>可以被赋值和拷贝</strong>，而引用不能。指针<strong>不需要定义时初始化</strong>。</li>
+<li>一个指针可以指向好几个不同的对象，而引用则被绑死</li>
+</ul>
+<h2 id="1-5-类和结构体的区别"><a href="#1-5-类和结构体的区别" class="headerlink" title="1.5 类和结构体的区别"></a>1.5 类和结构体的区别</h2><p>class</p>
+<ul>
+<li>class 在<strong>堆中分配空间</strong>，栈中保存的只是引用</li>
+<li>默认是private</li>
+</ul>
+<p>struct</p>
+<ul>
+<li>struct 在栈中分配空间</li>
+<li>默认是public</li>
+</ul>
+<h2 id="1-6-IO特性"><a href="#1-6-IO特性" class="headerlink" title="1.6 IO特性"></a>1.6 IO特性</h2><p>我们希望IO以流的形式输入输出数据，所以不希望被干扰，因此IO类没有拷贝和赋值函数。</p>
+<h2 id="1-8-IO刷新缓冲区的原因"><a href="#1-8-IO刷新缓冲区的原因" class="headerlink" title="1.8 IO刷新缓冲区的原因"></a>1.8 IO刷新缓冲区的原因</h2><ul>
+<li>程序跑完，从main中返回</li>
+<li>缓冲区满</li>
+<li>特殊符号endl，flush，ends结尾</li>
+<li>使用unitbuf操作符，默认情况下，unitbuf为cerr默认设置</li>
+</ul>
+<p>前面提到了用endl，flush，ends结尾。我们最常用的endl：结束当前行，刷新缓冲区。flush刷新缓冲区，末尾不添加字符，而ends除了刷新缓冲区外，末尾还会添加一个空字符。</p>
+<p>注意：<strong>程序崩了是不刷新缓冲区的</strong>。</p>
+<h2 id="1-9-全局变量和局部变量有什么区别？编译器是怎么判断的？"><a href="#1-9-全局变量和局部变量有什么区别？编译器是怎么判断的？" class="headerlink" title="1.9 全局变量和局部变量有什么区别？编译器是怎么判断的？"></a>1.9 全局变量和局部变量有什么区别？编译器是怎么判断的？</h2><p>全局变量的生命周期伴随<strong>主程序</strong>（不是主函数）的创建和销毁，局部变量只存在于局部函数内部。</p>
+<p>全局变量分配在<strong>全局数据段</strong>，而局部变量则分配在<strong>堆栈</strong>里面。</p>
+<h2 id="1-10-生成可执行文件的过程"><a href="#1-10-生成可执行文件的过程" class="headerlink" title="1.10 生成可执行文件的过程"></a>1.10 生成可执行文件的过程</h2><ul>
+<li>用编辑器编写源代码，如.c文件。</li>
+<li>用编译器编译代码生成目标文件，如.o。</li>
+<li>用链接器连接目标代码生成可执行文件，如.exe。</li>
+</ul>
+<h2 id="1-11-cmake和makefile区别"><a href="#1-11-cmake和makefile区别" class="headerlink" title="1.11 cmake和makefile区别"></a>1.11 cmake和makefile区别</h2><p>利用make工具可以根据makefile批量处理源文件。而cmake可以读取所有源文件后，自动生成makefile，更加方便。</p>
+<h2 id="1-12-int-s-10-int-表示的是什么？"><a href="#1-12-int-s-10-int-表示的是什么？" class="headerlink" title="1.12 int (*s[10])(int) 表示的是什么？"></a>1.12 int (*s[10])(int) 表示的是什么？</h2><p><code>int (*s[10])(int)</code> 函数指针数组，每个指针指向一个<code>int func(int param)</code>的函数。</p>
+<pre><code class="lang-CPP">int (*fp)(int a);
+//fp可以指向如下函数
+int myFunction(int a){...}
+</code></pre>
+<h2 id="1-13-联合"><a href="#1-13-联合" class="headerlink" title="1.13 联合"></a>1.13 联合</h2><p>一个 union 可以有多个数据成员，但是<strong>在任意时刻只有一个数据成员可以有值</strong>。当某个成员被赋值后其他成员变为未定义状态。</p>
+<pre><code class="lang-CPP">union abc {
+    int i;
+    char m;
+};
+union abc a;
+a.i = 10;
+</code></pre>
+<h1 id="2-关键词和操作符"><a href="#2-关键词和操作符" class="headerlink" title="2. 关键词和操作符"></a>2. 关键词和操作符</h1><h2 id="2-1-extern"><a href="#2-1-extern" class="headerlink" title="2.1 extern"></a>2.1 extern</h2><p>CPP初始化通常分为两个部分：</p>
+<ul>
+<li>声明，让程序知道他的名字</li>
+<li>定义，实现实体。</li>
+</ul>
+<p>用<code>extern</code>关键词来进行声明，这样就<strong>不用进行显示初始化。</strong></p>
+<p>对比：</p>
+<pre><code class="lang-CPP">extern int a;
+int b;
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200223140158.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="2-2-constexpr"><a href="#2-2-constexpr" class="headerlink" title="2.2 constexpr"></a>2.2 constexpr</h2><p>当一个变量声明为const时，我们<strong>并不知道它是编译期可知还是运行期可知。</strong></p>
+<pre><code class="lang-CPP">const int a=10; //constant expression
+const int b=get_size(); //non a constant expression
+</code></pre>
+<p>关键词<code>constexpr</code>就是指<strong>编译期可知</strong>，潜台词是：告诉编译器我可以是编译期间可知的，尽情的优化我吧。而<code>const</code><strong>专门用来声明不变量</strong>，潜台词是：告诉程序员没人动得了我，放心的把我传出去；或者放心的把变量交给我，我啥也不动就瞅瞅。</p>
+<hr>
+<p>另一个作用是让类的静态成员在类间能够初始化：</p>
+<pre><code class="lang-CPP">class Account 
+{ 
+public:    
+    static double rate() { return interestRate; }    
+    static void rate(double); 
+private:    
+    static constexpr int period = 30;// period is a constant
+}
+</code></pre>
+<h2 id="2-3-sizeof"><a href="#2-3-sizeof" class="headerlink" title="2.3 sizeof"></a>2.3 sizeof</h2><p>它不是一个关键词，而是一个<strong>运算符</strong>！！！以<strong>位</strong>的形式返回表达式结果的大小。</p>
+<pre><code class="lang-CPP">vector&lt;int&gt; a{1,2,3};
+auto m = sizeof a; // type is unsigned_int64, m = 32
+auto n = sizeof a[0]; //type is the same as above, n=4;
+</code></pre>
+<h2 id="2-4-mutable"><a href="#2-4-mutable" class="headerlink" title="2.4 mutable"></a>2.4 mutable</h2><p><strong>在成员函数参数列表后加上关键字const后，该函数不允许修改类的数据成员。</strong></p>
+<pre><code class="lang-CPP">char Screen::get() const {
+   return _screen[_cursor];
+}
+</code></pre>
+<p>对成员变量加上mutable关键词可以消除const的影响：</p>
+<pre><code class="lang-CPP">class Screen { 
+    public:    
+        void some_member() const; 
+    private:    
+        mutable size_t access_ctr;
+}
+void Screen::some_member() const {    
+    ++access_ctr;    
+}
+</code></pre>
+<h2 id="2-5-explicit"><a href="#2-5-explicit" class="headerlink" title="2.5 explicit"></a>2.5 explicit</h2><p>使用关键词explicit<strong>抑制隐式转化</strong>：</p>
+<pre><code class="lang-CPP">class A{
+    public:
+        explicit A(int size){}
+        explicit A(const Explicit&amp; ins){}
+};
+
+int main(){
+    A test0(15);
+    A test1 = 10;// 无法调用
+    A test5 = test0;//无法调用
+    //如果去掉explicit,就都可以调用。
+}
+</code></pre>
+<h2 id="2-6-inline"><a href="#2-6-inline" class="headerlink" title="2.6 inline"></a>2.6 inline</h2><p>声明为内联函数，则：</p>
+<ul>
+<li>相当于把内联函数里面的内容写在调用内联函数处；</li>
+<li>相当于不用执行进入函数的步骤，直接执行函数体；</li>
+</ul>
+<p>优点：<strong>省去了代码展开，提高速度；缺点：代码体积膨胀</strong>。</p>
+<h2 id="2-7-volatile"><a href="#2-7-volatile" class="headerlink" title="2.7 volatile"></a>2.7 volatile</h2><p>作用：<strong>阻止编译器优化，确保编译器总是从内存中读取数据</strong></p>
+<p>原因：因为访问寄存器要比访问内存单元快的多，所以编译器一般优化代码，尽量读取寄存器，但在多线程过程中可能会读脏数据。</p>
+<h2 id="2-8-typedef-struct"><a href="#2-8-typedef-struct" class="headerlink" title="2.8 typedef struct"></a>2.8 typedef struct</h2><pre><code class="lang-CPP">struct Student{
+    int a;
+}stu1;//stu1是一个变量
+
+typedef struct Student2{
+    int a;
+}stu2;//stu2是一个结构体类型
+
+auto m = stu1.a; //ok
+auto n = stu2.a; //error
+stu2 st;
+auto n = st.a;//ok
+</code></pre>
+<h1 id="3-new"><a href="#3-new" class="headerlink" title="3. new"></a>3. new</h1><h2 id="3-1-new和delete的执行过程"><a href="#3-1-new和delete的执行过程" class="headerlink" title="3.1 new和delete的执行过程"></a>3.1 new和delete的执行过程</h2><p>new的步骤：</p>
+<ol>
+<li>分配一块足够大的原始的未命名的内存空间</li>
+<li>调用相应的构造函数构造对象，为其传入初值</li>
+<li>构造结束后返回该对象的指针</li>
+</ol>
+<p>delete步骤：</p>
+<ol>
+<li>调用对象的析构函数</li>
+<li>编译器释放内存空间</li>
+</ol>
+<h2 id="3-2-动态数组"><a href="#3-2-动态数组" class="headerlink" title="3.2 动态数组"></a>3.2 动态数组</h2><p>有的时候编译时并不能确定数组长度，我们需要通过动态方式分配长度。</p>
+<pre><code class="lang-CPP">int* p = new int[obj.getlen()]; // new运算符返回第一个元素的地址。
+delete [] p;          // 释放整个数组，new如果带[] 则delete也需要带[]
+</code></pre>
+<p>使用new和delete时，应遵守以下规则</p>
+<ul>
+<li>避免使用delete来释放不是new分配的资源；</li>
+<li>不要对同一资源delete两次</li>
+<li>使用new[]分配资源时，应使用delete[]来释放</li>
+<li>可以对空指针delete</li>
+</ul>
+<h2 id="3-3-智能指针"><a href="#3-3-智能指针" class="headerlink" title="3.3 智能指针"></a>3.3 智能指针</h2><p>使用new关键词分配动态内存会<strong>返回指向对象的指针</strong>。为了避免管理内存的麻烦，引入带有OS机制的智能指针：</p>
+<ul>
+<li>shared_ptr，允许多个指针指向同一个对象</li>
+<li>unique_ptr，对对象拥有唯一所有权，可以移动但不能复制</li>
+<li>weak_ptr，和shared_ptr搭配使用检测他是否空悬，每次使用时不会影响指向对象的引用计数</li>
+</ul>
+<p>这几个指针的使用规则：</p>
+<p><strong>使用shared_ptr:</strong></p>
+<p>初始化时，最好用函数分配内存，也可以传统的new分配</p>
+<pre><code class="lang-CPP">shared_ptr&lt;string&gt; p1=make_shared&lt;string&gt;(&quot;hello&quot;);
+shared_ptr&lt;int&gt; p2=make_shared&lt;int&gt;();//empty
+shared_ptr&lt;int&gt; p3(new int(10));
+</code></pre>
+<p>reset函数作用</p>
+<pre><code class="lang-CPP">p = std::make_shared&lt;int&gt;(5);
+p.reset(new int(5));//等价
+
+p = nullptr;
+p.reset();//等价
+</code></pre>
+<hr>
+<p><strong>使用unique_ptr：</strong></p>
+<p>不像shared_ptr那样有函数可以用，unique_ptr必须要用new分配空间：</p>
+<pre><code class="lang-CP">unique_ptr&lt;int&gt; p2(new int(42));
+</code></pre>
+<p>它不能被拷贝和赋值：</p>
+<pre><code class="lang-CPP">unique_ptr&lt;int&gt; p1=new int(42);
+auto p2(p1);//error
+auto p3 = p1;//error
+</code></pre>
+<p>但我们可以用reset和release转移</p>
+<pre><code class="lang-CPP">unique_ptr&lt;int&gt; p1(new int(42));
+unique_ptr&lt;int&gt; p2(p1.release());
+unique_ptr&lt;int&gt; p3(new int(10));
+p3.reset(p2.release);
+</code></pre>
+<p>使用release的时候要特别小心，<strong>auto会默认推导为普通指针类型</strong>，所以需要手动delete，不然就泄露了。</p>
+<pre><code class="lang-CPP">auto p2(p1.release()); //int*
+</code></pre>
+<p>在函数中，我们能够将unique_ptr传递出去：</p>
+<pre><code class="lang-CPP">unique_ptr&lt;int&gt; help(A a){
+    unique_ptr&lt;A&gt; pa(new A(a));
+    return pa;
+}
+</code></pre>
+<h2 id="3-4-new和malloc区别"><a href="#3-4-new和malloc区别" class="headerlink" title="3.4 new和malloc区别"></a>3.4 new和malloc区别</h2><p>总结起来就是<strong>两反，两内，两重（反冲累），狗租户</strong>(返回类型，失败返回，内存位置，内存大小指定，重新分配内存，重载，构造，数组，互相调用)</p>
+<p><strong>1.返回类型</strong></p>
+<p>new操作符分配成功是返回的指针类型和预期结果相同，无序进行转化，而malloc返回为void*，需要强制转化</p>
+<pre><code class="lang-CPP">char* p1=static_cast&lt;char&gt;(malloc(10));
+</code></pre>
+<p><strong>2.失败返回</strong></p>
+<p>new分配失败时，<strong>抛出</strong>bad_alloc<strong>异常</strong>，而malloc失败时<strong>返回NULL</strong>。</p>
+<p><strong>3.内存位置</strong></p>
+<p>new从<strong>自由内存区</strong>申请(free store)，malloc从堆上申请。自由内存区可以是堆也可以不是，这取决于实现细节，也可以是静态内存区。</p>
+<p><strong>4.是否指定内存大小</strong></p>
+<p>new分配时无须指定内存块的大小，编译器自行计算，而malloc则需要显式指出内存大小。</p>
+<p><strong>5. 是否可以被重载</strong></p>
+<p>new和delete可以，malloc不可以</p>
+<p><strong>6. 重新分配内存</strong></p>
+<p>使用malloc分配的内存后，可以使用realloc函数进行内存重新分配实现内存的扩充。如果原地内存足够则直接扩大，如果不足则重新找一块地方。new不具备重新分配的能力，只能另起炉灶。</p>
+<p><strong>7. 构造函数</strong></p>
+<p>new会调用构造函数和析构函数，而malloc只是分配内存空间。</p>
+<p><strong>8. 处理数组</strong></p>
+<p>C++提供了new[]和delete[]来专门处理数组。注意delete[]要与new[]配套使用，不然会找出数组对象部分释放的现象，造成内存泄漏。</p>
+<pre><code class="lang-CPP">A * ptr = new A[10];//分配10个A对象
+delete [] ptr;
+</code></pre>
+<p>malloc需要手动指定数组大小：</p>
+<pre><code class="lang-CPP">int * ptr = (int *) malloc( sizeof(int)* 10 );//分配一个10个int元素的数组
+</code></pre>
+<p><strong>9. 是否可以互相调用</strong></p>
+<p>new可以重载调用malloc，而malloc反过来则不行。</p>
+<h1 id="4-const"><a href="#4-const" class="headerlink" title="4. const"></a>4. const</h1><h2 id="4-1-const和-define相比优点是什么？"><a href="#4-1-const和-define相比优点是什么？" class="headerlink" title="4.1 const和#define相比优点是什么？"></a>4.1 const和#define相比优点是什么？</h2><h1 id="define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。"><a href="#define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。" class="headerlink" title="define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。"></a>define是宏定义，只是换了一个名字。而使用const时编译器会对const进行类型检查。</h1><h2 id="4-2-const用处"><a href="#4-2-const用处" class="headerlink" title="4.2 const用处"></a>4.2 const用处</h2><p><strong>（1）变量被指定为const</strong></p>
+<p>一个变量被指定为const类型后，不能再赋值：</p>
+<pre><code class="lang-CPP">const int bufsize =512;
+bufsize =100; //error
+</code></pre>
+<p><strong>（2）引用被指定为const</strong></p>
+<p>对于const变量的引用也不能再赋值：</p>
+<pre><code class="lang-CPP">const int ci=1024;
+const int &amp;rci = ci;
+rci =42; //error
+</code></pre>
+<p>用const引用来引用non-const值，这样可以修改原值，导致cosnt引用的结果也会改变。<strong>但同样的问题，不能修改const引用的结果。</strong></p>
+<pre><code class="lang-CPP">int i=43;
+const int &amp;ri=i;
+ri=10; //error
+i =10; //ok
+</code></pre>
+<p><strong>（3）指针指定为const</strong></p>
+<p>用法和引用相同，用const指针来指向non-const值，这样可以修改原值：</p>
+<pre><code class="lang-CPP">int m=10;
+const int* ptr = &amp;m; //ok, const pointer to non-const varible
+m = 20; //ok
+</code></pre>
+<h2 id="4-3-为什么要使用常引用？"><a href="#4-3-为什么要使用常引用？" class="headerlink" title="4.3 为什么要使用常引用？"></a>4.3 为什么要使用常引用？</h2><p>如果既要<strong>利用引用提高程序的效率</strong>，又要保护传递给函数的数据不在函数中被改变，就应使用常引用。</p>
+<h2 id="4-4-什么是顶层常量和底层常量？"><a href="#4-4-什么是顶层常量和底层常量？" class="headerlink" title="4.4 什么是顶层常量和底层常量？"></a>4.4 什么是顶层常量和底层常量？</h2><p>使用<code>const</code>修饰指针时，指针的属性有两种状态：<code>const int *</code>,<code>int * const</code>状态很容易混淆。<strong>在复制时，顶层常量可以被忽略，而底层常量会被限制：</strong></p>
+<pre><code class="lang-CPP">int i = 0;
+int * const p1 = &amp;i;  //顶层const
+int *x = p1;  // 正确，可以忽略p1的顶层const
+int n = *p1;  // 正确
+
+int i = 0;
+const int * p1 = &amp;i; //底层const
+int *x = p1; // 错误，*x不具备底层const资格
+const int *x2 = p1; // 正确，具备底层const资格
+</code></pre>
+<h2 id="4-5-类的成员函数使用const"><a href="#4-5-类的成员函数使用const" class="headerlink" title="4.5 类的成员函数使用const"></a>4.5 类的成员函数使用const</h2><p><strong>前面使用const 表示返回值为const；后面加 const表示函数不可以修改class的成员。</strong></p>
+<pre><code class="lang-CPP">const int FunctionConst::getValue(){
+    return value;//返回值是 const, 使用指针时很有用.
+}
+
+int FunctionConst::getValue2() const{
+    //此函数不能修改class FunctionConst的成员函数 value
+    value = 15;//错误的, 因为函数后面加 const
+    return value;
+}
+</code></pre>
+<p>如果返回值是指针时，前面使用const可以防止函数调用表达式作为左值，使得指针的内容被修改。</p>
+<h1 id="5-类与对象"><a href="#5-类与对象" class="headerlink" title="5.类与对象"></a>5.类与对象</h1><h2 id="5-1-类和结构体区别"><a href="#5-1-类和结构体区别" class="headerlink" title="5.1 类和结构体区别"></a>5.1 类和结构体区别</h2><ul>
+<li>class<ul>
+<li>class 是引用类型，它在堆中分配空间，栈中保存的只是引用</li>
+<li>默认是private</li>
+</ul>
+</li>
+<li>struct<ul>
+<li>struct 是值类型，它在栈中分配空间</li>
+<li>默认是public</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-2-构造函数中const和引用的初始化"><a href="#5-2-构造函数中const和引用的初始化" class="headerlink" title="5.2 构造函数中const和引用的初始化"></a>5.2 构造函数中const和引用的初始化</h2><pre><code class="lang-CPP">class A{
+public:
+    A(int ii);
+private:
+    int i;
+    const int ci;
+    int&amp; ri;
+}
+A::A(int ii){
+    i = ii; //ok
+    ci = ii; //error;
+    ri = ii; //error
+}
+</code></pre>
+<p><strong>const和引用的初始化必须在创建的时候就要完成</strong>，所以我们需要用列表初始化：</p>
+<pre><code class="lang-CPP">A::A(int ii):i(ii),ci(ii),ri(i){}
+</code></pre>
+<h2 id="5-3-静态成员"><a href="#5-3-静态成员" class="headerlink" title="5.3 静态成员"></a>5.3 静态成员</h2><p>静态成员<strong>不属于任何一个实例化的对象</strong>。假如我们有一个银行账户类，每天的利率是一个统一的数值，我们不需要为每个账户都去设置，只需要设置一个静态成员，让所有账户share就行。</p>
+<p>由于静态成员<strong>独立于实例化对象之外存在</strong>，对于静态成员函数来说，<strong>他们没有this指针</strong>。</p>
+<p>静态成员在类外可以使用两种办法访问：</p>
+<ul>
+<li><p>作用域符， <code>r=Account::rate();</code></p>
+</li>
+<li><p>传统办法（对象，引用，类指针）</p>
+<pre><code class="lang-CPP">Account ac1;
+Account ac2;
+r=ac1.rate();
+r=ac2-&gt;rate();
+</code></pre>
+</li>
+</ul>
+<p><strong>在类间可以直接访问。</strong></p>
+<hr>
+<p>由于静态成员不属于任何一个对象，所以构造函数对他是无效的，<strong>我们要初始化一个静态成员得通过函数在类外进行初始化。</strong></p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200224100335.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>使用constexpr或者const可以让他在类间初始化：</p>
+<pre><code class="lang-CPP">class Account 
+{ 
+public:    
+    static double rate() { return interestRate; }    
+    static void rate(double); 
+private:    
+    static constexpr int period = 30;// period is a constant
+}
+</code></pre>
+<h2 id="5-4-类的特殊成员函数"><a href="#5-4-类的特殊成员函数" class="headerlink" title="5.4 类的特殊成员函数"></a>5.4 类的特殊成员函数</h2><p>有5个：<strong>拷贝构造函数、拷贝赋值运算符、移动构造函数、移动赋值运算符、析构函数。</strong></p>
+<p>拷贝函数的定义：<strong>第一个参数是类的引用</strong></p>
+<pre><code class="lang-CPP">class Foo{
+public:
+    Foo();//default
+    Foo(Foo const&amp;);//copy
+}
+</code></pre>
+<p>拷贝赋值运算符：本质是重载了=运算符，运算符重载可以理解为：<strong>返回类型，函数名称，传入参数</strong>。赋值运算符通常应该<strong>返回一个指向其左侧对象的引用</strong></p>
+<pre><code class="lang-CPP">class Foo{
+public:
+    Foo&amp; operator=(Foo const&amp;);
+}
+</code></pre>
+<p>析构函数：析构时会先执行函数体，成员销毁时时按照生成时的逆序发生的。<strong>析构时，先调用派生类析构函数，再调用基类</strong>.</p>
+<pre><code class="lang-cpp">class A{
+public:
+    int i;
+    A(int const&amp; _i) :i(_i) {}
+    ~A(){
+        cout &lt;&lt; i;
+    }
+};//先输出i，再销毁
+</code></pre>
+<h2 id="5-5-析构函数注意事项"><a href="#5-5-析构函数注意事项" class="headerlink" title="5.5 析构函数注意事项"></a>5.5 析构函数注意事项</h2><p><strong>如果要自定义析构，则必须自定义拷贝和赋值</strong>。主要是针对浅拷贝和深拷贝的问题。</p>
+<pre><code class="lang-CPP">//深拷贝
+HasPtr&amp; operator=(HasPtr const&amp; rhs){
+    this-&gt;ps = new size_t[num];
+    this-&gt;num = rhs.num;
+    for(int i=0;i&lt;num;i++)
+        this-&gt;ps[i]=rhs.ps[i];
+    return this*;
+}
+//浅拷贝
+HasPtr&amp; operator=(HasPtr const&amp; rhs){
+    this-&gt;num=rhs.num;
+    this-&gt;ps = rhs.ps;
+    return this*;
+}
+</code></pre>
+<p>由于两个指针指向同一片内存区域，如果其中一个被释放，则另一个变成野指针。用智能指针可以避免：</p>
+<pre><code class="lang-CPP">int* p1 = new int(5);
+int* p2 = p1;
+delete p1; //野
+
+shared_ptr&lt;int&gt; p3 = make_shared&lt;int&gt;(5);
+auto p4 = p3;
+p3.reset();//ok
+</code></pre>
+<h2 id="5-6-合成构造函数"><a href="#5-6-合成构造函数" class="headerlink" title="5.6 合成构造函数"></a>5.6 合成构造函数</h2><p>当我们只是传入了一个类的对象，编译器会帮助我们利用这个对象进行合成构造，具体如下：</p>
+<pre><code class="lang-CPP">class Sales_data{
+public:
+    Sales_data(const Sales_data&amp;);
+private:
+    std::string bookNo;
+    int units_sold = 0;
+    double revenue = 0.0;
+};
+
+//与Sales_data的合成拷贝构造函数等价
+Sales_data::Sales_data(const Sales_data &amp;orig) : 
+    bookNo(orig.bookNo), //使用string的拷贝构造函数
+    units_sold(orig.units_sold),    //拷贝orig.units_sold
+    revenue(orig.revenue)    //拷贝orig.revenue
+    {}
+}
+</code></pre>
+<h2 id="5-7-default和delete"><a href="#5-7-default和delete" class="headerlink" title="5.7 default和delete"></a>5.7 default和delete</h2><p>使用关键词default以后可以<strong>显示地让编译器生成合成构造函数</strong>。delete可以禁用某些特殊成员函数。</p>
+<p>比如比如Iostream类就不希望有多个对象访问IO相同的IO口。因此我们呢使用<code>=delete</code>禁用拷贝构造和赋值运算符。</p>
+<h2 id="5-8-如何区分移动和拷贝的重载？"><a href="#5-8-如何区分移动和拷贝的重载？" class="headerlink" title="5.8 如何区分移动和拷贝的重载？"></a>5.8 如何区分移动和拷贝的重载？</h2><p>方法1，利用const</p>
+<pre><code class="lang-CPP">void push_back(X const&amp;);
+void push_back(X&amp;&amp;);
+</code></pre>
+<p>方法2，<strong>利用引用限定符</strong></p>
+<pre><code class="lang-CPP">class Foo{
+public:
+    void sorted()&amp;&amp;    {cout &lt;&lt; &quot;&amp;&amp;&quot;&lt;&lt;endl;}
+    void sorted()&amp;    {cout &lt;&lt; &quot;&amp;&quot; &lt;&lt; endl;}
+};
+Foo&amp;&amp; retVal(){
+    Foo f;
+    return std::move(f);
+}
+Foo&amp; retFoo(){
+    Foo f;
+    return f;
+}
+
+int main(){
+    retVal().sorted(); //&amp;&amp;
+    retFoo().sorted(); //&amp;
+}
+</code></pre>
+<h2 id="5-9-this指针"><a href="#5-9-this指针" class="headerlink" title="5.9 this指针"></a>5.9 this指针</h2><p>它指向当前对象，通过它可以访问当前对象的所有成员。</p>
+<pre><code class="lang-CPP">void Student::setname(char *name){
+    this-&gt;name = name;
+}
+</code></pre>
+<h2 id="5-10-访问私有成员的办法"><a href="#5-10-访问私有成员的办法" class="headerlink" title="5.10 访问私有成员的办法"></a>5.10 访问私有成员的办法</h2><ul>
+<li>类的成员函数访问</li>
+<li>友元函数</li>
+</ul>
+<h1 id="6-面向对象"><a href="#6-面向对象" class="headerlink" title="6. 面向对象"></a>6. 面向对象</h1><h2 id="6-1-oop特征"><a href="#6-1-oop特征" class="headerlink" title="6.1 oop特征"></a>6.1 oop特征</h2><p>三大特征：封装、继承、多态</p>
+<ul>
+<li>封装：分离接口和实现过程</li>
+<li>继承：应用类之间的相似性</li>
+<li>多态：函数复用</li>
+</ul>
+<h2 id="6-2-虚函数"><a href="#6-2-虚函数" class="headerlink" title="6.2 虚函数"></a>6.2 虚函数</h2><p>虚函数并不是不实现，纯虚函数<code>virtual void foo()=0;</code>才是不实现（比如shape类中，我实在不想写area的表达过程，就让他成为纯虚函数，方便格式统一）。虚函数主要是用来<strong>简便地实现多态的</strong>，<strong>核心理念就是通过基类访问派生类定义的函数</strong>。</p>
+<p>多态分两种：</p>
+<ul>
+<li>编译时多态，重载</li>
+<li>运行时多态，重写（<strong>重写是子类对父类的允许访问的方法的实现过程进行重新编写</strong>）</li>
+</ul>
+<p>当API不会知道实际传进来的指针或引用是哪个类型时，<strong>先用一个基类接一下传进来的指针，在运行时根据类型安排虚函数执行。</strong></p>
+<pre><code class="lang-CPP">class BaseItem {
+public:
+    virtual void itemMethod()=0;
+};
+
+class ItemA :public BaseItem { public:void itemMethod() override { cout &lt;&lt; &quot;ItemA&quot;&lt;&lt;endl; } };
+class ItemB :public BaseItem { public:void itemMethod() override { cout &lt;&lt; &quot;ItemB&quot; &lt;&lt; endl; } };
+class ItemC :public BaseItem { public:void itemMethod() override { cout &lt;&lt; &quot;ItemC&quot; &lt;&lt; endl; } };
+
+int main(){
+    vector&lt;shared_ptr&lt;BaseItem&gt;&gt; ItemCollection;
+    shared_ptr&lt;BaseItem&gt; p;
+
+    //基类指针指向派生类！
+    p.reset(new ItemA()); 
+    ItemCollection.push_back(p);
+    p.reset(new ItemB());
+    ItemCollection.push_back(p);
+    p.reset(new ItemC());
+    ItemCollection.push_back(p);
+
+    for (auto it : ItemCollection) {
+        it-&gt;itemMethod();
+    }
+}
+</code></pre>
+<p>C++11中允许使用<strong>override关键词显式注明虚函数的重写</strong>，如果重写失败就报错(不加的话会误以为一个新函数)(<strong>IDE推荐使用override</strong>)</p>
+<pre><code class="lang-CPP">struct B{
+    virtual void f1(int) const;
+    virtual void f2();
+    void f3();
+};
+struct D1 : B {
+    void f1(int) const override;    // ok: f1 matches f1 in the base
+    void f2(int) override;      // error: B has no f2(int) function
+    void f3() override;     // error: f3 not virtual
+}
+</code></pre>
+<h2 id="6-3-虚函数表"><a href="#6-3-虚函数表" class="headerlink" title="6.3 虚函数表"></a>6.3 虚函数表</h2><p>当上行转换时(从派生类到基类)可以通过隐式转化或<code>static_cast</code>完成，但要完成下行转化就需要借助<code>dynamic_cast</code>。虚函数表的作用就是<strong>完成上下行转换，实现动态绑定</strong>。</p>
+<p><strong>每一个包含虚函数的类（不是对象）都有一个自己的虚表</strong></p>
+<pre><code class="lang-CPP">class A {
+public:
+    virtual void vfunc1();
+    virtual void vfunc2();
+    void func1();
+    void func2();
+private:
+    int m_data1, m_data2;
+};
+</code></pre>
+<p>虚表是一个<strong>指针数组</strong>，其<strong>元素是虚函数的指针</strong>，每一个元素对应一个虚函数（普通函数不需要经过虚表）。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120007.png" style="zoom:60%;" /></p>
+<p><strong>当某个类生成一个对象时，编译器在类中就添加了一个指针<code>*_vptr</code>，指向虚表</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120124.png" style="zoom:60%;" /></p>
+<p>虚表是如何实现<strong>动态绑定</strong>的呢？</p>
+<pre><code class="lang-CPP">class A {
+public:
+    virtual void vfunc1();
+    virtual void vfunc2();
+};
+
+class B : public A {
+public:
+    virtual void vfunc1();
+};
+
+class C: public B {
+public:
+    virtual void vfunc2();
+};
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191214120452.png" style="zoom: 50%;" /></p>
+<p>当我们调用的时候:</p>
+<pre><code class="lang-CPP">B bObject;
+A* p = &amp;bObject;
+p-&gt;vfunc1(); //调用B::vfunc1();
+</code></pre>
+<p>程序在执行<code>p-&gt;vfunc1();</code>时，我们检查了三大条件：</p>
+<ul>
+<li>对象是指针或引用形式</li>
+<li>静态类型和动态类型不同</li>
+<li>带虚函数的继承体系</li>
+</ul>
+<p>所以现在动态类型现在生效。此时，<strong>并没有将p完全变为A，而是保留了B的虚函数表</strong>，所以我们调用的时候还是按B的虚函数表索引！</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" target="_blank" rel="external">jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E7%BB%8F%E9%AA%8C/" rel="tag">面试经验</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《CPP面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《CPP面试题目汇总》 — JR's Blog&source=cpp的内容整理。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb实战1-数据库与服务器的结合应用</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">数据结构面试题目汇总</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《CPP面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《CPP面试题目汇总》 — JR's Blog&source=cpp的内容整理。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CPP面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

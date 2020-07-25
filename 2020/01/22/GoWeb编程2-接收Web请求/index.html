@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>GoWeb编程2-接收Web请求 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go">
+    <meta name="description" content="要学习的是如何使用 Go 语言去创建一个 Web 服务器，以及如何处理客 户端发送的请求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoWeb编程2-接收Web请求">
+<meta property="og:url" content="jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="要学习的是如何使用 Go 语言去创建一个 Web 服务器，以及如何处理客 户端发送的请求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122141250.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122141545.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123124747.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123130729.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123134003.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123134202.png">
+<meta property="article:published_time" content="2020-01-22T06:04:09.000Z">
+<meta property="article:modified_time" content="2020-01-23T13:51:40.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122141250.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">GoWeb编程2-接收Web请求</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">GoWeb编程2-接收Web请求</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-22T06:04:09.000Z" itemprop="datePublished" class="page-time">
+  2020-01-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-使用Go构建服务器"><span class="post-toc-text">1. 使用Go构建服务器</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-处理器和处理函数"><span class="post-toc-text">2. 处理器和处理函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-处理请求"><span class="post-toc-text">2.1 处理请求</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-使用多个处理器"><span class="post-toc-text">2.2 使用多个处理器</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-处理器函数"><span class="post-toc-text">2.3 处理器函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-串联多个处理器和处理器函数"><span class="post-toc-text">2.4 串联多个处理器和处理器函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-5-ServeMux和DefaultServeMux"><span class="post-toc-text">3.5 ServeMux和DefaultServeMux</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-GoWeb编程2-接收Web请求"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">GoWeb编程2-接收Web请求</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-22 14:04:09" datetime="2020-01-22T06:04:09.000Z"  itemprop="datePublished">2020-01-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>要学习的是如何使用 Go 语言去创建一个 Web 服务器，以及如何处理客 户端发送的请求。<a id="more"></a></p>
+<p>前面一章展示了一个Web编程的Demo，本章着重处理细节。<!--more--></p>
+<h1 id="1-使用Go构建服务器"><a href="#1-使用Go构建服务器" class="headerlink" title="1. 使用Go构建服务器"></a>1. 使用Go构建服务器</h1><p>GoWeb编程这本书里提到了一个非常有趣的观点：<strong>货物崇拜编程(cargo cult programming)</strong></p>
+<blockquote>
+<p>货物崇拜一词指二战期间太平洋某些原住民社会中产生的信仰。他们会建造模仿飞机形状的模型和形似飞机跑道的设施，期待能够召唤飞机，像战争时代一样给他们带来物资。</p>
+<p>这个名词常指不熟练的或没经验的程序员从某处拷贝代码到另一处，却並未了解其代码是如何工作的，或者不清楚在新的地方是否需要这段代码。</p>
+</blockquote>
+<p>所以在goweb编程中，不应该局限于成熟框架的使用，而是应该深入理解作用机理，避免货物崇拜。</p>
+<hr>
+<p>net/http标准库构成如下：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122141250.png"/></p>
+<hr>
+<p>go构建的服务器处理请求的过程是：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122141545.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>创建服务器的函数时<code>http.ListenAndServe(&quot;网络地址&quot;,nil)</code>。这个函数传入的网络地址如果为空，则默认使用80端口进行连接；<strong>如果处理器参数为nil，则服务器将使用默认的多路复用器DefaultServeMux</strong></p>
+<p>最简单的Web服务器如下：</p>
+<pre><code class="lang-go">import &quot;net/http&quot;
+
+func main(){
+    http.ListenAndServe(&quot;&quot;,nil)
+}
+</code></pre>
+<p>在浏览器端口输入<code>localhost:80</code>，会进入一个页面，显示404，表明服务器创建成功，但是还没有添加页面。</p>
+<p>用户还可以<strong>通过 Server 结构对服务器进行更详细的配置</strong>，包括为请求读取操作设置超时时间等。</p>
+<pre><code class="lang-go">func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+        Handler: nil,
+    }
+    server.ListenAndServe()
+}
+</code></pre>
+<h1 id="2-处理器和处理函数"><a href="#2-处理器和处理函数" class="headerlink" title="2. 处理器和处理函数"></a>2. 处理器和处理函数</h1><p>之前的代码中，我们启动了一个 Web 服务器，访问这个服务器只会获得一个 404HTTP 响应代码。出现这一问题的原因在于<strong>我们尚未为服务器编写任何处理器，所以服务器的多路复用器在接收到请求之后找不到任何处理器来处理请求</strong>，因此它只能返回一个 404 响应。</p>
+<h2 id="2-1-处理请求"><a href="#2-1-处理请求" class="headerlink" title="2.1 处理请求"></a>2.1 处理请求</h2><p>在 Go 语言中， 一个处理器就是一个拥有 <code>ServeHTTP</code> 方法的接口，这个函数接收两个参数：</p>
+<ul>
+<li>ResponseWriter接口</li>
+<li>指向Request结构的<strong>指针</strong></li>
+</ul>
+<pre><code class="lang-go">ServeHTTP(http.ResponseWriter, *http.Request)
+</code></pre>
+<p>在之前<code>ListenAndServe</code>中，输入<code>nil</code>默认采用多路复用器<code>DefaultServeMux</code>。这个复用器是<code>ServeMux</code>结构的实例，它也拥有<code>ServeMux</code>结构的实例，也是<code>Handler</code>处理器结构的实例。 </p>
+<p>我们可以实现一个自己的处理器：</p>
+<pre><code class="lang-go">type MyHandler struct{}
+
+func (h *MyHandler) ServeHTTP(w http.ResponseWriter,r *http.Request){
+    fmt.Fprintf(w,&quot;hello&quot;)
+}
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+        Handler: &amp;MyHandler{},
+    }
+    server.ListenAndServe()
+}
+</code></pre>
+<p>解释一下，func后面的括号表示<strong>此函数属于括号中的结构。</strong>比如，</p>
+<pre><code class="lang-go">type Mutatable struct {
+    a int
+    b int
+}
+
+func (m Mutatable) StayTheSame() {
+    m.a = 5
+    m.b = 7
+}
+</code></pre>
+<p>这个处理器的问题是：当我们输入<code>localhost:8080/xxsak</code>之类的其他网页URL时，依然弹出<code>hello world</code>，正常来说应该弹出404才对。这是因为：处理器代替原本正在使用的默认多路复用器。 这意味着服务器不<strong>会再通过 URL 匹配来将请求路由至不同的处理器，而是直接使用同一个处理器来处理所有请求</strong>，因此无论浏览器访问什么地址，服务器返回的都是同样的 Hello World 响应。 </p>
+<h2 id="2-2-使用多个处理器"><a href="#2-2-使用多个处理器" class="headerlink" title="2.2 使用多个处理器"></a>2.2 使用多个处理器</h2><p>为了避免上述的问题，我们不再在 <code>Server</code> 结构的 <code>Handler</code> 字段中指定处理器，而是<strong>让服务器使用默认的 <code>DefaultServeMux</code> 作为处理器， 然后通过 <code>http.Handle</code> 函数将处理器绑定至 <code>DefaultServeMux</code>。</strong> </p>
+<p>通过下面的程序我们能实现：</p>
+<ul>
+<li>输入<code>localhost:8080/hello</code>，弹出hello</li>
+<li>输入<code>localhost:8080/world</code>，弹出world</li>
+<li>输入其他地址，弹出404</li>
+</ul>
+<pre><code class="lang-go">type hellohander struct{}
+func (h *hellohander) ServeHTTP(w http.ResponseWriter,r *http.Request){
+    fmt.Fprintf(w,&quot;hello&quot;)
+}
+
+type worldhander struct{}
+func (h *worldhander) ServeHTTP(w http.ResponseWriter,r *http.Request){
+    fmt.Fprintf(w,&quot;world&quot;)
+}
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.Handle(&quot;/hello&quot;,&amp;hellohander{})
+    http.Handle(&quot;/world&quot;,&amp;worldhander{})
+    server.ListenAndServe()
+}
+</code></pre>
+<h2 id="2-3-处理器函数"><a href="#2-3-处理器函数" class="headerlink" title="2.3 处理器函数"></a>2.3 处理器函数</h2><p>http的处理器函数相当于一个转换器：<strong>将一个带有正确签名的函数f转换成一个带有方法f的<code>Handler</code></strong>，比如：</p>
+<pre><code class="lang-go">func world(w http.ResponseWriter,r *http.Request){
+    fmt.Fprintf(w,&quot;world&quot;)
+}
+
+http.HandleFunc(&quot;/world&quot;,world)
+</code></pre>
+<h2 id="2-4-串联多个处理器和处理器函数"><a href="#2-4-串联多个处理器和处理器函数" class="headerlink" title="2.4 串联多个处理器和处理器函数"></a>2.4 串联多个处理器和处理器函数</h2><p>前面介绍了，在 Go 语言里面，<strong>程序可以将一个 函数传递给另一个函数，又或者通过标识符去引用一个具名函数</strong>。这意味着，程序可以像图展示的那样，将函数 fl 传递给另一个函数口，然后在函数 f2 执行完某些操作之后调用 fl 。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123124747.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>平时有些工作，诸如如日志记录、安全检查和错误处理等，需要我们加到正常代码中处理，这被称为<strong>横切关注点</strong>。但我们又<strong>不希望这些操作和正常的代码搅和在一起</strong>。 为此，我们可以使用<strong>串联（ chaining ）</strong>技术分隔代码中的横切关注点。</p>
+<p>下面这段代码，log函数接受一个<code>HandlerFunc</code>函数，然后又返回一个<code>HandlerFunc</code>函数，通过反射机制，反射出调用log的函数是谁。<strong>此时log函数相当于一个检验器</strong>。</p>
+<p>当用户进入<code>localhost:8080/world</code>时，控制台输出<code>Handler function called -main.world</code>。</p>
+<pre><code class="lang-go">func world(w http.ResponseWriter,r *http.Request){
+    fmt.Fprintf(w,&quot;world&quot;)
+}
+func log(h http.HandlerFunc) http.HandlerFunc{
+    return func(w http.ResponseWriter,r *http.Request){
+        name := runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()
+        fmt.Println( &quot;Handler function called -&quot;+ name)
+        h(w,r)
+    }
+}
+
+func main(){
+    server:=http.Server{
+        Addr: &quot;127.0.0.1:8080&quot;,
+    }
+    http.Handle(&quot;/world&quot;,log(world))
+    server.ListenAndServe()
+}
+</code></pre>
+<hr>
+<p>当然我们也可以串联起更多函数。 串联多个函数可以让程序执行更多动作，这种做法有时候也称为<strong>管道处理（ pipeline processing）</strong> </p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123130729.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>比如，我们写一个验证用于身份的函数：</p>
+<pre><code class="lang-go">func protect(h http.HandlerFunc) http.HandlerFunc{
+    return func(w http.ResponseWriter, r *http.Request){
+        ... //保护
+        h(w,r)
+    }
+}
+http.HandleFunc(&quot;/hello&quot;,protect(log(hello)))
+</code></pre>
+<hr>
+<p>串联处理器的方法实际上和串联处理器 函数的方法是非常相似的。 </p>
+<pre><code class="lang-go">type HelloHandler struct{}
+
+func (h HelloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request){
+    fmt.Fprintf(w, &quot;Hello!&quot;)
+}
+
+func log(h http.Handler) http.Handler{
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+        fmt.Printf(&quot;Handler called-%T\n&quot;,h)
+        h.ServeHTTP(w,r)
+    })
+}
+hello : = HelloHandler{} 
+http.Handle (&quot;/hello&quot;, log (hello))
+</code></pre>
+<p>传入log一个handler，在里面直接经过HandlerFunc函数处理得到一个Handler，这样就可以直接在<code>http.Handle</code>内执行。注意<code>http.HandleFunc</code>和<code>http.HandlerFunc</code>目测可以直接混用。</p>
+<h2 id="3-5-ServeMux和DefaultServeMux"><a href="#3-5-ServeMux和DefaultServeMux" class="headerlink" title="3.5 ServeMux和DefaultServeMux"></a>3.5 ServeMux和DefaultServeMux</h2><p>前面介绍了多路复用器，它负责<strong>接收HTTP请求并根据请求中的统一资源定位符URL将请求重新定向到正确的处理器</strong>。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123134003.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><code>ServeMux</code>包含了一个map，通过map将URL映射到处理器，正如之前所说，<code>ServeMux</code>结构也实现了<code>ServeHTTP</code>方法，他也是一个处理器：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200123134202.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><code>DefaultServeMux</code>是<code>ServeMux</code>的一个实例，当用户没有为 <code>Server</code> 结构指定处理器时，服务器就会使用 <code>DefaultServeMux</code> 作为 <code>ServeMux</code> 的默认实例。 </p>
+<hr>
+<p>当匹配不成功时，比如输入<code>/lalalal</code>，<strong>会进行层级下降，最终落到根URL上</strong>，也就是<code>indexHanlder</code>，输出404。但是当我们输入<code>/world/123123</code>，并不会落在<code>/world</code>上，这是因为程序在绑定 <code>helloHandler</code> 时使用的 URL 是<code>／hello</code> 而不是 <code>/hello／</code>。 <strong>如果被绑定的 URL 不是以／结尾，那么它只会与完全相同的 URL 匹配</strong>。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" target="_blank" rel="external">jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程2-接收Web请求》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程2-接收Web请求》 — JR's Blog&source=要学习的是如何使用 Go 语言去创建一个 Web 服务器，以及如何处理客 户端发送的请求。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程2-接收Web请求》 — JR's Blog&url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/23/GoWeb%E7%BC%96%E7%A8%8B3-%E5%A4%84%E7%90%86Web%E8%AF%B7%E6%B1%82/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb编程3-处理Web请求</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">GoWeb编程1-Web的基础知识 - go</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程2-接收Web请求》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&title=《GoWeb编程2-接收Web请求》 — JR's Blog&source=要学习的是如何使用 Go 语言去创建一个 Web 服务器，以及如何处理客 户端发送的请求。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程2-接收Web请求》 — JR's Blog&url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

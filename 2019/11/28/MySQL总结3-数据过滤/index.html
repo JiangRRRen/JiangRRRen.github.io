@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>MySQL总结3-数据过滤 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="读书笔记,数据库,MySQL">
+    <meta name="description" content="总结MySQL中的数据过滤方法：WHERE的基本过滤，WHERE的组合过滤，通配符过滤，子查询，组合查询。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL总结3-数据过滤">
+<meta property="og:url" content="jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="总结MySQL中的数据过滤方法：WHERE的基本过滤，WHERE的组合过滤，通配符过滤，子查询，组合查询。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-28T07:00:46.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:40:01.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL总结3-数据过滤</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL总结3-数据过滤</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-11-28T07:00:46.000Z" itemprop="datePublished" class="page-time">
+  2019-11-28
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-WHERE的初级过滤"><span class="post-toc-text">1. WHERE的初级过滤</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-检查单个值"><span class="post-toc-text">1.1 检查单个值</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-不匹配检查"><span class="post-toc-text">1.2 不匹配检查</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-范围值检查"><span class="post-toc-text">1.3 范围值检查</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-空值检查"><span class="post-toc-text">1.4 空值检查</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-WHERE的高级过滤"><span class="post-toc-text">2. WHERE的高级过滤</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-组合WHERE语句"><span class="post-toc-text">2.1 组合WHERE语句</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-IN操作符"><span class="post-toc-text">2.2 IN操作符</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-NOT操作符"><span class="post-toc-text">2.3 NOT操作符</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-通配符过滤"><span class="post-toc-text">3. 通配符过滤</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-百分号"><span class="post-toc-text">3.1 百分号%</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-下划线"><span class="post-toc-text">3.2 下划线 _</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-分组过滤"><span class="post-toc-text">4. 分组过滤</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-数据分组"><span class="post-toc-text">4.1 数据分组</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-过滤分组"><span class="post-toc-text">4.1 过滤分组</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-3-SELECT子句顺序"><span class="post-toc-text">4.3 SELECT子句顺序</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-子查询"><span class="post-toc-text">5. 子查询</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#6-组合查询"><span class="post-toc-text">6. 组合查询</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-MySQL总结3-数据过滤"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL总结3-数据过滤</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-11-28 15:00:46" datetime="2019-11-28T07:00:46.000Z"  itemprop="datePublished">2019-11-28</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>总结MySQL中的数据过滤方法：WHERE的基本过滤，WHERE的组合过滤，通配符过滤，子查询，组合查询。<a id="more"></a></p>
+<h1 id="1-WHERE的初级过滤"><a href="#1-WHERE的初级过滤" class="headerlink" title="1. WHERE的初级过滤"></a>1. WHERE的初级过滤</h1><p>只检索所需数据需要指定<strong>搜索条件</strong>（search criteria），搜索条件也称为<strong>过滤条件</strong>（filter condition）。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_name,prod_price
+    -&gt; FROM products
+    -&gt; WHERE prod_price=2.50;
++---------------+------------+
+| prod_name     | prod_price |
++---------------+------------+
+| Carrots       |       2.50 |
+| TNT (1 stick) |       2.50 |
++---------------+------------+
+2 rows in set (0.88 sec)
+</code></pre>
+<p>除了上面提到的<strong>相等</strong>操作，还有WHERE通过其他操作符还能实现许多功能。</p>
+<h2 id="1-1-检查单个值"><a href="#1-1-检查单个值" class="headerlink" title="1.1 检查单个值"></a>1.1 检查单个值</h2><p>上面举了一个利用<strong>相等条件</strong>检查单个值的情况，下面再看一个利用<strong>不等条件</strong>的例子。</p>
+<pre><code class="lang-MYSQL">mysql&gt; SELECT prod_name,prod_price
+    -&gt; FROM products
+    -&gt; WHERE prod_price &gt; 50;
++--------------+------------+
+| prod_name    | prod_price |
++--------------+------------+
+| JetPack 2000 |      55.00 |
++--------------+------------+
+1 row in set (0.25 sec)
+</code></pre>
+<h2 id="1-2-不匹配检查"><a href="#1-2-不匹配检查" class="headerlink" title="1.2 不匹配检查"></a>1.2 不匹配检查</h2><p>列出不是由供应商1003制造的产品。</p>
+<pre><code class="lang-MYSQL">mysql&gt; SELECT vend_id, prod_name
+    -&gt; FROM products
+    -&gt; WHERE vend_id &lt;&gt; 1003;
++---------+--------------+
+| vend_id | prod_name    |
++---------+--------------+
+|    1001 | .5 ton anvil |
+|    1001 | 1 ton anvil  |
+|    1001 | 2 ton anvil  |
+|    1002 | Fuses        |
+|    1005 | JetPack 1000 |
+|    1005 | JetPack 2000 |
+|    1002 | Oil can      |
++---------+--------------+
+7 rows in set (0.24 sec)
+</code></pre>
+<p><strong>既可以</strong>使用<code>&lt;&gt;</code>操作符，<strong>也可以</strong>使用<code>!=</code>操作符。</p>
+<h2 id="1-3-范围值检查"><a href="#1-3-范围值检查" class="headerlink" title="1.3 范围值检查"></a>1.3 范围值检查</h2><p>为了检查某个范围的值，可使用<strong>BETWEEN操作符</strong>。下面展示，BETWEEN操作符检索价格在5美元和10美元之间的商品。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_name,prod_price
+    -&gt; FROM products
+    -&gt; WHERE prod_price BETWEEN 5 and 10;
++----------------+------------+
+| prod_name      | prod_price |
++----------------+------------+
+| .5 ton anvil   |       5.99 |
+| 1 ton anvil    |       9.99 |
+| Bird seed      |      10.00 |
+| Oil can        |       8.99 |
+| TNT (5 sticks) |      10.00 |
++----------------+------------+
+5 rows in set (0.75 sec)
+</code></pre>
+<p>在使用BETWEEN时需要<strong>跟在WHERE后面</strong>，必须指定两个值 ——<strong>所需范围的低端值和高端值</strong>。这两个值必须<strong>用AND关键字分隔</strong>。</p>
+<h2 id="1-4-空值检查"><a href="#1-4-空值检查" class="headerlink" title="1.4 空值检查"></a>1.4 空值检查</h2><p>SELECT语句有一个特殊的WHERE子句，可用来检查具有NULL值的列。 这个WHERE子句就是IS NULL子句。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_name
+    -&gt; From products
+    -&gt; WHERE prod_price IS NULL;
+Empty set (0.24 sec)
+</code></pre>
+<p>注意，<strong>不能使用相等条件来检查NULL</strong>，必须使用特殊语句。</p>
+<h1 id="2-WHERE的高级过滤"><a href="#2-WHERE的高级过滤" class="headerlink" title="2. WHERE的高级过滤"></a>2. WHERE的高级过滤</h1><h2 id="2-1-组合WHERE语句"><a href="#2-1-组合WHERE语句" class="headerlink" title="2.1 组合WHERE语句"></a>2.1 组合WHERE语句</h2><p>使用<strong>AND操作符</strong>给WHERE子句附加条件。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_id,prod_price,vend_id
+    -&gt; FROM products
+    -&gt; WHERE vend_id=1003 AND prod_price&lt;=10;
++---------+------------+---------+
+| prod_id | prod_price | vend_id |
++---------+------------+---------+
+| FB      |      10.00 |    1003 |
+| FC      |       2.50 |    1003 |
+| SLING   |       4.49 |    1003 |
+| TNT1    |       2.50 |    1003 |
+| TNT2    |      10.00 |    1003 |
++---------+------------+---------+
+5 rows in set (0.24 sec)
+</code></pre>
+<p><strong>OR操作符</strong>与AND操作符不同，它指示MySQL检索匹配任一条件的行。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_id,prod_price,vend_id
+    -&gt; FROM products
+    -&gt; WHERE prod_price&lt;5 OR vend_id=1001;
++---------+------------+---------+
+| prod_id | prod_price | vend_id |
++---------+------------+---------+
+| ANV01   |       5.99 |    1001 |
+| ANV02   |       9.99 |    1001 |
+| ANV03   |      14.99 |    1001 |
+| FC      |       2.50 |    1003 |
+| FU1     |       3.42 |    1002 |
+| SLING   |       4.49 |    1003 |
+| TNT1    |       2.50 |    1003 |
++---------+------------+---------+
+7 rows in set (0.25 sec)
+</code></pre>
+<p>同时使用AND和OR时要注意：SQL在处理OR操作符前，优先处理AND操 作符。此问题的解决方法是<strong>使用圆括号明确地分组</strong>相应的操作符。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_id,prod_price,vend_id
+    -&gt; FROM products
+    -&gt; WHERE (vend_id=1003 OR vend_id=1002)AND prod_price&lt;5;
++---------+------------+---------+
+| prod_id | prod_price | vend_id |
++---------+------------+---------+
+| FC      |       2.50 |    1003 |
+| FU1     |       3.42 |    1002 |
+| SLING   |       4.49 |    1003 |
+| TNT1    |       2.50 |    1003 |
++---------+------------+---------+
+4 rows in set (0.24 sec)
+</code></pre>
+<h2 id="2-2-IN操作符"><a href="#2-2-IN操作符" class="headerlink" title="2.2 IN操作符"></a>2.2 IN操作符</h2><p>圆括号在WHERE子句中还有另外一种用法。<strong>IN操作符用来指定条件</strong>。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_price,prod_name,vend_id
+    -&gt; From products
+    -&gt; WHERE vend_id IN(1002,1005);
++------------+--------------+---------+
+| prod_price | prod_name    | vend_id |
++------------+--------------+---------+
+|       3.42 | Fuses        |    1002 |
+|      35.00 | JetPack 1000 |    1005 |
+|      55.00 | JetPack 2000 |    1005 |
+|       8.99 | Oil can      |    1002 |
++------------+--------------+---------+
+4 rows in set (0.24 sec)
+</code></pre>
+<p>这并<strong>不表示范围</strong>，特别表示1002和1005这两个对象。相较于AND和OR更清晰直观。</p>
+<h2 id="2-3-NOT操作符"><a href="#2-3-NOT操作符" class="headerlink" title="2.3 NOT操作符"></a>2.3 NOT操作符</h2><p>WHERE子句中的NOT操作符有且只有一个功能，那就是否定它之后所 跟的任何条件。 </p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_price,prod_name,vend_id
+    -&gt; From products
+    -&gt; WHERE vend_id NOT IN(1002,1005);
++------------+----------------+---------+
+| prod_price | prod_name      | vend_id |
++------------+----------------+---------+
+|       5.99 | .5 ton anvil   |    1001 |
+|       9.99 | 1 ton anvil    |    1001 |
+|      14.99 | 2 ton anvil    |    1001 |
+|      13.00 | Detonator      |    1003 |
+|      10.00 | Bird seed      |    1003 |
+|       2.50 | Carrots        |    1003 |
+|      50.00 | Safe           |    1003 |
+|       4.49 | Sling          |    1003 |
+|       2.50 | TNT (1 stick)  |    1003 |
+|      10.00 | TNT (5 sticks) |    1003 |
++------------+----------------+---------+
+10 rows in set (0.24 sec)
+</code></pre>
+<h1 id="3-通配符过滤"><a href="#3-通配符过滤" class="headerlink" title="3. 通配符过滤"></a>3. 通配符过滤</h1><p>前面提到：用SELECT搜索所有数据的时候，用到的*就是一个通配符除了这个符号还有两种比较常见的。</p>
+<h2 id="3-1-百分号"><a href="#3-1-百分号" class="headerlink" title="3.1 百分号%"></a>3.1 百分号%</h2><p>%表示<strong>任何字符出现任意次数</strong>。例如，为了找出所有以词jet起头的产品，可使用以下SELECT 语句：</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_price,prod_name,vend_id
+    -&gt; From products
+    -&gt; WHERE prod_name LIKE &#39;jet%&#39;;
++------------+--------------+---------+
+| prod_price | prod_name    | vend_id |
++------------+--------------+---------+
+|      35.00 | JetPack 1000 |    1005 |
+|      55.00 | JetPack 2000 |    1005 |
++------------+--------------+---------+
+2 rows in set (0.54 sec)
+</code></pre>
+<p>此例子使用了搜索模式<code>&#39;jet%&#39;</code>。在执行这条子句时，<strong>将检索任意以jet起头的词</strong>。%告诉MySQL接受jet之后的任意字符，不 管它有多少字符。 注意：按照MySQL的配置方式，搜索是<strong>区分大小写的</strong>。</p>
+<p>通配符可在搜索模式中任意位置使用，并且可以使用多个通配符。 </p>
+<pre><code class="lang-MYSQL">mysql&gt; SELECT prod_price,prod_name,vend_id
+    -&gt; From products
+    -&gt; WHERE prod_name LIKE &#39;%anvil%&#39;;
++------------+--------------+---------+
+| prod_price | prod_name    | vend_id |
++------------+--------------+---------+
+|       5.99 | .5 ton anvil |    1001 |
+|       9.99 | 1 ton anvil  |    1001 |
+|      14.99 | 2 ton anvil  |    1001 |
++------------+--------------+---------+
+3 rows in set (0.25 sec)
+</code></pre>
+<h2 id="3-2-下划线"><a href="#3-2-下划线" class="headerlink" title="3.2 下划线 _"></a>3.2 下划线 _</h2><p>下划线<strong>只匹配单个字符</strong>而不是多个字符。 如下所示<code>.5 ton anvi</code>的产品没有被匹配。</p>
+<pre><code class="lang-mysql">mysql&gt; SELECT prod_price,prod_name,vend_id
+    -&gt; From products
+    -&gt; WHERE prod_name LIKE &#39;_ ton anvil&#39;;
++------------+-------------+---------+
+| prod_price | prod_name   | vend_id |
++------------+-------------+---------+
+|       9.99 | 1 ton anvil |    1001 |
+|      14.99 | 2 ton anvil |    1001 |
++------------+-------------+---------+
+2 rows in set (0.24 sec)
+</code></pre>
+<p>如果输入<code>__ ton anvil</code>则只返回<code>.5 ton anvil</code>那个产品。</p>
+<h1 id="4-分组过滤"><a href="#4-分组过滤" class="headerlink" title="4. 分组过滤"></a>4. 分组过滤</h1><h2 id="4-1-数据分组"><a href="#4-1-数据分组" class="headerlink" title="4.1 数据分组"></a>4.1 数据分组</h2><p>分组是在SELECT语句的<strong>GROUP BY</strong>子句中建立的。下面的例子中我们利用<code>COUNT</code>统计数据，分组。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_id, COUNT(*) AS num_probs
+    -&gt; FROM products
+    -&gt; GROUP BY vend_id;
++---------+-----------+
+| vend_id | num_probs |
++---------+-----------+
+|    1001 |         3 |
+|    1002 |         2 |
+|    1003 |         7 |
+|    1005 |         2 |
++---------+-----------+
+4 rows in set (0.55 sec)
+</code></pre>
+<p>GROUP BY子句有一些独特的地方</p>
+<ul>
+<li>GROUP BY子句可以<strong>包含任意数目的列</strong>。这使得能对分组进行嵌套， 为数据分组提供更细致的控制。 </li>
+<li>GROUP BY子句必须出现在WHERE子句之后，ORDER BY子句之前。 </li>
+</ul>
+<h2 id="4-1-过滤分组"><a href="#4-1-过滤分组" class="headerlink" title="4.1 过滤分组"></a>4.1 过滤分组</h2><p>为WHERE过滤指定的是行而不是分组，如果要对分组进行过滤，需要使用HAVING子句。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_id, COUNT(*) AS orders
+    -&gt; FROM orders
+    -&gt; GROUP BY cust_id
+    -&gt; HAVING COUNT(*)&gt;=2;
++---------+--------+
+| cust_id | orders |
++---------+--------+
+|   10001 |      2 |
++---------+--------+
+1 row in set (0.24 sec)
+</code></pre>
+<p>HAVING也可以和WHERE共用：</p>
+<pre><code class="lang-SQL">mysql&gt; SELECT vend_id,COUNT(*) AS num_prods
+    -&gt; FROM products
+    -&gt; WHERE prod_price&gt;=10
+    -&gt; GROUP BY vend_id
+    -&gt; HAVING COUNT(*)&gt;=2;
++---------+-----------+
+| vend_id | num_prods |
++---------+-----------+
+|    1003 |         4 |
+|    1005 |         2 |
++---------+-----------+
+2 rows in set (0.24 sec)
+</code></pre>
+<h2 id="4-3-SELECT子句顺序"><a href="#4-3-SELECT子句顺序" class="headerlink" title="4.3 SELECT子句顺序"></a>4.3 SELECT子句顺序</h2><p>目前已经介绍了WHERE, GROUP BY, HAVING, ORDER BY, LIMIT等子句，这些字句都可以共用，但顺序需要注意。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">子句</th>
+<th style="text-align:center">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">SELECT</td>
+<td style="text-align:center">选择一些列或表达式</td>
+</tr>
+<tr>
+<td style="text-align:center">FROM</td>
+<td style="text-align:center">要检索的表</td>
+</tr>
+<tr>
+<td style="text-align:center">WHERE</td>
+<td style="text-align:center">行级过滤</td>
+</tr>
+<tr>
+<td style="text-align:center">GROUP BY</td>
+<td style="text-align:center">分组说明</td>
+</tr>
+<tr>
+<td style="text-align:center">HAVING</td>
+<td style="text-align:center">组级过滤</td>
+</tr>
+<tr>
+<td style="text-align:center">ORDER BY</td>
+<td style="text-align:center">排序</td>
+</tr>
+<tr>
+<td style="text-align:center">LIMIT</td>
+<td style="text-align:center">输出的行数</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="5-子查询"><a href="#5-子查询" class="headerlink" title="5. 子查询"></a>5. 子查询</h1><p>所谓子查询就是在WHERE中再嵌套WHERE，用IN连接</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_id FROM orders
+    -&gt; WHERE order_num IN
+    -&gt; (SELECT order_num FROM orderitems
+    -&gt; WHERE prod_id = &#39;TNT2&#39;);
++---------+
+| cust_id |
++---------+
+|   10001 |
+|   10004 |
++---------+
+2 rows in set (0.56 sec)
+</code></pre>
+<p>当然也可以使用<strong>计算字段</strong>来进行过滤查询。下面这个例子中查询了两个表：customers和orders，将orders表中查询到的各个客户的订单数量，汇总。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_name, cust_state,
+    -&gt; (SELECT COUNT(*) FROM orders
+    -&gt; WHERE orders.cust_id = customers.cust_id)
+    -&gt; AS orders
+    -&gt; FROM customers ORDER BY cust_name;
++----------------+------------+--------+
+| cust_name      | cust_state | orders |
++----------------+------------+--------+
+| Coyote Inc.    | MI         |      2 |
+| E Fudd         | IL         |      1 |
+| Mouse House    | OH         |      0 |
+| Wascals        | IN         |      1 |
+| Yosemite Place | AZ         |      1 |
++----------------+------------+--------+
+5 rows in set (0.25 sec)
+</code></pre>
+<h1 id="6-组合查询"><a href="#6-组合查询" class="headerlink" title="6. 组合查询"></a>6. 组合查询</h1><p>前面提到WHERE可以使用OR组合查询条件，这里再提供另一种查询方法UNION</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_id, prod_id, prod_price
+    -&gt; FROM products
+    -&gt; WHERE prod_price&lt;=5
+    -&gt; UNION
+    -&gt; SELECT vend_id, prod_id, prod_price
+    -&gt; FROM products
+    -&gt; WHERE vend_id IN(1001,1002);
++---------+---------+------------+
+| vend_id | prod_id | prod_price |
++---------+---------+------------+
+|    1003 | FC      |       2.50 |
+|    1002 | FU1     |       3.42 |
+|    1003 | SLING   |       4.49 |
+|    1003 | TNT1    |       2.50 |
+|    1001 | ANV01   |       5.99 |
+|    1001 | ANV02   |       9.99 |
+|    1001 | ANV03   |      14.99 |
+|    1002 | OL1     |       8.99 |
++---------+---------+------------+
+8 rows in set (0.24 sec)
+</code></pre>
+<p>他等价于WHERE和OR的组合：</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_id, prod_id, prod_price
+    -&gt; FROM products
+    -&gt; WHERE prod_price&lt;=5 OR vend_id IN(1001,1002);
++---------+---------+------------+
+| vend_id | prod_id | prod_price |
++---------+---------+------------+
+|    1001 | ANV01   |       5.99 |
+|    1001 | ANV02   |       9.99 |
+|    1001 | ANV03   |      14.99 |
+|    1003 | FC      |       2.50 |
+|    1002 | FU1     |       3.42 |
+|    1002 | OL1     |       8.99 |
+|    1003 | SLING   |       4.49 |
+|    1003 | TNT1    |       2.50 |
++---------+---------+------------+
+8 rows in set (0.24 sec)
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" target="_blank" rel="external">jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&title=《MySQL总结3-数据过滤》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&title=《MySQL总结3-数据过滤》 — JR's Blog&source=总结MySQL中的数据过滤方法：WHERE的基本过滤，WHERE的组合过滤，通配符过滤，子查询，组合查询。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结3-数据过滤》 — JR's Blog&url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%934-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL总结4-正则表达式</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/11/28/MySQL%E6%80%BB%E7%BB%932-%E6%A3%80%E7%B4%A2%E4%B8%8E%E6%8E%92%E5%BA%8F/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL总结2-检索与排序</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&title=《MySQL总结3-数据过滤》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&title=《MySQL总结3-数据过滤》 — JR's Blog&source=总结MySQL中的数据过滤方法：WHERE的基本过滤，WHERE的组合过滤，通配符过滤，子查询，组合查询。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结3-数据过滤》 — JR's Blog&url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/11/28/MySQL%E6%80%BB%E7%BB%933-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

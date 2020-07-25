@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SLAM基础3-李群和李代数 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,数学">
+    <meta name="description" content="李群和李代数是非常抽象的数学概念，在SLAM中我们通过他来衡量旋转平移的变化量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础3-李群和李代数">
+<meta property="og:url" content="jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="李群和李代数是非常抽象的数学概念，在SLAM中我们通过他来衡量旋转平移的变化量。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809092612.png">
+<meta property="article:published_time" content="2019-08-09T07:44:12.000Z">
+<meta property="article:modified_time" content="2019-12-30T14:38:05.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="数学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809092612.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SLAM基础3-李群和李代数</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SLAM基础3-李群和李代数</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-09T07:44:12.000Z" itemprop="datePublished" class="page-time">
+  2019-08-09
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基本概念"><span class="post-toc-text">1.基本概念</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-映射关系"><span class="post-toc-text">2. 映射关系</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-SO-3-上的映射"><span class="post-toc-text">2.1  SO(3)上的映射</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-SE-3-上的指数映射"><span class="post-toc-text">2.2 SE(3)上的指数映射</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-李代数求导"><span class="post-toc-text">3. 李代数求导</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-BCH公式与近似形式"><span class="post-toc-text">3.1 BCH公式与近似形式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-李代数求导模型"><span class="post-toc-text">3.2 李代数求导模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-扰动模型"><span class="post-toc-text">3.3 扰动模型</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SLAM基础3-李群和李代数"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SLAM基础3-李群和李代数</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-09 15:44:12" datetime="2019-08-09T07:44:12.000Z"  itemprop="datePublished">2019-08-09</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>李群和李代数是非常抽象的数学概念，在SLAM中我们通过他来衡量旋转平移的变化量。<a id="more"></a></p>
+<h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><p>李群李代数主要用于SLAM算法中平移以及旋转来的<strong>求导</strong>。由于旋转矩阵为矩阵形式，<strong>不能用$R+\Delta R$表示变化量</strong>。</p>
+<p>三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵则构成了<strong>特殊欧式群</strong>$SE(3)$</p>
+<script type="math/tex; mode=display">
+\begin{array}{c}{S O(3)=\left\{\boldsymbol{R} \in \mathbb{R}^{3 \times 3} | \boldsymbol{R} \boldsymbol{R}^{T}=\boldsymbol{I}, \operatorname{det}(\boldsymbol{R})=1\right\}} \\ {S E(3)=\left\{\boldsymbol{T}=\left[\begin{array}{cc}{\boldsymbol{R}} & {t} \\ {0^{T}} & {1}\end{array}\right] \in \mathbb{R}^{4 \times 4} | \boldsymbol{R} \in S O(3), \boldsymbol{t} \in \mathbb{R}^{3}\right\}}\end{array}</script><p>群（Group）是<strong>一种集合</strong>加上<strong>一种运算</strong>的代数结构。<strong>李群则是光滑的群</strong>(整数群就不光滑不连续)。<strong>李代数描述了李群的局部性质</strong>（变化率,相当于求导数）。</p>
+<p>对于任意旋转矩阵$R$，由于它是正交矩阵，所以满足$RR^T=I$，如果$R$连续随时间变化，则我们用$R(t)$表示：</p>
+<script type="math/tex; mode=display">
+R(t)R(t)^T=I</script><p>对其求导可得：</p>
+<script type="math/tex; mode=display">
+\dot{R}(t)R(t)^T+R(t)\dot{R}(t)^T=0\\
+\dot{R}(t)R(t)^T=-R(t)\dot{R}(t)^T=-(\dot{R}(t)R(t)^T)^T</script><blockquote>
+<p>如果矩阵A满足$A^T=-A$，则称之为反对称矩阵。它的展开形式一定是:</p>
+<script type="math/tex; mode=display">
+\left[\begin{array}{ccc}{0} & {-a_{3}} & {a_{2}} \\ {a_{3}} & {0} & {-a_{1}} \\ {-a_{2}} & {a_{1}} & {0}\end{array}\right]</script><p>所以我们可以用向量$[a_1,a_2,a_3]\land$表示</p>
+</blockquote>
+<p>由于$\dot{R}(t)R(t)^T$是一个反对称矩阵，我们可以找到一个三维向量 与之对应。于是有：</p>
+<script type="math/tex; mode=display">
+\dot{R}(t)R(t)^T=\phi(t)\land</script><p>等式左右两边乘以$R(t)$，由于$R$是正交矩阵，所以有：</p>
+<script type="math/tex; mode=display">
+\dot{\boldsymbol{R}}(t)=\phi(t)^{\wedge} \boldsymbol{R}(t)=\left[\begin{array}{ccc}{0} & {-\phi_{3}} & {\phi_{2}} \\ {\phi_{3}} & {0} & {-\phi_{1}} \\ {-\phi_{2}} & {\phi_{1}} & {0}\end{array}\right] \boldsymbol{R}(t)</script><p>可以看到，每对旋转矩阵求一次导数，只需左乘一个 $\phi(t)\land$ 矩阵即可。为方便讨论，我们设 $t_0=0$，并设此时旋转矩阵为 $R(0)=I$，按照导数定义，可以把 $R(t)$ 在 0 附近进行 一阶泰勒展开：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \boldsymbol{R}(t) & \approx \boldsymbol{R}\left(t_{0}\right)+\dot{\boldsymbol{R}}\left(t_{0}\right)\left(t-t_{0}\right) \\ &=\boldsymbol{I}+\phi\left(t_{0}\right)^{\wedge}(t) \end{aligned}</script><p>同时在 $t_0$ 附近，设$\phi$ 保持为常数$\phi(t_0)=\phi_0$(保证$\phi{}$在 $t_0 $附近保持不变)则可以推导得出：</p>
+<script type="math/tex; mode=display">
+\dot{\boldsymbol{R}}(t)=\phi\left(t_{0}\right)^{\wedge} \boldsymbol{R}(t)=\phi_{0}^{\wedge} \boldsymbol{R}(t)</script><p>解微分方程可以得到：</p>
+<script type="math/tex; mode=display">
+\boldsymbol{R(t)}=\exp({\phi_0}^{\land} t)</script><p><strong>由此可知给定某时刻的 $R$，我们就能求得一个 $\phi$，它描述了 $R$ 在局部的导数关系，它是一个李代数。</strong></p>
+<h1 id="2-映射关系"><a href="#2-映射关系" class="headerlink" title="2. 映射关系"></a>2. 映射关系</h1><p>以下关系专门针对三维矩阵旋转构成了<strong>特殊正交群</strong>$SO(3)$，变换矩阵构成的<strong>特殊欧式群</strong>$SE(3)$，$\mathfrak{so}(3)$表示特殊正交群的李代数，<strong>此时旋转通过对数映射用$\phi$表示</strong>，$\mathfrak{se}(3)$表示特殊欧式群的李代数，<strong>变换用$\xi$</strong></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809092612.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="2-1-SO-3-上的映射"><a href="#2-1-SO-3-上的映射" class="headerlink" title="2.1  SO(3)上的映射"></a>2.1  SO(3)上的映射</h2><p>$\exp(ϕ∧)$ 是如何计算的？它是一个矩阵的指数，在李群和李代数中，称为指数映射（Exponential Map）</p>
+<p>任意矩阵的指数映射可以写成一个泰勒展开：</p>
+<script type="math/tex; mode=display">
+exp(A)=\sum_{n=0}^\infty{\frac{1}{n!}A^n}</script><p>替换A得到：</p>
+<script type="math/tex; mode=display">
+exp(\phi\land)=\sum_{n=0}^\infty{\frac{1}{n!}(\phi\land)^n}</script><p>对于反对称矩阵有两条特殊性质：</p>
+<script type="math/tex; mode=display">
+a^\land a^\land=aa^T-I\\
+a^\land a^\land a^\land=-a^\land</script><p>展开可以得到：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \exp \left(\phi^{\wedge}\right) &=\exp \left(\theta \boldsymbol{a}^{\wedge}\right)=\sum_{n=0} \frac{1}{n !}\left(\theta \boldsymbol{a}^{\wedge}\right)^{n} \\ &=\boldsymbol{I}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{4}+\ldots \\ &=\boldsymbol{a} \boldsymbol{a}^{T}-\boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\theta \boldsymbol{a}^{\wedge}+\frac{1}{2 !} \theta^{2} \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}-\frac{1}{3 !} \theta^{3} \boldsymbol{a}^{\wedge}-\frac{1}{4 !} \theta^{4}\left(\boldsymbol{a}^{\wedge}\right)^{2}+\ldots \\ &=\boldsymbol{a} \boldsymbol{a}^{T}+\left(\theta-\frac{1}{3 !} \theta^{3}+\frac{1}{5 !} \theta^{5}-\ldots\right) \boldsymbol{a}^{\wedge}-\left(1-\frac{1}{2 !} \theta^{2}+\frac{1}{4 !} \theta^{4}-\ldots\right) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge} \\ &=(1-\cos \theta) \boldsymbol{a}^{\wedge} \boldsymbol{a}^{\wedge}+\boldsymbol{I}+\sin \theta \boldsymbol{a}^{\wedge} \\ &=\cos \theta \boldsymbol{I}+(1-\cos \theta) \boldsymbol{a} \boldsymbol{a}^{T}+\sin \theta \boldsymbol{a}^{\wedge} \end{aligned}</script><p>最后就得到了类似罗德里格斯公式的式子：</p>
+<script type="math/tex; mode=display">
+\exp(\theta a^\land)=\cos(\theta)I+(1-\cos\theta)aa^T+\sin(\theta)a^\land</script><p>罗德里格斯公式如下：</p>
+<script type="math/tex; mode=display">
+\mathbf{R}=\cos\theta \mathbf\cdot \mathbf{I}+(1-\cos\theta)\mathbf{nn^T}+\sin\theta\cdot \mathbf{n} {\land}</script><p>因此我们可以知道，$\mathfrak{so}(3)$ 实际上就是由所谓的<strong>旋转向量组成的空间</strong>，而指数映射即<strong>罗德里格斯公式</strong></p>
+<p>反之也可以定义对数映射：</p>
+<script type="math/tex; mode=display">
+\phi=\ln (\boldsymbol{R})^{\vee}=\left(\sum_{n=0}^{\infty} \frac{(-1)^{n}}{n+1}(\boldsymbol{R}-\boldsymbol{I})^{n+1}\right)^{\vee}</script><h2 id="2-2-SE-3-上的指数映射"><a href="#2-2-SE-3-上的指数映射" class="headerlink" title="2.2 SE(3)上的指数映射"></a>2.2 SE(3)上的指数映射</h2><p>相较于之前，我们把旋转矩阵$R$替换为变换矩阵$T$：</p>
+<script type="math/tex; mode=display">
+\begin{equation} \mathbf{\dot{T}}(t) = \mathbf{\xi}^\wedge(t) \mathbf{T}(t) \end{equation}</script><p>解微分方程可以得到：</p>
+<script type="math/tex; mode=display">
+\mathbf{T(t)}=\exp({\xi_0}^{\land} t)</script><p>仿照前面的指数展开可以得到：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \exp \left(\boldsymbol{\xi}^{\wedge}\right) &=\left[\begin{array}{cc}{\sum_{n=0}^{\infty} \frac{1}{n !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n}} & {\sum_{n=0}^{\infty} \frac{1}{(n+1) !}\left(\boldsymbol{\phi}^{\wedge}\right)^{n} \boldsymbol{\rho}} \\ {0^{T}} & {1}\end{array}\right] \\ & \triangleq\left[\begin{array}{cc}{\boldsymbol{R}} & {\boldsymbol{J} \boldsymbol{\rho}} \\ {\boldsymbol{0}^{T}} & {1}\end{array}\right]=\boldsymbol{T} \end{aligned}</script><p>右上角的 $J$ 可整理为：</p>
+<script type="math/tex; mode=display">
+J=\frac{\sin \theta}{\theta} I+\left(1-\frac{\sin \theta}{\theta}\right) a a^{T}+\frac{1-\cos \theta}{\theta} a^{\wedge}</script><h1 id="3-李代数求导"><a href="#3-李代数求导" class="headerlink" title="3. 李代数求导"></a>3. 李代数求导</h1><h2 id="3-1-BCH公式与近似形式"><a href="#3-1-BCH公式与近似形式" class="headerlink" title="3.1 BCH公式与近似形式"></a>3.1 BCH公式与近似形式</h2><p>在$SO3$中完成两个矩阵乘法时，在$\mathfrak{so}(3)$是否对应着加法？如果成立的话，相当于：</p>
+<script type="math/tex; mode=display">
+\exp(\phi_1^\land)\exp(\phi_2^\land)=\exp((\phi_1+\phi_2)^\land)</script><p>换言之，我们需要研究下述公式是否成立：</p>
+<script type="math/tex; mode=display">
+\ln(\exp(A)\exp(B))=A+B</script><p>然而这个式子<strong>在矩阵时并不成立</strong>，他真实的成立条件由<strong>BCH公式</strong>给出：</p>
+<script type="math/tex; mode=display">
+\ln \left( {\exp \left( A \right)\exp \left( B \right)} \right) = A + B + \frac{1}{2}\left[ {A,B} \right] + \frac{1}{12}\left[ {A,\left[ {A,B} \right]} \right] - \frac{1}{12}\left[ {B,\left[ {A,B} \right]} \right] +  \cdots</script><p><strong>其中[ ]为李括号</strong>。</p>
+<blockquote>
+<p>一般来说李括号$\left[ {A,B} \right] = AB - BA$，若满足$\mathbf{\phi}$为反对称矩阵，则李括号的结果为：</p>
+<script type="math/tex; mode=display">
+[\phi_1,\phi_2]=(\Phi_1\Phi_2-\Phi_2\Phi_1)^\lor</script></blockquote>
+<p><strong>取近似项可得</strong>：</p>
+<script type="math/tex; mode=display">
+\begin{equation} \ln {\left( {R_1}{R_2} \right)^ \vee } \approx \left\{ \begin{array}{l} {J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1} + {\phi _2}\\ {J_r}{\left( {\phi _1} \right)^{ - 1}}{\phi _2} + {\phi _1} \end{array} \right. \end{equation}</script><p>在 $\phi_1$ 较小时，使用第一个式；在在 $\phi_2$ 较小时，使用第二个式（换句话说依据是左乘一个微小位移还是右乘）。</p>
+<p>以第一个近似为例。该式告诉我们，当对<strong>一个旋转矩阵 $R_2$李代数为 $\phi_2$左乘一个微小旋转矩阵 $R_1$李代数为 $\phi_1$时</strong>，可以近似地看作，在原有的李代数 $\phi_2$ 上，加上了一 项 ${J_l}{\left( {\phi _2} \right)^{ - 1}}{\phi _1}$</p>
+<p>这里的 $J_l$ 和 $J_r$ 也称为左/右雅可比&mdash;&mdash;从而李代数就分成了<strong>左右两种模型</strong>（因此，李代数程序库会声明它使用的是左乘模型还是右乘模型）</p>
+<p>这两个雅克比矩阵可以表示为如下形式，他和旋转向量$\theta a$的关系</p>
+<script type="math/tex; mode=display">
+\begin{equation} {J_l} = J = \sum\limits_{n = 0}^\infty  {\frac{1}{\left( {n + 1} \right)!}{\left( {\phi ^ \wedge } \right)}^n} ,{J_r} = J\left( { - \phi } \right) \end{equation}</script><blockquote>
+<p>雅克比矩阵表示的是m个n元函数的一阶导数组成的矩阵</p>
+<script type="math/tex; mode=display">
+\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} & {\cdots} & {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} & {\cdots} & {\frac{\partial f_{1}}{\partial x_{n}}} \\ {\vdots} & {\ddots} & {\vdots} \\ {\frac{\partial f_{m}}{\partial x_{1}}} & {\cdots} & {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]</script></blockquote>
+<h2 id="3-2-李代数求导模型"><a href="#3-2-李代数求导模型" class="headerlink" title="3.2 李代数求导模型"></a>3.2 李代数求导模型</h2><p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：</p>
+<script type="math/tex; mode=display">
+\frac{\partial(Rp)}{\partial R}</script><p>按照李代数的写法：</p>
+<script type="math/tex; mode=display">
+\frac{\partial(\exp(\phi^\land)p)}{\partial\phi}</script><p>按照3.1所推导的结论：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \frac{\partial\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)}{\partial \boldsymbol{\phi}} &=\lim _{\delta \phi \rightarrow 0} \frac{\exp \left((\phi+\delta \phi)^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \\ &=\lim _{\delta \phi \rightarrow 0} \frac{\exp \left(\left(\boldsymbol{J}_{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \\ & \approx \lim _{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{I}+\left(\boldsymbol{J}_{l} \delta \phi\right)^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi} \\ &=\lim _{\delta \phi \rightarrow 0} \frac{\left(\boldsymbol{J}_{l} \delta \phi\right)^{\wedge} \exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}_{l} \\ &=\lim _{\delta \phi \rightarrow 0} \frac{-\left(\exp \left(\phi^{\wedge}\right) \boldsymbol{p}\right)^{\wedge} \boldsymbol{J}_{l} \delta \phi}{\delta \phi}=-(\boldsymbol{R} \boldsymbol{p})^{\wedge} \boldsymbol{J}_{l} \end{aligned}</script><p>第二行的近似为 BCH 线性近似，第三行为泰勒展开舍去高阶项后近似，第四行至第 五行将反对称符号看作叉积，交换之后变号。于是，我们推导了旋转后的点相对于李代数的导数：</p>
+<script type="math/tex; mode=display">
+\frac{d\left( {RP} \right)}{d\phi }= {(-RP)^ \wedge }{J_l}</script><p>得到的结果中包含雅克比矩阵，<strong>我们希望进一步简化，因此可以采用扰动模型</strong>。</p>
+<h2 id="3-3-扰动模型"><a href="#3-3-扰动模型" class="headerlink" title="3.3 扰动模型"></a>3.3 扰动模型</h2><p>上一种求导方式比较复杂，下面介绍另一种另一种求导方式，是对 $R$ 进行一次扰动 $∆R$。这个扰动可以乘在左边也可以乘在右 边，最后结果会有一点儿微小的差异。</p>
+<p>假设我们对一个空间点 $p$ 进行了旋转，得到了 $R_p$。现 在，要计算旋转之后点的坐标相对于旋转的导数，我们记为：</p>
+<script type="math/tex; mode=display">
+\frac{\partial(\boldsymbol{R} \boldsymbol{p})}{\partial \boldsymbol{\varphi}}=\lim _{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) \boldsymbol{p}-\exp \left(\phi^{\wedge}\right) \boldsymbol{p}}{\varphi}</script><p>这里和李代数求导模型有很大区别，李代数求导模型是老老实实按照求导定义来的，因此出现了李代数加法从而引出了雅克比矩阵，而扰动模型用乘法来近似。</p>
+<p>近似后可以得到：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \frac{\partial(\boldsymbol{R} p)}{\partial \varphi} &=\lim _{\varphi \rightarrow 0} \frac{\exp \left(\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \\ & \approx \lim _{\varphi \rightarrow 0} \frac{\left(1+\varphi^{\wedge}\right) \exp \left(\phi^{\wedge}\right) p-\exp \left(\phi^{\wedge}\right) p}{\varphi} \\ &=\lim _{\varphi \rightarrow 0} \frac{\varphi^{\wedge} R p}{\varphi}=\lim _{\varphi \rightarrow 0} \frac{-(R p)^{\wedge} \varphi}{\varphi}=-(R p)^{\wedge} \end{aligned}</script><p>同理在SE3上的李代数求导结果为</p>
+<script type="math/tex; mode=display">
+\frac{\partial(\boldsymbol{T} \boldsymbol{p})}{\partial \delta \boldsymbol{\xi}}=\left[\begin{array}{cc}{\boldsymbol{I}} & {-(\boldsymbol{R} \boldsymbol{p}+\boldsymbol{t})^{\wedge}} \\ {\boldsymbol{0}^{T}} & {\boldsymbol{0}^{T}}\end{array}\right] \triangleq(\boldsymbol{T} \boldsymbol{p})^{\odot}</script><p>其中⊙算符把一个4×4的矩阵变换成一个4×6的矩阵，计算方式如下：</p>
+<script type="math/tex; mode=display">
+\begin{equation} p = \left[ \begin{array}{l} x_{3 \times 1}\\ w_{1 \times 1} \end{array} \right], \quad {p^ \odot } = \left[ {\begin{array}{*{20}{c}} w{I_{3 \times 3}}&{ - {x^ \wedge }_{3 \times 3}}\\ {0^T}_{3 \times 1}&{0^T}_{3 \times 1} \end{array}} \right] \end{equation}</script>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" target="_blank" rel="external">jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag">数学</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&title=《SLAM基础3-李群和李代数》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&title=《SLAM基础3-李群和李代数》 — JR's Blog&source=李群和李代数是非常抽象的数学概念，在SLAM中我们通过他来衡量旋转平移的变化量。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础3-李群和李代数》 — JR's Blog&url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/10/%E9%AB%98%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94%E4%B8%8E%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E9%87%91%E5%AD%97%E5%A1%94/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">高斯金字塔与拉普拉斯金字塔</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/09/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础2-三维刚体运动</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&title=《SLAM基础3-李群和李代数》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&title=《SLAM基础3-李群和李代数》 — JR's Blog&source=李群和李代数是非常抽象的数学概念，在SLAM中我们通过他来衡量旋转平移的变化量。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础3-李群和李代数》 — JR's Blog&url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/09/SLAM%E5%9F%BA%E7%A1%803-%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

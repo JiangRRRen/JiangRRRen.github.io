@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Leetcode题目总结6-BFS和DFS | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,Leetcode,数据结构">
+    <meta name="description" content="BFS和DFS是一对孪生兄弟，几乎所有DFS可以完成的地方BFS都可以完成。本章主要以BFS的介绍为主，DFS为辅。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode题目总结6-BFS和DFS">
+<meta property="og:url" content="jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="BFS和DFS是一对孪生兄弟，几乎所有DFS可以完成的地方BFS都可以完成。本章主要以BFS的介绍为主，DFS为辅。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221143105.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191021151214.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221151952.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191009152556.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221165752.png">
+<meta property="article:published_time" content="2019-09-04T12:15:58.000Z">
+<meta property="article:modified_time" content="2020-03-28T04:37:32.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="数据结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221143105.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Leetcode题目总结6-BFS和DFS</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Leetcode题目总结6-BFS和DFS</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-04T12:15:58.000Z" itemprop="datePublished" class="page-time">
+  2019-09-04
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-算法介绍"><span class="post-toc-text">1. 算法介绍</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-树的BFS"><span class="post-toc-text">2. 树的BFS</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#102-二叉树的层次遍历"><span class="post-toc-text">102 二叉树的层次遍历</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#103-二叉树的锯齿形层次遍历"><span class="post-toc-text">103 二叉树的锯齿形层次遍历</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#107-二叉树的层次遍历-II"><span class="post-toc-text">107 二叉树的层次遍历 II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#104-二叉树的最大深度"><span class="post-toc-text">104 二叉树的最大深度</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#110-平衡二叉树"><span class="post-toc-text">110 平衡二叉树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#111-二叉树的最小深度"><span class="post-toc-text">111 二叉树的最小深度</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#116-填充每个节点的下一个右侧节点指针"><span class="post-toc-text">116 填充每个节点的下一个右侧节点指针</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#199-二叉树的右视图"><span class="post-toc-text">199 二叉树的右视图</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#226-翻转二叉树"><span class="post-toc-text">226 翻转二叉树</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-图的BFS"><span class="post-toc-text">2. 图的BFS</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#133-克隆图"><span class="post-toc-text">133 克隆图</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#207-课程表"><span class="post-toc-text">207 课程表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#210-课程表-II"><span class="post-toc-text">210 课程表 II</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-其他结构的BFS和DFS"><span class="post-toc-text">3. 其他结构的BFS和DFS</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#079-单词搜索"><span class="post-toc-text">079 单词搜索</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#101-对称二叉树"><span class="post-toc-text">101 对称二叉树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#108-将有序数组转化为二叉树"><span class="post-toc-text">108 将有序数组转化为二叉树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#127-单词接龙"><span class="post-toc-text">127 单词接龙</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#200-岛屿数量"><span class="post-toc-text">200 岛屿数量</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Leetcode题目总结6-BFS和DFS"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Leetcode题目总结6-BFS和DFS</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-04 20:15:58" datetime="2019-09-04T12:15:58.000Z"  itemprop="datePublished">2019-09-04</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>BFS和DFS是一对孪生兄弟，几乎所有DFS可以完成的地方BFS都可以完成。本章主要以BFS的介绍为主，DFS为辅。<a id="more"></a></p>
+<h1 id="1-算法介绍"><a href="#1-算法介绍" class="headerlink" title="1. 算法介绍"></a>1. 算法介绍</h1><p>简单的说，BFS是从根节点开始，沿着树（图）的宽度遍历树（图）的节点。如果所有节点均被访问，则算法中止。BFS同样属于盲目搜索。一般用<strong>队列数据结构</strong>来辅助实现BFS算法。</p>
+<p>解题步骤一般是：</p>
+<ol>
+<li>首先将根节点放入队列中。</li>
+<li>从队列中取出第一个节点，并检验它是否为目标。如果找到目标，则结束搜寻并回传结果。否则将它所有尚未检验过的直接子节点加入队列中。</li>
+<li>若队列为空，表示整张图都检查过了——亦即图中没有欲搜寻的目标。结束搜寻并回传“找不到目标”。</li>
+<li>重复步骤2。</li>
+</ol>
+<p>DFS递归和栈都能用，BFS统统使用队列。</p>
+<h1 id="2-树的BFS"><a href="#2-树的BFS" class="headerlink" title="2. 树的BFS"></a>2. 树的BFS</h1><p>树BFS基本就是纯粹的模板，模板有两个while，第一个是大while，第二个是小while。假设如下的二叉树，最开始队列存储root，1</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221143105.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">while次数</th>
+<th style="text-align:center">队列存储结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">[2,3]</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">[4,5,6,7]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>存储的顺序是正序还是反序，主要根据<code>left</code>和<code>right</code>的先后顺序。模板见102题。</p>
+<h2 id="102-二叉树的层次遍历"><a href="#102-二叉树的层次遍历" class="headerlink" title="102 二叉树的层次遍历"></a>102 二叉树的层次遍历</h2><p>给定一个二叉树，返回其按层次遍历的节点值。 （即逐层地，从左到右访问所有节点）</p>
+<pre><code>    3
+   / \
+  9  20
+    /  \
+   15   7
+   RES=[[3],[9,20],[15,7]]
+</code></pre><p><strong>解答：</strong></p>
+<p>中序遍历用的是stack</p>
+<p>注意要先判断是否为空，剩下的内容基本都是套路模板。注意<code>while(!q.empty())</code>是取非，不要马虎写错了。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; levelOrder(TreeNode* root) {
+    queue&lt;TreeNode*&gt; q;
+    vector&lt;vector&lt;int&gt;&gt; res;
+    if(root==NULL) return res;
+    q.push(root);
+    while(!q.empty())
+    {
+        auto size = q.size();
+        vector&lt;int&gt; tmp;
+        while(size--)
+        {
+            TreeNode* node = q.front();
+            q.pop();
+            tmp.push_back(node-&gt;val);
+            if(node-&gt;left) q.push(node-&gt;left);
+            if(node-&gt;right) q.push(node-&gt;right);
+        }
+        res.push_back(tmp);
+    }
+    return res;
+}
+</code></pre>
+<h2 id="103-二叉树的锯齿形层次遍历"><a href="#103-二叉树的锯齿形层次遍历" class="headerlink" title="103 二叉树的锯齿形层次遍历"></a>103 二叉树的锯齿形层次遍历</h2><p>给定一个二叉树，返回其节点值的锯齿形层次遍历。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。</p>
+<pre><code>    3
+   / \
+  9  20
+    /  \
+   15   7
+[[3],[20,9],[15,7]]
+</code></pre><p><strong>解答：</strong></p>
+<p>很巧妙的翻转。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; zigzagLevelOrder(TreeNode* root) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    if(!root) return res;
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+    int flag=0;
+    while(!q.empty())
+    {
+        vector&lt;int&gt; tmp;
+        auto size=q.size();
+        while(size--)
+        {
+            TreeNode* node=q.front();
+            tmp.push_back(node-&gt;val);
+            if(node-&gt;left) q.push(node-&gt;left);
+            if(node-&gt;right) q.push(node-&gt;right);
+            q.pop();
+        }
+        if(flag%2==1) reverse(tmp.begin(),tmp.end());
+        flag++;
+        res.push_back(tmp);
+    }
+    return res;
+}
+</code></pre>
+<h2 id="107-二叉树的层次遍历-II"><a href="#107-二叉树的层次遍历-II" class="headerlink" title="107 二叉树的层次遍历 II"></a>107 二叉树的层次遍历 II</h2><p>给定一个二叉树，返回其节点值自底向上的层次遍历。 （即按从叶子节点所在层到根节点所在的层，逐层从左向右遍历）</p>
+<pre><code>    3
+   / \
+  9  20
+    /  \
+   15   7
+[[15,7],[9,20],[3]]
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; levelOrderBottom(TreeNode* root) {
+    //和102一样，最后反转即可
+    vector&lt;vector&lt;int&gt;&gt; res;
+    if (root == NULL)
+        return res;
+    queue&lt;TreeNode*&gt; myq;
+    myq.push(root);
+    while (!myq.empty())
+    {
+        vector&lt;int&gt; tmp;
+        auto size = myq.size();
+        while (size--)
+        {
+            TreeNode* node=myq.front();
+            myq.pop();
+            tmp.push_back(node-&gt;val);
+            if (node-&gt;left)
+                myq.push(node-&gt;left);
+            if (node-&gt;right)
+                myq.push(node-&gt;right);
+        }
+        res.push_back(tmp);
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+</code></pre>
+<h2 id="104-二叉树的最大深度"><a href="#104-二叉树的最大深度" class="headerlink" title="104 二叉树的最大深度"></a>104 二叉树的最大深度</h2><p>给定一个二叉树，找出其最大深度。</p>
+<pre><code>    3
+   / \
+  9  20
+    /  \
+   15   7
+返回它的最大深度 3
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">int maxDepth(TreeNode* root) {
+    if(root == NULL)
+        return 0;
+    return max(maxDepth(root-&gt;left),maxDepth(root-&gt;right))+1;
+}
+</code></pre>
+<pre><code class="lang-CPP">    int maxDepth(TreeNode* root) {
+        if(root == NULL)
+            return 0;
+        int num = 0;
+        queue&lt;TreeNode *&gt; que;
+        que.push(root);
+        while(!que.empty()){
+            int n = que.size();
+            for(int i = 0;i &lt; n;++i){
+                TreeNode *cur = que.front();
+                if(cur-&gt;left != NULL)
+                    que.push(cur-&gt;left);
+                if(cur-&gt;right != NULL)
+                    que.push(cur-&gt;right);
+                que.pop();
+            }
+            num++;
+        }
+        return num;
+    }
+</code></pre>
+<h2 id="110-平衡二叉树"><a href="#110-平衡二叉树" class="headerlink" title="110 平衡二叉树"></a>110 平衡二叉树</h2><p>判断一个二叉树是否平衡，即一个二叉树<em>每个节点</em> 的左右两个子树的高度差的绝对值不超过1。</p>
+<p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">bool isBalanced(TreeNode* root) {
+    return dfs(root)==-1?false:true;
+}
+int dfs(TreeNode* root){
+    if(root==NULL)
+        return 0;
+    int left=dfs(root-&gt;left);
+    int right=dfs(root-&gt;right);
+    if(abs(left-right)&gt;1) return -1;
+    return max(left,right)+1;
+}
+</code></pre>
+<h2 id="111-二叉树的最小深度"><a href="#111-二叉树的最小深度" class="headerlink" title="111 二叉树的最小深度"></a>111 二叉树的最小深度</h2><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">int minDepth(TreeNode* root) {
+    if(root == NULL)
+        return 0;
+    int num = 0;
+    queue&lt;TreeNode *&gt; que;
+    que.push(root);
+    while(!que.empty()){
+        int n = que.size();
+        for(int i = 0;i &lt; n;++i){
+            TreeNode *cur = que.front();
+            if(cur-&gt;left != NULL)
+                que.push(cur-&gt;left);
+            if(cur-&gt;right != NULL)
+                que.push(cur-&gt;right);
+            que.pop();
+        }
+        num++;
+        if(pow(2,num-1)!=n) return num-1;
+    }
+    return num;
+}
+</code></pre>
+<h2 id="116-填充每个节点的下一个右侧节点指针"><a href="#116-填充每个节点的下一个右侧节点指针" class="headerlink" title="116 填充每个节点的下一个右侧节点指针"></a>116 填充每个节点的下一个右侧节点指针</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191021151214.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">Node* connect(Node* root) {
+    if (!root) return NULL;
+    queue&lt;Node*&gt; q;
+    q.push(root);
+    //每一个while循环都是一层
+    //size就是这一层的节点数量
+    //i&lt;size-1时，代表要右指
+    //每一层干三件事：1.弹出旧的 2.判断右指 3.添加新的
+    while (!q.empty()) {
+        auto size = q.size();
+        for (int i = 0; i &lt; size; ++i) {
+            Node* t = q.front(); q.pop();
+            if (i &lt; size - 1) {
+                t-&gt;next = q.front();
+            }
+            if (t-&gt;left) q.push(t-&gt;left);
+            if (t-&gt;right) q.push(t-&gt;right);
+        }
+    }
+    return root;
+}
+</code></pre>
+<h2 id="199-二叉树的右视图"><a href="#199-二叉树的右视图" class="headerlink" title="199 二叉树的右视图"></a>199 二叉树的右视图</h2><p>给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。</p>
+<pre><code>输入: [1,2,3,null,5,null,4]
+输出: [1, 3, 4]
+解释:
+
+   1            &lt;---
+ /   \
+2     3         &lt;---
+ \     \
+  5     4       &lt;---
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;int&gt; rightSideView(TreeNode* root) {
+    vector&lt;int&gt; res;
+    if (!root)
+        return res;
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+
+    while (!q.empty())
+    {
+        int size = q.size();
+        res.push_back(q.front()-&gt;val);
+        //BFS新技术size法
+        while (size--)
+        {
+            TreeNode* tmp = q.front();
+            q.pop();
+            if (tmp-&gt;right)
+                q.push(tmp-&gt;right);
+            if (tmp-&gt;left)
+                q.push(tmp-&gt;left);
+        }
+    }
+    return res;
+}
+</code></pre>
+<h2 id="226-翻转二叉树"><a href="#226-翻转二叉树" class="headerlink" title="226 翻转二叉树"></a>226 翻转二叉树</h2><pre><code>     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9
+
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">TreeNode* invertTree(TreeNode* root) {
+    if(root==NULL) return NULL;
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+    while(!q.empty())
+    {
+        auto size = q.size();
+        while(size--)
+        {
+            TreeNode* node = q.front();
+            q.pop();
+            swap(node-&gt;left,node-&gt;right);
+            if (node-&gt;left)
+                q.push(node-&gt;left);
+            if (node-&gt;right)
+                q.push(node-&gt;right);
+        }
+    }
+    return root;
+}
+</code></pre>
+<h1 id="2-图的BFS"><a href="#2-图的BFS" class="headerlink" title="2. 图的BFS"></a>2. 图的BFS</h1><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221151952.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="133-克隆图"><a href="#133-克隆图" class="headerlink" title="133 克隆图"></a>133 克隆图</h2><p>给定无向<a href="https://baike.baidu.com/item/连通图/6460995?fr=aladdin" target="_blank" rel="noopener"><strong>连通</strong></a>图中一个节点的引用，返回该图的<a href="https://baike.baidu.com/item/深拷贝/22785317?fr=aladdin" target="_blank" rel="noopener"><strong>深拷贝</strong></a>（克隆）。图中的每个节点都包含它的值 <code>val</code>（<code>Int</code>） 和其邻居的列表（<code>list[Node]</code>）。</p>
+<p><strong>解答：</strong></p>
+<p>需要通过map来进行映射，记录是否已经拷贝。</p>
+<p>记住：<strong>nei是原节点，m[nei]是复制节点，凡是m[xx]都是复制节点</strong></p>
+<pre><code class="lang-CPP">Node* cloneGraph(Node* node) {
+    if (!node) return NULL;
+    map&lt;Node*, Node*&gt; m;
+    queue&lt;Node*&gt; q;
+    q.push(node);
+    //注意下vector&lt;Node*&gt;{}写法
+    Node* clone = new Node(node-&gt;val, vector&lt;Node*&gt;{});
+    m[node] = clone;
+
+    while (!q.empty())
+    {
+        Node* t = q.front();
+        q.pop();
+        for (Node* nei : t-&gt;neighbors)
+        {
+            //nei是原节点，m[nei]是复制节点，凡是
+            //m[xx]都是复制节点
+            if (!m.count(nei))
+            {
+                m[nei] = new Node(nei-&gt;val,vector&lt;Node*&gt;{});
+                q.push(nei);
+            }
+            m[t]-&gt;neighbors.push_back(m[nei]);
+        }
+    }
+    return clone;
+}
+</code></pre>
+<h2 id="207-课程表"><a href="#207-课程表" class="headerlink" title="207 课程表"></a>207 课程表</h2><p>现在你总共有 n 门课需要选，记为 0 到 n-1。在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]给定课程总量以及它们的先决条件，判断是否可能完成所有课程的学习？</p>
+<pre><code>输入: 2, [[1,0],[0,1]]
+输出: false
+解释: 总共有 2 门课程。学习课程 1 之前，你需要先完成课程 0；
+并且学习课程 0 之前，你还应先完成课程 1。这是不可能的。
+</code></pre><p><strong>解答：</strong></p>
+<p>本质就是有向图是否存在环的问题。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191009152556.png" alt="img" style="zoom:100%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code class="lang-CPP">bool canFinish(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) {
+    //有向图的标准设置：map&lt;int, set&lt;int&gt;&gt;存领域，vector&lt;int&gt;存入度
+    map&lt;int, set&lt;int&gt;&gt; adjacent;
+    vector&lt;int&gt; indegree(numCourses);
+    for (auto&amp; edge : prerequisites) //建图
+    {
+        int from = edge[0];
+        int to = edge[1];
+        adjacent[from].insert(to);
+        indegree[to]++;
+    }
+    int count = 0;
+    queue&lt;int&gt; Inq;
+    for (int i = 0; i &lt; numCourses; i++)
+        if (!indegree[i])
+            Inq.push(i);
+    while (!Inq.empty())
+    {
+        auto v = Inq.front();
+        Inq.pop();
+        count++;
+        auto adjs = adjacent[v];
+        //因为把v删了，所以入度也要改变
+        for (auto&amp; adj : adjs)
+        {
+            indegree[adj]--;
+            if (!indegree[adj])
+                Inq.push(adj);
+        }
+    }
+    //reverse(indegree.begin(), indegree.end());;
+    return count == numCourses;
+}
+</code></pre>
+<h2 id="210-课程表-II"><a href="#210-课程表-II" class="headerlink" title="210 课程表 II"></a>210 课程表 II</h2><p>和上面一样，不过要记录下可能的课程顺序（一种即可）</p>
+<pre><code>输入: 4, [[1,0],[2,0],[3,1],[3,2]]
+输出: [0,1,2,3] or [0,2,1,3]
+解释: 总共有 4 门课程。要学习课程 3，你应该先完成课程 1 和课程 2。并且课程 1 和课程 2 都应该排在课程 0 之后。
+因此，一个正确的课程顺序是 [0,1,2,3] 。另一个正确的排序是 [0,2,1,3] 。
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) {
+    vector&lt;int&gt; res;
+    map&lt;int, set&lt;int&gt;&gt; adjacent;
+    vector&lt;int&gt; indegree(numCourses);
+    for (auto&amp; edge : prerequisites)
+    {
+        int from = edge[0];
+        int to = edge[1];
+        adjacent[from].insert(to);
+        indegree[to]++;
+    }
+    int count = 0;
+    queue&lt;int&gt; Inq;
+    for (int i = 0; i &lt; numCourses; i++)
+        if (!indegree[i])
+            Inq.push(i);
+    while (!Inq.empty())
+    {
+        auto v = Inq.front();
+        Inq.pop();
+        count++;
+        //添加
+        res.push_back(v);
+        auto adjs = adjacent[v];
+        //因为把v删了，所以入度也要改变
+        for (auto&amp; adj : adjs)
+        {
+            indegree[adj]--;
+            if (!indegree[adj])
+                Inq.push(adj);
+        }
+    }
+    //修改
+    if (numCourses != count)
+        return vector&lt;int&gt;{};
+    else
+    {
+        reverse(res.begin(), res.end());
+        return res;
+    }
+}
+</code></pre>
+<h1 id="3-其他结构的BFS和DFS"><a href="#3-其他结构的BFS和DFS" class="headerlink" title="3. 其他结构的BFS和DFS"></a>3. 其他结构的BFS和DFS</h1><h2 id="079-单词搜索"><a href="#079-单词搜索" class="headerlink" title="079 单词搜索"></a>079 单词搜索</h2><p>给定一个二维网格和一个单词，找出该单词是否存在于网格中。</p>
+<pre><code class="lang-cpp">board =
+[
+  [&#39;A&#39;,&#39;B&#39;,&#39;C&#39;,&#39;E&#39;],
+  [&#39;S&#39;,&#39;F&#39;,&#39;C&#39;,&#39;S&#39;],
+  [&#39;A&#39;,&#39;D&#39;,&#39;E&#39;,&#39;E&#39;]
+]
+
+给定 word = &quot;ABCCED&quot;, 返回 true
+给定 word = &quot;SEE&quot;, 返回 true
+</code></pre>
+<p>解答：</p>
+<pre><code class="lang-CPP">bool exist(vector&lt;vector&lt;char&gt;&gt;&amp; board, string word) {
+    if (board.empty() || word.empty()){
+        return false;
+    }
+    int row = board.size(), col = board[0].size();
+    vector&lt;vector&lt;int&gt;&gt; f(row, vector&lt;int&gt;(col, 0));
+    for (int i = 0; i &lt; row; ++i){
+        for (int j = 0; j &lt; col; ++j){
+            if (dfs(board, word, 0, i,j, f)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+bool dfs (vector&lt;vector&lt;char&gt;&gt;&amp; board, string&amp; word,
+         int size, int x, int y, vector&lt;vector&lt;int&gt;&gt;&amp; f){
+    if (size == word.size()){
+        return true;
+    }//outofbound
+    if (x &lt; 0 || x &gt;= board.size() 
+       || y &lt; 0 || y &gt; board[0].size() 
+       || board[x][y] != word[size]){
+        return false;
+    }
+    if (f[x][y] == 0) {
+        f[x][y] = 1;
+        if (dfs(board, word, size+1, x+1, y, f) 
+           || dfs(board, word, size+1, x-1, y, f) 
+           || dfs(board, word, size+1, x, y+1, f) 
+           || dfs(board, word, size+1, x, y-1, f)){
+            return true;
+        }
+        f[x][y] = 0;
+    }
+    return false;
+}
+</code></pre>
+<h2 id="101-对称二叉树"><a href="#101-对称二叉树" class="headerlink" title="101 对称二叉树"></a>101 对称二叉树</h2><p>给定一个二叉树，检查它是否是镜像对称的。</p>
+<pre><code class="lang-CPP">bool isSymmetric(TreeNode* root) {
+    return isMirror(root,root);
+}
+bool isMirror(TreeNode* p,TreeNode* q){
+    if(!p&amp;&amp;!q) return true;
+    if(!p||!q) return false;
+    if(p-&gt;val==q-&gt;val)
+        return isMirror(p-&gt;left,q-&gt;right)&amp;&amp;isMirror(p-&gt;right,q-&gt;left);
+    return false;
+}
+</code></pre>
+<h2 id="108-将有序数组转化为二叉树"><a href="#108-将有序数组转化为二叉树" class="headerlink" title="108 将有序数组转化为二叉树"></a>108 将有序数组转化为二叉树</h2><p>将一个按照升序排列的有序数组，转换为一棵高度平衡二叉搜索树。</p>
+<p><strong>解答：</strong></p>
+<p>注意区间的开闭，<code>root-&gt;left=dfs(nums,l,mid);</code>以及<code>root-&gt;right=dfs(nums,mid+1,r);</code></p>
+<pre><code class="lang-CPP">TreeNode* sortedArrayToBST(vector&lt;int&gt;&amp; nums) {
+    int len = nums.size();
+    return dfs(nums,0,len);
+}
+TreeNode* dfs(vector&lt;int&gt;&amp; nums,int l,int r){
+    if(l==r) return NULL;
+    int mid=(l+r)/2;
+    TreeNode* root=new TreeNode(nums[mid]);
+    root-&gt;left=dfs(nums,l,mid);
+    root-&gt;right=dfs(nums,mid+1,r);
+    return root;
+}
+</code></pre>
+<h2 id="127-单词接龙"><a href="#127-单词接龙" class="headerlink" title="127 单词接龙"></a>127 单词接龙</h2><p>给定两个单词（beginWord 和 endWord）和一个字典，找到从 beginWord 到 endWord 的最短转换序列的长度。转换需遵循如下规则：</p>
+<ul>
+<li>每次转换只能改变一个字母</li>
+<li>转换过程中的中间单词必须是字典中的单词。</li>
+</ul>
+<pre><code>输入:
+beginWord = &quot;hit&quot;,
+endWord = &quot;cog&quot;,
+wordList = [&quot;hot&quot;,&quot;dot&quot;,&quot;dog&quot;,&quot;lot&quot;,&quot;log&quot;,&quot;cog&quot;]
+
+输出: 5
+
+解释: 一个最短转换序列是 &quot;hit&quot; -&gt; &quot;hot&quot; -&gt; &quot;dot&quot; -&gt; &quot;dog&quot; -&gt; &quot;cog&quot;,
+     返回它的长度 5。
+</code></pre><p><strong>解答：</strong></p>
+<p>实质上就是统计BFS的层数</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191221165752.png" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code class="lang-CPP">int ladderLength(string beginWord, string endWord, vector&lt;string&gt;&amp; wordList) {
+    if (wordList.size() == 0)
+        return 0;
+    //假如当前为dot，
+    //则下一个为log或dog，q就是存log和cog的
+    queue&lt;string&gt; q;
+    //字典，存单词
+    map&lt;string, int&gt; dic;
+    //初始化字典，1表示有这个单词
+    for (int i = 0; i &lt; wordList.size(); i++)
+        dic[wordList[i]] = 1;
+    q.push(beginWord);
+    int layer=1;
+    dic.erase(beginWord); //及时擦去，避免自环
+    while ((!q.empty()) &amp;&amp; dic.size())
+    {
+        //取一个出来
+        auto size=q.size();
+        layer++;
+        while(size--)
+        {
+        string now = q.front();
+        q.pop();
+
+        for (int i = 0; i &lt; now.size(); i++)
+        {
+            string tmp = now;
+            for (char c = &#39;a&#39;; c &lt;= &#39;z&#39;; c++)
+            {
+                if (tmp[i] == c) continue;
+                else tmp[i] = c;
+                if (dic.find(tmp) != dic.end())
+                {
+                    if (tmp == endWord)return layer;
+                    q.push(tmp);
+                    dic.erase(tmp); //擦掉tmp不是now
+                }
+            }
+        }
+        }
+    }
+    return 0;
+}
+</code></pre>
+<h2 id="200-岛屿数量"><a href="#200-岛屿数量" class="headerlink" title="200 岛屿数量"></a>200 岛屿数量</h2><p>给定一个由 ‘1’（陆地）和 ‘0’（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。</p>
+<pre><code>11000
+11000
+00100
+00011
+
+输出: 3
+</code></pre><p><strong>解答：</strong></p>
+<p>绝对不能用size法，因为grid是变化的。</p>
+<pre><code class="lang-CPP">//总体思路是把某个点1相连通的区域变为0，
+//这样有多少个点就有多少个连通
+//BFS用队列，DFS使用递归
+int numIslands(vector&lt;vector&lt;char&gt;&gt;&amp; grid) {
+    if (grid.size() == 0 || grid[0].size() == 0) return 0;
+    const int M = grid.size(), N = grid[0].size();
+    int res = 0;
+    for (int i = 0; i &lt; M; ++i) {
+        for (int j = 0; j &lt; N; ++j) {
+            if (grid[i][j] == &#39;1&#39;) {
+                ++res;
+                dfs(grid, i, j);
+            }
+        }
+    }
+    return res;
+}
+// gird[x][y] = 1, delete it and its around.
+void dfs(vector&lt;vector&lt;char&gt;&gt;&amp; grid, int x, int y) {
+    const int M = grid.size(), N = grid[0].size();
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    q.push({ x, y });
+    while (!q.empty()) {
+        auto head = q.front(); q.pop();
+        int x = head.first;
+        int y = head.second;
+        if (grid[x][y] != &#39;1&#39;) continue;
+        grid[x][y] = &#39;0&#39;;
+        for (auto d : dirs) {
+            int i = x + d.first;
+            int j = y + d.second;
+            if (i &lt; 0 || i &gt;= M || j &lt; 0 || j &gt;= N || grid[i][j] != &#39;1&#39;) {
+                continue;
+            }
+            q.push({ i, j });
+        }
+    }
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" target="_blank" rel="external">jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&title=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&title=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&source=BFS和DFS是一对孪生兄弟，几乎所有DFS可以完成的地方BFS都可以完成。本章主要以BFS的介绍为主，DFS为辅。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%938-%E6%95%B0%E5%AD%A6/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Leetcode题目总结8-数学</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%935-%E4%BD%8D%E8%BF%90%E7%AE%97/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Leetcode题目总结5-位运算</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&title=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&title=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&source=BFS和DFS是一对孪生兄弟，几乎所有DFS可以完成的地方BFS都可以完成。本章主要以BFS的介绍为主，DFS为辅。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结6-BFS和DFS》 — JR's Blog&url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/09/04/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%936-BFS%E5%92%8CDFS/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

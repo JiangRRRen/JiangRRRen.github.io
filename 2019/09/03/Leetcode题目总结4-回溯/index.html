@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Leetcode题目总结4-回溯 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,Leetcode">
+    <meta name="description" content="回溯法就处理两种问题：组合、排列，本质上还是套用模板。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode题目总结4-回溯">
+<meta property="og:url" content="jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="回溯法就处理两种问题：组合、排列，本质上还是套用模板。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-09-03T04:55:34.000Z">
+<meta property="article:modified_time" content="2020-02-26T13:15:30.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="Leetcode">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Leetcode题目总结4-回溯</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Leetcode题目总结4-回溯</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-03T04:55:34.000Z" itemprop="datePublished" class="page-time">
+  2019-09-03
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-算法讲解"><span class="post-toc-text">1. 算法讲解</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-组合问题"><span class="post-toc-text">2. 组合问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#039-组合总和"><span class="post-toc-text">039 组合总和</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#040-组合总和II"><span class="post-toc-text">040 组合总和II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#077-组合"><span class="post-toc-text">077 组合</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#216-组合总和III"><span class="post-toc-text">216 组合总和III</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#078-子集"><span class="post-toc-text">078 子集</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#090-子集II"><span class="post-toc-text">090 子集II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#093-复原IP地址"><span class="post-toc-text">093 复原IP地址</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#113-路径总和-II"><span class="post-toc-text">113 路径总和 II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#131-分割回文串"><span class="post-toc-text">131 分割回文串</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-排列问题"><span class="post-toc-text">3. 排列问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#046-全排列"><span class="post-toc-text">046 全排列</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#047-全排列II"><span class="post-toc-text">047 全排列II</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Leetcode题目总结4-回溯"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Leetcode题目总结4-回溯</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-03 12:55:34" datetime="2019-09-03T04:55:34.000Z"  itemprop="datePublished">2019-09-03</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>回溯法就处理两种问题：组合、排列，本质上还是套用模板。<a id="more"></a></p>
+<h1 id="1-算法讲解"><a href="#1-算法讲解" class="headerlink" title="1. 算法讲解"></a>1. 算法讲解</h1><p><strong>回溯法（backtracking）</strong>本质其实是一种在<strong>深度优先搜索（DFS）</strong>的基础上，加入了<strong>剪枝函数（pruning）</strong>，从而使得空间复杂度在一定程度上有所降低。回溯法适合组合数相当大的问题，也就是许多<strong>组合优化的问题</strong>适合用回溯法解决。</p>
+<p>常见的地方有两个</p>
+<ul>
+<li><code>backtrack</code>函数的开头，<strong>剪掉后方便放入收集容器</strong></li>
+<li>for循环的开头，<strong>一般是去重</strong></li>
+</ul>
+<p>回溯函数的一般化<strong>流程</strong>是:</p>
+<pre><code class="lang-CPP">void backtrack(原数组，结果容器，临时容器，起始位置，....)
+{
+    if(...) return//剪枝条件
+    if(...) //结果容器收集条件
+    {
+       res.push_back(tmp);
+       return;
+    }
+    //回溯过程
+    for(int i=start;i&lt;nums.size();i++)
+    {
+        //这里也可能有剪枝条件，比如去除重复元素
+        tmp.push_back();
+        backtrack(位置);
+        tmp.pop_back();
+    }  
+}
+</code></pre>
+<h1 id="2-组合问题"><a href="#2-组合问题" class="headerlink" title="2. 组合问题"></a>2. 组合问题</h1><p>组合是按先后顺序依次进行，区分组合和排列的关键就是看：<strong>前面用过后面还用不用</strong>。</p>
+<p>比如，[1,2,3]的全排列，1虽然用过，但依然可能出现在其他位置，再接着用；而[1,2,3,4,5]数组中和为8的数组集合，这里用过1（pass过）就不会再出现了。所以<strong>排列问题需要用<code>flag</code>标记</strong>，组合则不需要。</p>
+<h2 id="039-组合总和"><a href="#039-组合总和" class="headerlink" title="039 组合总和"></a>039 组合总和</h2><p>给定一个<strong>无重复元素</strong>的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。<strong>candidates 中的数字可以无限制重复被选取。</strong></p>
+<pre><code>输入: candidates = [2,3,6,7], target = 7,
+所求解集为:
+[
+  [7],
+  [2,2,3]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>注意，要排序！最后调用backtrack进入的是i，不是start！<strong>并且不加1（<code>candidates</code> 中的数字可以无限制重复被选取）</strong>。注意要<strong>传引用</strong>。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; combinationSum(vector&lt;int&gt;&amp; candidates, int target) {
+    vector&lt;int&gt; tmp;
+    vector&lt;vector&lt;int&gt;&gt; res;
+    sort(candidates.begin(), candidates.end());
+    backtrack(res,tmp,candidates,target,0);
+    return res;
+}
+void backtrack(vector&lt;vector&lt;int&gt;&gt;&amp; res,vector&lt;int&gt;&amp; tmp, vector&lt;int&gt;&amp; candidates,
+               int target, int start)
+{
+    if(target&lt;0) return;
+    if(target ==0) 
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for(int i=start;i&lt;candidates.size();i++)
+    {
+        tmp.push_back(candidates[i]);
+        backtrack(res,tmp,candidates,target-candidates[i],i);
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="040-组合总和II"><a href="#040-组合总和II" class="headerlink" title="040 组合总和II"></a>040 组合总和II</h2><p>给定一个数组<strong>有重复元素的数组</strong> <code>candidates</code> 和一个目标数 <code>target</code> ，找出 <code>candidates</code> 中所有可以使数字和为 <code>target</code> 的组合。<code>candidates</code> 中的<strong>每个数字在每个组合中只能使用一次</strong>。</p>
+<ul>
+<li>所有数字（包括目标数）都是正整数。</li>
+<li>解集不能包含重复的组合。</li>
+</ul>
+<pre><code>输入: candidates = [10,1,2,7,6,1,5], target = 8,
+所求解集为:
+[
+  [1, 7],
+  [1, 2, 5],
+  [2, 6],
+  [1, 1, 6]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>因为有数组有重复所以要去重，因为只能用一次所以backtrack时需要+1防止自环。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; combinationSum2(vector&lt;int&gt;&amp; candidates, int target) {
+    vector&lt;int&gt; tmp;
+    vector&lt;vector&lt;int&gt;&gt; res;
+    sort(candidates.begin(),candidates.end());
+    backtrack(res,tmp,candidates,target,0);
+    return res;
+}
+void backtrack(vector&lt;vector&lt;int&gt;&gt;&amp; res,vector&lt;int&gt;&amp; tmp,vector&lt;int&gt;&amp; candidates,
+               int target,int start)
+{
+    if(target&lt;0) return;
+    if(target==0)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for(int i=start;i&lt;candidates.size();i++)
+    {
+        if(i&gt;start&amp;&amp;candidates[i]==candidates[i-1]) //上一个已经用过
+            continue;
+        tmp.push_back(candidates[i]);
+        backtrack(res,tmp,candidates,target-candidates[i],i+1);
+        tmp.pop_back();
+     //取巧去重
+    //set&lt;vector&lt;int&gt;&gt; s(res.begin(),res.end());
+    //res.assign(s.begin(),s.end());
+    } 
+}
+</code></pre>
+<h2 id="077-组合"><a href="#077-组合" class="headerlink" title="077 组合"></a>077 组合</h2><p>给定两个整数 <em>n</em> 和 <em>k</em>，返回 1 … <em>n</em> 中所有可能的 <em>k</em> 个数的组合。</p>
+<pre><code>输入: n = 4, k = 2
+输出:
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>按照直觉，先构建数组。注意比较的时候<code>tmp.size()==k</code>而不是<code>start==k</code></p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; combine(int n, int k) {
+    vector&lt;int&gt; vec;
+    vector&lt;vector&lt;int&gt;&gt; res;
+    vector&lt;int&gt; tmp;
+    for(int i=1;i&lt;=n;i++)
+        vec.push_back(i);
+    backtrack(res,tmp,vec,0,k);
+    return res;
+}
+void backtrack(vector&lt;vector&lt;int&gt;&gt;&amp; res,vector&lt;int&gt;&amp; tmp,
+               vector&lt;int&gt;&amp; vec, int start,int k)
+{
+    if(tmp.size()==k)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for(int i=start;i&lt;vec.size();i++)
+    {
+        tmp.push_back(vec[i]);
+        backtrack(res,tmp,vec,i+1,k);
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="216-组合总和III"><a href="#216-组合总和III" class="headerlink" title="216 组合总和III"></a>216 组合总和III</h2><p>找出所有相加之和为 <strong><em>n\</em></strong> 的 <strong>k</strong> 个数的组合<strong>。</strong>组合中只允许含有 1 - 9 的正整数，并且每种组合中不存在重复的数字。</p>
+<pre><code>输入: k = 3, n = 9
+输出: [[1,2,6], [1,3,5], [2,3,4]]
+</code></pre><p><strong>解答：</strong></p>
+<p>这道题和077一样，需要自己创造一个<code>nums</code>容器出来，这样会比较清晰。</p>
+<pre><code class="lang-CPP">vector&lt;int&gt; tmp;
+vector&lt;vector&lt;int&gt;&gt; res;
+vector&lt;int&gt; nums;
+vector&lt;vector&lt;int&gt;&gt; combinationSum3(int k, int n) {
+    for(int i=1;i&lt;=9;i++)
+        nums.push_back(i);
+    backtrack(k,n,0);
+    return res;
+}
+void backtrack(int k,int n,int start)
+{
+    if(n&lt;0) return;
+    if(n==0&amp;&amp;k!=0) return;
+    if(n==0&amp;&amp;k==0)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for(int i=start;i&lt;nums.size();i++)
+    {
+        tmp.push_back(nums[i]);
+        backtrack(k-1,n-nums[i],i+1);
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="078-子集"><a href="#078-子集" class="headerlink" title="078 子集"></a>078 子集</h2><p>给定一组<strong>不含重复元素</strong>的整数数组 <em>nums</em>，返回该数组所有可能的子集（幂集）。</p>
+<pre><code class="lang-CPP">输入: nums = [1,2]
+输出:
+[
+  [1],
+  [2],
+  [1,2],
+  []
+]
+</code></pre>
+<p><strong>解答：</strong></p>
+<pre><code class="lang-cpp">vector&lt;vector&lt;int&gt;&gt; subsets(vector&lt;int&gt;&amp; nums) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    vector&lt;int&gt; tmp;
+    backtrack(res,tmp,nums,0);
+    return res;
+}
+void backtrack(vector&lt;vector&lt;int&gt;&gt;&amp; res,vector&lt;int&gt;&amp; tmp,
+               vector&lt;int&gt;&amp; nums, int start)
+{
+    res.push_back(tmp);
+    for(int i=start;i&lt;nums.size();i++)
+    {
+        tmp.push_back(nums[i]);
+        backtrack(res,tmp,nums,i+1);
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="090-子集II"><a href="#090-子集II" class="headerlink" title="090 子集II"></a>090 子集II</h2><p>给定一个可能包含重复元素的整数数组 <strong><em>nums\</em></strong>，返回该数组所有可能的子集（幂集）。</p>
+<pre><code>输入: [1,2,2]
+输出:
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>两个要点：</p>
+<ul>
+<li>查重，注意<code>i&gt;start</code>不是<code>i&gt;0</code></li>
+<li>排序，不排序的话如果出现[4,4,4,1,4]这种，查重查不出来</li>
+</ul>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; subsetsWithDup(vector&lt;int&gt;&amp; nums) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    vector&lt;int&gt; tmp;
+    sort(nums.begin(), nums.end());
+    backtrack(res,tmp,nums,0);
+    return res;
+}
+void backtrack(vector&lt;vector&lt;int&gt;&gt;&amp; res,vector&lt;int&gt;&amp; tmp,
+               vector&lt;int&gt;&amp; nums, int start)
+{
+    res.push_back(tmp);
+    for(int i=start;i&lt;nums.size();i++)
+    {
+        if(i&gt;start&amp;&amp;nums[i]==nums[i-1]) continue;
+        tmp.push_back(nums[i]);
+        backtrack(res,tmp,nums,i+1);
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="093-复原IP地址"><a href="#093-复原IP地址" class="headerlink" title="093 复原IP地址"></a>093 复原IP地址</h2><p>给定一个只包含数字的字符串，复原它并返回所有可能的 IP 地址格式。</p>
+<pre><code>输入: &quot;25525511135&quot;
+输出: [&quot;255.255.11.135&quot;, &quot;255.255.111.35&quot;]
+</code></pre><p><strong>解答：</strong></p>
+<p>这道题特别复杂，而且也不是传统的回溯套路。这里的<code>for</code>代表第<code>n</code>个字节，有三个剪枝条件，注意第二个的办法非常巧妙。</p>
+<pre><code class="lang-CPP">vector&lt;string&gt; restoreIpAddresses(string s) {
+    vector&lt;string&gt; res;
+    string tmp = &quot;&quot;;
+    backtrack(s, res, tmp, 0);
+    return res;
+}
+void backtrack(string s, vector&lt;string&gt;&amp; res,
+               string tmp, int n)
+{
+    if(s.size()&gt;3*(4-n)) return ;
+    if(n==4&amp;&amp;s.size()==0) 
+    {
+        tmp.pop_back(); //去掉最后的&#39;.&#39;
+        res.push_back(tmp);
+    }
+    for(int i=1;i&lt;=3;i++)
+    {
+        if(s.size()&lt;i) break;
+        int val=stoi(s.substr(0,i));
+        if(i!=to_string(val).size()) break;
+        if(val&gt;255) break;
+
+        tmp+=s.substr(0,i)+&#39;.&#39;;
+        backtrack(s.substr(i),res,tmp,n+1);
+        tmp=tmp.substr(0,tmp.size()-i-1);
+    }
+}
+</code></pre>
+<h2 id="113-路径总和-II"><a href="#113-路径总和-II" class="headerlink" title="113 路径总和 II"></a>113 路径总和 II</h2><p>给定一个二叉树和一个目标和，找到所有从根节点到叶子节点路径总和等于给定目标和的路径。</p>
+<pre><code>          5
+         / \
+        4   8
+       /   / \
+      11  13  4
+     /  \    / \
+    7    2  5   1
+[
+   [5,4,11,2],
+   [5,8,4,5]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>112不需要存值，直接DFS就好，要存值最好用回溯模板。容器收集判断需要放在push后面！</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; pathSum(TreeNode* root, int sum) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    vector&lt;int&gt; tmp;
+    path(res, root, sum, tmp);
+    return res;
+}
+void path(vector&lt;vector&lt;int&gt;&gt;&amp; res, TreeNode* root,
+          int sum, vector&lt;int&gt;&amp; tmp)
+{
+    //相较于112,需要记录
+    //采用深度优先的办法
+    if (root == NULL)
+        return;
+    tmp.push_back(root-&gt;val);
+    if (root-&gt;left == NULL &amp;&amp; root-&gt;right == NULL)
+    {
+        if (root-&gt;val == sum)
+            res.push_back(tmp);
+    }
+    path(res, root-&gt;left, sum - root-&gt;val, tmp);
+    path(res, root-&gt;right, sum - root-&gt;val, tmp);
+    tmp.pop_back();
+}
+</code></pre>
+<h2 id="131-分割回文串"><a href="#131-分割回文串" class="headerlink" title="131 分割回文串"></a>131 分割回文串</h2><p>给定一个字符串 <em>s</em>，将 <em>s</em> 分割成一些子串，使每个子串都是回文串。返回 <em>s</em> 所有可能的分割方案。</p>
+<pre><code>输入: &quot;aab&quot;
+输出:
+[
+  [&quot;aa&quot;,&quot;b&quot;],
+  [&quot;a&quot;,&quot;a&quot;,&quot;b&quot;]
+]
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;string&gt;&gt; res;
+vector&lt;string&gt; tmp;
+vector&lt;vector&lt;string&gt;&gt; partition(string s) {
+    backtrack(s, 0);
+    return res;
+}
+bool isPalindrome(string s)
+{
+    string tmp = s;
+    reverse(tmp.begin(),tmp.end());
+    return s==tmp;
+}
+//start是开始计算的位置
+void backtrack(string s, int start)
+{
+    //如果不满足回文，start不会增长，start&gt;s.size()-1意味着检验完毕
+    if (start &gt; s.size() - 1)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    //len是分割字符的长度
+    //这里必须小于等于，start=0，len=3，有效
+    for (int len = 1; len &lt;= s.size() - start; len++)
+    {
+        //substr:pos+len
+        if (isPalindrome(s.substr(start, len)))
+        {
+            tmp.push_back(s.substr(start, len));
+            backtrack(s, start + len);
+            tmp.pop_back();
+        }
+    }
+}
+</code></pre>
+<h1 id="3-排列问题"><a href="#3-排列问题" class="headerlink" title="3. 排列问题"></a>3. 排列问题</h1><p>前面讲过，组合问题是按先后顺序进行，而排列则不是：前面用过的元素后面依然可能用到。所以<strong>排列问题需要用<code>flag</code>标记</strong>，组合则不需要。</p>
+<h2 id="046-全排列"><a href="#046-全排列" class="headerlink" title="046 全排列"></a>046 全排列</h2><p>给定一个<strong>没有重复</strong>数字的序列，返回其所有可能的全排列。</p>
+<pre><code>输入: [1,2,3]
+输出:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>我们需要用<code>flag</code>来做标记，用了某个元素就打上标记，回溯完以后就撤掉这个标记，重复利用。除了标记还需要注意<code>int i = 0</code>而不是组合问题中<code>int i=start</code>;</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; res;
+vector&lt;int&gt; tmp;
+
+vector&lt;vector&lt;int&gt;&gt; permute(vector&lt;int&gt;&amp; nums) {
+    vector&lt;bool&gt; flag(nums.size(),false);
+    backtrack(nums,flag);
+    return res;
+}
+void backtrack(vector&lt;int&gt;&amp; nums,vector&lt;bool&gt;&amp; flag)
+{
+    if(tmp.size()==nums.size())
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for(int i=0;i&lt;nums.size();i++)
+    {
+        if(flag[i]) continue;
+        tmp.push_back(nums[i]);
+        flag[i]=true;
+        backtrack(nums,flag);
+        flag[i]=false;
+        tmp.pop_back();
+    }
+}
+</code></pre>
+<h2 id="047-全排列II"><a href="#047-全排列II" class="headerlink" title="047 全排列II"></a>047 全排列II</h2><p>给定一个可包含重复数字的序列，返回所有不重复的全排列。</p>
+<pre><code>输入: [1,1,2]
+输出:
+[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>简单的去重没什么好说的，注意一定要sort排序，避免<code>[4,4,4,1,4]</code>这种情况。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; permuteUnique(vector&lt;int&gt;&amp; nums) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    vector&lt;int&gt; tmp;
+    //sort(nums.begin(), nums.end());
+    vector&lt;bool&gt; flag(nums.size(), false);
+    backtrack(nums, flag, res, tmp);
+    return res;
+}
+void backtrack(vector&lt;int&gt;&amp; nums, vector&lt;bool&gt;&amp; flag, vector&lt;vector&lt;int&gt;&gt;&amp; res,
+               vector&lt;int&gt;&amp; tmp)
+{
+    if (tmp.size() == nums.size())
+    {
+        res.push_back(tmp);
+        return;
+    }
+
+    for (int i = 0; i &lt; nums.size(); i++)
+    {
+        if (flag[i]) continue;
+        if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1] &amp;&amp; !flag[i - 1])
+            continue;
+        flag[i] = true;
+        tmp.push_back(nums[i]);
+        backtrack(nums, flag, res,tmp);
+        tmp.pop_back();
+        flag[i] = false;
+    }
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" target="_blank" rel="external">jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&title=《Leetcode题目总结4-回溯》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&title=《Leetcode题目总结4-回溯》 — JR's Blog&source=回溯法就处理两种问题：组合、排列，本质上还是套用模板。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结4-回溯》 — JR's Blog&url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%939-%E5%AD%97%E7%AC%A6%E4%B8%B2/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Leetcode题目总结9-字符串</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Leetcode题目总结3-动态规划</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&title=《Leetcode题目总结4-回溯》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&title=《Leetcode题目总结4-回溯》 — JR's Blog&source=回溯法就处理两种问题：组合、排列，本质上还是套用模板。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结4-回溯》 — JR's Blog&url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

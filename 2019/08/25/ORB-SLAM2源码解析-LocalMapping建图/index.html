@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>ORB_SLAM2源码解析-LocalMapping建图 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM">
+    <meta name="description" content="ORBSLAM三大线程之LocalMapping部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB_SLAM2源码解析-LocalMapping建图">
+<meta property="og:url" content="jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="ORBSLAM三大线程之LocalMapping部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095715.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095915.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100039.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100448.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827114449.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826105847.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826115353.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826114902.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827094230.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827092840.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806151141.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827101343.png">
+<meta property="article:published_time" content="2019-08-25T08:47:25.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:48:11.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095715.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">ORB_SLAM2源码解析-LocalMapping建图</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">ORB_SLAM2源码解析-LocalMapping建图</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-25T08:47:25.000Z" itemprop="datePublished" class="page-time">
+  2019-08-25
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-概述"><span class="post-toc-text">1.概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-图的概念"><span class="post-toc-text">1.1 图的概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-总体结构"><span class="post-toc-text">1.2 总体结构</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-处理关键帧ProcessNewKeyFrame"><span class="post-toc-text">2. 处理关键帧ProcessNewKeyFrame</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-处理过程"><span class="post-toc-text">2.1 处理过程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-更新连接关系UpdateConnections"><span class="post-toc-text">2.2 更新连接关系UpdateConnections</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-检查剔除地图点MapPointCulling"><span class="post-toc-text">3. 检查剔除地图点MapPointCulling</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-创建地图点CreateNewMapPoints"><span class="post-toc-text">4. 创建地图点CreateNewMapPoints</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-创建地图点一般步骤"><span class="post-toc-text">4.1 创建地图点一般步骤</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-三角化"><span class="post-toc-text">4.2 三角化</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#5-融合地图点SearchInNeighbors"><span class="post-toc-text">5. 融合地图点SearchInNeighbors</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-ORB-SLAM2源码解析-LocalMapping建图"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">ORB_SLAM2源码解析-LocalMapping建图</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-25 16:47:25" datetime="2019-08-25T08:47:25.000Z"  itemprop="datePublished">2019-08-25</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>ORBSLAM三大线程之LocalMapping部分。<a id="more"></a></p>
+<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h1><h2 id="1-1-图的概念"><a href="#1-1-图的概念" class="headerlink" title="1.1 图的概念"></a>1.1 图的概念</h2><p><strong>Convisibility Graph</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095715.png" alt="img"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>顶点：所有pose；边：pose-pose有共视关系(共视点大于15个)</p>
+<p>换言之，将所有共视关系大于15的pose点连接起来，连接的edge的权重就是共视点的个数。图中绿色即为edge，红色为局部地图点，红色+黑色为全局地图点。</p>
+<p><strong>Spanning Tree</strong></p>
+<p>图论的概念，无向图能产生不同的生成树(spanning tree)，通过边能遍历所有节点。而所有边的权重加起来最小的生成树就是最小生成树。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826095915.png" alt="img"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>这里的spanning tree是在无向图convisibility graph的基础上，<strong>以共视点最多为筛选标准</strong>形成的最小生成树。这里面同时还包含了 loop closure edges(红色)</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100039.png" alt="img"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>Essential Graph</strong></p>
+<p>包含了spanning tree以及convisibility graph中具有<strong>极佳共视关系(&gt;100)</strong>的边</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826100448.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-2-总体结构"><a href="#1-2-总体结构" class="headerlink" title="1.2 总体结构"></a>1.2 总体结构</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827114449.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>最后剔除冗余关键帧的条件有两个：</p>
+<ol>
+<li>90%以上的MapPoints能被至少3个其他关键帧观测到。</li>
+<li>他们都处在同一尺度下</li>
+</ol>
+<h1 id="2-处理关键帧ProcessNewKeyFrame"><a href="#2-处理关键帧ProcessNewKeyFrame" class="headerlink" title="2. 处理关键帧ProcessNewKeyFrame"></a>2. 处理关键帧ProcessNewKeyFrame</h1><p>处理要达成四个目的：</p>
+<ul>
+<li>计算该关键帧特征点的Bow映射关系</li>
+<li>处理新匹配上的MapPoints</li>
+<li>更新关键帧间的连接关系</li>
+<li>将该关键帧插入到地图中</li>
+</ul>
+<h2 id="2-1-处理过程"><a href="#2-1-处理过程" class="headerlink" title="2.1 处理过程"></a>2.1 处理过程</h2><p>LocalMapping中有一个成员变量<code>std::list mlNewKeyFrames</code>是等待处理的关键帧列表。在tracking线程中，调用了<code>void LocalMapping::InsertKeyFrame(KeyFrame *pKF)</code>函数，向<code>mlNewKeyFrames</code>链表插入了元素。因此在处理关键帧前，要首先调用<code>bool LocalMapping::CheckNewKeyFrames()</code><strong>检查等待关键帧链表是否为空</strong>。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826105847.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>处理时调用<code>void LocalMapping::ProcessNewKeyFrame()</code>，步骤如下:</p>
+<ol>
+<li><p><strong>从链表取出一帧</strong></p>
+<p>分三步：锁线程，取元素，删除顶部元素</p>
+</li>
+<li><p><strong>计算关键帧特征点Bow映射关系</strong></p>
+</li>
+<li><p><strong>MapPoints和当前关键帧绑定</strong></p>
+<p>MapPoints分为两种情况：在tracking过程跟踪到的MapPoints；创建关键帧时创建的MapPoints。<strong>前者很可靠</strong>，直接为他们添加属性（添加观测者，平均观测方向和观测距离范围，更新最佳描述子），<strong>后者不可靠</strong>需要放到<code>mlpRecentAddedMapPoints</code>等待进一步检测。</p>
+</li>
+<li><p><strong>更新关键帧间的连接关系</strong></p>
+<p>包括Covisibility图和生成树</p>
+</li>
+<li><p><strong>插入关键帧到地图</strong></p>
+</li>
+</ol>
+<h2 id="2-2-更新连接关系UpdateConnections"><a href="#2-2-更新连接关系UpdateConnections" class="headerlink" title="2.2 更新连接关系UpdateConnections"></a>2.2 更新连接关系UpdateConnections</h2><p>更新的目的是更新Covisibility图和生成树。步骤如下：</p>
+<ol>
+<li><p><strong>统计共视关系</strong></p>
+<p>共视关系保存在<code>map KFcounter</code>中，这个成员key是关键帧，value是权重（权重为其它关键帧与当前关键帧共视3d点的个数)，结构如下：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826115353.png" alt="img"  style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>计算的方法借助了<code>std::map mObservations</code>，它记录了<strong>观测到该MapPoint的KF和该MapPoint在KF中的索引</strong>，是MapPoint的成员变量。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190826114902.png" alt="img"  style="zoom:80%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>因为MapPoint是属于当前帧的，所以只需要执行<code>KFcounter[obervation-&gt;first]++;</code>就可以统计和当前关键帧共视的其他关键帧，以及共视点个数。</p>
+</li>
+<li><p><strong>记录有良好共视关系的关键帧</strong></p>
+<p>搜索<code>KFcounter</code>中<strong>共视点个数大于阈值</strong><code>th</code>(15)的关键帧，将他们放入<code>vector &gt; vPairs</code>容器中（将关键帧的权重写在前面，关键帧写在后面方便后面排序）。同时<strong>记录有最多共视点的关键帧</strong>，如果没有发现任何大于阈值的帧，就用最多共视点关键帧建立连接。</p>
+<p>记录完后<code>sort</code>排序，按共视点个数从大到小。</p>
+</li>
+<li><p><strong>更新图连接</strong></p>
+<p>更新与该关键帧连接的关键帧与权重<code>mConnectedKeyFrameWeights = KFcounter;</code>，将排序的<code>vPairs</code>拆开，容器<code>mvpOrderedConnectedKeyFrames</code>记录排序后的关键帧，容器<code>mvOrderedWeights</code>记录排序后的共视点个数（权重）</p>
+<p>然后更新生成树，父节点为共视程度最高的那个关键帧<code>mpParent = mvpOrderedConnectedKeyFrames.front();</code>，并且父节点将本帧添加为子节点(建立双向连接关系)<code>mpParent-&gt;AddChild(this);</code></p>
+</li>
+</ol>
+<h1 id="3-检查剔除地图点MapPointCulling"><a href="#3-检查剔除地图点MapPointCulling" class="headerlink" title="3. 检查剔除地图点MapPointCulling"></a>3. 检查剔除地图点MapPointCulling</h1><p>对上一函数获取到的最新加入的局部地图点(创建关键帧时创建的MapPoints)<code>mlpRecentAddedMapPoints</code>进行<strong>检查</strong>，该地图点被创建后的三个关键帧里必须要经过严格的测试，这样保证其能被正确的跟踪和三角化。</p>
+<p>删除过程调用<code>SetBadFlag()</code>干两件事情：删除点与帧的观测关系<code>mObservations.clear()</code>，删除帧与点的对应关系</p>
+<pre><code class="lang-c">for(map&lt;KeyFrame*,size_t&gt;::iterator mit=obs.begin(), mend=obs.end(); mit!=mend; mit++)
+    {
+        KeyFrame* pKF = mit-&gt;first;
+        pKF-&gt;EraseMapPointMatch(mit-&gt;second);// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了
+    }
+</code></pre>
+<pre><code class="lang-CPP">for(map&lt;KeyFrame*,size_t&gt;::iterator mit=obs.begin(), mend=obs.end(); mit!=mend; mit++)
+    {
+        KeyFrame* pKF = mit-&gt;first;
+        pKF-&gt;EraseMapPointMatch(mit-&gt;second);// 告诉可以观测到该MapPoint的KeyFrame，该MapPoint被删了
+    }
+</code></pre>
+<p>Copy</p>
+<p>删除条件如下:</p>
+<ol>
+<li><p><strong>已经是坏点</strong></p>
+<p><code>pMP-&gt;isBad()==true</code></p>
+</li>
+<li><p><strong>IncreaseFound / IncreaseVisible &lt; 25%</strong></p>
+<p>在<code>SearchLocalMap</code>（TrackLocalMap第二步），通过<code>isInFrustum</code>判断，就调用<code>IncreaseVisible()</code>。在TrackLocalMap中，通过优化，得到了内点和外点，如果点不是外点，说明这个点<strong>不仅能被观测，还能和特征点对应上</strong>，调用<code>IncreaseFound()</code>。<br><strong>跟踪到</strong>该MapPoint的Frame数相比<strong>可观测到</strong>该MapPoint的Frame数的比例需大于25%</p>
+</li>
+<li><p><strong>小于观测阈值</strong></p>
+<p>从该点建立开始，到现在已经<strong>过了不小于2个关键帧</strong>，且观测数<code>pMP-&gt;Observations()&lt;=cnThObs</code>，其中<code>cnThObs</code>是针对不同类型相机设置的阈值单目为2，双目为3。</p>
+</li>
+</ol>
+<p>如果这个点<strong>已经过了3个关键帧而没有被剔除</strong>，则认为是质量高的点，因此没有<code>SetBadFlag()</code>，仅从队列中删除，放弃继续对该MapPoint的检测。</p>
+<h1 id="4-创建地图点CreateNewMapPoints"><a href="#4-创建地图点CreateNewMapPoints" class="headerlink" title="4. 创建地图点CreateNewMapPoints"></a>4. 创建地图点CreateNewMapPoints</h1><h2 id="4-1-创建地图点一般步骤"><a href="#4-1-创建地图点一般步骤" class="headerlink" title="4.1 创建地图点一般步骤"></a>4.1 创建地图点一般步骤</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827094230.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li><p><strong>找到共视程度最高的n帧</strong></p>
+<p>寻找与当前关键帧拥有最多共视点的n帧，n取值与相机有关，单目要求会高一些。</p>
+</li>
+<li><p><strong>遍历共视关键帧</strong></p>
+<ol>
+<li><p><strong>如果有新关键帧需要处理就处理新的</strong></p>
+</li>
+<li><p><strong>判断关键帧间距是否足够长</strong></p>
+<p>对于双目而言，间距需要大于双目相机本身的基线；对于单目而言，间距与场景深度中值之比小于0.01</p>
+</li>
+<li><p><strong>特征匹配</strong></p>
+<p>通过极线约束限制匹配时的搜索范围，进行特征点匹配。所谓极线约束就是说同一个点在两幅图像上的映射，已知左图映射点PLPL，那么右图映射点PRPR 一定在相对于PLPL的极线上，这样可以减少待匹配的点数量。最后得到的匹配结果放在<code>vector &gt; vMatchedIndices;</code>中。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827092840.png" alt=""></p>
+</li>
+<li><p><strong>三角化生成地图点</strong></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="4-2-三角化"><a href="#4-2-三角化" class="headerlink" title="4.2 三角化"></a>4.2 三角化</h2><p>一般来说单目相机没有深度信息，需要依靠三角化获得，双目相机能自己获得深度信息。如果点太远，用相机模型获取深度就不是很合适。</p>
+<p>如图所示，如果zz的值很大，则视差dd就会变得很小，误差的影响就非常大，所以这时候同样也需要三角化计算深度。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190806151141.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>由相似三角形可知：</p>
+<script type="math/tex; mode=display">
+z=\frac{fb}{d},  \ d=u_l-u_r</script><p>三角化解法：</p>
+<p>假设一个点在三维空间的坐标是$P=[X,Y,Z,1]^T$，其中$p,p’$是匹配好的特征点，他们在不同位姿相机坐标系下:</p>
+<script type="math/tex; mode=display">
+sp=TP\\
+s'p'=T'P</script><p>其中$T$可以表示为：</p>
+<script type="math/tex; mode=display">
+T=\begin{bmatrix}
+t_1&t_2&t_3&t_4&\\
+t_5&t_6&t_7&t_8&\\
+t_9&t_{10}&t_{11}&t_{12}&\\
+\end{bmatrix}
+=\begin{bmatrix}
+\mathbf{t}_{0[4\times1]}\\
+\mathbf{t}_{1[4\times1]}\\
+\mathbf{t}_{2[4\times1]}
+\end{bmatrix}</script><p>左边叉乘$p_1,p_2$($z$已被归一化为1)：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+y\mathbf{t}_2-\mathbf{t}_1\\
+\mathbf{t}_0-x\mathbf{t}_2\\
+x\mathbf{t}_1-y\mathbf{t}_0\\
+\end{bmatrix}P=0</script><p>将两个式子合并（第三个等式没有有效的约束）：</p>
+<script type="math/tex; mode=display">
+AP=\begin{bmatrix}
+y\mathbf{t}_2-\mathbf{t}_1\\
+\mathbf{t}_0-x\mathbf{t}_2\\
+y'\mathbf{t}_2-\mathbf{t}_1\\
+\mathbf{t}_0-x'\mathbf{t}_2\\
+\end{bmatrix}P=0</script><p>四个有效方程，P中含有三个未知数，这是一个<strong>超定方程</strong>，对矩阵AA奇异值分解SVD求最小二乘解。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><p><strong>提取匹配特征点</strong></p>
+<p>从<code>vMatchedIndices</code>中提取</p>
+</li>
+<li><p><strong>计算视差角</strong></p>
+<p>视差角需要计算两个：第一个是当前帧和参考帧的视差夹角，第二个是双目相机左镜头和右镜头的视差夹角。</p>
+<p>对于帧与帧的视差角，利用匹配点反投影可以得到方向向量，利用直线夹角计算公式$\theta=\frac{\vec{n_1}\vec{n_2}}{|\vec{n_1}||\vec{n_1}|}$即可算得。对于左右镜头视差角利用近似的几何关系算得。$\theta=\arctan(\frac{1}{2}B/Z)$</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190827101343.png" alt=""></p>
+</li>
+<li><p><strong>计算3D点</strong></p>
+<p>单目相机采用三角化的办法，双目相机如果物点距离很远也采用三角化，距离很近直接采用深度（判断距离远近比较两个视差角）</p>
+</li>
+<li><p><strong>检查3D点</strong></p>
+<p>检测生成的3D点是否在相机前方，检测重投影误差是否在可接受范围，检查尺度连续性</p>
+</li>
+<li><p><strong>将3D点构造成MapPoint</strong></p>
+<p>老生常谈了，调用构造函数，然后添加属性</p>
+</li>
+<li><p><strong>加入检测队列</strong></p>
+<p>这些MapPoints都会经过MapPointCulling函数的检验</p>
+</li>
+</ol>
+<h1 id="5-融合地图点SearchInNeighbors"><a href="#5-融合地图点SearchInNeighbors" class="headerlink" title="5. 融合地图点SearchInNeighbors"></a>5. 融合地图点SearchInNeighbors</h1><p>前面通过新加入的关键帧建立了一些地图点，然而这些地图点和以前建立的可能有重复，所以这一步需要剔除重复。</p>
+<p>步骤:</p>
+<ol>
+<li><p><strong>获得最佳共视关系的邻接关键帧</strong></p>
+<p>找到当前帧一级相邻与二级相邻关键帧。一级邻接是指和当前帧有最佳共视关系的那些帧，数量根据单双目情况，有所不同。二级关键帧是和一级关键帧有良好共视关系的（程序中是最好的5帧）</p>
+</li>
+<li><p><strong>正向融合</strong></p>
+<p>融合时有两个参数：帧，地图点。若存在重复，则删除；若不重复，添加属性成为正式的地图点，当然也要检查是否具有匹配关系。正向融合的帧是<strong>一二级邻接关键帧</strong>（遍历），地图点是<strong>当前关键帧产生的地图点</strong>。</p>
+</li>
+<li><p><strong>反向融合</strong></p>
+<p>反向融合帧是<strong>当前关键帧</strong>，地图点是<strong>所有一二级关键帧对应的地图点</strong>（遍历）。</p>
+</li>
+<li><p><strong>更新</strong></p>
+<p>更新当前帧MapPoints的最佳描述子，平均深度，平均观测主方向等属性。同时更新covisibility图，更新当前帧的MapPoints后更新与其它帧的连接关系。</p>
+</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" target="_blank" rel="external">jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&title=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&title=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&source=ORBSLAM三大线程之LocalMapping部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">ORB_SLAM2源码解析-LoopClosing回环检测</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/22/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-Tracking%E8%BF%BD%E8%B8%AA/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">ORB_SLAM2源码解析-Tracking追踪</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&title=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&title=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&source=ORBSLAM三大线程之LocalMapping部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-LocalMapping建图》 — JR's Blog&url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

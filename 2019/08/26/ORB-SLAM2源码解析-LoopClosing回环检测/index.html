@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>ORB_SLAM2源码解析-LoopClosing回环检测 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM">
+    <meta name="description" content="ORBSLAM三大线程之Tracking部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB_SLAM2源码解析-LoopClosing回环检测">
+<meta property="og:url" content="jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="ORBSLAM三大线程之Tracking部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828163958.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828164033.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829154803.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829094727.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829104457.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829105758.png">
+<meta property="article:published_time" content="2019-08-26T03:59:43.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:49:36.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828163958.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">ORB_SLAM2源码解析-LoopClosing回环检测</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">ORB_SLAM2源码解析-LoopClosing回环检测</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-26T03:59:43.000Z" itemprop="datePublished" class="page-time">
+  2019-08-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-概述"><span class="post-toc-text">1. 概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-回环检测的意义"><span class="post-toc-text">1.1 回环检测的意义</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-总体结构"><span class="post-toc-text">1.2 总体结构</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-检测回环DetectLoop"><span class="post-toc-text">2. 检测回环DetectLoop</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-总体步骤"><span class="post-toc-text">2.1 总体步骤</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-找出闭环备选帧"><span class="post-toc-text">2.2 找出闭环备选帧</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-连续性检测"><span class="post-toc-text">2.3 连续性检测</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-Sim3计算ComputeSim3"><span class="post-toc-text">3. Sim3计算ComputeSim3</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Step1-一次筛选"><span class="post-toc-text">Step1 一次筛选</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Step2-二次筛选"><span class="post-toc-text">Step2 二次筛选</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Step3-三次筛选"><span class="post-toc-text">Step3 三次筛选</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-回环校正CorrectLoop"><span class="post-toc-text">4. 回环校正CorrectLoop</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-主要步骤"><span class="post-toc-text">4.1 主要步骤</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-Sim3传播优化"><span class="post-toc-text">4.2 Sim3传播优化</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-ORB-SLAM2源码解析-LoopClosing回环检测"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">ORB_SLAM2源码解析-LoopClosing回环检测</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-26 11:59:43" datetime="2019-08-26T03:59:43.000Z"  itemprop="datePublished">2019-08-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>ORBSLAM三大线程之Tracking部分。<a id="more"></a></p>
+<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><h2 id="1-1-回环检测的意义"><a href="#1-1-回环检测的意义" class="headerlink" title="1.1 回环检测的意义"></a>1.1 回环检测的意义</h2><p>在Slam14讲中提到过，回环检测可以显著减小累计误差的影响，但具体的作用机理并没有讲清楚，这里做一个补充。</p>
+<p>由于机器移动过程中，误差会逐步累积导致其<strong>计算路径偏离实际路径</strong>（误差最明显的是尺度漂移），我们希望能将计算路径修正。</p>
+<p>当检测出回环帧，确认路径闭环时，我们可以认为当前帧和回环帧应该是<strong>重合</strong>的。而实际情况却不相同，这中间差了一个<strong>相似变换矩阵</strong>S=[sRt01]S=[sRt01]，通过计算当前帧和回环帧的信息，我们能求出这个矩阵。再通过<strong>位姿传播原理</strong>，对之前所有的计算路径进行修正，最终再全局BA得到最优结果。</p>
+<p>可以看到，如果不进行回环检测，画出的地图非常糟糕：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828163958.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>而通过回环检测，能有效提高地图效果：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190828164033.png" alt="img"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-2-总体结构"><a href="#1-2-总体结构" class="headerlink" title="1.2 总体结构"></a>1.2 总体结构</h2><p>回环检测的过程就是一个不断筛选择优的过程，总的来说主要的筛选条件有：<strong>词袋相似度检测</strong>，<strong>孤点检测</strong>，<strong>连续性检测</strong>，<strong>词袋特征点匹配检测</strong>，<strong>Sim3匹配检测</strong>，<strong>重投影匹配检测</strong>。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829154803.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="2-检测回环DetectLoop"><a href="#2-检测回环DetectLoop" class="headerlink" title="2. 检测回环DetectLoop"></a>2. 检测回环DetectLoop</h1><p>这一步我们准确地检测出回环帧，检测的办法就是通过不断的筛选。筛选的过程可以分为两类：单帧对单帧的筛选，多帧对多帧的筛选。</p>
+<p>前者是要筛选出和<strong>当前帧</strong>有可能回环关系的候选帧，包括二者的相似性，候选帧是否孤立等等。后者是一系列帧的比较，主要是检测连续性。</p>
+<h2 id="2-1-总体步骤"><a href="#2-1-总体步骤" class="headerlink" title="2.1 总体步骤"></a>2.1 总体步骤</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829094727.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ol>
+<li><p><strong>取出一帧</strong></p>
+<p>先从<code>mlpLoopKeyFrameQueue</code>队列中取一帧，这个队列是在LocalMapping的最后插入的关键帧。</p>
+</li>
+<li><p><strong>检测与上一次回环的距离</strong></p>
+<p>如果距离上次闭环没多久（小于10帧），或者map中关键帧总共还没有10帧，则不进行闭环检测</p>
+</li>
+<li><p><strong>计算当前帧与共视帧的Bow得分</strong></p>
+<p>这一步需要遍历所有共视关键帧呢，计算他们之间的Bow相似度得分，并得到最低得分<code>minScore</code></p>
+</li>
+<li><p><strong>找出闭环备选帧</strong></p>
+<p>和当前关键帧具有回环关系的关键帧,不应该低于当前关键帧的相邻关键帧的最低的相似度，且候选帧不应该孤立</p>
+</li>
+<li><p><strong>连续性检测</strong></p>
+<p>实现多帧与多帧的闭环</p>
+</li>
+</ol>
+<h2 id="2-2-找出闭环备选帧"><a href="#2-2-找出闭环备选帧" class="headerlink" title="2.2 找出闭环备选帧"></a>2.2 找出闭环备选帧</h2><p>这一步为了在闭环检测中找到与该关键帧可能闭环的关键帧。筛选时有两个阈值：<strong>最大共词数，最大组得分</strong>。最大共词数用于筛选那些和当前帧长得不像的候选帧，最大组得分用于筛选长得像但孤立的候选帧。</p>
+<ol>
+<li><p><strong>找出和当前帧具有公共单词的所有关键帧</strong></p>
+<p>需要排除与当前帧链接的关键帧，把找到的候选帧放入<code>lKFsSharingWords</code>，同时记录当前帧与候选帧具有相同word的个数<code>mnLoopWords</code></p>
+</li>
+<li><p><strong>统计候选帧中的最大共词数</strong></p>
+<p>在上一步中所有闭环候选帧与当前帧的共次数都存在了<code>mnLoopWords</code>，遍历然后找到最大共词数。</p>
+</li>
+<li><p><strong>挑选共次数合格的候选帧并计算得分</strong></p>
+<p>程序设定的条件是，共词数大于0.8最大共词数。然后调用DBoW2自带的<code>score</code>函数计算得分。将合格的候选帧和得分组成pair放入<code>lScoreAndMatch</code></p>
+</li>
+<li><p><strong>计算组得分去除孤立点</strong></p>
+<p>单单计算当前帧和某一关键帧的相似性是不够的，这里将与关键帧相连归为一组，计算累计得分。具体做法是：</p>
+<ol>
+<li><p><strong>构建组</strong></p>
+<p>利用<code>pKFi-&gt;GetBestCovisibilityKeyFrames(10)</code>得到最佳共视的10帧放入容器<code>vpNeighs</code>中形成一组。</p>
+</li>
+<li><p><strong>计算组得分</strong></p>
+<p>遍历组，如果组中的帧满足上面步骤3的条件，则将它的分数累加。</p>
+</li>
+<li><p><strong>记录最高得分</strong></p>
+<p>将所有组中的得分最高组的分数记录下来，作为阈值</p>
+</li>
+<li><p><strong>组筛选</strong></p>
+<p>排除分数低于0.75倍最高分数的组。将筛选后的候选帧插入<code>vpLoopCandidates</code></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="2-3-连续性检测"><a href="#2-3-连续性检测" class="headerlink" title="2.3 连续性检测"></a>2.3 连续性检测</h2><p>需要实现多帧与多帧闭环，所以要做连续性检测。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829104457.png" alt="img"  style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如图所示，在闭环候选帧中，紫色那一帧连续被三个当前帧匹配到，所以它通过了合格性检测，可以被作为良好的候选帧。这种检测方法是<strong>将一系列当前帧和一系列闭环候选帧比较</strong>，所以是多帧对多帧闭环。</p>
+<p>这里的”匹配”非常特殊，因为闭环候选帧不是连续的，他们的拓扑结构是这样：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190829105758.png" alt="img"  style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>彩色三角代表候选帧，蓝色圆形则为普通帧。我们将候选帧和与他有良好共视关系的普通帧圈起来，组成<strong>子候选组</strong>，后面比较连续性就是以<strong>组</strong>为单位比较。</p>
+<p>检测时，当前帧如果和某一子候选组发生关系(和组员有良好共视关系)，那么这一子候选组连续性+1，并<strong>传递到下一个当前帧</strong>。如果当前帧没有和某子候选组发生关系，则此候选组<strong>连续性直接清零</strong>。如果能连续通过3次考验，则就算通过连续性检测。</p>
+<h1 id="3-Sim3计算ComputeSim3"><a href="#3-Sim3计算ComputeSim3" class="headerlink" title="3. Sim3计算ComputeSim3"></a>3. Sim3计算ComputeSim3</h1><p>该函数计算相似变换，从<code>mvpEnoughConsistentCandidates</code>中找出真正的闭环帧<code>mpMatchedKF</code>。</p>
+<p>这个部分要达成两个目的：第一，准确计算Sim变换矩阵，为后面的校正做铺垫；第二，进一步筛选闭环帧。</p>
+<p>筛选分为三个阶段：阶段一利用词袋匹配的办法剔除，阶段二利用Sim3匹配剔除，阶段三利用重投影匹配剔除。</p>
+<h3 id="Step1-一次筛选"><a href="#Step1-一次筛选" class="headerlink" title="Step1 一次筛选"></a><strong>Step1 一次筛选</strong></h3><ol>
+<li><p>从闭环候选帧容器中取出一帧</p>
+<p>之前通过连续性检测的结果都放在<code>mvpEnoughConsistentCandidates</code>，从这里面取出一帧。</p>
+</li>
+<li><p>当前帧与候选帧匹配</p>
+<p>通过bow加速得到mpCurrentKF与pKF之间的匹配特征点，调用函数<code>SearchByBoW</code>，如果匹配的特征点少于20个，<code>vbDiscarded[i]</code>打上标记。</p>
+</li>
+<li><p>构造Sim3求解器</p>
+<p>Ransac参数：迭代300次，至少20个内点才能通过。结束后重复执行1。</p>
+</li>
+</ol>
+<h3 id="Step2-二次筛选"><a href="#Step2-二次筛选" class="headerlink" title="Step2 二次筛选"></a><strong>Step2 二次筛选</strong></h3><ol>
+<li><p>从候选帧容器取出一帧</p>
+<p>如果<code>vbDiscarded</code>有标记，则放弃此帧，再取一帧。</p>
+</li>
+<li><p>求解Sim3</p>
+<p>Step1.3构造的求解器存储在<code>vpSim3Solvers[i]</code>中，取出来，求解，迭代5次。如果得不到好的结果，打上discard标记。</p>
+</li>
+<li><p>Sim3弥补漏匹配</p>
+<p>在Step1.2中进行了一次匹配，但由于尺度误差，很多特征点没有进行有效匹配，现在成功计算出了相似变换矩阵，用它进行弥补。调用函数<code>SearchBySim3</code></p>
+</li>
+<li><p>Sim3优化</p>
+<p>引入弥补后的匹配点，调用<code>OptimizeSim3</code>进行优化。如果优化得到的内点数大于20，则表示通过考验，此帧就是闭环帧。然后立马break。结束后重复执行1。</p>
+</li>
+<li><p>清理垃圾</p>
+<p>如果把候选帧容器都遍历完了，依然没有任何一帧被确立为回环帧，则说明当前帧没有发生回环。清除<code>mvpEnoughConsistentCandidates</code></p>
+</li>
+</ol>
+<h3 id="Step3-三次筛选"><a href="#Step3-三次筛选" class="headerlink" title="Step3 三次筛选"></a><strong>Step3 三次筛选</strong></h3><ol>
+<li><p>提取闭环帧的相连关键帧</p>
+<p>把相连关键帧的所有MapPoint放入<code>mvpLoopMapPoints</code></p>
+</li>
+<li><p>投影到当前帧匹配</p>
+<p>调用<code>SearchByProjection</code>，统计匹配成功的点数</p>
+</li>
+<li><p>清理候选帧容器</p>
+<p>如果匹配成功的点数<code>nTotalMatches</code>大于40，说明完成了最后的考验，返回true，清空容器<code>mvpEnoughConsistentCandidates</code>；若小于40，则表示闭环失败，清空容器，返回false。</p>
+</li>
+</ol>
+<h1 id="4-回环校正CorrectLoop"><a href="#4-回环校正CorrectLoop" class="headerlink" title="4. 回环校正CorrectLoop"></a>4. 回环校正CorrectLoop</h1><p>通过前面的操作我们得到了最终的回环帧和Sim变换矩阵，现在要利用这些条件，进行全局校正。</p>
+<p>校正之前需要先停止LocalMapping线程，停止全局BA。</p>
+<h2 id="4-1-主要步骤"><a href="#4-1-主要步骤" class="headerlink" title="4.1 主要步骤"></a>4.1 主要步骤</h2><ol>
+<li><p><strong>更新连接</strong></p>
+<p>回环检测和Sim3计算需要消耗一定时间，这时候机器人依然在移动，依然有关键帧传输进来，因此在这一步需要重新更新一下帧与帧之间的共视关系。</p>
+</li>
+<li><p><strong>Sim3优化位姿和地图点</strong></p>
+<p>主要是通过位姿传播原理，通过相对位姿关系，可以确定这些相连的关键帧与世界坐标系之间的Sim3变换。这一 步开始遍历相连关键帧</p>
+</li>
+<li><p><strong>检查地图点冲突</strong></p>
+<p>检查<strong>当前帧</strong>与<strong>闭环帧</strong>的MapPoints是否存在冲突，对冲突的MapPoints进行替换或填补。有的时候可能会产生<strong>一个特征点对应两个地图点</strong>的情况，需要用Step3匹配的结果替换当前帧的结果。和下面不同的是：这里并没有做投影匹配，只是调用<code>replace</code>函数将重复的地图点踢掉了。</p>
+</li>
+<li><p><strong>地图点融合</strong></p>
+<p>这一步跟上一步有点像，不同的是融合的对象是闭环时所有<strong>相连关键帧</strong>对应的地图点<code>mvpLoopMapPoints</code>。此处调用了<code>Fuse</code>函数，它通过投影作用，将<code>mvpLoopMapPoints</code>投影到校正后的当前帧，在阈值为4的范围内搜索。如果MapPoint能匹配关键帧的特征点，并且该点<strong>有对应的MapPoint</strong>，那么将两个MapPoint<strong>合并</strong>（选择观测数多的）。如果如果MapPoint能匹配关键帧的特征点，并且该点<strong>没有对应的MapPoint</strong>，那么为该点<strong>添加MapPoint</strong>。</p>
+</li>
+<li><p><strong>更新连接</strong></p>
+<p>与第一步不同的是，这一步更新是因为闭环校正，第一步是因为新插入了关键帧。调用<code>UpdateConnections</code>后得到了新的连接关系，然后删除之前存在的一级连接关系和二级连接关系（防止冲突）</p>
+</li>
+<li><p><strong>优化</strong></p>
+<ol>
+<li><p>EssentialGraph优化</p>
+<p>对形成闭环后新生成的重要的关键帧的Sim3位姿进行优化。回环边不参与优化。调用<code>OptimizeEssentialGraph</code>优化，采用g2o方案</p>
+</li>
+<li><p>全局BA优化</p>
+<p>上一步没有优化回环边，这里添加进去。新建了一个线程执行全局BA。</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="4-2-Sim3传播优化"><a href="#4-2-Sim3传播优化" class="headerlink" title="4.2 Sim3传播优化"></a>4.2 Sim3传播优化</h2><p>针对第二步Sim3优化位姿和地图点进行详细分析。</p>
+<ol>
+<li><p><strong>传播计算Sim3</strong></p>
+<p>位姿传播公式PoselPosec=SimlSimcPoselPosec=SimlSimc，我们只需要得到回环帧的位姿，当前帧的位姿，回环帧的Sim矩阵，就可以求出当前帧的Sim矩阵，把计算后的结果放在<code>CorrectedSim3</code>(这里只算出来，还没有校正)</p>
+</li>
+<li><p><strong>修正MapPoint</strong></p>
+<p>利用Sim修正的结果计算地图点</p>
+</li>
+<li><p><strong>校正关键帧位姿</strong></p>
+<p>将Sim3转换为SE3才能更新位姿</p>
+</li>
+<li><p><strong>更新连接</strong></p>
+</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" target="_blank" rel="external">jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&source=ORBSLAM三大线程之Tracking部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/01/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%931-%E4%BA%8C%E5%88%86%E6%B3%95/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Leetcode题目总结1-二分法</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/25/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LocalMapping%E5%BB%BA%E5%9B%BE/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">ORB_SLAM2源码解析-LocalMapping建图</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&source=ORBSLAM三大线程之Tracking部分。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB_SLAM2源码解析-LoopClosing回环检测》 — JR's Blog&url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/26/ORB-SLAM2%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-LoopClosing%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

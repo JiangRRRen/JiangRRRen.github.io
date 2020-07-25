@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>ORB特征检测 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,图像处理,算法">
+    <meta name="description" content="ORB特征检测是由FAST角点检测和BRIEF描述子检测组合的检测手段，在ORBSLAM中有良好运用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ORB特征检测">
+<meta property="og:url" content="jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="ORB特征检测是由FAST角点检测和BRIEF描述子检测组合的检测手段，在ORBSLAM中有良好运用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807100315.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217163524.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819101113.png">
+<meta property="article:published_time" content="2019-08-15T05:22:52.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:28:40.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="图像处理">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807100315.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">ORB特征检测</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">ORB特征检测</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-15T05:22:52.000Z" itemprop="datePublished" class="page-time">
+  2019-08-15
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基本概念"><span class="post-toc-text">1. 基本概念</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-Fast关键点"><span class="post-toc-text">2. Fast关键点</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-BRIEF描述子"><span class="post-toc-text">3. BRIEF描述子</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-尺度不变性"><span class="post-toc-text">4. 尺度不变性</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-ORB特征检测"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">ORB特征检测</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-15 13:22:52" datetime="2019-08-15T05:22:52.000Z"  itemprop="datePublished">2019-08-15</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>ORB特征检测是由FAST角点检测和BRIEF描述子检测组合的检测手段，在ORBSLAM中有良好运用。<a id="more"></a></p>
+<h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1. 基本概念"></a>1. 基本概念</h1><p>特征点指图像中选取比较有代表性的点，这些点在相机<strong>视角发生少量变化后会保持不变</strong>，所以我们会在各个图像中找到相同的点。</p>
+<p>特征点由<strong>关键点</strong>（Key-point）和<strong>描述子</strong>（Descriptor）两部分组成。关键点是指该特征点在图像里的<strong>位置</strong>，有些特征点还具有朝向、大小等信息。描述子通常是一个 向量，描述了该关键点周围像素的信息。描述子是按照“<strong>外观相似的特征应该有相似的描述子</strong>”的原则设计的。</p>
+<p><strong>ORB （Oriented FAST and Rotated BRIEF）</strong>改进了 FAST 检测子不具有方向性的问题，并采用速度极快的二进制描述子 BRIEF，使整个图像特征提取的环节大大加速。借助尺度空间理论构建图像高斯金字塔，然后在每一层金字塔图像上检测角点，以实现尺度不变性。</p>
+<p>ORB 特征亦由关键点和描述子两部分组成。它的<strong>关键点称为”Oriented FAST”</strong>，是 一种改进的 FAST 角点，它的<strong>描述子称为 BRIEF （Binary Robust Independent Elementary Features）</strong>。因此，提取 ORB 特征分为两个步骤：</p>
+<ol>
+<li><strong>FAST 角点提取</strong>：找出图像中的”角点”。相较于原版的 FAST, ORB 中计算了特征点的主方向，为后续的 BRIEF 描述子增加了旋转不变特性。</li>
+<li><strong>BRIEF 描述子</strong>：对前一步提取出特征点的周围图像区域进行描述。</li>
+</ol>
+<h1 id="2-Fast关键点"><a href="#2-Fast关键点" class="headerlink" title="2. Fast关键点"></a>2. Fast关键点</h1><p>FAST 是一种角点，主要检测局部像素灰度变化明显的地方，以速度快著称。它的思想是：<strong>如果一个像素与它邻域的像素差别较大（过亮或过暗）, 那它更可能是角点</strong>。算法步骤如下：</p>
+<ol>
+<li>在图像中选取像素 $p$，假设它的亮度为 $I_p$。</li>
+<li>设置一个阈值 $T$(比如 Ip 的 20%)</li>
+<li>以像素 $p$ 为中心, 选取半径为 3 的圆上的 16 个像素点。</li>
+<li>假如选取的圆上，<strong>有连续的 $N$ 个点的亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，那么像素 p 可以被认为是特征点 ($N$ 通常取 12，即为 FAST-12。其它常用的 $N$ 取值为9和11， 他们分别被称为 FAST-9，FAST-11)。</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190807100315.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在 FAST-12 算法中，为了更高效，可以添加一项预测试操作，以快速地排除绝大多数不是角点的像素。直接检测邻域圆上的第 1，5，9，13 个像素的亮度。只有<strong>当这四个像素中有三个同时亮度大于 $(I_p + T)$ 或小于 $(I_p −T)$</strong>，当前像素才有 可能是一个角点，否则应该直接排除。</p>
+<p>FAST算子本身是不具有方向性的，因此我们需要引入距分析来完成oriented：</p>
+<p>图像的距为：</p>
+<script type="math/tex; mode=display">
+m_{p q}=\sum_{x, y \in B} x^{p} y^{q} I(x, y), \quad p, q=\{0,1\}</script><p>质心为：</p>
+<script type="math/tex; mode=display">
+C=\left(\frac{m_{10}}{m_{00}}, \frac{m_{01}}{m_{00}}\right)</script><p>连接图像的几何中心O和质心C可以得到方向向量$\vec{OC}$，方向就可以被定义为：</p>
+<script type="math/tex; mode=display">
+\theta=\arctan{(m_{01}/m_{10})}</script><h1 id="3-BRIEF描述子"><a href="#3-BRIEF描述子" class="headerlink" title="3. BRIEF描述子"></a>3. BRIEF描述子</h1><p>BRIEF 是一种<strong>二进制描述子</strong>，它的描述向量由许多个 0 和 1 组成，这里的 0 和 1 编码了关键点附近两个像素（比如说 p 和 q）的大小关系：如果 p 比 q 大，则取 1，反之就取 0。如果我们取了 128 个这样的 pq，最后就得到 128 维由 0，1 组成的向量。</p>
+<p>pq的选点在BRIEF中采取了随机选点的比较，速度很快。</p>
+<p>算法步骤如下：</p>
+<ol>
+<li>以特征点P为中心，取一个S×S大小的Patch邻域；</li>
+<li>在这个邻域内随机取N对点(x,y)，比较N对像素点的灰度值的大小,如果x的灰度大于y，则写为1，反之为0</li>
+<li>重复步骤2得到N个（一般为256）二进制代码串</li>
+</ol>
+<p>随机点的选择一般采用高斯分布的形式，匹配时采用汉明距离(两代码串同位不同的个数,比如010和101汉明距离为3)</p>
+<p>原始的 BRIEF 描述子<strong>不具有旋转不变性</strong>，因此在图像发生旋转时容易丢失。原因是其采用了方形领域，当旋转时会造成覆盖的区域发生变化：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191217163524.png" style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>而 ORB 在 FAST 特征点提取阶段计算了关键点的方向，所以可以利用方向信息，计算了旋转之后的”Steer BRIEF”特征，使 ORB 的描述子具有较好的旋转不变性。</p>
+<h1 id="4-尺度不变性"><a href="#4-尺度不变性" class="headerlink" title="4. 尺度不变性"></a>4. 尺度不变性</h1><p>前面介绍了利用距分析获取特征方向从而实现<strong>旋转不变性</strong>，同样的我们也需要实现<strong>尺度不变性</strong>，我们在描述一个特征之前，将两张图像都变换同一个尺度上，然后再在这个统一标准上来描述这个特征。</p>
+<p>为了实现尺度不变性，需要给特征加上尺度因子。在进行特征描述的时候，将尺度统一即可。一般采用<strong>高斯金字塔模型</strong>。</p>
+<p>与普通的金子塔不同，我们进行分组构建：</p>
+<ol>
+<li>先将原图像扩大一倍之后作为高斯金字塔的第1组第1层，将第1组第1层图像经高斯滤波之后作为第1组金字塔的第2层。</li>
+<li>将第一次滤波的方差$\sigma$乘以比例系数得到$\sigma_2=k\sigma_1$,用它来平滑第1组第2层图像，结果图像作为第3层。</li>
+<li>如此这般重复，最后得到L层图像，在同一组中，每一层图像的尺寸都是一样的，只是平滑系数不一样。它们对应的平滑系数分别为：$0，σ，kσ，k^2σ,k^3σ……k^(L-2)σ$</li>
+<li>将第1组<strong>倒数第三层</strong>图像作比例因子为2的降采样(缩小一倍)，得到的图像作为第2组的第1层，重复步骤2</li>
+</ol>
+<p>这样反复执行，就可以得到一共O组，每组L层，共计O*L个图像，这些图像一起就构成了高斯金字塔，结构如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190819101113.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>在高斯金字塔中一共生成O组L层不同尺度的图像，这两个量合起来（O，L）就构成了高斯金字塔的尺度空间，也就是说以高斯金字塔的组O作为二维坐标系的一个坐标，不同层L作为另一个坐标，则给定的一组坐标（O,L）就可以唯一确定高斯金字塔中的一幅图像。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_blank" rel="external">jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《ORB特征检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《ORB特征检测》 — JR's Blog&source=ORB特征检测是由FAST角点检测和BRIEF描述子检测组合的检测手段，在ORBSLAM中有良好运用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB特征检测》 — JR's Blog&url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Harris特征检测</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">光流法</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《ORB特征检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&title=《ORB特征检测》 — JR's Blog&source=ORB特征检测是由FAST角点检测和BRIEF描述子检测组合的检测手段，在ORBSLAM中有良好运用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ORB特征检测》 — JR's Blog&url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

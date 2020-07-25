@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>GoWeb编程1-Web的基础知识 - go | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go">
+    <meta name="description" content="主要介绍web和http协议。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoWeb编程1-Web的基础知识 - go">
+<meta property="og:url" content="jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="主要介绍web和http协议。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122132851.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120161120.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120162109.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120162326.png">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2019/07/ed88f97317decd70.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122135145.png">
+<meta property="article:published_time" content="2020-01-22T05:23:33.000Z">
+<meta property="article:modified_time" content="2020-01-23T13:52:13.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122132851.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">GoWeb编程1-Web的基础知识 - go</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">GoWeb编程1-Web的基础知识 - go</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-22T05:23:33.000Z" itemprop="datePublished" class="page-time">
+  2020-01-22
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-Web简介"><span class="post-toc-text">1. Web简介</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-什么是web"><span class="post-toc-text">1.1 什么是web</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-Web的基本原理"><span class="post-toc-text">1.2 Web的基本原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-URL和DNS解析"><span class="post-toc-text">1.3 URL和DNS解析</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-HTTP"><span class="post-toc-text">2. HTTP</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-什么是HTTP"><span class="post-toc-text">2.1 什么是HTTP</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-HTTP请求"><span class="post-toc-text">2.2 HTTP请求</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-HTTP响应"><span class="post-toc-text">2.3 HTTP响应</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-使用go编写一个web程序"><span class="post-toc-text">3. 使用go编写一个web程序</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-GoWeb编程1-Web的基础知识"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">GoWeb编程1-Web的基础知识 - go</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-22 13:23:33" datetime="2020-01-22T05:23:33.000Z"  itemprop="datePublished">2020-01-22</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>主要介绍web和http协议。<a id="more"></a></p>
+<h1 id="1-Web简介"><a href="#1-Web简介" class="headerlink" title="1. Web简介"></a>1. Web简介</h1><h2 id="1-1-什么是web"><a href="#1-1-什么是web" class="headerlink" title="1.1 什么是web"></a>1.1 什么是web</h2><p>严格来说，Web分为<strong>Web应用</strong>和<strong>Web服务</strong>。Web 应用应该是：<strong>它会对客户端发送的 HTTP 请求做出响应，并通过 HTTP 响应将 HTML 回传至客户端。</strong> </p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122132851.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>一个Web应用至少需要两个条件：</p>
+<ul>
+<li><strong>这个程序必须向发送命令请求的客户端返回 HTML，而客户端则会向用户展示渲染后的 HTML</strong></li>
+<li><strong>这个程序在向客户端传送数据时必需使用 HTTP 协议</strong></li>
+</ul>
+<p>在这个定义的基础上，如果一个程序不是向用户渲染并展示HTML，而是向其他程序返回某 种非 HTML 格式的数据，那么这个程序就是一个<strong>为其他程序提供服务的 Web 服务</strong>。</p>
+<h2 id="1-2-Web的基本原理"><a href="#1-2-Web的基本原理" class="headerlink" title="1.2 Web的基本原理"></a>1.2 Web的基本原理</h2><p>我们平时使用的浏览器本身就是一个客户端，平时的上网过程是：</p>
+<ol>
+<li>输入URL时，浏览器回去请求DNS服务器。DNS服务器返回相应的域名对应的IP</li>
+<li>浏览器通过IP寻址找到对应的服务器，要求建立TCP连接。</li>
+<li>随后浏览器发送HTTP请求包。</li>
+<li>服务器收到后，返回HTTP响应包。</li>
+<li>浏览器接收并渲染响应包。</li>
+<li>全部完成后，与服务器断开TCP连接</li>
+</ol>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120161120.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>那么Web的工作原理可以被归纳为4个方面：</p>
+<ul>
+<li>TCP/IP协议建立的TCP连接</li>
+<li>客户端发送HTTP协议请求包</li>
+<li>服务器发送HTTP协议响应包</li>
+<li>客户端解释HTML文档，在屏幕上渲染结果。</li>
+</ul>
+<h2 id="1-3-URL和DNS解析"><a href="#1-3-URL和DNS解析" class="headerlink" title="1.3 URL和DNS解析"></a>1.3 URL和DNS解析</h2><p>URL (Uniform Resource Locator) 是 <strong>统一资源定位符</strong> 的英文缩写，用于描述一个网络上的资源，基本格式如下</p>
+<pre><code>scheme://host[:port#]/path/.../[?query-string][#anchor]
+scheme         方案，指定底层使用的协议(例如：http, https, ftp)
+host           HTTP 服务器的 IP 地址或者域名
+port#          HTTP 服务器的默认端口是 80，这种情况下端口号可以省略。如果使用了别的端口，必须指明，例如 http://www.cnblogs.com:8080/
+path           访问资源的路径
+query-string   发送给 http 服务器的数据
+anchor         锚
+</code></pre><hr>
+<p>DNS (Domain Name System) 是 <strong>域名系统</strong> 的英文缩写，是一种组织成域层次结构的计算机和网络服务命名系统，它用于 TCP/IP 网络，它从事将主机名或域名转换为实际 IP 地址的工作，类似于<strong>翻译官</strong>。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120162109.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>DNS查询时优先考虑<strong>本地的Host文件</strong>和<strong>本地的DNS解析器</strong>是否保留有缓存映射，如果没有就<strong>向上一级请求</strong>。依次按照DNS根服务器，DNS顶层服务器，DNS管理方服务器的顺序请求。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200120162326.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>所谓<strong>递归查询就是变更查询者，迭代查询则没有变更</strong>：这个例子中查询者由客户端变味了本地DNS服务器，所以是递归查询。</p>
+<h1 id="2-HTTP"><a href="#2-HTTP" class="headerlink" title="2. HTTP"></a>2. HTTP</h1><h2 id="2-1-什么是HTTP"><a href="#2-1-什么是HTTP" class="headerlink" title="2.1 什么是HTTP"></a>2.1 什么是HTTP</h2><p>HTTP是OSI的应用层协议，Web页面中的所有数据通过这个协议传输。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://i.bmp.ovh/imgs/2019/07/ed88f97317decd70.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>HTTP 是一种<strong>无状态</strong>、<strong>由文本构成</strong>的<strong>请求，响应</strong>（ request-response ）协议，这种协议使用的是<strong>客户端－服务器</strong>（ client-server ）模型</p>
+<p>无状态协议的意思是：<strong>服务器唯一知道的就是客户端会向服务器发送请求，而服务器则会向客户端返回响应，并且后续发生的请求对之前发生过的请求一无所知。</strong> 其他协议，比如FTP和Telnet这类面向连接的协议则会在客户端和服务器之间创建一个持续存在的通信通道。</p>
+<p>另外一点，HTTP也是<strong>以纯文本方式而不是二进制方式发送和接收协议数据的</strong>。这样做是为了让开发者可以在元需使用专门的协议分析工具的情况下，弄清楚通信中正在发生的事情，从而更容易进行故障排查。</p>
+<h2 id="2-2-HTTP请求"><a href="#2-2-HTTP请求" class="headerlink" title="2.2 HTTP请求"></a>2.2 HTTP请求</h2><p>前面提到，HTTP是一个请求-响应协议，<strong>协议涉及的所有事情都从一个请求开始</strong>。</p>
+<p>格式构成是：</p>
+<ul>
+<li>一个请求行request-line</li>
+<li>头部header</li>
+<li>一个空行</li>
+<li>报文主体body</li>
+</ul>
+<p>比如，其中Get就是请求方法，之后是URI（Uniform Resource Identifier），以及HTTP版本。</p>
+<pre><code class="lang-HTTP">GET /Protocols/rfc2616/ rfc2616.ht ml HTTP/ 1.1 
+Host : www.w3.org 
+User-Agent : Mozilla/5.0 
+
+&lt;!DOCTYPE html PUBLIC ”-//W3C//DTD XHTML 1.0 Strict//EN”
+</code></pre>
+<p>在HTTP协议中定义了许多请求方法：</p>
+<ul>
+<li><strong>GET</strong> 命令服务器返回指定的资源</li>
+<li><strong>HEAD</strong> 与 GET 方法的作用类似，唯一的不同在于这个方法不要求服务器返回报文的主体。只取得头部。</li>
+<li><strong>PUT</strong> 命令服务器将报文主体中的数据设置为 URI 指定的资源。 </li>
+<li><strong>DELETE</strong> 命令服务器删除 URI 指定的资源</li>
+<li><strong>TRACE</strong> 命令服务器返回请求本身。 通过这个方法，客户端可以知道介于它和服务器 之间的其他服务器是如何处理请求的。</li>
+<li><strong>OPTIONS</strong> 一命令服务器返回它支持的 HTTP 方法列表</li>
+<li><strong>CONNECT</strong> 命令服务器与客户端建立一个网络连接</li>
+<li><strong>PATCH</strong> 命令服务器使用报文主体中的数据对 URI 指定的资源进行修改。</li>
+</ul>
+<h2 id="2-3-HTTP响应"><a href="#2-3-HTTP响应" class="headerlink" title="2.3 HTTP响应"></a>2.3 HTTP响应</h2><p>HTTP 响应报文是对 HTTP 请求报文的回复。 跟 HTTP 请求一样， HTTP 响应也是由一系列 文本行组成的，其中包括：</p>
+<ul>
+<li>一个状态行</li>
+<li>响应头部</li>
+<li>一个空行</li>
+<li>一个可选的报文主体</li>
+</ul>
+<p>HTTP 响应的组织方式跟 HTTP 请求的组织方式是完全相同的。 </p>
+<pre><code class="lang-http">200 OK 
+Date : Sat, 22 Nov 2014 12 : 58:58 GMT 
+Server: Apache/2 
+    Last-Modified: Thu, 28 Aug 2014 21:01:33 GMT 
+Content-Length: 33115 
+Content-Type: text/html; charset=iso-8859- 1
+
+&lt;!DOCTYPE html PUBLIC ”-//W3C//DTD XHTML 1.0 Strict//EN” ”http://www.w3.org/ TR/xhtmll/DTD/xhtmll-strict.dtd” &gt; &lt;html xmlns= ’ http: //www.w3 . org/1999/ xhtml ’ &gt; &lt;head&gt;&lt;title&gt;Hypertext Transfer Protocol -- HTTP/1 .1&lt;/title&gt;&lt;/ head&gt;&lt;body&gt; ... &lt;/body&gt;&lt;/html&gt;
+</code></pre>
+<p>首行包含了状态码，共计5种类型：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200122135145.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="3-使用go编写一个web程序"><a href="#3-使用go编写一个web程序" class="headerlink" title="3. 使用go编写一个web程序"></a>3. 使用go编写一个web程序</h1><pre><code class="lang-go">import (
+    &quot;fmt&quot;
+    &quot;net/http&quot;
+    &quot;strings&quot;
+    &quot;log&quot;
+)
+
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+    r.ParseForm()  // 解析参数，默认是不会解析的
+    fmt.Println(r.Form)  // 这些信息是输出到服务器端的打印信息
+    fmt.Println(&quot;path&quot;, r.URL.Path)
+    fmt.Println(&quot;scheme&quot;, r.URL.Scheme)
+    fmt.Println(r.Form[&quot;url_long&quot;])
+    for k, v := range r.Form {
+        fmt.Println(&quot;key:&quot;, k)
+        fmt.Println(&quot;val:&quot;, strings.Join(v, &quot;&quot;))
+    }
+    fmt.Fprintf(w, &quot;Hello world!&quot;) // 这个写入到 w 的是输出到客户端的
+}
+
+func main() {
+    http.HandleFunc(&quot;/&quot;, sayhelloName) // 设置访问的路由
+    err := http.ListenAndServe(&quot;:9090&quot;, nil) // 设置监听的端口
+    if err != nil {
+        log.Fatal(&quot;ListenAndServe: &quot;, err)
+    }
+}
+</code></pre>
+<p>当我们在浏览器输入<code>http://localhost:9090</code>后就可以看到<code>Hello World</code>，并在服务器窗口看到：</p>
+<pre><code>map[]
+path /
+scheme 
+[]
+map[]
+path /favicon.ico
+scheme 
+[]
+</code></pre><p>如果输入<code>http://localhost:9090/?url_long=111&amp;url_long=222</code>，（问号用于分割URL和传输数据）得到的结果是：</p>
+<pre><code>map[url_long:[111 222]]
+path /
+scheme 
+[111 222]
+key: url_long
+val: 111222
+map[]
+path /favicon.ico
+scheme 
+[]
+</code></pre>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" target="_blank" rel="external">jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&source=主要介绍web和http协议。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B2-%E6%8E%A5%E6%94%B6Web%E8%AF%B7%E6%B1%82/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb编程2-接收Web请求</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/19/go%E5%B9%B6%E5%8F%91/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">go并发</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&source=主要介绍web和http协议。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程1-Web的基础知识 - go》 — JR's Blog&url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/22/GoWeb%E7%BC%96%E7%A8%8B1-Web%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

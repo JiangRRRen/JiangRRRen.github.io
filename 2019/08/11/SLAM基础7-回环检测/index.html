@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SLAM基础7-回环检测 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,计算机视觉">
+    <meta name="description" content="本文介绍了回环检测的概念和常用方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础7-回环检测">
+<meta property="og:url" content="jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本文介绍了回环检测的概念和常用方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812155942.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160033.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160708.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812162843.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812163340.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818195255.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202249.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202323.png">
+<meta property="article:published_time" content="2019-08-11T09:33:24.000Z">
+<meta property="article:modified_time" content="2019-12-30T14:53:03.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812155942.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SLAM基础7-回环检测</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SLAM基础7-回环检测</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-11T09:33:24.000Z" itemprop="datePublished" class="page-time">
+  2019-08-11
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-回环检测概述"><span class="post-toc-text">1. 回环检测概述</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-词袋模型"><span class="post-toc-text">2. 词袋模型</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-字典模型"><span class="post-toc-text">3. 字典模型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-创建字典"><span class="post-toc-text">3.1 创建字典</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-特征识别应用"><span class="post-toc-text">3.2 特征识别应用</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SLAM基础7-回环检测"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SLAM基础7-回环检测</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-11 17:33:24" datetime="2019-08-11T09:33:24.000Z"  itemprop="datePublished">2019-08-11</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本文介绍了回环检测的概念和常用方法。<a id="more"></a></p>
+<h1 id="1-回环检测概述"><a href="#1-回环检测概述" class="headerlink" title="1. 回环检测概述"></a>1. 回环检测概述</h1><p>随着时间的推移，机器人的运动轨迹的误差会逐渐加大，一般情况下我们只能做到相邻帧之间的约束$x<em>k,x</em>{k-1}$，我们希望构建一些<strong>时间间隔更久远的约束</strong>：比如$x<em>1-x</em>{100}$之间的位姿关系。产生这种约束的原因是：我们察觉到<strong>相机经过了同一个地方，采集到了相似的数据</strong>。</p>
+<p>现在问题在于，如何相机如何判断自己经过了同一地方。在解决这个问题之前，我们先引入一个概念：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812155942.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>回环检测的结果分为如上图所示的四种：TP FP FN TN。如下图所示图1不是回环，但由于太过相似被误认为回环，图2是回环但由于光线变化所以没有被检测出来。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160033.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>我们可以定义两个统计量：<strong>正确率</strong>和<strong>召回率</strong>(Precision &amp; Recall)</p>
+<script type="math/tex; mode=display">
+Precision=\frac{TP}{TP+FP}\\
+Recall=\frac{TP}{TP+FN}</script><p>正确率的意思是：当算法认为它是回环时，它真的是回环的概率是多大；召回率的意思是：对于一个事实上的回环，算法检测出的概率是多大。这两者一般是矛盾的：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812160708.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>当检测条件宽松时，召回率会上升，但准确率会下降</strong>。好的算法在较高召回率的情况下也能保证好的准确率。通常情况下，SLAM选择高准确率，适当放弃一些召回率，为了保证<strong>不会出现较大的错误</strong>可以牺牲一些精确度。</p>
+<h1 id="2-词袋模型"><a href="#2-词袋模型" class="headerlink" title="2. 词袋模型"></a>2. 词袋模型</h1><p>如何确定两张图具有相似性，从而判断此处为回环是非常关键的技术。一般来说我们可以任意选取两张图做特征匹配，但这样时间复杂度太高。我们可以借鉴数据结构中字典结构中的键值映射的思路。</p>
+<p><strong>词袋</strong>，也就是 Bag-of-Words（BoW），目的是用“<strong>图像上有哪几种特征</strong>”来描述一个图像。它所使用的数据结构是背包模型，也就是没有顺序的容器。假设一张图中发现了“人、车、狗”这三个对象，我们就可以把他们记录为单词$w_1,w_2,w_3$，在另一张图中只发现了“人、车”这两个单词，所以：</p>
+<script type="math/tex; mode=display">
+A=1·w_1+1·w_2+0·w_3</script><p>直接可以表示为$[1,1,0]^T$,当然也可以考虑出现的个数这样就不是二进制表示了$[2,1,0]^T$，因此我们只需要比较两张图的词袋的<strong>一范数(绝对值之和)</strong>，就可以判断他们的相似性。</p>
+<h1 id="3-字典模型"><a href="#3-字典模型" class="headerlink" title="3. 字典模型"></a>3. 字典模型</h1><h2 id="3-1-创建字典"><a href="#3-1-创建字典" class="headerlink" title="3.1 创建字典"></a>3.1 创建字典</h2><p>按照前面的介绍，字典由很多单词组成，而每一个单词代表了一个概念。一个单词与一个单独的特征点不同，它不是从单个图像上提取出来的，而是某一类特征的组合。所以，字典生成问题类似于一个<strong>聚类（Clustering）</strong>问题。</p>
+<p>首先，假设我们对<strong>大量的图像提取了特征点</strong>，比如说有 N 个。现在，我们想找一个有 k 个单词的字典，每 个单词可以看作局部相邻特征点的集合，应该怎么做呢？这可以用经典的 <strong>K-means（K均值）</strong>算法解决。步骤如下：</p>
+<ol>
+<li>随机选取k个中心点；</li>
+<li>对每个样本计算他们与中心点的距离，取最小距离为归类；</li>
+<li>重新计算每个类的中心点；</li>
+<li>如果中心点的变化很小则算法收敛，退出；否则返回2</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812162843.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>根据 K-means，我们可以把已经提取的大量特征点<strong>聚类成一个含有k个单词的字典</strong>了。现在的问题，变为如何根据图像中某个特征点，查找字典中相应的单词？ 一般使用<strong>K叉树</strong>，步骤是：</p>
+<ol>
+<li>在根节点，用k-means将所有样本聚成k类</li>
+<li>对上层的每个父节点，把属于该节点的样本再次聚成k类，得到下一层。</li>
+<li>以此类推，最后得到叶子层，也就是所谓的单词。</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812163340.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>词袋模型利用视觉词典（vocabulary）来把图像转化为<strong>向量</strong>。过程如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818195255.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这棵树里面总共有$1+K+\cdots+K^L=(k^{L+1}-1)/(K-1)$个节点，所有叶节点在L层形成$W=K^L$类，每一类用该类中所有特征的平均特征（meanValue）作为代表，称为单词（word）。每个叶节点被赋予一个权重。常见的权重有TF、IDF、TF-IDF等</p>
+<script type="math/tex; mode=display">
+\text{IDF}_k=\log\left(\frac{\text{number of all images}}{\text{number of images reach k-th leaf node}}\right)\\
+\text{TF}_k=\frac{\text{number of features locates in leaf node k}}{\text{number of all features}}\\
+\text{TF-IDF}_k=\text{TF}_k*\text{IDF}_k</script><blockquote>
+<p>TF-IDF的主要思想是：如果某个词或短语在一篇文章中出现的频率TF高，并且在其他文章中很少出现，则认为此词或者短语具有很好的类别区分能力，适合用来分类。TF-IDF实际上是TF * IDF，TF代表词频(Term Frequency)，表示词条在文档d中出现的频率。IDF代表逆向文件频率(Inverse Document Frequency)。如果包含词条t的文档越少，IDF越大，表明词条t具有很好的类别区分能力。</p>
+</blockquote>
+<p>视觉词典可以通过离线训练大量数据得到。训练中只计算和保存单词的IDF值，即单词在众多图像中的区分度。TF则是从实际图像中计算得到各个单词的频率。<strong>单词的TF越高，说明单词在这幅图像中出现的越多</strong>；<strong>单词的IDF越高，说明单词本身具有高区分度</strong>。二者结合起来，即可得到这幅图像的BoW描述。</p>
+<h2 id="3-2-特征识别应用"><a href="#3-2-特征识别应用" class="headerlink" title="3.2 特征识别应用"></a>3.2 特征识别应用</h2><p>离线生成视觉词典以后，我们就能在线进行图像识别或者场景识别。实际应用中分为两步进行：</p>
+<ol>
+<li><p>为图像生成一个表征向量$v_{1×W}$，图像中的每个特征都在词典中搜索其最近邻的叶节点。所有叶节点上的权重集合构成了BoW向量$v$</p>
+</li>
+<li><p>根据BoW向量，计算当前图像和其它图像之间的距离:</p>
+<script type="math/tex; mode=display">
+s(v_1,v_2)=1-\frac{1}{2}\left |\frac{v_1}{|v_1|}-\frac{v_2}{|v_2|}\right|</script></li>
+</ol>
+<p>在视觉词典之上，引入了<strong>正向索引</strong>（direct index）和<strong>反向索引</strong>（inverse index）的概念。</p>
+<p>用反向索引记录每个叶节点对应的图像编号。当识别图像时，根据反向索引选出有着公共叶节点的备选图像并计算得分，而不需要计算与所有图像的得分。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202249.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>比如下面三张图包含了一些特征：</p>
+<ul>
+<li>imageA：cat, dog, panda</li>
+<li>imageB： cat</li>
+<li>imageC:：cat，dog</li>
+</ul>
+<p>那么就会得到以下反向文件索引：</p>
+<ul>
+<li>dog : { A, C }</li>
+<li>cat：{ A, B , C}</li>
+<li>panda：{ A }</li>
+</ul>
+<p>当新得到一张图片D，它包含了cat和dog，则对应集合$(A,B)\cap(A,B,C)=(A,B)$所以图片D和图片C最像。</p>
+<p>而正排索引非常慢。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190818202323.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" target="_blank" rel="external">jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag">计算机视觉</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《SLAM基础7-回环检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《SLAM基础7-回环检测》 — JR's Blog&source=本文介绍了回环检测的概念和常用方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础7-回环检测》 — JR's Blog&url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%808-%E5%BB%BA%E5%9B%BE/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SLAM基础8-建图</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础6-后端</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《SLAM基础7-回环检测》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&title=《SLAM基础7-回环检测》 — JR's Blog&source=本文介绍了回环检测的概念和常用方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础7-回环检测》 — JR's Blog&url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

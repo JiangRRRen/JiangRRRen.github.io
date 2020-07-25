@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Beego框架学习2-Model | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go,Beego">
+    <meta name="description" content="介绍Beego中的model。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Beego框架学习2-Model">
+<meta property="og:url" content="jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="介绍Beego中的model。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200131135944.png">
+<meta property="article:published_time" content="2020-01-31T05:05:35.000Z">
+<meta property="article:modified_time" content="2020-02-04T09:20:08.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="Beego">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200131135944.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Beego框架学习2-Model</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Beego框架学习2-Model</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-31T05:05:35.000Z" itemprop="datePublished" class="page-time">
+  2020-01-31
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-Model介绍"><span class="post-toc-text">1. Model介绍</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-基本应用"><span class="post-toc-text">2. 基本应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-数据库设置"><span class="post-toc-text">2.1 数据库设置</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-准备工作"><span class="post-toc-text">2.2 准备工作</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-CRUD操作"><span class="post-toc-text">2.3 CRUD操作</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-高级查询"><span class="post-toc-text">3. 高级查询</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-过滤查询"><span class="post-toc-text">3.1 过滤查询</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-复杂查询"><span class="post-toc-text">3.2 复杂查询</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-事务"><span class="post-toc-text">4. 事务</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Beego框架学习2-Model"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Beego框架学习2-Model</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-31 13:05:35" datetime="2020-01-31T05:05:35.000Z"  itemprop="datePublished">2020-01-31</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>介绍Beego中的model。<a id="more"></a></p>
+<h1 id="1-Model介绍"><a href="#1-Model介绍" class="headerlink" title="1. Model介绍"></a>1. Model介绍</h1><p>beego ORM 是一个强大的 Go 语言 ORM 框架，orm模块主要是处理MVC中的M（models）</p>
+<blockquote>
+<p>对象-关系映射（Object-Relational Mapping，简称ORM）。当我们实现一个应用程序时（不使用O/R Mapping），我们可能会写特别多数据访问层的代码，从数据库保存、删除、读取对象信息，而这些代码都是重复的。而使用ORM则会大大减少重复性代码。</p>
+</blockquote>
+<p>ORM的特性：</p>
+<ul>
+<li><strong>支持范围广</strong>：支持 Go 的所有类型存储</li>
+<li><strong>上手容易</strong>：采用简单的 CRUD 风格，允许直接使用 SQL 查询／映射</li>
+<li><strong>兼容性好</strong>：跨数据库兼容查询</li>
+<li>自动 Join 关联表</li>
+</ul>
+<h1 id="2-基本应用"><a href="#2-基本应用" class="headerlink" title="2. 基本应用"></a>2. 基本应用</h1><h2 id="2-1-数据库设置"><a href="#2-1-数据库设置" class="headerlink" title="2.1 数据库设置"></a>2.1 数据库设置</h2><p>首先需要安装orm模块和mysql驱动：</p>
+<pre><code>// 安装beego orm包
+go get github.com/astaxie/beego/orm
+// 安装mysql驱动
+go get github.com/go-sql-driver/mysql
+</code></pre><p>同时，也需要导入包：</p>
+<pre><code class="lang-go">import (
+    // 导入orm包
+    &quot;github.com/astaxie/beego/orm&quot;
+
+    // 导入mysql驱动
+    _ &quot;github.com/go-sql-driver/mysql&quot;
+)
+</code></pre>
+<p>接下来是配置连接信息，配置过程和GoWeb实战1方法相似：</p>
+<pre><code class="lang-go">const(
+    userName = &quot;test&quot;
+    password = &quot;asdfg12345&quot;
+    ip =&quot;cdb-axt937vt.gz.tencentcdb.com&quot;
+    port=&quot;10059&quot;
+    dbName = &quot;test&quot;
+)
+
+func init(){
+    connectInfo:=[]string{userName,&quot;:&quot;,password,&quot;@tcp(&quot;,ip,&quot;:&quot;,port,&quot;)/&quot;, dbName, &quot;?charset=utf8&amp;parseTime=true&amp;loc=Local&quot;}
+    path:=strings.Join(connectInfo,&quot;&quot;)
+    orm.RegisterDataBase(&quot;default&quot;,&quot;mysql&quot;,path)
+    // 打开调试模式，开发的时候方便查看orm生成什么样子的sql语句
+    orm.Debug=true
+}
+</code></pre>
+<hr>
+<p>数据库注册函数的原型如下：</p>
+<pre><code class="lang-go">func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) error
+</code></pre>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">aliasName</td>
+<td style="text-align:center">数据库的别名，用来在 ORM 中切换数据库使用</td>
+</tr>
+<tr>
+<td style="text-align:left">driverName</td>
+<td style="text-align:center">驱动名字</td>
+</tr>
+<tr>
+<td style="text-align:left">dataSource</td>
+<td style="text-align:center">数据库连接字符串</td>
+</tr>
+<tr>
+<td style="text-align:left">params</td>
+<td style="text-align:center">附加参数</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>常用的附加参数有：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数名</th>
+<th style="text-align:left">默认值</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">charset</td>
+<td style="text-align:left">none</td>
+<td style="text-align:left">设置字符集，相当于 SET NAMES <value> 语句</td>
+</tr>
+<tr>
+<td style="text-align:left">loc</td>
+<td style="text-align:left">UTC</td>
+<td style="text-align:left">设置时区，可以设置为Local，表示根据本地时区走</td>
+</tr>
+<tr>
+<td style="text-align:left">parseTime</td>
+<td style="text-align:left">false</td>
+<td style="text-align:left">是否需要将 mysql的 DATE 和 DATETIME 类型值转换成GO的time.Time类型。</td>
+</tr>
+<tr>
+<td style="text-align:left">readTimeout</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">I/O 读超时时间, sql查询超时时间. 单位 (“ms”, “s”, “m”, “h”), 例子: “30s”, “0.5m” or “1m30s”.</td>
+</tr>
+<tr>
+<td style="text-align:left">timeout</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">连接超时时间，单位(“ms”, “s”, “m”, “h”), 例子: “30s”, “0.5m” or “1m30s”.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="2-2-准备工作"><a href="#2-2-准备工作" class="headerlink" title="2.2 准备工作"></a>2.2 准备工作</h2><p>首先我们创建一个表，用于测试：</p>
+<pre><code class="lang-sql">CREATE TABLE `online_orders` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增ID&#39;,
+  `shop_id` int(10) unsigned NOT NULL COMMENT &#39;店铺id&#39;,
+  `customer_id` int(10) unsigned NOT NULL COMMENT &#39;用户id&#39;,
+  `nickname` varchar(20) DEFAULT NULL COMMENT &#39;用户昵称&#39;,
+  `address` varchar(200) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;用户地址&#39;,
+  `init_time` datetime NOT NULL COMMENT &#39;创建订单的时间&#39;,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+</code></pre>
+<p>id为无符号整形，长度最长为10，不允许空<code>NOT NULL</code>，自增。<code>varchar</code>是可变字符串类型。<code>datetime</code>类型用于存储时间，存储方式是：</p>
+<pre><code>YYYY-MM-DD HH:MM:SS
+</code></pre><p>建完后可以看到：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200131135944.png"/></p>
+<hr>
+<p>接下来需要构建结构体承载数据：</p>
+<pre><code class="lang-go">type Order struct{
+    Id int
+    ShopId int
+    UserId int `orm:&quot;colunm(customer_id)&quot;`
+    Nickname string
+    Address string
+    InitTime time.Time
+}
+</code></pre>
+<p>ORM中结构体和表明的转化规则是驼峰转蛇形，除了开头以外，遇到大写需要<code>_</code>代替：</p>
+<pre><code>AuthUser -&gt; auth_user
+Auth_User -&gt; auth__user
+DB_AuthUser -&gt; d_b__auth_user
+</code></pre><p>所以，<code>ShopId</code>对应的是<code>shop_id</code>，又因为<code>UserId</code>在表中对应的是<code>customer_id</code>，不匹配，所以需要通过orm标签指定表字段名。</p>
+<p>然后我们再为结构体添加一个函数，指定Order结构体默认绑定的表名：</p>
+<pre><code class="lang-go">func (o *Order) TableName() string {
+    return &quot;orders&quot;
+}
+</code></pre>
+<p>最后在main函数中，注册模型</p>
+<pre><code class="lang-go">orm.RegisterModel(new(Order))
+</code></pre>
+<hr>
+<p>除了前面提到的用column设置名字外，还有其他有用的参数设置：</p>
+<ul>
+<li>忽略字段<code>-</code></li>
+<li>设置自增键<code>auto</code></li>
+<li>设置为主键<code>pk</code></li>
+<li>在数据库默认非空下，允许为空<code>null</code></li>
+</ul>
+<p>比如：</p>
+<pre><code class="lang-go">type User struct {
+...
+    AnyField string `orm:&quot;-&quot;`
+...
+}
+</code></pre>
+<h2 id="2-3-CRUD操作"><a href="#2-3-CRUD操作" class="headerlink" title="2.3 CRUD操作"></a>2.3 CRUD操作</h2><p><strong>（1）插入数据</strong></p>
+<p><strong>单条插入：</strong></p>
+<pre><code class="lang-go">orm.RegisterModel(new(Order))
+o := orm.NewOrm()
+order:=Order{
+    ShopId:1,
+    UserId:1002,
+    Nickname:&quot;BOB&quot;,
+    Address: &quot;北京东路&quot;,
+    InitTime:time.Now(),
+}
+id,err:=o.Insert(&amp;order)
+if err != nil {
+    fmt.Println(&quot;插入失败,err:&quot;,err)
+} else {
+    // 插入成功会返回插入数据自增字段，生成的id
+    fmt.Println(&quot;新插入数据的id为:&quot;, id)
+}
+</code></pre>
+<p><strong>批量插入：</strong></p>
+<pre><code class="lang-go">o := orm.NewOrm()
+
+orders := []Order{
+    {ShopId:1, UserId:1001, Nickname:&quot;大锤1&quot;, Address:&quot;深圳南山区&quot;, InitTime: time.Now()},
+    {ShopId:1, UserId:1002, Nickname:&quot;大锤2&quot;, Address:&quot;深圳南山区&quot;, InitTime: time.Now()},
+    {ShopId:1, UserId:1003, Nickname:&quot;大锤3&quot;, Address:&quot;深圳南山区&quot;, InitTime: time.Now()},
+}
+
+// 调用InsertMulti函数批量插入， 第一个参数指的是要插入多少数据
+nums, err := o.InsertMulti(3, orders)
+</code></pre>
+<p><strong>（2）更新数据</strong></p>
+<p><strong>更新所有字段：</strong></p>
+<pre><code class="lang-go">orm.RegisterModel(new(Order))
+
+o:=orm.NewOrm()
+order:=Order{}
+order.Id=1
+order.Nickname=&quot;希特&quot;
+order.Address=&quot;四川资阳&quot;
+order.InitTime=time.Now()
+num,err:=o.Update(&amp;order)
+//shop_id和custom_id将会变为0
+if err != nil {
+    fmt.Println(&quot;更新失败,err:&quot;,err)
+} else {
+    fmt.Println(&quot;更新数据影响的行数:&quot;, num)
+}
+</code></pre>
+<p><strong>更新指定字段：</strong></p>
+<pre><code class="lang-go">num, err := o.Update(&amp;order, &quot;Nickname&quot;, &quot;Address&quot;)
+</code></pre>
+<p><strong>（3）查询数据</strong></p>
+<pre><code class="lang-go">orm.RegisterModel(new(Order))
+
+o:=orm.NewOrm()
+order:=Order{}
+// 先对主键id赋值, 查询数据的条件就是where id=2
+order.Id=1
+
+err:=o.Read(&amp;order)
+if err == orm.ErrNoRows {
+    fmt.Println(&quot;查询不到&quot;)
+} else if err == orm.ErrMissPK {
+    fmt.Println(&quot;找不到主键&quot;)
+} else {
+    fmt.Println(order.Id, order.Nickname)
+}
+</code></pre>
+<p><strong>（4）删除数据</strong></p>
+<pre><code class="lang-go">orm.RegisterModel(new(Order))
+
+o := orm.NewOrm()
+order := Order{}
+// 先对主键id赋值, 删除数据的条件就是where id=2
+order.Id = 1
+
+if num, err := o.Delete(&amp;order); err != nil {
+    fmt.Println(&quot;删除失败&quot;)
+} else {
+    fmt.Println(&quot;删除数据影响的行数:&quot;, num)
+}
+</code></pre>
+<h1 id="3-高级查询"><a href="#3-高级查询" class="headerlink" title="3. 高级查询"></a>3. 高级查询</h1><p>首先重新定义一个用户表</p>
+<pre><code class="lang-sql">CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增ID&#39;,
+  `username` varchar(30) NOT NULL COMMENT &#39;账号&#39;,
+  `password` varchar(100) NOT NULL COMMENT &#39;密码&#39;,
+  `city` varchar(50) DEFAULT NULL COMMENT &#39;城市&#39;,
+  `init_time` datetime NOT NULL COMMENT &#39;创建的时间&#39;,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+</code></pre>
+<p>然后再定义结构体：</p>
+<pre><code class="lang-go">type User struct{
+    Id int
+    Username string
+    Password string
+    City string
+    InitTime time.Time
+}
+func (o *User) TableName() string{
+    return &quot;users&quot;
+}
+</code></pre>
+<h2 id="3-1-过滤查询"><a href="#3-1-过滤查询" class="headerlink" title="3.1 过滤查询"></a>3.1 过滤查询</h2><p>过滤查询主要用的是<code>QuerySeter</code>，下面是一个简单的条件查询，查询来自武汉的且生成时间晚于2020年的用户：</p>
+<pre><code class="lang-go">qs:=o.QueryTable(&quot;users&quot;)
+var users []User
+num,err:=qs.Filter(&quot;city&quot;,&quot;WUHAN&quot;).Filter((&quot;init_time__gt&quot;, &quot;2020-01-01 22:00:00&quot;).All(&amp;users,&quot;id&quot;,&quot;username&quot;)
+if err!=nil{
+    panic(err)
+}
+fmt.Println(&quot;结果行数:&quot;, num)
+</code></pre>
+<p>可以看到Filter能连携使用，还能处理大于小于等条件。使用等于条件时：</p>
+<pre><code class="lang-go">qs.Filter(&quot;id&quot;, 1) // 相当于条件 id = 1
+</code></pre>
+<p>使用不等条件时，用<strong>双下划线</strong> __ 作为分隔符，尾部连接操作符：</p>
+<pre><code class="lang-go">qs.Filter(&quot;id__gt&quot;, 1) // 相当于条件 id &gt; 1
+qs.Filter(&quot;id__gte&quot;, 1) // 相当于条件 id &gt;= 1
+qs.Filter(&quot;id__lt&quot;, 1) // 相当于条件 id &lt; 1
+qs.Filter(&quot;id__lte&quot;, 1) // 相当于条件 id &lt;= 1
+qs.Filter(&quot;id__in&quot;, 1,2,3,4,5) // 相当于In语句 id in (1,2,3,4,5)
+</code></pre>
+<p>此外还有其他操作符：</p>
+<ul>
+<li><strong>exact / iexact</strong> 等于，i表示大小写不敏感</li>
+<li><strong>contains / icontains</strong> 包含，i表示大小写不敏感</li>
+<li><strong>gt / gte</strong> 大于 / 大于等于</li>
+<li><strong>lt / lte</strong> 小于 / 小于等于</li>
+<li><strong>startswith / istartswith</strong> 以…起始</li>
+<li><strong>endswith / iendswith</strong> 以…结束</li>
+<li><strong>in</strong> 在其中</li>
+<li><strong>isnull</strong> </li>
+</ul>
+<p>比如：</p>
+<pre><code class="lang-go">qs.Filter(&quot;Username__icontains&quot;, &quot;大锤&quot;) // 相当于条件 name LIKE &#39;%大锤%&#39;
+qs.Filter(&quot;profile__age__in&quot;, ids)
+// WHERE profile.age IN (17, 18, 19, 20)
+</code></pre>
+<h2 id="3-2-复杂查询"><a href="#3-2-复杂查询" class="headerlink" title="3.2 复杂查询"></a>3.2 复杂查询</h2><p>有的时候我们需要将条件组合起来查询，上面的例子多个Filter函数调用只能生成and连接的查询条件。beego orm为我们提供了Condition对象，用于生成查询条件。</p>
+<pre><code class="lang-go">//  创建一个Condition对象
+cond := orm.NewCondition()
+
+// 组织查询条件, 并返回一个新的Condition对象
+cond1 := cond.And(&quot;Id__gt&quot;, 100).Or(&quot;City&quot;,&quot;shenzhen&quot;)
+// 相当于条件 id &gt; 100 or city = &#39;shenzhen&#39;
+
+var users []User
+
+qs.SetCond(cond1). // 设置查询条件
+  Limit(10). // 限制返回数据函数
+  All(&amp;users) // 查询多行数据
+</code></pre>
+<p>此外还可以连协Count，Group等功能：</p>
+<pre><code class="lang-go">num, _ := o.QueryTable(&quot;users&quot;).Filter(&quot;Id__gt&quot;, 1).Filter(&quot;Id__lt&quot;, 100).Count()
+
+num, err := qs.Filter(&quot;Id__gt&quot;, 1).
+        Filter(&quot;Id__lt&quot;, 100).
+        GroupBy(&quot;City&quot;).   // 根据city字段分组
+        OrderBy(&quot;-InitTime&quot;).   // order by字段名前面的减号 - , 代表倒序。
+        Limit(10). // 限制返回行数
+        All(&amp;users)
+</code></pre>
+<h1 id="4-事务"><a href="#4-事务" class="headerlink" title="4. 事务"></a>4. 事务</h1><pre><code class="lang-go">// 创建orm对象
+o := orm.NewOrm()
+
+//  开始事务
+o.Begin()
+
+// 开始执行各种sql语句，更新数据库，这里可以使用beego orm支持任何一种方式操作数据库
+
+// 例如,更新订单状态
+_, err1 := o.QueryTable(&quot;orders&quot;).Filter(&quot;Id&quot;, 1001).Update(orm.Params{
+    &quot;Status&quot;: &quot;SUCCESS&quot;,
+})
+
+// 给用户加积分
+_, err2 := o.Raw(&quot;update users set points = points + ? where username=?&quot;, &quot;tizi365&quot;, 100).Exec()
+
+// 检测事务执行状态
+if err1 != nil || err2 != nil {
+    // 如果执行失败，回滚事务
+    o.Rollback()
+} else {
+    // 任务执行成功，提交事务
+    o.Commit()
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" target="_blank" rel="external">jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Beego/" rel="tag">Beego</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&title=《Beego框架学习2-Model》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&title=《Beego框架学习2-Model》 — JR's Blog&source=介绍Beego中的model。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Beego框架学习2-Model》 — JR's Blog&url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/02/01/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A03-Controller/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Beego框架学习3-Controller</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01-Beego%E4%BB%8B%E7%BB%8D/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Beego框架学习1-Beego介绍</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&title=《Beego框架学习2-Model》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&title=《Beego框架学习2-Model》 — JR's Blog&source=介绍Beego中的model。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Beego框架学习2-Model》 — JR's Blog&url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/31/Beego%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A02-Model/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

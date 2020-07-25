@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>ROS基础 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,Linux,ROS">
+    <meta name="description" content="ROS是一个适用于机器人编程的框架，这个框架把原本松散的零部件耦合在了一起，为他们提供通信架构，相当于应用程序之间的沟通桥梁。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS基础">
+<meta property="og:url" content="jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="ROS是一个适用于机器人编程的框架，这个框架把原本松散的零部件耦合在了一起，为他们提供通信架构，相当于应用程序之间的沟通桥梁。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909094836.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909100930.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909102134.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909105742.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909133157.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909140438.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909141757.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909142519.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/%E6%97%A0%E6%A0%87%E9%A2%98.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190910160813.png">
+<meta property="article:published_time" content="2019-08-13T01:55:25.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:13:57.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="ROS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909094836.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">ROS基础</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">ROS基础</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-13T01:55:25.000Z" itemprop="datePublished" class="page-time">
+  2019-08-13
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-ROS文件系统"><span class="post-toc-text">1. ROS文件系统</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-Catkin编译"><span class="post-toc-text">1.1 Catkin编译</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-CMakeList写法"><span class="post-toc-text">1.3 CMakeList写法</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-ROS通信架构"><span class="post-toc-text">2. ROS通信架构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-Node-amp-Master"><span class="post-toc-text">2.1 Node &amp; Master</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-launch文件"><span class="post-toc-text">2.2 launch文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-Topic"><span class="post-toc-text">2.3 Topic</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-Service"><span class="post-toc-text">2.4 Service</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-Parameter-server"><span class="post-toc-text">2.5 Parameter server</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-6-Action"><span class="post-toc-text">2.6 Action</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-roscpp"><span class="post-toc-text">3. roscpp</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-编写消息发布器和订阅器"><span class="post-toc-text">3.1 编写消息发布器和订阅器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建程序包"><span class="post-toc-text">创建程序包</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#发布器节点"><span class="post-toc-text">发布器节点</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#订阅器节点"><span class="post-toc-text">订阅器节点</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编译节点并测试"><span class="post-toc-text">编译节点并测试</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-编写简单的服务器和客户端"><span class="post-toc-text">3.2 编写简单的服务器和客户端</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编写服务器节点"><span class="post-toc-text">编写服务器节点</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编写客户端节点"><span class="post-toc-text">编写客户端节点</span></a></li></ol></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-ROS基础"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">ROS基础</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-13 09:55:25" datetime="2019-08-13T01:55:25.000Z"  itemprop="datePublished">2019-08-13</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>ROS是一个适用于机器人编程的框架，这个框架把原本松散的零部件耦合在了一起，为他们提供通信架构，相当于应用程序之间的沟通桥梁。<a id="more"></a></p>
+<p>ROS采用了分布式的框架，通过点对点的设计让机器人的进程可以分别运行。</p>
+<blockquote>
+<p>分布式：将不同功能数据放到不同模块，将相同数据放到不同服务器，他们之间依靠通信网络沟通。</p>
+</blockquote>
+<h1 id="1-ROS文件系统"><a href="#1-ROS文件系统" class="headerlink" title="1. ROS文件系统"></a>1. ROS文件系统</h1><h2 id="1-1-Catkin编译"><a href="#1-1-Catkin编译" class="headerlink" title="1.1 Catkin编译"></a>1.1 Catkin编译</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909094836.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>Catkin是基于CMake的编译构建系统，具有以下特点：</p>
+<ul>
+<li>Catkin沿用了包管理的传统像<code>find_package()</code>基础结构</li>
+<li>扩展了CMake，例如：软件包编译后无需安装就可使用；自动生成 <code>find_package()</code>代码，<code>pkg-config</code>文件；解决了多个软件包构建顺序问题。</li>
+</ul>
+<p>一个Catkin的软件包（package）必须要包括两个文件：</p>
+<ul>
+<li><code>package.xml</code>:包括了package的描述信息</li>
+<li><code>CMakeLists.txt</code>:构建package所需的CMake文件</li>
+</ul>
+<p>Catkin工作流程如下：</p>
+<ol>
+<li>首先在工作空间<code>catkin_ws/src/</code>下递归的查找其中每一个ROS的package。</li>
+<li>package中会有<code>package.xml</code>和<code>CMakeLists.txt</code>文件，Catkin(CMake)编译系统 据<code>CMakeLists.txt</code>文件,从而生成makefiles(放在<code>catkin_ws/build/</code>)。</li>
+<li>然后make刚刚生成的makefiles等文件，编译链接生成可执行文件(放在<code>catkin_ws/devel</code>)。</li>
+</ol>
+<p>可以看到，Catkin就是将<code>cmake</code>与<code>make</code>指令做了一个封装从而完成整个编译过程的工具。</p>
+<p>实际的使用过程如下：</p>
+<pre><code class="lang-SHELL">cd    ~/catkin_ws    #回到工作空间,catkin_make必须在工作空间下执行
+sudo catkin_make                #开始编译 
+source    ~/catkin_ws/devel/setup.bash    #刷新坏
+</code></pre>
+<p>注意：catkin编译之前必须要回到工作空间目录(work station)，在其他路径下编译不会成功；如果有新的目标文件产生，那么需要刷新环境，是的系统1.2 Package软件包够遭到刚才编译生成的ROS可执行文件。</p>
+<p>package是ROS的基本编译单元，任何ROS程序只有组织成package才能编译，所以package也是ROS源代码存放的地方。一个package可以编译出来多个目标文件（ROS可执行程序、动态静态库、头文件等等）。</p>
+<p>一个package下常见的文件、路径有：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909100930.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>其中定义package的是CMakeLists.txt和package.xml，这两个文件是package中必不可少的。catkin编译系统在编译前，首先就要解析这两个文件，这两个文件就定义了一个package。</p>
+<p>创建package需要在工作空间目录<code>catkin_ws/src</code>，使用<code>catkin_create_pkg</code>命令，用法是：</p>
+<pre><code class="lang-shell">$ catkin_create_pkg    package    depends
+</code></pre>
+<p>其中package是包名，depends是依赖的包名，可以依赖多个软件包。</p>
+<p>例如，新建一个package叫做<code>test_pkg</code>,依赖roscpp、rospy、std_msgs(常用依赖)。</p>
+<pre><code class="lang-shell">$ catkin_create_pkg    test_pkg    roscpp    rospy    std_msgs
+</code></pre>
+<p>这样就会在当前路径下新建test_pkg软件包，包括：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909102134.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><code>catkin_create_pkg</code>帮你完成了软件包的初始化，填充好了<code>CMakeLists.txt</code>和<code>package.xml</code>，并且将依赖项填进了这两个文件中。需要注意的是，需要刷新文件才能找到。</p>
+<h2 id="1-3-CMakeList写法"><a href="#1-3-CMakeList写法" class="headerlink" title="1.3 CMakeList写法"></a>1.3 CMakeList写法</h2><p>思路是：这个package的依赖是什么？要生成哪些目标？如何编译？</p>
+<p>以turtlesim小海龟这个pacakge为例，可<code>roscd</code>到<code>tuetlesim</code>包下查看，在 <code>turtlesim/CMakeLists.txt</code></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909105742.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<pre><code>find_package(catkin REQUIRED COMPONENTS ...)
+</code></pre><p>项目依赖的其他软件包，都会自动成为catkin的组件（components）（就CMake而言）。因此可以将这些依赖包指定为catkin的组件，而不必再使用<code>find_package</code>，这样将会变得简单。</p>
+<pre><code>include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+</code></pre><p>头文件地址，配合后面的link链接过程，参数由上一步<code>find_package</code>生成（省略了Boost的find过程）</p>
+<pre><code>add_message_files(DIRECTORY msg FILES Color.msg Pose.msg)
+</code></pre><p>在被ROS软件包编译和使用之前，ROS中的消息（.msg）、服务（.srv）和操作（.action）文件需要特殊的预处理器编译步骤。这些宏的要点是生成编程语言特定的文件，以便可以在编程语言中使用消息、服务和操作。编译系统将使用所有可用的生成器（例如gencpp、genpy、genlisp）生成绑定。</p>
+<p>提供了三个宏来分别处理消息，服务和操作：</p>
+<ul>
+<li>add_message_files</li>
+<li>add_service_files</li>
+<li>add_action_files</li>
+</ul>
+<p>这些宏后面必须调用一个调用生成的宏<code>generate_messages()</code>（不是message专有，通用，只写一次）</p>
+<p>示例的命令，是从目标文件的msg子文件下面，添加文件名(FILES) <code>Color.msg</code>和<code>Pose.msg</code>的消息。服务也是同理。</p>
+<pre><code>catkin_package(CATKIN_DEPENDS geometry_msgs message_runtime std_msgs std_srvs)
+</code></pre><p>catkin_package() 是catkin支持的 CMake 宏指令。用来向编译系统指明 catkin-specific 的信息，而编译系统来生成 pkg-config和CMake files。<strong>必须放在消息、服务和操作之后，链接执行之前</strong>。</p>
+<p>该函数有5个参数，这里只用了<code>CATKIN_DEPENDS</code>这一个，在之前的<code>find_package</code>中就已经找到了</p>
+<pre><code>add_executable(turtlesim_node ${turtlesim_node_SRCS} ${turtlesim_node_MOCS})
+</code></pre><p>作用是添加一个可执行文件构建目标，可执行文件名字叫做<code>turtlesim_node</code>，源代码由<code>set(turtlesim_node_SRCS ...)</code>设置；mocs是QT相关<code>qt5_wrap_cpp(turtlesim_node_MOCS ${turtlesim_node_HDRS})</code></p>
+<p>后面的<code>target_link_libraries</code>则是将node和widgets与之前find的catkin和boost相链接；然后再为node添加依赖<code>turtlesim_gencpp</code></p>
+<h1 id="2-ROS通信架构"><a href="#2-ROS通信架构" class="headerlink" title="2. ROS通信架构"></a>2. ROS通信架构</h1><p>ROS的通信方式有以下四种：</p>
+<ul>
+<li>Topic 主题</li>
+<li>Service 服务</li>
+<li>Parameter Service 参数服务器</li>
+<li>Actionlib 动作库</li>
+</ul>
+<h2 id="2-1-Node-amp-Master"><a href="#2-1-Node-amp-Master" class="headerlink" title="2.1 Node &amp; Master"></a>2.1 Node &amp; Master</h2><p>在Ros中最小的进程单元是节点(Node)，一个软件包里可以有多个可执行文件，可执行文件在运行之后就成了一个<strong>进程</strong>(process)，这个进程在ROS中就叫做<strong>节点</strong>。从程序的角度来说，node是一个<strong>可执行文件</strong>；从功能角度来说，一个node负责某一个<strong>单独的功能</strong>。</p>
+<p>Master是<strong>节点管理器</strong>，由于实际情况中node数量众多，需要一个管理器在整个网络通信架构里管理各种node。node首先在master处进行注册，之后master会将该node纳入整个ROS程序中。 node之间的通信也是先由master进行“牵线”，才能两两的进行点对点通信。当ROS程序启动 时，第一步<strong>首先启动master</strong>，由节点管理器处理依次启动node。</p>
+<p>当我们要启动ROS时，输入：</p>
+<pre><code class="lang-shell">$ roscore
+</code></pre>
+<p>此时会启动三个功能：<code>ROS master</code>，<code>rosout</code>，<code>parameter server</code>。这其中<code>rosout</code>负责日志输出的一个节点，其作用是告知用户当前系统的状态，包括输出系统的error、warning等 ，并且将log记录于日志文件中。<code>parameter server</code>是参数服务器，它并不是一个node， 而是存储参数配置的一个服务器。</p>
+<p>启动master以后，节点管理器就开始按照系统的安排协调进行启动具体的节点，具体启动node的语句是：</p>
+<pre><code class="lang-shell">$    rosrun    pkg_name    node_name
+</code></pre>
+<p><code>rosrun</code>将会寻找<code>pkg_name</code>下的名为<code>node_name</code>的可执行程序。</p>
+<p><strong>rosnode</strong>的常用命令如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909133157.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="2-2-launch文件"><a href="#2-2-launch文件" class="headerlink" title="2.2 launch文件"></a>2.2 launch文件</h2><p>通常运行一个机器人系统我们需要启动<strong>多个node</strong>，为了方便我们用<strong>launch</strong>的方式来统一启动，命令是：</p>
+<pre><code class="lang-shell">$    roslaunch    pkg_name    file_name.launch
+</code></pre>
+<p><code>roslaunch</code>命令首先会自动进行检测系统的<code>roscore</code>有没有运行，也即是确认节点管理器是否在运行状态中，如果<code>master</code>没有启动，那么<code>roslaunch</code>就会首先启动<code>master</code>，然后再按照<code>launch</code>的规则执行。</p>
+<p><code>launch</code>文件里已经配置好了启动的规则。所以<code>roslaunch</code>就像是一个启动工 具，减少我们在终端中一条条输入指令的麻烦。</p>
+<h2 id="2-3-Topic"><a href="#2-3-Topic" class="headerlink" title="2.3 Topic"></a>2.3 Topic</h2><p>对于<strong>实时性、周期性</strong>的消息，使用topic来传输是最佳的选择。topic是一种<strong>点对点的单向通信方式</strong>，这里的“点”指的是node，也就是说node之 间可以通过topic方式来传递信息。</p>
+<p>topic的步骤是：</p>
+<ol>
+<li>publisher节点和subscriber节点到节点管理器进行注册</li>
+<li>publisher发布topic</li>
+<li>subscriber在master的指挥下订阅该topic</li>
+</ol>
+<p>Subscriber接收消息会进行处理，一般这个过程叫做<strong>回调(Callback)</strong>。所谓回调就是提前定义好了一个处理函数（写在代码中），当有消息来就会触发这个处理函数，函数会对消息进行处理。</p>
+<p>topic通信的特点是：</p>
+<ol>
+<li>异步通信。发送时调用publish()方法，发送完成立即返回，不用等待反 馈。</li>
+<li>subscriber通过回调函数的方式来处理消息</li>
+<li>topic可以同时有多个subscribers，也可以同时有多个publishers</li>
+</ol>
+<p><strong>Msg</strong></p>
+<p>topic有很严格的格式要求，比如摄像头拍摄的rgb图像topic，就必然要遵循ROS中 义好的rgb图像格式，这种<strong>数据格式</strong>就是Message。Message按照定义解释就是topic内容的数据类型，也称之为topic的格式标准，这里和我们平常用到的Massage直观概念有所不同。</p>
+<p>基本的msg包括bool、int8、int16、int32等等常用的数据类型，但实际情况中，我们需要重新封装，比如image类型：</p>
+<pre><code class="lang-SHELL">std_msg/Header    header                
+    uint32                seq                
+    time                stamp                
+    string                frame_id 
+uint32                height 
+uint32                width 
+string                encoding 
+uint8                is_bigendian 
+uint32                step 
+uint8[]                data
+</code></pre>
+<p>这种结构类似于C语言结构体，我们可以将msg进一步理解为一个<strong>类</strong>，我们每次发布的内容可以理解为<strong>实例化的对象</strong>。</p>
+<p>ROS中往往针对不同的传感器、导航系统封装好了许多msg。</p>
+<h2 id="2-4-Service"><a href="#2-4-Service" class="headerlink" title="2.4 Service"></a>2.4 Service</h2><p>道topic是ROS中的一种单向的异步通信方式。然而有些时候<strong>单向的通信满足不了通信要求</strong>，比如当一些节点只是临时而 非周期性的需要某些数据，如果用topic通信方式时就会消耗大量不必要的系统资源，造成系统的低效率高功耗。</p>
+<p>这种情况下，就需要有另外一种<strong>请求-查询式</strong>的通信模型。这节我们来介绍ROS通信中的另一 种通信方式——service(服务)。</p>
+<p>步骤是：</p>
+<ol>
+<li>请求方（Client）就会发送一个request，阻塞等待。</li>
+<li>server处理，反馈回一个reply。</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909140438.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>NodeB是server（应答方），提供了一个服务的接口，叫做/Service，通过这个接口和Clinet通信。</p>
+<p>Service是同步通信方式，所谓同步就是说，此时NodeA发布请求后会在原地等待reply，直到 NodeB处理完了请求并且完成了reply，NodeA才会继续执行。这样避免了频繁的消息传递。</p>
+<p><strong>Srv</strong></p>
+<p>类似msg文件，srv文件是用来描述service数据类型的, service通信的数据格式定义在 <code>*.srv</code>中</p>
+<p>举个例子<code>msgs_demo/srv/DetectHuman.srv</code>：</p>
+<pre><code class="lang-CPP">bool    start_detect 
+---
+my_pkg/HumanPose[]    pose_data
+</code></pre>
+<p>该服务例子取自OpenNI的人体检测ROS软件包。它是用来查 询当前深度摄像头中的人体姿态和关节数的。第一行是请求格式，中间用—-隔开，第三行是应答格式。在本例中，请求为是否开始检测，应答为一个数组，数组的每个元素为某个人的姿态。而对于人的姿态<code>HumanPose</code>，其实是一个msg，如下。所以srv<strong>可以嵌套msg在其中</strong>，但它不能嵌套srv。</p>
+<p><code>msgs_demo/msg/HumanPose.msg</code>：</p>
+<pre><code class="lang-SHELL">std_msgs/Header    header 
+string    uuid 
+int32    number_of_joints 
+my_pkg/JointPose[]    joint_data
+</code></pre>
+<h2 id="2-5-Parameter-server"><a href="#2-5-Parameter-server" class="headerlink" title="2.5 Parameter server"></a>2.5 Parameter server</h2><p>除了前文介绍的主题和服务这两种通信方式，另一种特殊的通信方式是参数服务器。于参数服务器是节点存储参数的地方、用于配置参数，全局共享参数。参数服务器使用互联网传输，在节点管理器中运行，实现整个通信过程。参数服务器维护着一个<strong>数据字典</strong>，字典里存储着各种参数和配置。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909141757.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>每一个key不重复，且每一个key对应着一个value</strong>，这就是字典的映射关系。，我们往往将一些不常用到的参数和配置放入参数服务器里的字典里，这样对这些数据进行读写都将方便高效。</p>
+<h2 id="2-6-Action"><a href="#2-6-Action" class="headerlink" title="2.6 Action"></a>2.6 Action</h2><p>Action是对service的一个改进，适合于<strong>长时间通信</strong>。假如利用service通信方式，那么publisher会很长时间接受不到反馈的reply，会致使通信受阻。actionlib通信过程可以<strong>随时被查看过程进度，也可以终止请求</strong>，使得 在一些特别的机制中拥有很高的效率。</p>
+<p>通信双方在<strong>ROS Action Protocol</strong>下进行交流通信是通过接口来实现，类似于TCP下的socket套接字接口。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190909142519.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>如上图，客户端会向服务器发送目标指令和取消动作指令,而服务器则可以给客户端发送 实时的状态信息，结果信息，反馈信息等等,从而完成了service没法做到的部分。</p>
+<p>动作的内容格式应包含三个部分：<strong>目标、结果、反馈</strong></p>
+<ul>
+<li>目标：机器人执行一个动作，应该有明确的移动目标信息，包括一些参数的设定，方向、角度、速 度等等。从而使机器人完成动作任务。</li>
+<li>结果：当运动最终完成时，动作服务器把本次运动的结果数据发送给客户端，使客户端得到本次动作的全部信息，例如可能包含机器人的运动时长，最终姿势等等。</li>
+<li>反馈：在动作进行的过程中，应该有实时的状态信息反馈给服务器的实施者，告诉实施者动作完成的状态，可以使实施者作出准确的判断去修正命令。</li>
+</ul>
+<p>Action规范文件的后缀名是<code>.action</code>，它的内容格式如下：</p>
+<pre><code class="lang-SHELL">#    Define the    goal 
+uint32    dishwasher_id        
+--
+#    Define the    result 
+uint32    total_dishes_cleaned 
+--
+#    Define a feedback message 
+float32    percent_complete
+</code></pre>
+<h1 id="3-roscpp"><a href="#3-roscpp" class="headerlink" title="3. roscpp"></a>3. roscpp</h1><p>如roscpp是C++语言ROS接口，我们直接调用它所 提供的函数就可以实现topic、service等通信功能。roscpp位于<code>/opt/ros/kinetic</code>之下，用C++实现了ROS通信。通常我们要调用ROS的C++接口，首先就需要<code>#include</code></p>
+<p>roscpp的主要部分包括：</p>
+<ul>
+<li><code>ros::init()</code> 解析传入的ROS参数，创建node第一步需要用到的函数</li>
+<li><code>ros::NodeHandle</code> 和topic、service、param等交互的公共接口</li>
+<li><code>ros::master</code> 包含从master查询信息的函数</li>
+<li><code>ros::this_nod</code> 包含查询这个进程(node)的函数</li>
+<li><code>ros::service</code> 包含查询服务的函数</li>
+<li><code>ros::param</code> 包含查询参数服务器的函数，而不需要用到NodeHandle</li>
+<li><code>ros::names</code> 包含处理ROS图资源名称的函数</li>
+</ul>
+<h2 id="3-1-编写消息发布器和订阅器"><a href="#3-1-编写消息发布器和订阅器" class="headerlink" title="3.1 编写消息发布器和订阅器"></a>3.1 编写消息发布器和订阅器</h2><h3 id="创建程序包"><a href="#创建程序包" class="headerlink" title="创建程序包"></a>创建程序包</h3><p>首先需要创建Catkin工作空间：</p>
+<pre><code class="lang-shell">$ mkdir -p ~/catkin_ws/src #创建一个目录，-p表示如果不存在就创建否则不创建
+$ cd ~/catkin_ws/
+$ catkin_make
+</code></pre>
+<p>在<code>catkin_ws</code>工作空间内<code>$ cd ~/catkin_ws/src</code></p>
+<p>然后创建一个名为<code>beginner_tutorials</code>的新程序包，这个包依赖于std_msg、roscpp和rospy：</p>
+<pre><code class="lang-shell">$ catkin_create_pkg beginner_tutorials std_msgs rospy roscpp
+</code></pre>
+<p>这将会创建一个名为<code>beginner_tutorials</code>的文件夹，这个文件夹里面包含一个<a href="http://wiki.ros.org/catkin/package.xml" target="_blank" rel="noopener">package.xml</a>文件和一个<a href="http://wiki.ros.org/catkin/CMakeLists.txt" target="_blank" rel="noopener">CMakeLists.txt</a>文件，这两个文件都已经自动包含了部分在执行<code>catkin_create_pkg</code>命令时提供的信息。</p>
+<h3 id="发布器节点"><a href="#发布器节点" class="headerlink" title="发布器节点"></a>发布器节点</h3><p>首先进入之前创建的 beginner_tutorials package 路径下，在这之中创建一个src文件夹：</p>
+<pre><code class="lang-shell">cd ~/catkin_ws/src/beginner_tutorials
+mkdir -p ~/catkin_ws/src/beginner_tutorials/src
+</code></pre>
+<p>这个文件夹将会用来放置 beginner_tutorials package 的所有源代码。然后创建<code>src/talker.cpp</code> 文件，在其中写发布器源代码，如下：</p>
+<pre><code class="lang-CPP">#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+#include &lt;sstream&gt;
+
+int main(int argc, char **argv)
+{
+
+  ros::init(argc, argv, &quot;talker&quot;);
+  ros::NodeHandle n;
+
+  ros::Publisher chatter_pub = n.advertise&lt;std_msgs::String&gt;(&quot;chatter&quot;, 1000);
+
+  ros::Rate loop_rate(10);
+
+  int count = 0;
+  while (ros::ok())
+  {
+    std_msgs::String msg;
+    std::stringstream ss;
+    ss &lt;&lt; &quot;hello world &quot; &lt;&lt; count;
+    msg.data = ss.str();
+    ROS_INFO(&quot;%s&quot;, msg.data.c_str());
+    chatter_pub.publish(msg);
+    ros::spinOnce();
+    loop_rate.sleep();
+    ++count;
+  }
+  return 0;
+}
+</code></pre>
+<p>下面分块解释：</p>
+<p>1.用<code>init</code>初始化这个节点，唯一命名为<code>talker</code>，然后为他创建一个句柄<code>n</code>（这里是自动对应上的，一个一个进程只能有一个节点）</p>
+<pre><code class="lang-CPP">ros::init(argc, argv, &quot;talker&quot;);
+ros::NodeHandle n;
+</code></pre>
+<p>2.告诉 <code>master</code> 我们将要在 <code>chatter</code>（话题名） 上发布 <a href="http://docs.ros.org/api/std_msgs/html/msg/String.html" target="_blank" rel="noopener">std_msgs/String</a> 消息类型的消息。这样 master 就会告诉所有订阅了 <code>chatter</code> 话题的节点，将要有数据发布。第二个参数是发布序列的大小，如果我们发布的消息的频率太高，缓冲区中的消息在大于 1000 个的时候就会开始丢弃先前发布的消息。</p>
+<pre><code class="lang-c">ros::Publisher chatter_pub = n.advertise&lt;std_msgs::String&gt;(&quot;chatter&quot;, 1000);
+</code></pre>
+<p>3.<code>ros::Rate</code> 对象可以允许你指定自循环的频率。它会追踪记录自上一次调用 <code>Rate::sleep()</code> 后时间的流逝，并休眠直到一个频率周期的时间。在这个例子中，我们让它以 10Hz 的频率运行。</p>
+<pre><code class="lang-c">ros::Rate loop_rate(10);
+</code></pre>
+<p>4.roscpp 会默认生成一个 SIGINT 句柄，它负责处理 Ctrl-C 键盘操作——使得 <code>ros::ok()</code> 返回 false。如果下列条件之一发生，<code>ros::ok()</code> 返回false：</p>
+<ul>
+<li>SIGINT 被触发 (Ctrl+C)</li>
+<li>被另一同名节点踢出 ROS 网络</li>
+<li><code>ros::shutdown()</code> 被程序的另一部分调用</li>
+<li>节点中的所有 <code>ros::NodeHandles</code> 都已经被销毁</li>
+</ul>
+<pre><code class="lang-c"> while (ros::ok())
+ {...}
+</code></pre>
+<p>5.为<code>msg</code>添加数据成员<code>hello world</code>；用<code>ROS_INFO</code> 和其他类似的函数可以用来代替 <code>printf</code>/<code>cout</code> 等函数；在这个例子中 <code>ros::spinOnce()</code>非必须，因为我们不接受回调。然而，如果程序里包含其他回调函数，加上 <code>ros::spinOnce()</code>这一语句，否则回调函数就永远也不会被调用了。</p>
+<p>这是<strong>ROS消息回调处理函数</strong>，在ROS的主循环中，程序需要不断调用<code>ros::spin()</code>或 <code>ros::spinOnce()</code>，<strong>两者区别在于前者调用后不会再返回，也就是你的主程序到这儿就不往下执行了，而后者在调用后还可以继续执行之后的程序。</strong></p>
+<p><code>loop_rate.sleep();</code>是调用 <code>ros::Rate</code> 对象来休眠一段时间以使得发布频率为 10Hz。</p>
+<pre><code class="lang-c">  while (ros::ok())
+  {
+    std_msgs::String msg;
+    std::stringstream ss;
+    ss &lt;&lt; &quot;hello world &quot; &lt;&lt; count;
+    msg.data = ss.str();
+    ROS_INFO(&quot;%s&quot;, msg.data.c_str());
+
+    chatter_pub.publish(msg);
+    ros::spinOnce();
+
+    loop_rate.sleep();
+    ++count;
+  }
+</code></pre>
+<h3 id="订阅器节点"><a href="#订阅器节点" class="headerlink" title="订阅器节点"></a>订阅器节点</h3><p>在 <code>beginner_tutorials package</code> 目录下创建 <code>src/listener.cpp</code> 文件。</p>
+<pre><code class="lang-c">#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+
+void chatterCallback(const std_msgs::String::ConstPtr&amp; msg)
+{
+    ROS_INFO(&quot;I heard: [%s]&quot;, msg-&gt;data.c_str());
+}
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, &quot;listener&quot;);
+    ros::NodeHandle n;
+
+    ros::Subscriber sub = n.subscribe(&quot;chatter&quot;, 1000, chatterCallback);
+
+    ros::spin();
+
+    return 0;
+}
+</code></pre>
+<p>这是一个回调函数，当接收到 <code>chatter</code> 话题的时候就会被调用。消息是以 <a href="http://www.boost.org/doc/libs/1_37_0/libs/smart_ptr/shared_ptr.htm" target="_blank" rel="noopener">boost shared_ptr</a> 指针的形式传输，这就意味着可以存储它而又不需要复制数据。</p>
+<pre><code class="lang-c">void chatterCallback(const std_msgs::String::ConstPtr&amp; msg)
+{
+  ROS_INFO(&quot;I heard: [%s]&quot;, msg-&gt;data.c_str());
+}
+</code></pre>
+<p>告诉 master 我们要订阅 <code>chatter</code> 话题上的消息。当有消息发布到这个话题时，ROS 就会调用 <code>chatterCallback()</code> 函数。第二个参数是队列大小，以防我们处理消息的速度不够快，当缓存达到 1000 条消息后，再有新的消息到来就将开始丢弃先前接收的消息。</p>
+<pre><code class="lang-c">ros::Subscriber sub = n.subscribe(&quot;chatter&quot;, 1000, chatterCallback);
+</code></pre>
+<h3 id="编译节点并测试"><a href="#编译节点并测试" class="headerlink" title="编译节点并测试"></a>编译节点并测试</h3><p>之前创建包时，创建了创建了 <a href="http://wiki.ros.org/catkin/package_manifest" target="_blank" rel="noopener">package.xml</a> 和 <a href="http://wiki.ros.org/catkin/CMakeLists.txt" target="_blank" rel="noopener">CMakeLists.txt</a> 文件，在生成好的<code>CMakeLists.txt</code>后面加入</p>
+<pre><code class="lang-shell">## Build talker and listener
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+add_executable(talker src/talker.cpp)
+target_link_libraries(talker ${catkin_LIBRARIES})
+add_dependencies(talker beginner_tutorials_generate_messages_cpp)
+
+add_executable(listener src/listener.cpp)
+target_link_libraries(listener ${catkin_LIBRARIES})
+add_dependencies(listener beginner_tutorials_generate_messages_cpp)
+</code></pre>
+<p>然后运行<code>catkin_make</code>。注意：如果你是添加了新的 package，你需要通过 <code>--force-cmake</code> 选项告诉 catkin 进行强制编译</p>
+<pre><code class="lang-shell"># In your catkin workspace
+$ catkin_make
+</code></pre>
+<p>按顺序启动并刷新：</p>
+<pre><code class="lang-shell">$ roscore
+# In your catkin workspace
+$ cd ~/catkin_ws
+$ source ./devel/setup.bash
+</code></pre>
+<p><strong>注意！</strong>roscore,talker,listener需要开三个不同的terminal，talker和listener开启时都需要刷新。</p>
+<p>启动发布器：</p>
+<pre><code class="lang-shell">$ source ./devel/setup.bash
+$ rosrun beginner_tutorials talker
+</code></pre>
+<p>启动订阅器：</p>
+<pre><code class="lang-shell">$ source ./devel/setup.bash
+$ rosrun beginner_tutorials listener
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/%E6%97%A0%E6%A0%87%E9%A2%98.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h2 id="3-2-编写简单的服务器和客户端"><a href="#3-2-编写简单的服务器和客户端" class="headerlink" title="3.2 编写简单的服务器和客户端"></a>3.2 编写简单的服务器和客户端</h2><p>首先需要创建一个srv，用来描述服务器数据类型。</p>
+<pre><code class="lang-shell">int64 a
+int64 b
+---
+int64 sum
+</code></pre>
+<h3 id="编写服务器节点"><a href="#编写服务器节点" class="headerlink" title="编写服务器节点"></a>编写服务器节点</h3><p>创建<code>add_two_ints_server.cpp</code></p>
+<pre><code class="lang-c">#include &quot;ros/ros.h&quot;
+#include &quot;beginner_tutorials/AddTwoInts.h&quot;
+
+bool add(beginner_tutorials::AddTwoInts::Request  &amp;req,
+         beginner_tutorials::AddTwoInts::Response &amp;res)
+{
+  res.sum = req.a + req.b;
+  ROS_INFO(&quot;request: x=%ld, y=%ld&quot;, (long int)req.a, (long int)req.b);
+  ROS_INFO(&quot;sending back response: [%ld]&quot;, (long int)res.sum);
+  return true;
+}
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, &quot;add_two_ints_server&quot;);
+  ros::NodeHandle n;
+
+  ros::ServiceServer service = n.advertiseService(&quot;add_two_ints&quot;, add);
+  ROS_INFO(&quot;Ready to add two ints.&quot;);
+  ros::spin();
+
+  return 0;
+}
+</code></pre>
+<p>我们自己创建了一个<code>add</code>函数，这个函数提供两个int值求和的服务，int值从request里面获取，而返回数据装入response内，这些数据类型都定义在srv文件内部，函数返回一个boolean值。</p>
+<p><code>Request</code>值从分割线上方获取，<code>Response</code>值从分割线下方获取</p>
+<pre><code class="lang-c">bool add(beginner_tutorials::AddTwoInts::Request  &amp;req,
+         beginner_tutorials::AddTwoInts::Response &amp;res)
+{
+  res.sum = req.a + req.b;
+  ROS_INFO(&quot;request: x=%ld, y=%ld&quot;, (long int)req.a, (long int)req.b);
+  ROS_INFO(&quot;sending back response: [%ld]&quot;, (long int)res.sum);
+  return true;
+}
+</code></pre>
+<p>通过<code>ros::NodeHandle::advertiseService()</code>来创建<code>ros::ServiceServer</code>。 <code>advertiseService()</code> 工作方式类似 <code>subscribe()</code>函数，提供一个服务名和回调函数。</p>
+<pre><code class="lang-c">ros::ServiceServer service = n.advertiseService(&quot;add_two_ints&quot;, add);
+ROS_INFO(&quot;Ready to add two ints.&quot;);
+</code></pre>
+<h3 id="编写客户端节点"><a href="#编写客户端节点" class="headerlink" title="编写客户端节点"></a>编写客户端节点</h3><p>在beginner_tutorials包中创建src/add_two_ints_client.cpp文件，并复制粘贴下面的代码：</p>
+<pre><code class="lang-c">#include &quot;ros/ros.h&quot;
+#include &quot;beginner_tutorials/AddTwoInts.h&quot;
+#include &lt;cstdlib&gt;
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, &quot;add_two_ints_client&quot;);
+  if (argc != 3)
+  {
+    ROS_INFO(&quot;usage: add_two_ints_client X Y&quot;);
+    return 1;
+  }
+
+  ros::NodeHandle n;
+  ros::ServiceClient client = n.serviceClient&lt;beginner_tutorials::AddTwoInts&gt;(&quot;add_two_ints&quot;);
+  beginner_tutorials::AddTwoInts srv;
+  srv.request.a = atoll(argv[1]);
+  srv.request.b = atoll(argv[2]);
+  if (client.call(srv))
+  {
+    ROS_INFO(&quot;Sum: %ld&quot;, (long int)srv.response.sum);
+  }
+  else
+  {
+    ROS_ERROR(&quot;Failed to call service add_two_ints&quot;);
+    return 1;
+  }
+
+  return 0;
+}
+</code></pre>
+<p><code>add_two_ints</code> service创建一个client。<code>ros::ServiceClient</code> 对象待会用来调用service。</p>
+<pre><code class="lang-c">ros::ServiceClient client = n.serviceClient&lt;beginner_tutorials::AddTwoInts&gt;(&quot;add_two_ints&quot;);
+</code></pre>
+<p>实例化一个由ROS编译系统自动生成的service类，并给其request成员赋值。一个service类包含两个成员<code>request</code>和<code>response</code>。同时也包括两个类定义<code>Request</code>和<code>Response</code>。atoll把字符串转换为long long integer</p>
+<pre><code class="lang-c">  beginner_tutorials::AddTwoInts srv;
+  srv.request.a = atoll(argv[1]);
+  srv.request.b = atoll(argv[2]);
+</code></pre>
+<p>代码是在调用service。由于service的调用是模态过程（调用的时候占用进程阻止其他代码的执行），一旦调用完成，将返回调用结果。如果service调用成功，<code>call()</code>函数将返回true，<code>srv.response</code>里面的值将是合法的值。如果调用失败，<code>call()</code>函数将返回false，<code>srv.response</code>里面的值将是非法的。</p>
+<pre><code class="lang-c">if (client.call(srv))
+</code></pre>
+<p>还是老规矩，三个terminal启动，注意刷新，注意客户端需要传参</p>
+<pre><code class="lang-shell">$ roscore
+$ rosrun beginner_tutorials add_two_ints_server
+$ rosrun beginner_tutorials add_two_ints_client 1 3
+</code></pre>
+<p>服务器窗口：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190910160813.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" target="_blank" rel="external">jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ROS/" rel="tag">ROS</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&title=《ROS基础》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&title=《ROS基础》 — JR's Blog&source=ROS是一个适用于机器人编程的框架，这个框架把原本松散的零部件耦合在了一起，为他们提供通信架构，相当于应用程序之间的沟通桥梁。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ROS基础》 — JR's Blog&url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/14/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">自适应直方图均衡化</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%808-%E5%BB%BA%E5%9B%BE/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础8-建图</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&title=《ROS基础》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&title=《ROS基础》 — JR's Blog&source=ROS是一个适用于机器人编程的框架，这个框架把原本松散的零部件耦合在了一起，为他们提供通信架构，相当于应用程序之间的沟通桥梁。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《ROS基础》 — JR's Blog&url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/13/ROS%E5%9F%BA%E7%A1%80/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

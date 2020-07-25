@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Linux面试题题目汇总 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Linux,面试经验">
+    <meta name="description" content="操作系统中和Linux强相关的部分，被放到这一篇来讲。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux面试题题目汇总">
+<meta property="og:url" content="jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="操作系统中和Linux强相关的部分，被放到这一篇来讲。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219142327.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218150340.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218151744.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219124556.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219102946.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200216150425.png">
+<meta property="article:published_time" content="2020-02-19T05:50:18.000Z">
+<meta property="article:modified_time" content="2020-02-28T16:47:21.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="面试经验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219142327.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Linux面试题题目汇总</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Linux面试题题目汇总</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-02-19T05:50:18.000Z" itemprop="datePublished" class="page-time">
+  2020-02-19
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-Linux总体原理"><span class="post-toc-text">1. Linux总体原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-如何理解Linux一切皆文件？"><span class="post-toc-text">1.1 如何理解Linux一切皆文件？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-Linux内核中包含了哪些子系统"><span class="post-toc-text">1.2 Linux内核中包含了哪些子系统</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-Linux磁盘是如何划分的"><span class="post-toc-text">1.3 Linux磁盘是如何划分的</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-Linux内存是如何划分的？"><span class="post-toc-text">1.4 Linux内存是如何划分的？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-Linux技术细节"><span class="post-toc-text">2. Linux技术细节</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-什么是i节点？"><span class="post-toc-text">2.1 什么是i节点？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-Linux中buffer和cache有何区别？"><span class="post-toc-text">2.2 Linux中buffer和cache有何区别？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-Linux开机过程是什么？"><span class="post-toc-text">2.3 Linux开机过程是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-谈谈对fork的理解"><span class="post-toc-text">2.4 谈谈对fork的理解</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-Malloc底层实现机制是什么？"><span class="post-toc-text">2.5 Malloc底层实现机制是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-6-什么是自旋锁，如何实现？"><span class="post-toc-text">2.6 什么是自旋锁，如何实现？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-Epoll"><span class="post-toc-text">3. Epoll</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-Linux中有哪些事件处理的方式"><span class="post-toc-text">3.1 Linux中有哪些事件处理的方式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-Epoll底层实现是什么？"><span class="post-toc-text">3.2 Epoll底层实现是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-Epoll的优势是什么？"><span class="post-toc-text">3.3 Epoll的优势是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-4-水平触发和边缘触发的区别是什么？"><span class="post-toc-text">3.4 水平触发和边缘触发的区别是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-5-谈谈什么是惊群，如何避免？"><span class="post-toc-text">3.5 谈谈什么是惊群，如何避免？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-Linux命令"><span class="post-toc-text">4. Linux命令</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-如何查看Linux系统有几颗物理CPU和每颗CPU的核数？"><span class="post-toc-text">1. 如何查看Linux系统有几颗物理CPU和每颗CPU的核数？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-如何查看系统负载？"><span class="post-toc-text">2. 如何查看系统负载？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-vmstat命令各项含义"><span class="post-toc-text">3. vmstat命令各项含义</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Linux面试题题目汇总"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Linux面试题题目汇总</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-02-19 13:50:18" datetime="2020-02-19T05:50:18.000Z"  itemprop="datePublished">2020-02-19</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Linux/">Linux</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>操作系统中和Linux强相关的部分，被放到这一篇来讲。<a id="more"></a></p>
+<h1 id="1-Linux总体原理"><a href="#1-Linux总体原理" class="headerlink" title="1. Linux总体原理"></a>1. Linux总体原理</h1><h2 id="1-1-如何理解Linux一切皆文件？"><a href="#1-1-如何理解Linux一切皆文件？" class="headerlink" title="1.1 如何理解Linux一切皆文件？"></a>1.1 如何理解Linux一切皆文件？</h2><p>Linux访问设备的方式是<strong>通过文件访问</strong>。在windows中属于文件的东西，在linux中也是文件，在windows中不是文件的东西，比如进程磁盘socket等也被抽象为文件。</p>
+<p>文件这个基本概念包含了两重意思：</p>
+<ul>
+<li><strong>在 Linux 中，一切都是字节流</strong>。意思是：文件只不过是可以读取和写入的普通字节的集合。</li>
+<li><strong>在 Linux 中，文件系统是统一的命名空间</strong>。每个文件都<strong>通过相同的API暴露出来</strong>，用户可以通过使用同一组命令操作这些设备</li>
+</ul>
+<h2 id="1-2-Linux内核中包含了哪些子系统"><a href="#1-2-Linux内核中包含了哪些子系统" class="headerlink" title="1.2 Linux内核中包含了哪些子系统"></a>1.2 Linux内核中包含了哪些子系统</h2><p>进程管理系统、内存管理系统、文件系统、网络系统、进程间通信系统</p>
+<ul>
+<li>进程管理：操作每个子系统的挂起或恢复</li>
+<li>内存管理：负责管理内存资源，提供虚拟内存机制</li>
+<li>文件管理：隐藏了硬件的具体细节，为所有的外部设备提供了统一的操作接口(open、read、write、close)</li>
+<li>网络：负责管理系统的网络设备</li>
+<li>进程间通信系统:包含多种进程间通信的方法，包括：信号量、共享内存、管道等。协助多个进程间的共享资源访问，同步，消息传递等。</li>
+</ul>
+<h2 id="1-3-Linux磁盘是如何划分的"><a href="#1-3-Linux磁盘是如何划分的" class="headerlink" title="1.3 Linux磁盘是如何划分的"></a>1.3 Linux磁盘是如何划分的</h2><p>分为引导块，超级快，i节点表，文件存储区，进程交换区</p>
+<ul>
+<li>引导块：存放引导程序，用于启动操作系统</li>
+<li>超级块：存放的是文件系统本身的结构信息，比如每个区域的大小，未使用的磁盘信息等</li>
+<li>文件存储区：存储文件内容</li>
+<li>进程交换区： 当内存中的进程需要扩大占用的内存空间， 而当前内存空间不足时， 则把某些不常用的进程暂时替换到对换区中，在适用的时候又把他们换进内存，解决内存不足和进程之间对内存的竞争问题。</li>
+</ul>
+<h2 id="1-4-Linux内存是如何划分的？"><a href="#1-4-Linux内存是如何划分的？" class="headerlink" title="1.4 Linux内存是如何划分的？"></a>1.4 Linux内存是如何划分的？</h2><p>分为：代码区、数据区、BSS区、堆区、栈区</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219142327.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>BSS区用来存放程序中未初始化的全局变量的一块内存区域。BSS是英文Block Started by Symbol的简称。</p>
+<h1 id="2-Linux技术细节"><a href="#2-Linux技术细节" class="headerlink" title="2. Linux技术细节"></a>2. Linux技术细节</h1><h2 id="2-1-什么是i节点？"><a href="#2-1-什么是i节点？" class="headerlink" title="2.1 什么是i节点？"></a>2.1 什么是i节点？</h2><p>I的意思是index，i节点也叫<strong>索引节点</strong>。linux中，文件查找不是通过文件名称来查找的，而是通过i节点来实现的。每一个文件都有对应的inode，里面包含了与该文件有关的一些信息。</p>
+<p>Linux查询文件位置的流程是：</p>
+<ol>
+<li>读出这个文件的inode编号</li>
+<li>根据inode编号找到inode信息</li>
+<li>根据信息，读取文件数据所在的block</li>
+</ol>
+<h2 id="2-2-Linux中buffer和cache有何区别？"><a href="#2-2-Linux中buffer和cache有何区别？" class="headerlink" title="2.2 Linux中buffer和cache有何区别？"></a>2.2 Linux中buffer和cache有何区别？</h2><p><strong>cache</strong>：缓存，为了弥补<strong>高速设备和低速设备交换数据的速度不匹配</strong>，引入的一个中间层，<strong>起到加快访问速度的作用</strong>。</p>
+<p><strong>buffer</strong>：缓冲区，目的进行流量整形，把突发的<strong>大数量小规模的 I/O</strong> 整理成平稳的<strong>小数量大规模</strong>的 I/O。比如读写时，不能来一点数据就立马读，可以等积攒到一定程度以后，一起读。</p>
+<h2 id="2-3-Linux开机过程是什么？"><a href="#2-3-Linux开机过程是什么？" class="headerlink" title="2.3 Linux开机过程是什么？"></a>2.3 Linux开机过程是什么？</h2><p>操作系统的启动可以分为：<strong>引导</strong>和<strong>启动</strong></p>
+<ol>
+<li>BIOS上电自检，确认硬件功能正常。（BIOS:basic IO system）</li>
+<li>读取引导文件，加载操作系统内核</li>
+<li>运行第一个进程init</li>
+<li>进入相应的运行级别（关机，单用户模式，多用户模式，图形模式，重启等等）</li>
+<li>进入终端界面，输入账号密码</li>
+</ol>
+<h2 id="2-4-谈谈对fork的理解"><a href="#2-4-谈谈对fork的理解" class="headerlink" title="2.4 谈谈对fork的理解"></a>2.4 谈谈对fork的理解</h2><p>fork函数通过系统调用<strong>创建一个（除了PID以外）与原来进程几乎完全相同的进程</strong>。拷贝的内容包括栈区、堆区、BSS区、数据区、代码区。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218150340.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>Linux下<strong>init进程是所有进程的爹</strong> 所有进程都是通过init进程fork出来的。</p>
+<p>exec函数的作用就是：<strong>装载一个新的程序</strong>（可执行映像）覆盖<strong>当前进程</strong>内存，<strong>从而执行不同的任务</strong>。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200218151744.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>COW是写时复制的意思，由于拷贝完之后，父进程和子进程之间的数据段和堆栈是<strong>相互独立的</strong>，而如果我们想用exec来装载新的程序，复制的这些数据都是没用的。</p>
+<p>因此COW技术允许我们，fork创建出的子进程，<strong>与父进程共享内存空间</strong>。也就是说，如果子进程<strong>不对内存空间进行写入操作的话，内存空间中的数据并不会复制给子进程</strong>。（引用而不是复制）。当父子进程<strong>有内存写入操作时</strong>才进行复制。</p>
+<h2 id="2-5-Malloc底层实现机制是什么？"><a href="#2-5-Malloc底层实现机制是什么？" class="headerlink" title="2.5 Malloc底层实现机制是什么？"></a>2.5 Malloc底层实现机制是什么？</h2><p>Linux将内存划分为5大区，Linux维护一个<strong>break指针</strong>，这个指针指向堆空间的某个地址。break之前的都是已经映射好的地址，之后的是未映射的，如果访问就会出错：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219124556.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>当我们调用<code>malloc</code>函数时，</p>
+<ol>
+<li>它沿着连接表寻找一个大到足以满足用户请求所需要的内存块，然后<strong>将内存块一分为二</strong>（一块的大小与用户申请的大小相等，另一块的大小就是剩下来的字节）</li>
+<li>一部分传给用户，一部分放回到空闲连接表上</li>
+<li>用户使用free以后，释放的内存返回到空闲连接表上，空闲连接表会被切成小块</li>
+<li>当用户malloc的内存过大，会阻塞，整合空闲连接表形成大块。</li>
+</ol>
+<h2 id="2-6-什么是自旋锁，如何实现？"><a href="#2-6-什么是自旋锁，如何实现？" class="headerlink" title="2.6 什么是自旋锁，如何实现？"></a>2.6 什么是自旋锁，如何实现？</h2><p>自旋锁（spinlock）：是指当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环。</p>
+<p>互斥锁等待时会进入休眠状态，而自旋锁因为循环等待的缘故会一直活跃。</p>
+<p>好处：减少线程切换的消耗；坏处：忙等</p>
+<p>go实现自旋锁：</p>
+<pre><code class="lang-go">type spinLock uint32
+func (sl *spinLock) Lock() {
+    for !atomic.CompareAndSwapUint32((*uint32)(sl), 0, 1) {
+        runtime.Gosched()
+    }
+}
+func (sl *spinLock) Unlock() {
+    atomic.StoreUint32((*uint32)(sl), 0)
+}
+</code></pre>
+<p>抢到锁的gorutine会将sl从0变为1，成功跳过<code>runtime.Gosched()</code>，而没有抢到的则会进入循环，形成自旋。</p>
+<p>CAS算法<code>CompareAndSwapUint32(V,A,B)</code>当且仅当 V 的值等于 A时，CAS通过原子方式用新值B来更新V的值，否则不会执行任何操作。for就会卡在循环里，直到<code>runtime.Gosched()</code>让出CPU时间轮转片。</p>
+<h1 id="3-Epoll"><a href="#3-Epoll" class="headerlink" title="3. Epoll"></a>3. Epoll</h1><h2 id="3-1-Linux中有哪些事件处理的方式"><a href="#3-1-Linux中有哪些事件处理的方式" class="headerlink" title="3.1 Linux中有哪些事件处理的方式"></a>3.1 Linux中有哪些事件处理的方式</h2><p><strong>阻塞IO</strong>：一个线程只能处理一个流的I/O事件。除非采用多线程，否则效率很低。</p>
+<p><strong>非阻塞忙轮询IO</strong>：即Non-Blocking Busy Polling，等待某个事件的时候，放弃其他事情，休息，专门等待，称之为<strong>阻塞</strong>。<strong>等待过程中不休息，不断询问事件是否完成，称之为非阻塞忙轮询</strong>。可以同时处理多个流，但需要从头到尾轮询，浪费资源。</p>
+<p><strong>Select</strong>：相当于一位代理，帮我们观察流。但这位代理只会告诉我们此刻是否有IO事件发生，我们却不知道是哪些流，只能无差别轮询。</p>
+<p><strong>Epoll</strong>：即event poll，不同于无差别轮询，epoll会把哪个流发生什么样的事情通知我们。</p>
+<h2 id="3-2-Epoll底层实现是什么？"><a href="#3-2-Epoll底层实现是什么？" class="headerlink" title="3.2 Epoll底层实现是什么？"></a>3.2 Epoll底层实现是什么？</h2><ul>
+<li><strong>红黑树的根节点</strong>，存储epoll需要监控的事件</li>
+<li><strong>双链表的头部</strong>，存储<code>epoll_wait</code>返回给用户的满足条件的事件</li>
+</ul>
+<p>当某一进程调用<code>epoll_create</code>方法时，Linux内核会创建一个<code>eventpoll</code>结构体：</p>
+<pre><code class="lang-C">struct eventpoll{
+    ....
+    /*红黑树的根节点，这颗树中存储着所有添加到epoll中的需要监控的事件*/
+    struct rb_root  rbr;
+    /*双链表中则存放着将要通过epoll_wait返回给用户的满足条件的事件*/
+    struct list_head rdlist;
+    ....
+};
+</code></pre>
+<p>每次调用<code>epoll_create</code>方法都会创建一个epoll对象，每一个对象都有一个独立的<code>eventpoll</code>结构体，用于存放通过<code>epoll_ctl</code>方法向epoll对象中添加进来的事件。在epoll中，<strong>对于每一个事件，都会建立一个<code>epitem</code>结构体</strong>，如下所示：</p>
+<pre><code class="lang-C">struct epitem{
+    struct rb_node  rbn;//红黑树节点
+    struct list_head    rdllink;//双向链表节点
+    struct epoll_filefd  ffd;  //事件句柄信息
+    struct eventpoll *ep;    //指向其所属的eventpoll对象
+    struct epoll_event event; //期待发生的事件类型
+}
+</code></pre>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200219102946.png"  style="zoom:65%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="3-3-Epoll的优势是什么？"><a href="#3-3-Epoll的优势是什么？" class="headerlink" title="3.3 Epoll的优势是什么？"></a>3.3 Epoll的优势是什么？</h2><p>换句话说select和poll的缺点是什么？</p>
+<ol>
+<li>select单个进程能够监视的文件描述为<strong>最大为1024</strong>，轮询越多，性能越差</li>
+<li>Select需要<strong>复制大量句柄数据结构</strong>，开销巨大。</li>
+<li>Select返回整个句柄数组，<strong>程序需要遍历数组</strong>才能知道哪些句柄发生了什么事件。</li>
+<li>触发方式为<strong>水平触发</strong>，如果程序没有对一个就绪的文件进行IO操作，之后每次Select调用还是会将文件描述符通知给进程。</li>
+</ol>
+<p>Poll<strong>使用链表保存文件，没有1的限制</strong>，但其他三个缺点依然比较明显。</p>
+<h2 id="3-4-水平触发和边缘触发的区别是什么？"><a href="#3-4-水平触发和边缘触发的区别是什么？" class="headerlink" title="3.4 水平触发和边缘触发的区别是什么？"></a>3.4 水平触发和边缘触发的区别是什么？</h2><ul>
+<li><strong>水平触发LT</strong>：默认方式，<strong>支持阻塞和非阻塞</strong>。内核告诉你某个fd就位了，如果你不对这个fd进行IO操作，<strong>内核会一直通知你</strong>。所以这种模式<strong>安全性较高</strong>。</li>
+<li><strong>边缘触发ET</strong>：<strong>只支持非阻塞</strong>，<strong>内核只会通知你一次</strong>，如果你不操作他也不管你了，<strong>速度快</strong></li>
+</ul>
+<h2 id="3-5-谈谈什么是惊群，如何避免？"><a href="#3-5-谈谈什么是惊群，如何避免？" class="headerlink" title="3.5 谈谈什么是惊群，如何避免？"></a>3.5 谈谈什么是惊群，如何避免？</h2><p>多线程在<strong>同时阻塞等待同一个事件</strong>，当事件发生时所有线程同时唤醒，然而<strong>只有一个线程能抢到控制权</strong>，其他的醒了又睡。问题主要有两方面：</p>
+<ul>
+<li>linux内核对线程频繁无效调度，影响性能</li>
+<li>为了确保只有一个线程拿到资源需要加锁，影响性能</li>
+</ul>
+<p>解决方案：</p>
+<ul>
+<li><p>accept：在Linux2.6后，accept函数<strong>加入了一个标志位，只会唤醒等待队列上的第一个进程。</strong></p>
+</li>
+<li><p>epoll：如果<strong>Epoll_create在fork之前创建</strong>依然有惊群现象，因为所有子进程共享epoll_create()创建的epfd，等待同一个文件描述符的所有进程/线程，都将被唤醒。在<a href="https://link.jianshu.com/?t=https://github.com/torvalds/linux/commit/df0108c5da561c66c333bb46bfe3c1fc65905898" target="_blank" rel="noopener">epoll: add EPOLLEXCLUSIVE flag 21 Jan 2016</a>补丁中以accept相同的方式解决了。</p>
+</li>
+</ul>
+<h1 id="4-Linux命令"><a href="#4-Linux命令" class="headerlink" title="4. Linux命令"></a>4. Linux命令</h1><h2 id="1-如何查看Linux系统有几颗物理CPU和每颗CPU的核数？"><a href="#1-如何查看Linux系统有几颗物理CPU和每颗CPU的核数？" class="headerlink" title="1. 如何查看Linux系统有几颗物理CPU和每颗CPU的核数？"></a>1. 如何查看Linux系统有几颗物理CPU和每颗CPU的核数？</h2><pre><code class="lang-bash">cat /proc/cpuinfo|grep -c &#39;physical id&#39;
+cat /proc/cpuinfo|grep  &#39;cpu cores&#39;|uniq
+</code></pre>
+<p>cat 命令用于连接文件并打印到标准输出设备上。 <code>|grep</code>是正则符号， -c表示统计数量， 正则匹配<code>physical id</code>。</p>
+<p>当输入<code>cat /proc/cpuinfo</code>时会显示每个CPU的信息</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200216150425.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>通过统计<code>physical id</code>出现的次数就能知道有多少颗物理CPU</p>
+<h2 id="2-如何查看系统负载？"><a href="#2-如何查看系统负载？" class="headerlink" title="2. 如何查看系统负载？"></a>2. 如何查看系统负载？</h2><p>有两个命令</p>
+<pre><code class="lang-bash">w
+uptime
+</code></pre>
+<p>结果如下，其中load average即系统负载，三个数值分别表示一分钟、五分钟、十五分钟内系统的平均负载，即平均任务数。</p>
+<pre><code class="lang-bash">➜  jr w
+ 15:08:58 up 31 min,  1 user,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+jr       tty7     :0               14:37   31:28  12.04s  0.25s /sbin/upstart --user
+</code></pre>
+<h2 id="3-vmstat命令各项含义"><a href="#3-vmstat命令各项含义" class="headerlink" title="3. vmstat命令各项含义"></a>3. <strong>vmstat</strong>命令各项含义</h2><pre><code class="lang-bash">➜  jr vmstat 
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0      0 3088016 136492 976224    0    0   109    41   53   89  0  1 99  0  0
+</code></pre>
+<ul>
+<li>r即running，表示正在跑的任务数</li>
+<li>b即blocked，表示被阻塞的任务数</li>
+<li>si表示有多少数据从交换分区读入内存</li>
+<li>so表示有多少数据从内存写入交换分区</li>
+<li>bi表示有多少数据从磁盘读入内存</li>
+<li>bo表示有多少数据从内存写入磁盘</li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" target="_blank" rel="external">jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E7%BB%8F%E9%AA%8C/" rel="tag">面试经验</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《Linux面试题题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《Linux面试题题目汇总》 — JR's Blog&source=操作系统中和Linux强相关的部分，被放到这一篇来讲。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux面试题题目汇总》 — JR's Blog&url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/02/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">数据库面试题目汇总</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/02/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">计算机网络面试题目汇总</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《Linux面试题题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《Linux面试题题目汇总》 — JR's Blog&source=操作系统中和Linux强相关的部分，被放到这一篇来讲。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux面试题题目汇总》 — JR's Blog&url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/02/19/Linux%E9%9D%A2%E8%AF%95%E9%A2%98%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

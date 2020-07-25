@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Leetcode题目总结3-动态规划 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,Leetcode">
+    <meta name="description" content="本文根据处理对象的结构将动态规划分为线性一维、矩形二维、三角形这三种类型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode题目总结3-动态规划">
+<meta property="og:url" content="jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本文根据处理对象的结构将动态规划分为线性一维、矩形二维、三角形这三种类型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191014152151.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191014152447.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191220120733.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191220130341.png">
+<meta property="article:published_time" content="2019-09-02T10:55:12.000Z">
+<meta property="article:modified_time" content="2020-03-27T16:53:42.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="Leetcode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191014152151.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Leetcode题目总结3-动态规划</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Leetcode题目总结3-动态规划</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-02T10:55:12.000Z" itemprop="datePublished" class="page-time">
+  2019-09-02
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-算法讲解"><span class="post-toc-text">1. 算法讲解</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-简介"><span class="post-toc-text">1.1 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-解法"><span class="post-toc-text">1.2 解法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#带备忘录的递归优化"><span class="post-toc-text">带备忘录的递归优化</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#动态规划优化"><span class="post-toc-text">动态规划优化</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-线性一维DP"><span class="post-toc-text">2. 线性一维DP</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#005-最长回文子串"><span class="post-toc-text">005 最长回文子串</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#053-最大子序和"><span class="post-toc-text">053 最大子序和</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#055-跳跃游戏"><span class="post-toc-text">055 跳跃游戏</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#091-解码方法"><span class="post-toc-text">091 解码方法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#096-不同的二叉搜索树"><span class="post-toc-text">096 不同的二叉搜索树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#121-买卖股票的最佳时机"><span class="post-toc-text">121 买卖股票的最佳时机</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#122-买卖股票的最佳时机II"><span class="post-toc-text">122 买卖股票的最佳时机II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#152-乘积最大子序列"><span class="post-toc-text">152 乘积最大子序列</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#198-打家劫舍"><span class="post-toc-text">198 打家劫舍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#213-打家劫舍II"><span class="post-toc-text">213 打家劫舍II</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-矩形二维DP"><span class="post-toc-text">3. 矩形二维DP</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#062-不同的路径"><span class="post-toc-text">062 不同的路径</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#063-不同路径II"><span class="post-toc-text">063 不同路径II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#064-最小路径和"><span class="post-toc-text">064 最小路径和</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#221-最大正方形"><span class="post-toc-text">221 最大正方形</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-三角形二维DP"><span class="post-toc-text">4. 三角形二维DP</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#118-杨辉三角"><span class="post-toc-text">118 杨辉三角</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#119-杨辉三角II"><span class="post-toc-text">119 杨辉三角II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#120-三角形最小路径和"><span class="post-toc-text">120 三角形最小路径和</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Leetcode题目总结3-动态规划"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Leetcode题目总结3-动态规划</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-02 18:55:12" datetime="2019-09-02T10:55:12.000Z"  itemprop="datePublished">2019-09-02</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本文根据处理对象的结构将动态规划分为线性一维、矩形二维、三角形这三种类型。<a id="more"></a></p>
+<h1 id="1-算法讲解"><a href="#1-算法讲解" class="headerlink" title="1. 算法讲解"></a>1. 算法讲解</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p>动态规划脱胎于暴力解法，<strong>通过优化重叠子问题</strong>形成了DP这种高效的解法。</p>
+<p>动态规划过程是：每次决策<strong>依赖于当前状态</strong>，又随即<strong>引起状态的转移</strong>。将待求解的问题分解为若干个子问题（阶段），按顺序求解子阶段，<strong>前一子问题的解，为后一子问题的求解提供了有用的信息</strong>。分治法也是将问题分为若干个子问题，但<strong>经分解后得到的子问题往往不是互相独立的</strong>。</p>
+<p>要解决动态规划(dp)的问题需要考虑四个步骤：</p>
+<ol>
+<li><strong>确定状态和状态变量</strong>：将问题发展到各个阶段时所处于的各种客观情况用不同的状态表示出来</li>
+<li><strong>状态转移方程和转移条件</strong>：因为决策和状态转移有着天然的联系，状态转移就是根据上一阶段的状态和决策来导出本阶段的状态。</li>
+<li><strong>初始状态</strong>的本质是递推，递推就需要明确初始条件。</li>
+<li><strong>寻找边界条件</strong>：给出的状态转移方程是一个递推式，需要一个递推的终止条件或边界条件</li>
+</ol>
+<p>其实最主要的还是考虑23，<strong>转移方程转移条件和初始状态</strong>！</p>
+<p><strong>以爬楼梯为例</strong>，假设每次爬楼梯只能爬1步或2步，求爬到第n阶有多少种办法？</p>
+<ul>
+<li><p><strong>确定状态和状态变量：</strong>爬到第<code>i</code>层所需要的步数<code>dp</code>。</p>
+</li>
+<li><p><strong>转移方程：</strong><code>dp[i] = dp[i - 1] + dp[i - 2]</code>。</p>
+</li>
+<li><p><strong>初始条件</strong>：<code>dp[0] = 1;</code>和<code>dp[1] = 2;</code></p>
+</li>
+<li><p><strong>边界条件：</strong>第n层结束。</p>
+</li>
+</ul>
+<pre><code class="lang-CPP">int climbStairs(int n) {
+    vector&lt;int&gt; dp(100,0);
+    dp[0] = 1,dp[1] = 2;
+    for (int i = 2; i &lt; n; i++)
+        dp[i] = dp[i - 1] + dp[i - 2];
+    return dp[n - 1];
+}
+</code></pre>
+<h2 id="1-2-解法"><a href="#1-2-解法" class="headerlink" title="1.2 解法"></a>1.2 解法</h2><p>前面说到，动态规划脱胎于暴力解法，需要优化。优化的办法有两种：<strong>带备忘录的递归解法（自顶向下），动态规划解法（自底向上）</strong></p>
+<h3 id="带备忘录的递归优化"><a href="#带备忘录的递归优化" class="headerlink" title="带备忘录的递归优化"></a>带备忘录的递归优化</h3><p>一个斐波那契数列的暴力解法如下，画出递归树后发现了大量重复的子问题，因此导致时间复杂度很高（呈指数上升$O(2^n)$）</p>
+<pre><code class="lang-CPP">int fib(int N) {
+    if (N == 1 || N == 2) return 1;
+    return fib(N - 1) + fib(N - 2);
+}
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191014152151.png" alt="img"  style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>因此我们想到利用一个备忘录记载用过的子问题：</p>
+<pre><code class="lang-cpp">int fib(int N) {
+    if (N &lt; 1) return 0;
+    // 备忘录全初始化为 0
+    vector&lt;int&gt; memo(N + 1, 0);
+    return helper(memo, N);
+}
+int helper(vector&lt;int&gt;&amp; memo, int n) {
+    if (n == 1 || n == 2) return 1;
+    if (memo[n] != 0) return memo[n];
+    // 未被计算过
+    memo[n] = helper(memo, n - 1) + helper(memo, n - 2);
+    return memo[n];
+}
+</code></pre>
+<p>由于递归的时候，<strong>先从左子树一路向下</strong>，因此通过备忘录就能实现剪枝：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191014152447.png"  style="zoom:50%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如上图所示，直接把$2^n$的树形结构，剪成了nn的一维数组结构，大大减小了时间复杂度！</p>
+<h3 id="动态规划优化"><a href="#动态规划优化" class="headerlink" title="动态规划优化"></a>动态规划优化</h3><p>有了上一步「备忘录」的启发，我们可以把这个「备忘录」独立出来成为一个专门的容器，直接在这个容器中完成所有算法，这样时间和备忘录一样，但空间更节省。这就是<strong>自底向上</strong>。</p>
+<pre><code class="lang-CPP">int fib(int N) {
+    vector&lt;int&gt; dp(N + 1, 0);
+    dp[1] = dp[2] = 1;
+    for (int i = 3; i &lt;= N; i++)
+        dp[i] = dp[i - 1] + dp[i - 2];
+    return dp[N];
+}
+</code></pre>
+<h1 id="2-线性一维DP"><a href="#2-线性一维DP" class="headerlink" title="2. 线性一维DP"></a>2. 线性一维DP</h1><h2 id="005-最长回文子串"><a href="#005-最长回文子串" class="headerlink" title="005 最长回文子串"></a>005 最长回文子串</h2><p>给定一个字符串 <code>s</code>，找到 <code>s</code> 中最长的回文子串。你可以假设 <code>s</code> 的最大长度为 1000。</p>
+<pre><code>输入: &quot;babad&quot;
+输出: &quot;bab&quot;
+注意: &quot;aba&quot; 也是一个有效答案。
+</code></pre><p><strong>解答：</strong></p>
+<p>这里的一维是指处理对象的维度，dp容器可以是二维的。解答思路很简单，如果<code>abba</code>是回文，则<code>bb</code>肯定是回文。</p>
+<p>一定要写<code>l &lt;= length</code>，因为这里的<code>l</code>代表了回文的长度，如果<code>aaaa</code>则<code>l==length</code>。</p>
+<p>这道题要维护两个重要变量，回文串起始位置<code>start</code>和长度<code>len</code></p>
+<pre><code class="lang-CPP">string longestPalindrome(string s) {
+    const int length = s.size();
+    //最后返回字符串，返回的记录方式是：位置(start)+长度（maxlen）
+    int maxlength = 1, start = 0;
+    if (length == 0) return s;
+    vector&lt;vector&lt;bool&gt;&gt; dp(length + 1, vector&lt;bool&gt;(length + 1, false));
+
+    for (int i = 0; i &lt; length; i++) //这里一定不能写length-1
+    {
+        //初始化
+        dp[i][i] = true;
+        if (i &lt; length - 1 &amp;&amp; s.at(i) == s.at(i + 1))//必须在这里判断
+        {
+            dp[i][i + 1] = true;
+            start = i;
+            maxlength = 2;
+        }
+    }
+
+    //一定要写等于
+    for (int l = 3; l &lt;= length; l++)
+        for (int i = 0; i &lt;= length - l; i++) //这里也一定要加等号
+        {
+            int s_start = i;
+            int s_end = i + l - 1;
+            if (dp[s_start + 1][s_end - 1] &amp;&amp; s.at(s_start) == s.at(s_end))
+            {
+                dp[s_start][s_end] = true;
+                maxlength = l;
+                start = s_start;
+            }
+        }
+    if (maxlength &gt;= 2) return s.substr(start, maxlength);
+    //maxlength=1时，直接返回第一个字符（要写成串的形式）
+    else return s.substr(0, 1);
+}
+</code></pre>
+<h2 id="053-最大子序和"><a href="#053-最大子序和" class="headerlink" title="053 最大子序和"></a>053 最大子序和</h2><p>给定一个整数数组 <code>nums</code> ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。</p>
+<pre><code>输入: [-2,1,-3,4,-1,2,1,-5,4],
+输出: 6
+解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+</code></pre><p><strong>解答：</strong></p>
+<p>最重要是写出转移方程<code>sum[i]=max(sum[i-1]+a[i],a[i]);</code>只要<code>a[i]</code>不是大，当前组就还有机会靠下一个<code>a[i+1]</code>翻盘。</p>
+<p><code>std::max_element()</code>返回的是迭代器位置，所以还需要解引用。</p>
+<pre><code class="lang-CPP">int maxSubArray(vector&lt;int&gt;&amp; nums) {
+    if(nums.size()==0) return 0;
+    vector&lt;int&gt; sum(nums.size());
+    sum[0]=nums[0];
+    for(int i=1;i&lt;nums.size();i++)
+        sum[i]=max(sum[i-1]+nums[i],nums[i]);
+    return *max_element(sum.begin(), sum.end());
+}
+</code></pre>
+<h2 id="055-跳跃游戏"><a href="#055-跳跃游戏" class="headerlink" title="055 跳跃游戏"></a>055 跳跃游戏</h2><p>给定一个非负整数数组，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。判断你是否能够到达最后一个位置。</p>
+<pre><code>输入: [2,3,1,1,4]
+输出: true
+解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置 1 跳 3 步到达最后一个位置。
+输入: [3,2,1,0,4]
+输出: false
+解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。
+</code></pre><p><strong>解答：</strong></p>
+<p>贪心算法，计算每个点能跳跃到的最大长度</p>
+<pre><code class="lang-CPP">bool canJump(vector&lt;int&gt;&amp; nums) {
+    int canReach=0;
+    for(int i=0;i&lt;nums.size();i++){
+        if(i&gt;canReach){
+            return false;
+        }
+        canReach=max(canReach,nums[i]+i);
+    }
+    return true;
+}
+</code></pre>
+<h2 id="091-解码方法"><a href="#091-解码方法" class="headerlink" title="091 解码方法"></a>091 解码方法</h2><p>一条包含字母 <code>A-Z</code> 的消息通过以下方式进行了编码：</p>
+<pre><code>&#39;A&#39; -&gt; 1
+&#39;B&#39; -&gt; 2
+...
+&#39;Z&#39; -&gt; 26
+</code></pre><pre><code>输入: &quot;226&quot;
+输出: 3
+解释: 它可以解码为 &quot;BZ&quot; (2 26), &quot;VF&quot; (22 6), 或者 &quot;BBF&quot; (2 2 6)
+</code></pre><p><strong>解答：</strong></p>
+<p>这道题引入了转移条件：</p>
+<ul>
+<li>只要前一位不为0，就可以<code>dp[i]+=dp[i-1]</code> </li>
+<li>只要前两位组合在[10,26]之间，就可以<code>dp[i]+=dp[i-2]</code></li>
+</ul>
+<p>要注意<code>dp[m]</code>不是表示s的下标，而是<strong>表示长度，表示第m位</strong>！<code>dp[0]=dp[1]=1</code>，<code>dp[0]</code>表示第0位（这是<strong>虚拟状态</strong>，有利于做题而已），<code>dp[1]</code>表示第1位。</p>
+<p>凡是涉及到要<strong>索引上上位</strong>，都可以考虑使用虚拟状态。</p>
+<pre><code class="lang-CPP">int numDecodings(string s) {
+    if(s.empty()) return 0;
+    if(s[0]==&#39;0&#39;) return 0;
+    vector&lt;int&gt; dp(s.size()+1,0);
+    dp[0]= 1;
+    dp[1]= 1;
+    for(int i=2;i&lt;s.size()+1;i++)
+    {
+        if(s[i-1]!=&#39;0&#39;) dp[i]+=dp[i-1];
+        if(s.substr(i-2,2)&gt;=&quot;10&quot;&amp;&amp;s.substr(i-2,2)&lt;&quot;27&quot;) 
+            dp[i]+=dp[i-2];
+    }
+    return dp[s.size()];
+}
+</code></pre>
+<h2 id="096-不同的二叉搜索树"><a href="#096-不同的二叉搜索树" class="headerlink" title="096 不同的二叉搜索树"></a>096 不同的二叉搜索树</h2><p>给定一个整数 <em>n</em>，求以 1 … <em>n</em> 为节点组成的二叉搜索树有多少种？</p>
+<pre><code>输入: 3
+输出: 5
+解释:
+给定 n = 3, 一共有 5 种不同结构的二叉搜索树
+</code></pre><p><strong>解答：</strong></p>
+<p>这个题必须要考虑0个节点时，依然是一个二叉搜索树NULL。状态转移方程：<code>dp[i] += dp[left] * dp[right]</code>。<code>dp[num]</code>代表了<code>num</code>个节点能够组成多少个BST。</p>
+<pre><code class="lang-cpp">int numTrees(int n) {
+    vector&lt;int&gt; dp(n+1);
+    dp[0]=dp[1]=1;
+    if(n==0||n==1) return 1;
+    for(int num=2;num&lt;=n;num++)//有多少个节点
+        for(int left=0;left&lt;num;left++)
+        {
+            int right = num-left-1;//要分配一个为root
+            dp[num]+=dp[left]*dp[right];
+        }
+    return dp[n];
+}
+</code></pre>
+<h2 id="121-买卖股票的最佳时机"><a href="#121-买卖股票的最佳时机" class="headerlink" title="121 买卖股票的最佳时机"></a>121 买卖股票的最佳时机</h2><p>给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。如果你最多只允许完成一笔交易（即买入和卖出一支股票），设计一个算法来计算你所能获取的最大利润。注意你不能在买入股票前卖出股票。</p>
+<pre><code>输入: [7,1,5,3,6,4]
+输出: 5
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+</code></pre><p><strong>解答：</strong></p>
+<p>维护两个变量<code>minPrice[i]</code>和<code>maxProfit[i]</code></p>
+<pre><code class="lang-CPP">int maxProfit(vector&lt;int&gt;&amp; prices) {
+    vector&lt;int&gt; minprice(prices.size());
+    vector&lt;int&gt; maxprofit(prices.size());
+    if(prices.size()==0) return 0;
+    minprice[0]=prices[0];
+    maxprofit[0]=0;
+    for(int i=1;i&lt;prices.size();i++)
+    {
+        minprice[i]=min(prices[i],minprice[i-1]);
+        int curprofit = prices[i]-minprice[i];
+        maxprofit[i]=max(curprofit,maxprofit[i-1]);
+    }
+    return maxprofit[prices.size()-1];
+}
+</code></pre>
+<h2 id="122-买卖股票的最佳时机II"><a href="#122-买卖股票的最佳时机II" class="headerlink" title="122 买卖股票的最佳时机II"></a>122 买卖股票的最佳时机II</h2><p>比上一道题目加了条件：多次买卖一支股票</p>
+<pre><code class="lang-c">输入: [7,1,5,3,6,4]
+输出: 7
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。
+    随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6-3 = 3 。
+</code></pre>
+<p><strong>解答：</strong></p>
+<p>因为同一天又能买又能卖，所以转移方程<code>dp[i]=max(dp[i-1]+p[i]-p[i - 1],dp[i-1])</code></p>
+<pre><code class="lang-CPP">int maxProfit(vector&lt;int&gt;&amp; prices) {
+    if(prices.size()==0) return 0;
+    vector&lt;int&gt; maxProfit(prices.size(),0);
+    for(int i=1;i&lt;prices.size();i++)
+        maxProfit[i]=max(maxProfit[i-1],maxProfit[i-1]+prices[i]-prices[i-1]);
+    return maxProfit[prices.size()-1];
+}
+</code></pre>
+<h2 id="152-乘积最大子序列"><a href="#152-乘积最大子序列" class="headerlink" title="152 乘积最大子序列"></a>152 乘积最大子序列</h2><p>给定一个整数数组 <code>nums</code> ，找出一个序列中乘积最大的连续子序列（该序列至少包含一个数）。</p>
+<pre><code>输入: [2,3,-2,4]
+输出: 6
+解释: 子数组 [2,3] 有最大乘积 6。
+</code></pre><p><strong>解答：</strong></p>
+<p>由于乘法的特殊性，两个转移变量，同时需要比较三个变量的最大最小。注意一下<code>maxvec</code>不是递增序列，需要返回一个最大值。</p>
+<pre><code class="lang-CPP">int maxProduct(vector&lt;int&gt;&amp; nums) {
+    if(nums.size()==0) return 0;
+    if(nums.size()==1) return nums[0];
+    vector&lt;int&gt; maxvec(nums.size());
+    vector&lt;int&gt; minvec(nums.size());
+    maxvec[0]=minvec[0]=nums[0];
+    for(int i=1;i&lt;nums.size();i++)
+    {
+        maxvec[i]=max3(maxvec[i-1]*nums[i],nums[i],minvec[i-1]*nums[i]);
+        minvec[i]=min3(minvec[i-1]*nums[i],nums[i],maxvec[i-1]*nums[i]);
+    }
+    return *max_element(maxvec.begin(),maxvec.end());
+}
+int max3(int a, int b, int c)
+{
+    return max(a,max(b,c));
+}
+int min3(int a, int b, int c)
+{
+    return min(a,min(b,c));
+}
+</code></pre>
+<h2 id="198-打家劫舍"><a href="#198-打家劫舍" class="headerlink" title="198 打家劫舍"></a>198 打家劫舍</h2><p><strong>如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警</strong>。给定一个代表每个房屋存放金额的非负整数数组，计算你<strong>在不触动警报装置的情况下，</strong>能够偷窃到的最高金额。</p>
+<pre><code class="lang-c">输入: [1,2,3,1]
+输出: 4
+解释: 偷窃 1 号房屋 (金额 = 1) ，然后偷窃 3 号房屋 (金额 = 3)。
+     偷窃到的最高金额 = 1 + 3 = 4
+</code></pre>
+<p>解答：</p>
+<p>转移方程很简单<code>dp[i] = max(dp[i - 2] + nums[i], dp[i - 1]);</code>，需要注意一下初始条件。</p>
+<pre><code class="lang-CPP">int rob(vector&lt;int&gt;&amp; nums) {
+    int len = nums.size();
+    if(len==0) return 0;
+    if(len==1) return nums[0];
+    vector&lt;int&gt; dp(len);
+    dp[0]=nums[0];
+    dp[1]=max(nums[0],nums[1]);
+    for(int i=2;i&lt;len;i++)
+    {
+        dp[i]=max(dp[i-2]+nums[i],dp[i-1]);
+    }
+    return dp[len-1];
+}
+</code></pre>
+<h2 id="213-打家劫舍II"><a href="#213-打家劫舍II" class="headerlink" title="213 打家劫舍II"></a>213 打家劫舍II</h2><p>这个地方所有的房屋都<strong>围成一圈</strong></p>
+<pre><code>输入: [2,3,2]
+输出: 3
+解释: 你不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+</code></pre><p><strong>解答：</strong></p>
+<p>分类讨论，每次讨论时，前3个初始变量都需要考虑</p>
+<pre><code class="lang-CPP">int rob(vector&lt;int&gt;&amp; nums) {
+    int n=nums.size();
+    if(n==0) return 0;
+    vector&lt;int&gt; dp1(nums.size());
+    vector&lt;int&gt; dp2(nums.size());
+    if(n&lt;=3) return *max_element(nums.begin(),nums.end());
+    //偷第一家
+    dp1[0]=dp1[1]=nums[0];
+    dp1[2]=nums[0]+nums[2];
+    for(int i=3;i&lt;n-1;i++)
+        dp1[i]=max(dp1[i-2]+nums[i],dp1[i-1]);
+    //不偷第一家
+    dp2[0]=0;
+    dp2[1]=nums[1];
+    dp2[2]=max(nums[1],nums[2]);
+    for(int i=3;i&lt;n;i++)
+        dp2[i]=max(dp2[i-2]+nums[i],dp2[i-1]);
+    return max(*max_element(dp1.begin(),dp1.end()),
+               *max_element(dp2.begin(),dp2.end()));
+}
+</code></pre>
+<h1 id="3-矩形二维DP"><a href="#3-矩形二维DP" class="headerlink" title="3. 矩形二维DP"></a>3. 矩形二维DP</h1><h2 id="062-不同的路径"><a href="#062-不同的路径" class="headerlink" title="062 不同的路径"></a>062 不同的路径</h2><p>一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191220120733.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>解答：</strong></p>
+<p>转移方程<code>dp[i][j]=dp[i-1][j]+dp[i][j-1]</code>，注意边界的转移条件。</p>
+<pre><code class="lang-CPP">int uniquePaths(int m, int n) {
+    vector&lt;vector&lt;int&gt;&gt; dp(m,vector&lt;int&gt;(n));
+    dp[0][0]=1;
+    for(int i=0;i&lt;m;i++)
+        for(int j=0;j&lt;n;j++)
+        {
+            if(i==0||j==0) dp[i][j]=1;
+            else
+                dp[i][j]=dp[i-1][j]+dp[i][j-1];
+        }
+    return dp[m-1][n-1];
+}
+</code></pre>
+<h2 id="063-不同路径II"><a href="#063-不同路径II" class="headerlink" title="063 不同路径II"></a>063 不同路径II</h2><p>现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？</p>
+<p><strong>解答：</strong></p>
+<p>需要分类讨论。由于加了障碍物所以需要特别考虑边的情况，看看是否有东西堵住。需要注意：<strong>初始化要放到循环里面</strong>。</p>
+<pre><code class="lang-CPP">int uniquePathsWithObstacles(vector&lt;vector&lt;int&gt;&gt;&amp; obstacleGrid) {
+    int m=obstacleGrid.size();
+    int n=obstacleGrid[0].size();
+    vector&lt;vector&lt;int&gt;&gt; dp(m,vector&lt;int&gt;(n,0));
+    for(int i=0;i&lt;m;i++)
+    {
+        for(int j=0;j&lt;n;j++)
+        {
+            if(obstacleGrid[i][j]==1)
+                dp[i][j]=0;
+            else if(i==0&amp;&amp;j==0) dp[i][j]=1;
+            else if(i==0&amp;&amp;j!=0) dp[i][j]=dp[i][j-1];
+            else if(j==0&amp;&amp;i!=0) dp[i][j]=dp[i-1][j];
+            else dp[i][j]=dp[i-1][j]+dp[i][j-1];
+        }
+    }
+    return dp[m-1][n-1];
+}
+</code></pre>
+<h2 id="064-最小路径和"><a href="#064-最小路径和" class="headerlink" title="064 最小路径和"></a>064 最小路径和</h2><p>给定一个包含非负整数的 <em>m</em> x <em>n</em> 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。</p>
+<pre><code>输入:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 7
+解释: 因为路径 1→3→1→1→1 的总和最小。
+</code></pre><p><strong>解答：</strong></p>
+<p>需要分类讨论。<code>dp[i][j]+=dp[i][j-1];</code>不是这样的，和前面区分好！</p>
+<pre><code class="lang-CPP">int minPathSum(vector&lt;vector&lt;int&gt;&gt;&amp; grid) {
+    int m = grid.size();
+    int n = grid[0].size();
+    vector&lt;vector&lt;int&gt;&gt; dp(m, { vector&lt;int&gt;(n,0) });
+    for (int i = 0; i &lt; m; i++)
+        for (int j = 0; j &lt; n; j++)
+        {
+            if(i==0&amp;&amp;j==0) dp[i][j]=grid[i][j];
+            else if(i==0&amp;&amp;j!=0) dp[i][j]=dp[i][j-1]+grid[i][j];
+            else if(i!=0&amp;&amp;j==0) dp[i][j]=dp[i-1][j]+grid[i][j];
+            else dp[i][j] = min(dp[i-1][j],dp[i][j-1])+grid[i][j];
+        }
+    return dp[m-1][n-1];
+}
+</code></pre>
+<h2 id="221-最大正方形"><a href="#221-最大正方形" class="headerlink" title="221 最大正方形"></a>221 最大正方形</h2><p>在一个由 0 和 1 组成的二维矩阵内，找到只包含 1 的最大正方形，并返回其面积。</p>
+<pre><code>输入: 
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+输出: 4
+</code></pre><p><strong>解答：</strong></p>
+<p>和前面的路径题非常相似，但需要比较3个中的最小者。</p>
+<pre><code class="lang-CPP">int maximalSquare(vector&lt;vector&lt;char&gt;&gt;&amp; matrix) {
+    if (matrix.empty() || matrix[0].empty())
+        return 0;
+    int M = matrix.size();
+    int N = matrix[0].size();
+    vector&lt;vector&lt;int&gt;&gt; dp(M, vector&lt;int&gt;(N, 0));
+    for(int i=0;i&lt;M;i++)
+        for(int j=0;j&lt;N;j++)
+        {
+            if(matrix[i][j]!=&#39;1&#39;) continue;
+            if(i==0||j==0) dp[i][j]=1;
+            else dp[i][j]=min(dp[i-1][j-1],
+                          min(dp[i-1][j],dp[i][j-1]))+1;
+        }
+    int res=0;
+    for(auto x:dp)
+        res=max(res,*max_element(x.begin(),x.end()));
+    return res*res;
+}
+</code></pre>
+<h1 id="4-三角形二维DP"><a href="#4-三角形二维DP" class="headerlink" title="4. 三角形二维DP"></a>4. 三角形二维DP</h1><h2 id="118-杨辉三角"><a href="#118-杨辉三角" class="headerlink" title="118 杨辉三角"></a>118 杨辉三角</h2><p>给定一个非负整数 <em>numRows，</em>生成杨辉三角的前 <em>numRows</em> 行。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191220130341.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code>输入: 5
+输出:
+[
+     [1],
+    [1,1],
+   [1,2,1],
+  [1,3,3,1],
+ [1,4,6,4,1]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>两边要特别处理。每次需要resize一下，因为维度都不相同。</p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; generate(int numRows) {
+    vector&lt;vector&lt;int&gt;&gt; dp(numRows);
+    if(numRows==0)
+        return dp;
+    for(int i=0;i&lt;numRows;i++)
+    {
+        dp[i].resize(i+1); //对dp[i]resize而不是dp
+        dp[i][0]=dp[i][i]=1;
+        for(int j=1;j&lt;i;j++) //i=0被直接跳过
+            dp[i][j]=dp[i-1][j-1]+dp[i-1][j];
+    }
+    return dp;
+}
+</code></pre>
+<h2 id="119-杨辉三角II"><a href="#119-杨辉三角II" class="headerlink" title="119 杨辉三角II"></a>119 杨辉三角II</h2><p>给定一个非负索引 <em>k</em>，其中 <em>k</em> ≤ 33，返回杨辉三角的第 <em>k</em> 行。</p>
+<pre><code>输入: 3
+输出: [1,3,3,1]
+</code></pre><p><strong>解答：</strong></p>
+<p>如果按照上一题的思路老实推的话，占用空间较大。这里选择原地修改的办法。</p>
+<pre><code class="lang-c">vector&lt;int&gt; getRow(int rowIndex) {
+    vector&lt;int&gt; dp(rowIndex +1);
+    if (rowIndex == 0)
+        return dp;
+    //i代表第几行
+    for (int i = 0; i &lt; rowIndex; i++)
+    {
+        dp.resize(i + 1);
+        dp[0] = dp[i] = 1;
+        //原地修改
+        for (int j = 1; j &lt; i; j++)
+            dp[j] = dp[j] + dp[j - 1];
+    }
+    return dp;
+}
+</code></pre>
+<h2 id="120-三角形最小路径和"><a href="#120-三角形最小路径和" class="headerlink" title="120 三角形最小路径和"></a>120 三角形最小路径和</h2><p>给定一个三角形，找出自顶向下的最小路径和。每一步只能移动到下一行中相邻的结点上。</p>
+<pre><code>[
+     [2],
+    [3,4],
+   [6,5,7],
+  [4,1,8,3]
+]
+自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+</code></pre><p><strong>解答：</strong></p>
+<p>和前面的三角并没有什么不用，还是要注意两边，另外初始化的resize要特别注意。</p>
+<pre><code class="lang-CPP">int minimumTotal(vector&lt;vector&lt;int&gt;&gt;&amp; triangle) {
+    int rowSize = triangle.size();
+    if (rowSize == 0) return 0;
+    int colSize = triangle[0].size();
+    vector&lt;vector&lt;int&gt;&gt; dp(rowSize);
+    dp[0].resize(1);//没有这一句内存会出错
+    dp[0][0] = triangle[0][0];
+    for (int i = 1; i &lt; rowSize; i++)
+    {
+        dp[i].resize(i + 1);
+        dp[i][0] = dp[i - 1][0] + triangle[i][0];
+        dp[i][i] = dp[i - 1][i - 1] + triangle[i][i];
+        for (int j = 1; j &lt; i; j++)
+            dp[i][j] = min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
+    }
+    return *min_element(dp[rowSize - 1].begin(), dp[rowSize - 1].end());
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" target="_blank" rel="external">jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&title=《Leetcode题目总结3-动态规划》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&title=《Leetcode题目总结3-动态规划》 — JR's Blog&source=本文根据处理对象的结构将动态规划分为线性一维、矩形二维、三角形这三种类型。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结3-动态规划》 — JR's Blog&url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/03/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%934-%E5%9B%9E%E6%BA%AF/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Leetcode题目总结4-回溯</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%932-%E5%8F%8C%E6%8C%87%E9%92%88/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Leetcode题目总结2-双指针</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&title=《Leetcode题目总结3-动态规划》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&title=《Leetcode题目总结3-动态规划》 — JR's Blog&source=本文根据处理对象的结构将动态规划分为线性一维、矩形二维、三角形这三种类型。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结3-动态规划》 — JR's Blog&url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/09/02/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%933-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

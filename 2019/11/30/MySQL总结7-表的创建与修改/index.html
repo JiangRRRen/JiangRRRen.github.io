@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>MySQL总结7-表的创建与修改 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="读书笔记,数据库,MySQL">
+    <meta name="description" content="如何改、删、增数据表。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL总结7-表的创建与修改">
+<meta property="og:url" content="jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="如何改、删、增数据表。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-30T05:20:27.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:42:57.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL总结7-表的创建与修改</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL总结7-表的创建与修改</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-11-30T05:20:27.000Z" itemprop="datePublished" class="page-time">
+  2019-11-30
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-操作表"><span class="post-toc-text">1. 操作表</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-创建表"><span class="post-toc-text">1.1 创建表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-更新删除表"><span class="post-toc-text">2. 更新删除表</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-操作数据"><span class="post-toc-text">2. 操作数据</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-插入数据"><span class="post-toc-text">2.1 插入数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-更新和删除数据"><span class="post-toc-text">2.2 更新和删除数据</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-MySQL总结7-表的创建与修改"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL总结7-表的创建与修改</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-11-30 13:20:27" datetime="2019-11-30T05:20:27.000Z"  itemprop="datePublished">2019-11-30</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>如何改、删、增数据表。<a id="more"></a></p>
+<h1 id="1-操作表"><a href="#1-操作表" class="headerlink" title="1. 操作表"></a>1. 操作表</h1><h2 id="1-1-创建表"><a href="#1-1-创建表" class="headerlink" title="1.1 创建表"></a>1.1 创建表</h2><p>一般来说创建表的方法有两种：</p>
+<ul>
+<li>使用交互式工具创建，比如Navicat</li>
+<li>直接用MySQL语句操作</li>
+</ul>
+<p>在创建时我们必须明确以下信息：</p>
+<ul>
+<li>新表的名字，在关键词CREATE TABLE之后给出</li>
+<li>表列的名字和定义，用逗号分隔</li>
+</ul>
+<p>比如：</p>
+<pre><code class="lang-sql">mysql&gt; CREATE TABLE food
+    -&gt; (
+    -&gt; food_id int NOT NULL AUTO_INCREMENT,
+    -&gt; food_name char(50) NOT NULL,
+    -&gt; PRIMARY KEY(food_id)
+    -&gt; )
+    -&gt; ENGINE=InnoDB;
+Query OK, 0 rows affected (0.32 sec)
+</code></pre>
+<p>上面这个例子中我们可知，创建时需要注意：</p>
+<ul>
+<li>表名紧跟在CREATE TABLE关键字后 </li>
+<li>之后需要用括号将信息括起来</li>
+<li>每一行代表表中的一列，由<strong>名字-数据类型-属性</strong>决定</li>
+<li>需要指定主键</li>
+<li>结尾需要制定引擎</li>
+</ul>
+<p>AUTO_INCREMENT的作用是：当执行INSERT操作时，根据上一个ID自动增量。每个表只允许一个AUTO_INCREMENT列，而且它必须被索引（比如称为主键）。</p>
+<p>可以指定默认值，比如</p>
+<pre><code class="lang-sql">quantity int NOT NULL DEFAULT 1,
+</code></pre>
+<p>常见的引擎有：</p>
+<ul>
+<li>InnoDB，可靠的事务处理引擎,不支持全文本搜索</li>
+<li>MEMORY，功能等同于MyISAM，但由于数据存储在内存（不是磁盘） 中，速度很快（特别适合于临时表）</li>
+<li>MyISAM是一个性能极高的引擎，它支持全文本搜索， 但不支持事务处理。</li>
+</ul>
+<h2 id="2-更新删除表"><a href="#2-更新删除表" class="headerlink" title="2. 更新删除表"></a>2. 更新删除表</h2><p>添加一个列</p>
+<pre><code class="lang-sql">ALTER TABLE vendors
+ADD vend_phone CHAR(20);
+</code></pre>
+<p>删除列</p>
+<pre><code class="lang-sql">ALTER TABLE vendors
+DROP COLUMN vend_phone;
+</code></pre>
+<p>删除表</p>
+<pre><code class="lang-sql">DROP TABLE customers2;
+</code></pre>
+<p>重命名表</p>
+<pre><code class="lang-sql">RENAME TABLE customers TO customers;
+</code></pre>
+<h1 id="2-操作数据"><a href="#2-操作数据" class="headerlink" title="2. 操作数据"></a>2. 操作数据</h1><h2 id="2-1-插入数据"><a href="#2-1-插入数据" class="headerlink" title="2.1 插入数据"></a>2.1 插入数据</h2><p>把数据插入表中的最简单的方法是使用基本的<strong>INSERT</strong>语法，要求指定表名和被插入到新行中的值。举个例子：</p>
+<pre><code class="lang-sql">INSERT INTO customers
+  VALUES (NULL,
+    &#39;Pep E. LaPew&#39;,
+    &#39;100 Main Street&#39;,
+    &#39;Coyote Inc.&#39;,
+  );
+</code></pre>
+<p>上面的SQL 语句高度依赖于表中列的定义次序，容易出错，所以我们最好用比较安全的办法。</p>
+<pre><code class="lang-sql">INSERT INTO customers (cust_id,
+     cust_name,
+     cust_address,
+     cust_city,
+  ) VALUES (NULL,
+    &#39;Pep E. LaPew&#39;,
+    &#39;100 Main Street&#39;,
+  );
+</code></pre>
+<p>也可以插入多行：</p>
+<pre><code class="lang-sql">INSERT INTO customers (cust_id,
+     cust_name,
+     cust_address,
+  ) VALUES (NULL,
+    &#39;Pep E. LaPew&#39;,
+  ),VALUES (10002,
+     &#39;Mouse house&#39;,);
+</code></pre>
+<h2 id="2-2-更新和删除数据"><a href="#2-2-更新和删除数据" class="headerlink" title="2.2 更新和删除数据"></a>2.2 更新和删除数据</h2><p>假设客户10005有了新的电子邮件，因此记录需要更新，语句如下：</p>
+<pre><code class="lang-sql">UPDATE customers
+  SET cust_email = &#39;jack@gmail.com&#39;
+  WHERE cust_id = 10005;
+</code></pre>
+<p>删除</p>
+<pre><code class="lang-sql">DELETE FROM customers
+  WHERE cust_id = 10006;
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" target="_blank" rel="external">jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&title=《MySQL总结7-表的创建与修改》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&title=《MySQL总结7-表的创建与修改》 — JR's Blog&source=如何改、删、增数据表。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结7-表的创建与修改》 — JR's Blog&url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/12/23/%E5%88%A9%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E5%88%9B%E5%BB%BAmysql%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E5%99%A8/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">利用腾讯云创建mysql数据库服务器</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL总结6-联结</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&title=《MySQL总结7-表的创建与修改》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&title=《MySQL总结7-表的创建与修改》 — JR's Blog&source=如何改、删、增数据表。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结7-表的创建与修改》 — JR's Blog&url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Leetcode题目总结11-其他 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,Leetcode,数据结构">
+    <meta name="description" content="有些题目不好分类就放到其他里面了。主要包含了树的构造和遍历、二维数组的一些内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode题目总结11-其他">
+<meta property="og:url" content="jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="有些题目不好分类就放到其他里面了。主要包含了树的构造和遍历、二维数组的一些内容。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191224125238.png">
+<meta property="article:published_time" content="2019-09-07T09:33:36.000Z">
+<meta property="article:modified_time" content="2020-03-28T01:41:50.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="数据结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191224125238.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Leetcode题目总结11-其他</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Leetcode题目总结11-其他</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-07T09:33:36.000Z" itemprop="datePublished" class="page-time">
+  2019-09-07
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-树的构造和遍历"><span class="post-toc-text">1. 树的构造和遍历</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#144-二叉树的前序遍历"><span class="post-toc-text">144 二叉树的前序遍历</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#094-二叉树的中序遍历"><span class="post-toc-text">094 二叉树的中序遍历</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#145-二叉树的后序遍历"><span class="post-toc-text">145 二叉树的后序遍历</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#105-从前序与中序遍历构造二叉树"><span class="post-toc-text">105 从前序与中序遍历构造二叉树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#106-从中序与后序遍历构造二叉树"><span class="post-toc-text">106 从中序与后序遍历构造二叉树</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-二维数组"><span class="post-toc-text">2. 二维数组</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#036-有效的数独"><span class="post-toc-text">036 有效的数独</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#048-旋转图像"><span class="post-toc-text">048 旋转图像</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#054-旋转矩阵"><span class="post-toc-text">054 旋转矩阵</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#059-旋转矩阵-II"><span class="post-toc-text">059 旋转矩阵 II</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#073-矩阵置零"><span class="post-toc-text">073 矩阵置零</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-其他"><span class="post-toc-text">3. 其他</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#56-合并区间"><span class="post-toc-text">56 合并区间</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#59-螺旋矩阵II"><span class="post-toc-text">59 螺旋矩阵II</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Leetcode题目总结11-其他"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Leetcode题目总结11-其他</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-07 17:33:36" datetime="2019-09-07T09:33:36.000Z"  itemprop="datePublished">2019-09-07</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>有些题目不好分类就放到其他里面了。主要包含了树的构造和遍历、二维数组的一些内容。<a id="more"></a></p>
+<h1 id="1-树的构造和遍历"><a href="#1-树的构造和遍历" class="headerlink" title="1. 树的构造和遍历"></a>1. 树的构造和遍历</h1><h2 id="144-二叉树的前序遍历"><a href="#144-二叉树的前序遍历" class="headerlink" title="144 二叉树的前序遍历"></a>144 二叉树的前序遍历</h2><p><strong>非递归：</strong></p>
+<pre><code class="lang-CPP">vector&lt;int&gt; preorderTraversal(TreeNode* root) {
+    stack&lt;TreeNode*&gt; stk;
+    vector&lt;int&gt; data;
+    while (root||!stk.empty())
+    {
+        if (root)
+        {
+            data.push_back(root-&gt;val);
+            stk.push(root);
+            root = root-&gt;left;
+        }
+        else
+        {
+            root = stk.top();
+            //中序就把push_back写在这里
+            stk.pop();
+            root = root-&gt;right;
+        }
+    }
+    return data;
+}
+</code></pre>
+<p><strong>递归：</strong></p>
+<p>注意递归前要先判断是否存在。</p>
+<pre><code class="lang-CPP">vector&lt;int&gt; preorderTraversal(TreeNode* root) {
+    vector&lt;int&gt; data;
+    if(!root) return data;
+    recursive(data,root);
+    return data;
+}
+void recursive(vector&lt;int&gt;&amp; data,TreeNode* root)
+{
+    data.push_back(root-&gt;val);
+    if(root-&gt;left) recursive(data,root-&gt;left);
+    if(root-&gt;right) recursive(data,root-&gt;right);
+}
+</code></pre>
+<h2 id="094-二叉树的中序遍历"><a href="#094-二叉树的中序遍历" class="headerlink" title="094 二叉树的中序遍历"></a>094 二叉树的中序遍历</h2><pre><code class="lang-CPP">vector&lt;int&gt; inorderTraversal(TreeNode* root) {
+    vector&lt;int&gt; data;
+    stack&lt;TreeNode*&gt; stk;
+    if(!root) return data;
+    while(root||!stk.empty())
+    {
+        if(root)
+        {
+            stk.push(root);
+            root=root-&gt;left;
+        }
+        else
+        {
+            root=stk.top();
+            data.push_back(root-&gt;val);
+            stk.pop();
+            root=root-&gt;right;
+        }
+    }
+    return data;
+}
+</code></pre>
+<h2 id="145-二叉树的后序遍历"><a href="#145-二叉树的后序遍历" class="headerlink" title="145 二叉树的后序遍历"></a>145 二叉树的后序遍历</h2><p>因为前面两道题前序和中序分别占据了if-else的其中一个，所以后序没得用了。换种思路：前序遍历是：中-左-右，而后序是左-右-中，它是中-右-左的逆过程，</p>
+<p>在前序遍历中我们将<code>data.push_back()</code>塞到了<code>if(root)</code>中，在这里我们只需要将容器栈放到这里即可。</p>
+<pre><code class="lang-CPP">vector&lt;int&gt; postorderTraversal(TreeNode* root) {
+    vector&lt;int&gt; data;
+    if(!root) return data;
+    stack&lt;TreeNode*&gt; stk;
+    while(root||!stk.empty()){
+        if(root){
+            data.push_back(root-&gt;val);
+            stk.push(root);
+            root=root-&gt;right;
+        }else{
+            root=stk.top();
+            stk.pop();
+            root=root-&gt;left;
+        }
+    }
+    reverse(data.begin(),data.end());
+    return data;
+}
+</code></pre>
+<h2 id="105-从前序与中序遍历构造二叉树"><a href="#105-从前序与中序遍历构造二叉树" class="headerlink" title="105 从前序与中序遍历构造二叉树"></a>105 从前序与中序遍历构造二叉树</h2><pre><code>前序遍历 preorder = [3,9,20,15,7]
+中序遍历 inorder = [9,3,15,20,7]
+    3
+   / \
+  9  20
+    /  \
+   15   7
+</code></pre><p><strong>解答：</strong></p>
+<p>前序的第一个一定是root，假设位置为prei，找到其在中序的位置midi。此时中序左边是左子树所有的部分，右边是右子树所有的部分。那么左子节点就是prei+1，右子节点计算方法是：跳过所有左子树，下一个就是右子节点，<code>prei+(midi-inorder_start)+1</code></p>
+<pre><code class="lang-CPP">TreeNode* generate(vector&lt;int&gt;&amp; preorder, vector&lt;int&gt;&amp; inorder,
+                   int inorder_start, int inorder_end,
+                   int pre_root_index)
+{
+    if (inorder_start == inorder_end)
+        return new TreeNode(preorder[pre_root_index]);
+    if (inorder_start &gt; inorder_end)
+        return NULL; //叶子节点
+    int value = preorder[pre_root_index];
+    TreeNode* root = new TreeNode(value);
+
+    int i = 0;
+    for (; i &lt; inorder.size(); i++)
+    {
+        if (inorder[i] == value)
+            break;
+    }
+    root-&gt;left = generate(preorder, inorder,
+                          inorder_start, i - 1,
+                          pre_root_index + 1);
+    root-&gt;right = generate(preorder, inorder,
+                           i + 1, inorder_end,
+                           pre_root_index + (i- inorder_start+1));
+    return root;
+}
+</code></pre>
+<h2 id="106-从中序与后序遍历构造二叉树"><a href="#106-从中序与后序遍历构造二叉树" class="headerlink" title="106 从中序与后序遍历构造二叉树"></a>106 从中序与后序遍历构造二叉树</h2><pre><code>中序遍历 inorder = [9,3,15,20,7]
+后序遍历 postorder = [9,15,7,20,3]
+    3
+   / \
+  9  20
+    /  \
+   15   7
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">TreeNode* buildTree(vector&lt;int&gt;&amp; preorder, vector&lt;int&gt;&amp; inorder) {
+    return fun(preorder, inorder, 0, preorder.size() - 1, 0, inorder.size() - 1);
+}
+
+TreeNode* fun(vector&lt;int&gt;&amp; preorder, vector&lt;int&gt;&amp; inorder, 
+              int pre_start, int pre_end, int in_start, int in_end) {
+    if (pre_start &gt; pre_end) {
+        return NULL;
+    }
+    int pre_first_result = preorder[pre_start];
+    int root_position = in_start;
+    for (; root_position &lt; in_end; root_position++) {
+        if (inorder[root_position] == pre_first_result) {
+            break;
+        }
+    }
+    TreeNode* node = new TreeNode(pre_first_result);
+    int left_length = root_position - in_start;
+    int right_length = in_end - root_position;
+    node-&gt;left = fun(preorder, inorder, pre_start + 1, pre_start + left_length, in_start, root_position - 1);
+    node-&gt;right = fun(preorder, inorder, pre_end - right_length + 1, pre_end, root_position + 1, in_end);
+    return node;
+}
+</code></pre>
+<h1 id="2-二维数组"><a href="#2-二维数组" class="headerlink" title="2. 二维数组"></a>2. 二维数组</h1><h2 id="036-有效的数独"><a href="#036-有效的数独" class="headerlink" title="036 有效的数独"></a>036 有效的数独</h2><p>判断一个 9x9 的数独是否有效。只需要<strong>根据以下规则</strong>，验证已经填入的数字是否有效即可。</p>
+<ol>
+<li>数字 <code>1-9</code> 在每一行只能出现一次。</li>
+<li>数字 <code>1-9</code> 在每一列只能出现一次。</li>
+<li>数字 <code>1-9</code> 在每一个以粗实线分隔的 <code>3x3</code> 宫内只能出现一次。</li>
+</ol>
+<p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">bool isValidSudoku(vector&lt;vector&lt;char&gt;&gt;&amp; board) {
+    vector&lt;set&lt;int&gt;&gt; rows(9);
+    vector&lt;set&lt;int&gt;&gt; cols(9);
+    vector&lt;set&lt;int&gt;&gt; cell(9);
+    for(int i=0;i&lt;9;i++)
+        for(int j=0;j&lt;9;j++)
+        {
+            if(board[i][j]==&#39;.&#39;) continue;
+            int val = board[i][j]-&#39;0&#39;;
+
+            if(!rows[i].count(val)) rows[i].insert(val);
+            else return false;
+
+            if(!cols[j].count(val)) cols[j].insert(val);
+            else return false;
+
+            int index = cell_index(i,j);
+            if(!cell[index].count(val)) cell[index].insert(val);
+            else return false;
+        }
+    return true;
+}
+int cell_index(int i,int j)
+{
+    return i/3+3*(j/3);
+}
+</code></pre>
+<h2 id="048-旋转图像"><a href="#048-旋转图像" class="headerlink" title="048 旋转图像"></a>048 旋转图像</h2><pre><code>给定 matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+原地旋转输入矩阵，使其变为:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>先沿副对角线交换，再沿中间水平线交换</p>
+<pre><code class="lang-CPP">void rotate(vector&lt;vector&lt;int&gt;&gt;&amp; matrix) {
+    if (matrix.size() == 0) return;
+    int n = matrix.size();
+
+    //沿副对角线交换
+    for(int i=0;i&lt;n;i++)
+        for (int j = 0; j &lt; n-i; j++)
+        {
+            int tmp = matrix[i][j];
+            //n-1-j表示间隔距离，调换一下ij的间隔距离即可达到副对角线
+            matrix[i][j] = matrix[n - 1 - j][n - 1 - i];
+            matrix[n - 1 - j][n - 1 - i]=tmp;
+        }
+    for(int i=0;i&lt;n/2;i++)
+        for (int j = 0; j &lt; n; j++)
+        {
+            int tmp = matrix[i][j];
+            matrix[i][j] = matrix[n - 1 - i][j];
+            matrix[n - 1 - i][j] = tmp;
+        }
+}
+</code></pre>
+<h2 id="054-旋转矩阵"><a href="#054-旋转矩阵" class="headerlink" title="054 旋转矩阵"></a>054 旋转矩阵</h2><p><strong>题目：</strong></p>
+<p>给定一个包含 <em>m</em> x <em>n</em> 个元素的矩阵（<em>m</em> 行, <em>n</em> 列），请按照顺时针螺旋顺序，返回矩阵中的所有元素。</p>
+<p><strong>示例：</strong></p>
+<pre><code>输入:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+输出: [1,2,3,6,9,8,7,4,5]
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-c">vector&lt;int&gt; spiralOrder(vector&lt;vector&lt;int&gt;&gt;&amp; matrix) {
+    vector&lt;int&gt; res;
+    if (matrix.size() == 0) return res;
+    int len1 = matrix.size();
+    int len2 = matrix[0].size();
+
+    int right = matrix[0].size() - 1;
+    int left = 0;
+    int up = 1;
+    int down = matrix.size() - 1;
+
+    int row = 0, col = 0, k = 0;
+    int dir[4][4] = { {1,0,-1,0} ,{0,1,0,-1} };//列行
+    for (int i = 0; i &lt; len1 * len2; i++)
+    {
+        res.push_back(matrix[row][col]);
+        row += dir[1][k % 4];
+        col += dir[0][k%4];
+        switch (k % 4)
+        {
+            case 0:
+                if (col &gt; right)
+                {
+                    col = right;
+                    row++;
+                    right--;
+                    k++;//转向
+                }
+                break;
+            case 1:
+                if (row &gt; down)
+                {
+                    row = down;
+                    col--;
+                    down--;
+                    k++;
+                }
+                break;
+            case 2:
+                if (col &lt; left)
+                {
+                    col = left;
+                    row--;
+                    left++;
+                    k++;
+                }
+                break;
+            case 3:
+                if (row &lt; up)
+                {
+                    row = up;
+                    col++;
+                    up++;
+                    k++;
+                }
+                break;
+        }
+    }
+    return res;
+}
+</code></pre>
+<h2 id="059-旋转矩阵-II"><a href="#059-旋转矩阵-II" class="headerlink" title="059 旋转矩阵 II"></a>059 旋转矩阵 II</h2><p><strong>题目：</strong></p>
+<p>给定一个正整数 <em>n</em>，生成一个包含 1 到 <em>n</em>2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。</p>
+<p><strong>示例：</strong></p>
+<pre><code>输入: 3
+输出:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-c">vector&lt;vector&lt;int&gt;&gt; generateMatrix(int n){
+    vector&lt;vector&lt;int&gt;&gt; res(n, vector&lt;int&gt;(n, 0));
+    if (n== 0) return res;
+    int len1 = n;
+    int len2 = n;
+
+    int right = n - 1;
+    int left = 0;
+    int up = 1;
+    int down = n - 1;
+
+    int row = 0, col = 0, k = 0;
+    int dir[4][4] = { {1,0,-1,0} ,{0,1,0,-1} };//列行
+    for (int i = 0; i &lt; len1 * len2; i++)
+    {
+        res[row][col] = i + 1;
+        row += dir[1][k % 4];
+        col += dir[0][k % 4];
+        switch (k % 4)
+        {
+            case 0:
+                if (col &gt; right)
+                {
+                    col = right;
+                    row++;
+                    right--;
+                    k++;//转向
+                }
+                break;
+            case 1:
+                if (row &gt; down)
+                {
+                    row = down;
+                    col--;
+                    down--;
+                    k++;
+                }
+                break;
+            case 2:
+                if (col &lt; left)
+                {
+                    col = left;
+                    row--;
+                    left++;
+                    k++;
+                }
+                break;
+            case 3:
+                if (row &lt; up)
+                {
+                    row = up;
+                    col++;
+                    up++;
+                    k++;
+                }
+                break;
+        }
+    }
+    return res;
+}
+</code></pre>
+<h2 id="073-矩阵置零"><a href="#073-矩阵置零" class="headerlink" title="073 矩阵置零"></a>073 矩阵置零</h2><p><strong>题目：</strong></p>
+<p>给定一个 <em>m</em> x <em>n</em> 的矩阵，如果一个元素为 0，则将其所在行和列的所有元素都设为 0。请使用<strong>原地</strong>算法<strong>。</strong></p>
+<pre><code>输入: 
+[
+  [0,1,2,0],
+  [3,4,5,2],
+  [1,3,1,5]
+]
+输出: 
+[
+  [0,0,0,0],
+  [0,4,5,0],
+  [0,3,1,0]
+]
+</code></pre><p><strong>解答：</strong></p>
+<p>为了能使空间为$O(1)$，我们就不能令设参数来记录哪些行列应该为0，解决办法是用边界来记录。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191224125238.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<pre><code class="lang-CPP">void setZeroes(vector&lt;vector&lt;int&gt;&gt;&amp; matrix) {
+    bool row = false, col = false;
+    int m = matrix.size(), n = matrix[0].size();
+    for (int i = 0; i &lt; m; ++i) { if (matrix[i][0] == 0) col = true; }
+    for (int i = 0; i &lt; n; ++i) { if (matrix[0][i] == 0) row = true; }
+    for (int i = 1; i &lt; m; ++i)
+        for (int j = 1; j &lt; n; ++j)
+        {
+            if (matrix[i][j] == 0)
+                matrix[i][0] = 0, matrix[0][j] = 0;
+        }
+    for (int i = 1; i &lt; m; ++i)
+        for (int j = 1; j &lt; n; ++j)
+        {
+            if (matrix[i][0] == 0 || matrix[0][j] == 0)
+                matrix[i][j] = 0;
+        }
+    if (col)
+    {
+        for (int i = 0; i &lt; m; ++i) matrix[i][0] = 0;
+    }
+    if (row)
+    {
+        for (int i = 0; i &lt; n; ++i) matrix[0][i] = 0;
+    }
+}
+</code></pre>
+<h1 id="3-其他"><a href="#3-其他" class="headerlink" title="3. 其他"></a>3. 其他</h1><h2 id="56-合并区间"><a href="#56-合并区间" class="headerlink" title="56 合并区间"></a>56 合并区间</h2><p>给出一个区间的集合，请合并所有重叠的区间。</p>
+<pre><code>输入: [[1,3],[2,6],[8,10],[15,18]]
+输出: [[1,6],[8,10],[15,18]]
+解释: 区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) {
+    vector&lt;vector&lt;int&gt;&gt; res;
+    if(intervals.size()==0||intervals[0].size()==0) 
+        return res;
+    auto lambda = [](vector&lt;int&gt;&amp; vec1,vector&lt;int&gt;&amp; vec2) {
+        return vec1[0] &lt; vec2[0];
+    };
+    sort(intervals.begin(), intervals.end(), lambda);
+    res.push_back(intervals[0]);
+    for(int i=1;i&lt;intervals.size();++i){
+        if(res.back()[1]&gt;=intervals[i][0]){
+            res.back()[1]=max(res.back()[1],intervals[i][1]);
+        }else{
+            res.push_back(intervals[i]);
+        }
+    }
+    return res;
+}
+</code></pre>
+<h2 id="59-螺旋矩阵II"><a href="#59-螺旋矩阵II" class="headerlink" title="59 螺旋矩阵II"></a>59 螺旋矩阵II</h2><p>给定一个正整数 <em>n</em>，生成一个包含 1 到 <em>n</em>2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。</p>
+<pre><code>输入: 3
+输出:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+</code></pre><p><strong>解答：</strong></p>
+<pre><code class="lang-CPP">vector&lt;vector&lt;int&gt;&gt; generateMatrix(int n) {
+    if(n==0) return {{}};
+    vector&lt;vector&lt;int&gt; &gt; res(n,vector&lt;int&gt;(n,0));
+    int down=0,up=n-1,left=0,right=n-1;
+    int itm=1;
+    while(left&lt;=right &amp;&amp; down&lt;=up){
+        for(int i=left;i&lt;=right;i++) res[down][i]=itm++;
+        for(int i=down+1;i&lt;=up;i++) res[i][right]=itm++;
+        for(int i=right-1;i&gt;=left;i--) res[up][i]=itm++;
+        for(int i=up-1;i&gt;=down+1;i--) res[i][left]=itm++;
+        down++;
+        up--;
+        left++;
+        right--;
+    }
+    return res;
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" target="_blank" rel="external">jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&title=《Leetcode题目总结11-其他》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&title=《Leetcode题目总结11-其他》 — JR's Blog&source=有些题目不好分类就放到其他里面了。主要包含了树的构造和遍历、二维数组的一些内容。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结11-其他》 — JR's Blog&url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">鱼眼镜头模型</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/06/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9310-%E9%93%BE%E8%A1%A8/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Leetcode题目总结10-链表</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&title=《Leetcode题目总结11-其他》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&title=《Leetcode题目总结11-其他》 — JR's Blog&source=有些题目不好分类就放到其他里面了。主要包含了树的构造和遍历、二维数组的一些内容。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Leetcode题目总结11-其他》 — JR's Blog&url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

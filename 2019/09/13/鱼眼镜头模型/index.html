@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>鱼眼镜头模型 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="图像处理,计算机视觉">
+    <meta name="description" content="详细讲解鱼眼镜头的成像原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="鱼眼镜头模型">
+<meta property="og:url" content="jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="详细讲解鱼眼镜头的成像原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163056.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163408.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163717.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163920.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164144.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164458.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164523.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164629.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164825.png">
+<meta property="article:published_time" content="2019-09-13T07:31:27.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:48:38.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="图像处理">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163056.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">鱼眼镜头模型</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">鱼眼镜头模型</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-13T07:31:27.000Z" itemprop="datePublished" class="page-time">
+  2019-09-13
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-鱼眼镜头原理"><span class="post-toc-text">1. 鱼眼镜头原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-鱼眼镜头模型"><span class="post-toc-text">2. 鱼眼镜头模型</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-Opencv中的鱼眼相机模型"><span class="post-toc-text">3. Opencv中的鱼眼相机模型</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-鱼眼镜头模型"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">鱼眼镜头模型</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-13 15:31:27" datetime="2019-09-13T07:31:27.000Z"  itemprop="datePublished">2019-09-13</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>详细讲解鱼眼镜头的成像原理。<a id="more"></a></p>
+<h1 id="1-鱼眼镜头原理"><a href="#1-鱼眼镜头原理" class="headerlink" title="1. 鱼眼镜头原理"></a>1. 鱼眼镜头原理</h1><p>常见的相机模型是小孔模型，但小孔模型的视场比较小，即使采用超广角镜头视场也大概只有150°，很难做到全覆盖。因此人们利用鱼眼的特性发明了鱼眼镜头，能够达到接近180°的视场。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163056.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如图所示，小孔模型对于180°视场，只能将一部分投影到平面上，剩余的一小部分被截去了。</p>
+<p>在自然界中，鱼眼能够通过水的折射，将光线压缩到一个锥形内</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163408.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>在这个锥形内部有一部分来自水面上方，有一部分来自水面下方，水面上方的所有景物都被压缩到了一个圈内，这就是<strong>斯涅耳窗口</strong></p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163717.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如果这样拍一张照片，就可以在一个合理的照片大小范围内，记录整个水面上的半球空间内的景象。有效的视角范围接近 180°，远远超过普通超广角镜头记录的范围。鱼眼镜头与这个场景类似，也是把很<strong>大角度范围内的光线进行「压缩」和「扭曲」</strong>，压进一个相对较小的空间内，从而可以被相机所记录下来。</p>
+<h1 id="2-鱼眼镜头模型"><a href="#2-鱼眼镜头模型" class="headerlink" title="2. 鱼眼镜头模型"></a>2. 鱼眼镜头模型</h1><p>鱼眼镜头由一系列复杂的透镜组成，前两个透镜负责大力折射光线，后面的镜头负责成像。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902163920.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>鱼眼相机成像时遵循的模型可以近似为单位球面投影模型。可以将鱼眼相机的成像过程分解成两步：</p>
+<ol>
+<li>三维空间点线性地投影到一个球面上，它是一个虚拟的单位球面，它的球心与相机坐标系的原点重合</li>
+<li>单位球面上的点投影到图像平面上，这个过程是非线性的</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164144.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>从球面投影到CCD平面的模型</strong>有很多种</p>
+<ul>
+<li><strong>等距投影</strong>  $r_d = f \theta$</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164458.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ul>
+<li><strong>等立体角投影</strong>  $r_d = 2fsin(\frac{\theta}{2})$</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164523.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ul>
+<li><strong> 正交投影</strong>  $r_d = fsin( \theta)$</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164629.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ul>
+<li><strong>体视投影</strong>  $r_d = 2ftan(\frac{\theta}{2})$</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190902164825.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h1 id="3-Opencv中的鱼眼相机模型"><a href="#3-Opencv中的鱼眼相机模型" class="headerlink" title="3. Opencv中的鱼眼相机模型"></a>3. Opencv中的鱼眼相机模型</h1><p>由于投影方式多种多样，我们可以对其采用近似方法将其统一。观察可以发现，$\sin,\tan$的泰勒展开都是<strong>奇次项形式</strong>，取前5项可得即：</p>
+<script type="math/tex; mode=display">
+r_d =f\theta _d \\\theta_d= k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9</script><p>从空间点到鱼眼图像上的点的变换过程可用式子表示为：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{array}{c}
+X_c \\
+Y_c \\
+Z_c
+\end{array}
+\right]=RX+t\\
+x_c = \frac{X_c}{Z_c},\ y_c=\frac{Y_c}{Z_c}\\
+r^2 = x^2_c + y^2_c\\
+\theta = arctan(r)\\
+\theta _d = k_0\theta + k_1 \theta^3 + k_2 \theta^5 + k_3 \theta^7 + k_4 \theta^9\\
+x_d=\frac{\theta_d}{r}x_c, \ y_d=\frac{\theta_d}{r}y_c\\
+u=f_xx_d+c_x, \ v=f_yy_d+c_y</script>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" target="_blank" rel="external">jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag">计算机视觉</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&title=《鱼眼镜头模型》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&title=《鱼眼镜头模型》 — JR's Blog&source=详细讲解鱼眼镜头的成像原理。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《鱼眼镜头模型》 — JR's Blog&url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/10/24/EffectiveModernCPP%E7%AC%94%E8%AE%B01-%E7%B1%BB%E5%9E%8B%E6%8E%A8%E6%96%AD/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">EffectiveModernCPP笔记1-类型推断</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/07/Leetcode%E9%A2%98%E7%9B%AE%E6%80%BB%E7%BB%9311-%E5%85%B6%E4%BB%96/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Leetcode题目总结11-其他</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&title=《鱼眼镜头模型》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&title=《鱼眼镜头模型》 — JR's Blog&source=详细讲解鱼眼镜头的成像原理。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《鱼眼镜头模型》 — JR's Blog&url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/09/13/%E9%B1%BC%E7%9C%BC%E9%95%9C%E5%A4%B4%E6%A8%A1%E5%9E%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

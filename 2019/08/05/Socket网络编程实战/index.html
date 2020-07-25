@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>Socket网络编程实战 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,TCP/IP协议,Socket">
+    <meta name="description" content="从实际的角度出发，讲解如何利用Socket进行网络编程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Socket网络编程实战">
+<meta property="og:url" content="jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="从实际的角度出发，讲解如何利用Socket进行网络编程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2019/07/1e40d870e0026c8d.png">
+<meta property="article:published_time" content="2019-08-05T05:44:35.000Z">
+<meta property="article:modified_time" content="2019-12-29T15:22:15.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="TCP&#x2F;IP协议">
+<meta property="article:tag" content="Socket">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.bmp.ovh/imgs/2019/07/1e40d870e0026c8d.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Socket网络编程实战</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Socket网络编程实战</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-05T05:44:35.000Z" itemprop="datePublished" class="page-time">
+  2019-08-05
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-基本流程"><span class="post-toc-text">1. 基本流程</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-关键API"><span class="post-toc-text">2. 关键API</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-WSAStartup"><span class="post-toc-text">2.1 WSAStartup( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-Socket"><span class="post-toc-text">2.2 Socket( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-Bind"><span class="post-toc-text">2.3 Bind( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-Listen-Connect"><span class="post-toc-text">2.4 Listen( ), Connect( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-5-accept"><span class="post-toc-text">2.5 accept( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-6-closesocket"><span class="post-toc-text">2.6 closesocket( )</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-7-recv-send"><span class="post-toc-text">2.7 recv&#x2F;send</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-8-sockaddr-in结构体"><span class="post-toc-text">2.8 sockaddr_in结构体</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-实例"><span class="post-toc-text">3. 实例</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-Server"><span class="post-toc-text">3.1 Server</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-Client"><span class="post-toc-text">3.2 Client</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Socket网络编程实战"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Socket网络编程实战</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-05 13:44:35" datetime="2019-08-05T05:44:35.000Z"  itemprop="datePublished">2019-08-05</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>从实际的角度出发，讲解如何利用Socket进行网络编程。<a id="more"></a></p>
+<h1 id="1-基本流程"><a href="#1-基本流程" class="headerlink" title="1. 基本流程"></a>1. 基本流程</h1><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://i.bmp.ovh/imgs/2019/07/1e40d870e0026c8d.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>服务器端可以分为3个过程：</p>
+<ul>
+<li>初始化：初始化DLL，创建套接字，绑定套接字端口号IP地址</li>
+<li>工作：监听客户端，接受连接，收发数据</li>
+<li>结束：关闭套接字，终止DLL的使用</li>
+</ul>
+<p>客户端也分为这3个过程</p>
+<ul>
+<li>初始化：DLL、套接字，但不用绑定</li>
+<li>工作：连接服务器，收发数据</li>
+<li>结束：关闭套接字，终止DLL的使用</li>
+</ul>
+<h1 id="2-关键API"><a href="#2-关键API" class="headerlink" title="2. 关键API"></a>2. 关键API</h1><p>以windows下的socket为例，讲解如何调用这些API</p>
+<h2 id="2-1-WSAStartup"><a href="#2-1-WSAStartup" class="headerlink" title="2.1 WSAStartup( )"></a>2.1 WSAStartup( )</h2><p>作用是添加链接库函数DLL，当某个程序调用<code>WSAStartup()</code>函数时，操作系统根据请求的Socket版本来搜索相应的库，然后将找到的库绑定到该应用程序中。成功返回0，失败返回错误代码。</p>
+<p><code>MAKEWORD(2, 1)</code>表示socket版本号。</p>
+<p>使用前需要加上：</p>
+<pre><code class="lang-CPP">#include &lt;WinSock2.h&gt;  
+#pragma comment(lib, &quot;ws2_32.lib&quot;)  //加载
+</code></pre>
+<p>一般用法是</p>
+<pre><code class="lang-CPP">WSADATA wsaData;
+int iResult = WSAStartup(MAKEWORD(2, 2), &amp;wsaData);
+if (iResult != 0) {
+    printf(&quot;WSAStartup failed: %d\n&quot;, iResult);
+    return 1;
+}
+</code></pre>
+<h2 id="2-2-Socket"><a href="#2-2-Socket" class="headerlink" title="2.2 Socket( )"></a>2.2 Socket( )</h2><p>类似于<code>fopen</code>，文件打开时，返回一个文件描述字，而<code>socket( )</code>用于创建一个socket描述符，相当于socket的名字。</p>
+<pre><code class="lang-CPP">int socket(int domain, int type, int protocol);
+</code></pre>
+<p>如果成功则返回描述符，失败返回-1。</p>
+<ul>
+<li>Domain：协议族，常用的有<code>AF_INET</code>和<code>AF_UNIX</code>。前者表示使用ipv4地址(32位)和端口号(16位)的组合，后者表示使用一个绝对路径。</li>
+<li>Type：指定socket的类型，常用的有<ol>
+<li><strong>SOCK_STREAM</strong>，流套接字，应用了传输控制协议TCP，保证数据无差错按数据收发</li>
+<li><strong>SOCK_DGRAM</strong>数据报套接字，应用UDP协议，不校验，可靠性差，会丢失，但速度快；</li>
+</ol>
+</li>
+<li>Protocol：指定协议，常用的有<strong>IPPROTO_TCP</strong>、<strong>IPPROTO_UDP</strong>，分别对应TCP/UDP</li>
+</ul>
+<h2 id="2-3-Bind"><a href="#2-3-Bind" class="headerlink" title="2.3 Bind( )"></a>2.3 Bind( )</h2><p>将套接字、地址、端口号绑定在一起</p>
+<pre><code class="lang-CPP">int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+</code></pre>
+<p>通常服务器在启动的时候需要绑定一个众所周知的地址(IP+端口号)，客户端以此来连接。而客户端则不需要指定，在<code>connect</code>时由系统随机生成一个。这就是为什么在服务器端，我们要在<code>listen</code>之前调用<code>bind</code>的原因。</p>
+<h2 id="2-4-Listen-Connect"><a href="#2-4-Listen-Connect" class="headerlink" title="2.4 Listen( ), Connect( )"></a>2.4 Listen( ), Connect( )</h2><p><code>listen</code>第一个是服务器的描述字，<code>backlog</code>是可以排队的最大连接个数。成功则返回0, 失败返回-1, 错误原因存于<code>errno</code> 中</p>
+<pre><code class="lang-c">int listen(int sockfd, int backlog);
+int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+</code></pre>
+<h2 id="2-5-accept"><a href="#2-5-accept" class="headerlink" title="2.5 accept( )"></a>2.5 accept( )</h2><p>提取出所监听套接字的等待连接队列中第一个连接请求，<strong>创建一个新的套接字，并返回指向该套接字的文件描述符</strong>。</p>
+<pre><code class="lang-CPP">SOCKET accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+CCopy
+</code></pre>
+<ul>
+<li><strong>sockfd</strong>, 利用系统调用socket()建立的套接字描述符，通过bind()绑定到一个本地地址(一般为服务器的套接字)，并且<strong>通过listen()一直在监听连接</strong>；</li>
+<li><strong>addr</strong>, 指向struct sockaddr的指针，该结构用通讯层服务器对等套接字的地址(一般为客户端地址)填写</li>
+<li><strong>addrlen</strong>, 一个值结果参数，调用函数必须初始化为包含addr所指向结构大小的数值</li>
+</ul>
+<p>通过这个函数我们能知晓：客户端的socket端口号，客户端地址。</p>
+<p>如果队列中没有等待的连接，套接字也没有被标记为Non-blocking，<code>accept()</code>会<strong>阻塞调用</strong>函数<strong>直到连接出现</strong>；如果套接字被标记为Non-blocking，队列中也没有等待的连接，<code>accept()</code>返回错误<strong>EAGAIN</strong></p>
+<h2 id="2-6-closesocket"><a href="#2-6-closesocket" class="headerlink" title="2.6 closesocket( )"></a>2.6 closesocket( )</h2><p>关闭socket，成功返回0，失败返回-1。</p>
+<pre><code class="lang-CPP">int closesocket(int sockfd);
+</code></pre>
+<p>注意：close操作只是使相应socket描述字的引用计数-1，<strong>只有当引用计数为0的时候，才会触发TCP客户端向服务器发送终止连接请求</strong>。</p>
+<h2 id="2-7-recv-send"><a href="#2-7-recv-send" class="headerlink" title="2.7 recv/send"></a>2.7 recv/send</h2><pre><code class="lang-CPP">int recv(int sockfd, const void *buf, size_t nbytes, int flags);
+int send(int sockfd, const void *buf, size_t nbytes, int flags);
+</code></pre>
+<ul>
+<li>buf：保存接收数据的缓冲地址值; </li>
+<li>nbytes：可接收最大字节数;</li>
+<li>flags：接收数据时指定的可选项信息。成功时返回发送的字节数，失败返回-1</li>
+</ul>
+<h2 id="2-8-sockaddr-in结构体"><a href="#2-8-sockaddr-in结构体" class="headerlink" title="2.8 sockaddr_in结构体"></a>2.8 sockaddr_in结构体</h2><p><code>sockaddr_in</code>系统封装的一个结构体，包含了:</p>
+<ul>
+<li>sin_family：定义地址族，AF和PF都一样，INET表示TCP/IP协议；</li>
+<li>sin_port：保存端口号； </li>
+<li>sin_addr：保存IP地址信息；</li>
+<li>sin_zero：无意义。</li>
+</ul>
+<pre><code class="lang-CPP">sockaddr_in sockAddr;
+memset(&amp;sockAddr, 0, sizeof(sockAddr));  //每个字节都用0填充  
+sockAddr.sin_family = PF_INET;  //使用IPv4地址  
+sockAddr.sin_addr.s_addr = inet_addr(&quot;127.0.0.1&quot;);  //回送IP地址 
+sockAddr.sin_port = htons(1234);  //端口
+</code></pre>
+<p>字节顺序包括<strong>NBO网络字节顺序</strong>和<strong>HBO主机字节顺序</strong>。NBO按从高到低的顺序存储，<strong>在网络上使用统一的网络字节顺序，可以避免兼容性问题</strong>。</p>
+<p>不同的机器HBO不相同，与CPU设计有关。比如Intelx86架构下，short型数0x1234表示为34 12，而IBM power PC结构下,short型数0x1234表示为12 34。</p>
+<p>为此我们需要进行转化：</p>
+<pre><code>htonl():host to network long
+ntohl():network to host long
+htons():host to network short
+htons():network to host short
+</code></pre><h1 id="3-实例"><a href="#3-实例" class="headerlink" title="3. 实例"></a>3. 实例</h1><p>使用方法：在Visual Studio中建立两个解决方案，分别放入Server和Client，运行后在DEBUG文件中得到exe文件，先运行Server.exe然后运行Client.exe即可。</p>
+<h2 id="3-1-Server"><a href="#3-1-Server" class="headerlink" title="3.1 Server"></a>3.1 Server</h2><pre><code class="lang-CPP">
+#define  _WINSOCK_DEPRECATED_NO_WARNINGS
+#include &lt;winsock2.h&gt; 
+#include&lt;iostream&gt;
+#include&lt;string&gt;
+#pragma comment (lib, &quot;ws2_32.lib&quot;)  //加载 ws2_32.dll  
+
+#define BUF_SIZE 10086
+using namespace std;  //直接用std好像会出现bug
+using std::cout;
+
+int main() {
+    //初始化dll
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &amp;wsaData);
+
+    //创建套接字  
+    SOCKET servSock = socket(AF_INET, SOCK_STREAM, 0);
+
+    //绑定套接字  
+    sockaddr_in sockAddr;
+    memset(&amp;sockAddr, 0, sizeof(sockAddr));  //每个字节都用0填充  
+    sockAddr.sin_family = PF_INET;  //使用IPv4地址  
+    sockAddr.sin_addr.s_addr = inet_addr(&quot;127.0.0.1&quot;);  //回送IP地址 
+    sockAddr.sin_port = htons(1234);  //端口  
+    bind(servSock, (SOCKADDR*)&amp;sockAddr, sizeof(SOCKADDR));
+
+    //进入监听状态  
+    listen(servSock, 20);
+
+    //接收客户端请求  
+    SOCKADDR clntAddr;
+    int nSize = sizeof(SOCKADDR);
+    char buffer[BUF_SIZE] = { 0 };  //缓冲区  
+    while (1) {
+        SOCKET clntSock = accept(servSock, (SOCKADDR*)&amp;clntAddr, &amp;nSize);
+        int strLen = recv(clntSock, buffer, BUF_SIZE, 0);  //接收客户端发来的数据  
+        cout &lt;&lt; &quot;收到的数据是：&quot; &lt;&lt; buffer&lt;&lt;endl;
+        send(clntSock, buffer, strLen, 0);  //将数据原样返回  
+
+        closesocket(clntSock);  //关闭套接字  
+        memset(buffer, 0, BUF_SIZE);  //重置缓冲区  
+    }
+    //关闭套接字  
+    closesocket(servSock);
+    //终止 DLL 的使用  
+    WSACleanup();
+    return 0;
+}
+</code></pre>
+<h2 id="3-2-Client"><a href="#3-2-Client" class="headerlink" title="3.2 Client"></a>3.2 Client</h2><pre><code class="lang-CPP">
+#define  _WINSOCK_DEPRECATED_NO_WARNINGS
+#include &lt;stdio.h&gt;  
+#include &lt;iostream&gt;
+#include &lt;stdlib.h&gt;  
+#include &lt;WinSock2.h&gt;  
+#pragma comment(lib, &quot;ws2_32.lib&quot;)  //加载 ws2_32.dll  
+#define BUF_SIZE 10086
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+int main() {
+    //初始化DLL  
+    WSADATA wsaData;
+    int iResult = WSAStartup(MAKEWORD(2, 2), &amp;wsaData);
+    if (iResult != 0) {
+        printf(&quot;WSAStartup failed: %d\n&quot;, iResult);
+        return 1;
+    }
+
+    //向服务器发起请求  
+    sockaddr_in sockAddr;
+    memset(&amp;sockAddr, 0, sizeof(sockAddr));  //每个字节都用0填充  
+    sockAddr.sin_family = PF_INET;
+    sockAddr.sin_addr.s_addr = inet_addr(&quot;127.0.0.1&quot;);        //回送地址
+    sockAddr.sin_port = htons(1234);
+
+    char bufSend[BUF_SIZE] = { 0 };
+    char bufRecv[BUF_SIZE] = { 0 };
+
+    while (1)
+    {
+        //创建套接字  
+        SOCKET sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        connect(sock, (SOCKADDR*)&amp;sockAddr, sizeof(SOCKADDR));
+        //获取用户输入的字符串并发送给服务器  
+        cout &lt;&lt; &quot;输入&quot;;
+        cin &gt;&gt; bufSend;
+        send(sock, bufSend, strlen(bufSend), 0);
+        //接收服务器传回的数据  
+        recv(sock, bufRecv, BUF_SIZE, 0);
+        //输出接收到的数据  
+        cout &lt;&lt; &quot;服务器传送回的数据为：&quot; &lt;&lt; bufRecv &lt;&lt; endl;
+        memset(bufSend, 0, BUF_SIZE);  //重置缓冲区  
+        memset(bufRecv, 0, BUF_SIZE);  //重置缓冲区  
+        closesocket(sock);  //关闭套接字
+
+    }
+    WSACleanup();  //终止使用 DLL  
+    return 1;
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" target="_blank" rel="external">jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Socket/" rel="tag">Socket</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TCP-IP%E5%8D%8F%E8%AE%AE/" rel="tag">TCP/IP协议</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&title=《Socket网络编程实战》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&title=《Socket网络编程实战》 — JR's Blog&source=从实际的角度出发，讲解如何利用Socket进行网络编程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Socket网络编程实战》 — JR's Blog&url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/07/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GDB使用方法</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/01/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Socket网络编程原理</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&title=《Socket网络编程实战》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&title=《Socket网络编程实战》 — JR's Blog&source=从实际的角度出发，讲解如何利用Socket进行网络编程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Socket网络编程实战》 — JR's Blog&url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/05/Socket%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

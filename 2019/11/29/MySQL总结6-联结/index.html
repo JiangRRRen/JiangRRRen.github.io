@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>MySQL总结6-联结 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="读书笔记,数据库,MySQL">
+    <meta name="description" content="联结查询。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL总结6-联结">
+<meta property="og:url" content="jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="联结查询。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230112717.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230114711.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230114859.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230115302.png">
+<meta property="article:published_time" content="2019-11-29T05:57:41.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:44:24.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230112717.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL总结6-联结</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL总结6-联结</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-11-29T05:57:41.000Z" itemprop="datePublished" class="page-time">
+  2019-11-29
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-联结的基本用法"><span class="post-toc-text">1. 联结的基本用法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-关系表"><span class="post-toc-text">1.1 关系表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-创建联结"><span class="post-toc-text">1.2 创建联结</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-联结的高级用法"><span class="post-toc-text">2. 联结的高级用法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-使用别名"><span class="post-toc-text">2.1 使用别名</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-不同类型的联结"><span class="post-toc-text">2.2 不同类型的联结</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-MySQL总结6-联结"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL总结6-联结</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-11-29 13:57:41" datetime="2019-11-29T05:57:41.000Z"  itemprop="datePublished">2019-11-29</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>联结查询。<a id="more"></a></p>
+<h1 id="1-联结的基本用法"><a href="#1-联结的基本用法" class="headerlink" title="1. 联结的基本用法"></a>1. 联结的基本用法</h1><h2 id="1-1-关系表"><a href="#1-1-关系表" class="headerlink" title="1.1 关系表"></a>1.1 关系表</h2><p>举个例子，我们建立两个表分别对应供应商vendors，和商品信息products。在供应商表中，以<strong>供应商的ID作为主键</strong>，商品表中<strong>以商品ID作为主键</strong>。</p>
+<p>显然这两者是有联系的，所以我们把vendors表的主键叫做<strong>外键</strong>，最后<strong>形成关系表</strong>。</p>
+<p>如果数据存储在多个表中，需要依靠<strong>联结</strong>来实现用单条SELECT语句检索出数据。联结可以<strong>从多个表返回一组输出</strong>。</p>
+<h2 id="1-2-创建联结"><a href="#1-2-创建联结" class="headerlink" title="1.2 创建联结"></a>1.2 创建联结</h2><p>前面其实已经有过介绍，这里强化一下。利用<code>WHERE vendors.vend_id=products.vend_id</code>即可构建联结关系。此外，FROM子句也和前面不一样，它<strong>选择了两个表</strong>。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_name, prod_name, prod_price
+    -&gt; FROM vendors,products
+    -&gt; WHERE vendors.vend_id = products.vend_id
+    -&gt; LIMIT 3;
++-------------+--------------+------------+
+| vend_name   | prod_name    | prod_price |
++-------------+--------------+------------+
+| Anvils R Us | .5 ton anvil |       5.99 |
+| Anvils R Us | 1 ton anvil  |       9.99 |
+| Anvils R Us | 2 ton anvil  |      14.99 |
++-------------+--------------+------------+
+3 rows in set (0.22 sec)
+</code></pre>
+<p>这种联结称为<strong>等值联结（equijoin）</strong>，它基于两个表之间的<strong>相等测试</strong>，这种联结也称为<strong>内部联结</strong>。</p>
+<p>如果要联结多个表需要用AND将联结关系组合起来。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_name, prod_name, prod_price, quantity
+    -&gt; FROM orderitems,products, vendors
+    -&gt; WHERE products.vend_id = vendors.vend_id
+    -&gt; AND orderitems.prod_id = products.prod_id
+    -&gt; AND order_num = 20005;
++-------------+----------------+------------+----------+
+| vend_name   | prod_name      | prod_price | quantity |
++-------------+----------------+------------+----------+
+| Anvils R Us | .5 ton anvil   |       5.99 |       10 |
+| Anvils R Us | 1 ton anvil    |       9.99 |        3 |
+| ACME        | TNT (5 sticks) |      10.00 |        5 |
+| ACME        | Bird seed      |      10.00 |        1 |
++-------------+----------------+------------+----------+
+4 rows in set (0.21 sec)
+</code></pre>
+<h1 id="2-联结的高级用法"><a href="#2-联结的高级用法" class="headerlink" title="2. 联结的高级用法"></a>2. 联结的高级用法</h1><h2 id="2-1-使用别名"><a href="#2-1-使用别名" class="headerlink" title="2.1 使用别名"></a>2.1 使用别名</h2><p>前面介绍了别名用作被检索的表列，这里别名用于联结表的简称。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_name, cust_contact
+    -&gt; FROM customers AS c, orders AS o, orderitems AS oi
+    -&gt; WHERE c.cust_id = o.cust_id
+    -&gt; AND oi.order_num = o.order_num;
++----------------+--------------+
+| cust_name      | cust_contact |
++----------------+--------------+
+| Coyote Inc.    | Y Lee        |
+| Wascals        | Jim Jones    |
+| Yosemite Place | Y Sam        |
+| E Fudd         | E Fudd       |
++----------------+--------------+
+11 rows in set (0.22 sec)
+</code></pre>
+<h2 id="2-2-不同类型的联结"><a href="#2-2-不同类型的联结" class="headerlink" title="2.2 不同类型的联结"></a>2.2 不同类型的联结</h2><p><strong>（1）自联结</strong></p>
+<p>举个例子，假如你发现某物品（其ID为DTNTR）存在问题，因此想知道负责生产的供应商的其他物品是否有问题。因此查询逻辑是：</p>
+<ol>
+<li>找到生产ID为DTNTR的物品的供应商</li>
+<li>找出这个供应商生产的其他物品。 </li>
+</ol>
+<p>前面我们提到了WHERE中的<strong>子查询</strong>可以解决这个办法</p>
+<pre><code class="lang-sql">mysql&gt; SELECT prod_id,prod_name
+    -&gt; FROM products
+    -&gt; WHERE vend_id = (
+    -&gt; SELECT vend_id FROM products
+    -&gt; WHERE prod_id = &#39;DTNTR&#39;);
++---------+----------------+
+| prod_id | prod_name      |
++---------+----------------+
+| DTNTR   | Detonator      |
+| FB      | Bird seed      |
+| FC      | Carrots        |
+| SAFE    | Safe           |
+| SLING   | Sling          |
+| TNT1    | TNT (1 stick)  |
+| TNT2    | TNT (5 sticks) |
++---------+----------------+
+7 rows in set (0.23 sec)
+</code></pre>
+<p>现在使用联结进行相同的查询：</p>
+<pre><code class="lang-sql">    -&gt; FROM products AS p1, products AS p2
+    -&gt; WHERE p1.vend_id = p2.vend_id
+    -&gt; AND p2.prod_id = &#39;DTNTR&#39;;
++---------+----------------+
+| prod_id | prod_name      |
++---------+----------------+
+| DTNTR   | Detonator      |
+| FB      | Bird seed      |
+| FC      | Carrots        |
+| SAFE    | Safe           |
+| SLING   | Sling          |
+| TNT1    | TNT (1 stick)  |
+| TNT2    | TNT (5 sticks) |
++---------+----------------+
+7 rows in set (0.23 sec)
+</code></pre>
+<p>Products表用了两次，这是允许的，这也是为什么被称作自联结的原因。但这个使用具有二义性，为MySQL不知道你引用的是products表中的哪个实例。</p>
+<p>这段代码的逻辑是：</p>
+<ol>
+<li>WHERE（通过匹配p1中 的vend_id和p2中的vend_id）首先联结两个表</li>
+<li>按第二个表中的 prod_id找到所需要的vend_id，返回所需的数据。 </li>
+</ol>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230112717.png" alt=""></p>
+<p><strong>（2）自联结</strong></p>
+<p>实现联结的必要条件是：<strong>至少有一个列出现在不止一个表中</strong>。在标准联结中，会返回所有数据，甚至相同的列会出现很多次，自然联结就是要<strong>排除多次出现</strong>。</p>
+<p>这一 般是通过对表使用通配符（SELECT *），你只能选择那些唯一的列，然后对其他需要明确的列写出来。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT c.*,o.order_num,o.order_date,oi.prod_id,oi.item_price
+    -&gt; FROM customers AS c, orders AS o, orderitems AS oi
+    -&gt; WHERE c.cust_id = o.cust_id
+    -&gt; AND oi.order_num = o.order_num
+    -&gt; AND prod_id = &#39;FB&#39;;
+</code></pre>
+<p>上面这段程序的逻辑是：</p>
+<ol>
+<li><p>在orderitem中查到<code>prod_id=&#39;FB&#39;</code>，以此为依据知道了order_num</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230114711.png" alt=""></p>
+</li>
+<li><p>以order_num为依据在orders中查到了cust_id</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230114859.png" alt=""></p>
+</li>
+<li><p>在customer中找到这个cust_id。</p>
+</li>
+<li><p>将customer的所有信息连同上面提到的order_item等信息拼在一起，输出。由于cust_id10001下了两个订单，所以有两行。</p>
+</li>
+</ol>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191230115302.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>（3）外部联结</strong></p>
+<p>假设我们需要对每个客户下了多少订单进行计数，<strong>包括那些至今还没有下单的客户</strong>。由于没有下单所以order表中没有记录，缺乏关联性，所以需要外部联结。与内部联结关联两个表中的行不同的是，<strong>外部联结还包括没有关联行的行</strong>。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT c.cust_id,o.order_num
+    -&gt; FROM customers AS c LEFT OUTER JOIN orders AS o
+    -&gt; ON c.cust_id=o.cust_id;
++---------+-----------+
+| cust_id | order_num |
++---------+-----------+
+|   10001 |     20005 |
+|   10001 |     20009 |
+|   10002 |      NULL |
+|   10003 |     20006 |
+|   10004 |     20007 |
+|   10005 |     20008 |
++---------+-----------+
+6 rows in set (1.82 sec)
+</code></pre>
+<p>这条SELECT语句使用了关键字<strong>OUTER JOIN</strong>来指定联结的类型（而<strong>不是在WHERE子句</strong>中指定）。在使用OUTER JOIN语法时，<strong>必须使用RIGHT或LEFT关键字指定包括其所有行的表</strong>（RIGHT指出的是OUTER JOIN右边的表，而LEFT 指出的是OUTER JOIN左边的表）。</p>
+<p>如果使用RIGHT，则保证所有order_num都会出现。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT c.cust_id,o.order_num
+    -&gt; FROM customers AS c RIGHT OUTER JOIN orders AS o
+    -&gt; ON c.cust_id=o.cust_id;
++---------+-----------+
+| cust_id | order_num |
++---------+-----------+
+|   10001 |     20005 |
+|   10001 |     20009 |
+|   10003 |     20006 |
+|   10004 |     20007 |
+|   10005 |     20008 |
++---------+-----------+
+5 rows in set (0.67 sec)
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" target="_blank" rel="external">jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&title=《MySQL总结6-联结》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&title=《MySQL总结6-联结》 — JR's Blog&source=联结查询。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结6-联结》 — JR's Blog&url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/11/30/MySQL%E6%80%BB%E7%BB%937-%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BF%AE%E6%94%B9/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL总结7-表的创建与修改</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL总结5-函数与计算</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&title=《MySQL总结6-联结》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&title=《MySQL总结6-联结》 — JR's Blog&source=联结查询。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结6-联结》 — JR's Blog&url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

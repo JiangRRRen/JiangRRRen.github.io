@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>数据结构面试题目汇总 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,面试经验">
+    <meta name="description" content="本篇针对的是问答题而不是编程题，所以大部分都是在文字叙述，外加少部分的编程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构面试题目汇总">
+<meta property="og:url" content="jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本篇针对的是问答题而不是编程题，所以大部分都是在文字叙述，外加少部分的编程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221103817.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221104030.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200302190509.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222105000.png">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/yehe-2899014/ief9fhcydr.gif">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/yehe-2899014/7kqfdyv4og.gif">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221131430.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221131933.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221132324.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221150141.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221150513.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221154928.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222114044.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20171220151228505?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbHlsNzcxODU3NTA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20171220153219983?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbHlsNzcxODU3NTA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222125649.png">
+<meta property="article:published_time" content="2020-02-22T05:56:25.000Z">
+<meta property="article:modified_time" content="2020-03-31T10:42:56.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="面试经验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221103817.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">数据结构面试题目汇总</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">数据结构面试题目汇总</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-02-22T05:56:25.000Z" itemprop="datePublished" class="page-time">
+  2020-02-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-树"><span class="post-toc-text">1. 树</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-区分完全二叉树、满二叉树、搜索二叉树"><span class="post-toc-text">1.1 区分完全二叉树、满二叉树、搜索二叉树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-什么是平衡二叉树-VAL树-？"><span class="post-toc-text">1.2 什么是平衡二叉树(VAL树)？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-什么是哈夫曼树？"><span class="post-toc-text">1.3 什么是哈夫曼树？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-什么是红黑树？"><span class="post-toc-text">1.4 什么是红黑树？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-5-什么是红黑树的左旋右旋？"><span class="post-toc-text">1.5 什么是红黑树的左旋右旋？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-6-红黑树相较于AVL树的优势是什么？"><span class="post-toc-text">1.6 红黑树相较于AVL树的优势是什么？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-7-红黑树和哈希表二者该如何选择？"><span class="post-toc-text">1.7 红黑树和哈希表二者该如何选择？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-8-红黑树在什么情况下可能发生红黑节点冲突？"><span class="post-toc-text">1.8 红黑树在什么情况下可能发生红黑节点冲突？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-9-map和unordered-map的底层实现有什么不同？"><span class="post-toc-text">1.9 map和unordered_map的底层实现有什么不同？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-10-什么是B-树"><span class="post-toc-text">1.10 什么是B-树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-11-什么是B-树"><span class="post-toc-text">1.11 什么是B+树</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-堆栈"><span class="post-toc-text">2. 堆栈</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-什么时候可能发生栈溢出"><span class="post-toc-text">2.1 什么时候可能发生栈溢出</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-堆和栈的区别"><span class="post-toc-text">2.2 堆和栈的区别</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-什么是小根堆和大根堆？"><span class="post-toc-text">2.3 什么是小根堆和大根堆？</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-排序"><span class="post-toc-text">3. 排序</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-选择排序"><span class="post-toc-text">3.1 选择排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-插入排序"><span class="post-toc-text">3.2 插入排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-3-希尔排序"><span class="post-toc-text">3.3 希尔排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-4-归并排序"><span class="post-toc-text">3.4 归并排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-5-快速排序"><span class="post-toc-text">3.5 快速排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-6-三项切分快速排序"><span class="post-toc-text">3.6 三项切分快速排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-7-堆排序"><span class="post-toc-text">3.7 堆排序</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-8-TopK问题"><span class="post-toc-text">3.8 TopK问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#4-哈希"><span class="post-toc-text">4. 哈希</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-1-什么是哈希表？"><span class="post-toc-text">4.1 什么是哈希表？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-2-哈希表的定址方法有哪些？"><span class="post-toc-text">4.2 哈希表的定址方法有哪些？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-3-哈希表解决冲突的办法有哪些？"><span class="post-toc-text">4.3 哈希表解决冲突的办法有哪些？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-4-为什么哈希表的桶的个数是质数"><span class="post-toc-text">4.4 为什么哈希表的桶的个数是质数</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-数据结构面试题目汇总"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">数据结构面试题目汇总</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-02-22 13:56:25" datetime="2020-02-22T05:56:25.000Z"  itemprop="datePublished">2020-02-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本篇针对的是问答题而不是编程题，所以大部分都是在文字叙述，外加少部分的编程。<a id="more"></a></p>
+<h1 id="1-树"><a href="#1-树" class="headerlink" title="1. 树"></a>1. 树</h1><h2 id="1-1-区分完全二叉树、满二叉树、搜索二叉树"><a href="#1-1-区分完全二叉树、满二叉树、搜索二叉树" class="headerlink" title="1.1 区分完全二叉树、满二叉树、搜索二叉树"></a>1.1 区分完全二叉树、满二叉树、搜索二叉树</h2><p>完全二叉树：假设树有N层，则第1到第N-1层都是满节点</p>
+<p>满二叉树：满足完全二叉树，但第N层没有任何节点</p>
+<p>二叉搜索树：任意节点的左子树不为空，则左子树的所有值均小于根节点；反之右子树大于根节点。</p>
+<h2 id="1-2-什么是平衡二叉树-VAL树-？"><a href="#1-2-什么是平衡二叉树-VAL树-？" class="headerlink" title="1.2 什么是平衡二叉树(VAL树)？"></a>1.2 什么是平衡二叉树(VAL树)？</h2><p>满足三个条件：</p>
+<ul>
+<li>是二叉搜索树</li>
+<li>左右子树深度之差不大于1</li>
+<li>左右子树分别都是平衡二叉树</li>
+</ul>
+<h2 id="1-3-什么是哈夫曼树？"><a href="#1-3-什么是哈夫曼树？" class="headerlink" title="1.3 什么是哈夫曼树？"></a>1.3 什么是哈夫曼树？</h2><p>给定N个权值作为N个<strong>叶子结点</strong>，构造一棵二叉树，<strong>若该树的带权路径长度达到最小</strong>，则称其为最优二叉树，也叫哈夫曼树。特征是<strong>权值较大的结点离根较近</strong>。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221103817.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>构建时，先对叶节点的权值排序，然后合并：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221104030.png"  style="zoom:45%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-4-什么是红黑树？"><a href="#1-4-什么是红黑树？" class="headerlink" title="1.4 什么是红黑树？"></a>1.4 什么是红黑树？</h2><p><strong>特性</strong>：自平衡</p>
+<p><strong>时间复杂度</strong>：普通二叉搜索树的时间复杂度为$O(\lg n)$到$O(n)$，而红黑树能保持在lgn。最极端的情况：最长子树是最短子树的两倍。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200302190509.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>五大原则</strong>：</p>
+<ol>
+<li>每个节点或者是黑色，或者是红色。</li>
+<li>根节点是黑色。</li>
+<li>每个叶子节点（NIL）是黑色。<strong> </strong>[注意：这里叶子节点，是指为空(NIL或NULL)的叶子节点！]**</li>
+<li>如果一个节点是红色的，则它的子节点必须是黑色的。</li>
+<li>从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑节点。</li>
+</ol>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222105000.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>维持自平衡的方法</strong>：左旋，右旋，变色</p>
+<h2 id="1-5-什么是红黑树的左旋右旋？"><a href="#1-5-什么是红黑树的左旋右旋？" class="headerlink" title="1.5 什么是红黑树的左旋右旋？"></a>1.5 什么是红黑树的左旋右旋？</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://ask.qcloudimg.com/http-save/yehe-2899014/ief9fhcydr.gif" alt="左旋动图" title="">
+                </div>
+                <div class="image-caption">左旋动图</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://ask.qcloudimg.com/http-save/yehe-2899014/7kqfdyv4og.gif" alt="右旋动图" title="">
+                </div>
+                <div class="image-caption">右旋动图</div>
+            </figure>
+<p>代码实现：</p>
+<ol>
+<li>节点左旋必须有右孩子，右旋必须有左孩子。</li>
+<li>如果N经过旋转变成了根节点，一定要记得将RBTree结构体中的根节点指针root指向N，这是容易出错的地方。</li>
+</ol>
+<pre><code class="lang-go">const (
+    // 左旋
+    LEFTROTATE bool = true
+    // 右旋
+    RIGHTROTATE bool = false
+)
+// rotate() true左旋/false右旋
+// 若有根节点变动则返回根节点
+func (rbnode *RBNode) rotate(isRotateLeft bool) (*RBNode, error) {
+    var root *RBNode
+    if rbnode == nil {
+        return root, nil
+    }
+    if !isRotateLeft &amp;&amp; rbnode.left == nil {
+        return root, errors.New(&quot;右旋左节点不能为空&quot;)
+    } else if isRotateLeft &amp;&amp; rbnode.right == nil {
+        return root, errors.New(&quot;左旋右节点不能为空&quot;)
+    }
+
+    parent := rbnode.parent
+    var isleft bool
+    if parent != nil {
+        isleft = parent.left == rbnode
+    }
+    if isRotateLeft {
+        grandson := rbnode.right.left
+        rbnode.right.left = rbnode
+        rbnode.parent = rbnode.right
+        rbnode.right = grandson
+    } else {
+        grandson := rbnode.left.right
+        rbnode.left.right = rbnode
+        rbnode.parent = rbnode.left
+        rbnode.left = grandson
+    }
+    // 判断是否换了根节点
+    if parent == nil {
+        rbnode.parent.parent = nil
+        root = rbnode.parent
+    } else {
+        if isleft {
+            parent.left = rbnode.parent
+        } else {
+            parent.right = rbnode.parent
+        }
+        rbnode.parent.parent = parent
+    }
+    return root, nil
+}
+</code></pre>
+<h2 id="1-6-红黑树相较于AVL树的优势是什么？"><a href="#1-6-红黑树相较于AVL树的优势是什么？" class="headerlink" title="1.6 红黑树相较于AVL树的优势是什么？"></a>1.6 红黑树相较于AVL树的优势是什么？</h2><p>AVL树是绝对平衡的二叉树，所有子树都<strong>必须满足深度之差为1</strong>的强条件，这会对插入删除带来较大的麻烦。而红黑树可以能<strong>确保树的最长路径不大于两倍的最短路径的长度</strong>(依然可以保证lgn)，虽然查找时性能没有AVL树那么好，但增添和删除更为便捷。</p>
+<h2 id="1-7-红黑树和哈希表二者该如何选择？"><a href="#1-7-红黑树和哈希表二者该如何选择？" class="headerlink" title="1.7 红黑树和哈希表二者该如何选择？"></a>1.7 红黑树和哈希表二者该如何选择？</h2><p>考虑三个方面：</p>
+<ul>
+<li><strong>内存</strong>：如果内存有限制，使用map能节约内存</li>
+<li><strong>数据量</strong>：如果数据量较小，使用map比较好。反之，数据量大，map的层数太多，用哈希表比较好。</li>
+<li><strong>扩展性</strong>：如果数据是静态的，哈希表会比较好。如果需要拓展，则红黑树比较好。</li>
+</ul>
+<h2 id="1-8-红黑树在什么情况下可能发生红黑节点冲突？"><a href="#1-8-红黑树在什么情况下可能发生红黑节点冲突？" class="headerlink" title="1.8 红黑树在什么情况下可能发生红黑节点冲突？"></a>1.8 红黑树在什么情况下可能发生红黑节点冲突？</h2><p>插入操作时，需要解决红红冲突，因为红黑树的一条性质是如果一个节点是红色的，那么其子节点都是黑色的。</p>
+<h2 id="1-9-map和unordered-map的底层实现有什么不同？"><a href="#1-9-map和unordered-map的底层实现有什么不同？" class="headerlink" title="1.9 map和unordered_map的底层实现有什么不同？"></a>1.9 map和unordered_map的底层实现有什么不同？</h2><p>map底层是基于红黑树实现的，因此map内部元素排列是有序的。而unordered_map底层则是基于哈希表实现的，因此其元素的排列顺序是杂乱无序的。</p>
+<h2 id="1-10-什么是B-树"><a href="#1-10-什么是B-树" class="headerlink" title="1.10 什么是B-树"></a>1.10 什么是B-树</h2><p>-是连接符，不读B减，是一种<strong>多路搜索树</strong>。所有的非终端结点中包含下列信息数据：<code>（n，A0，K1，A1，K2，A2，…，Kn，An）；</code></p>
+<p>n 表示结点中包含的关键字的个数，取值范围是：<code>⌈m/2⌉-1≤ n ≤m-1</code>。Ki （i 从 1 到 n）为关键字，且 Ki &lt; Ki+1 ；Ai 代表指向子树根结点的指针，且指针 Ai-1 所指的子树中所有结点的关键字都小于 Ki，An 所指子树中所有的结点的关键字都大于 Kn。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221131430.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>所示就是一棵 4 阶的 B-树，这棵树的深度为 4：</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221131933.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-11-什么是B-树"><a href="#1-11-什么是B-树" class="headerlink" title="1.11 什么是B+树"></a>1.11 什么是B+树</h2><p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221132324.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<ul>
+<li>B+树所有<strong>叶子节点的链表中包含了全部关键字的信息， 及指向含这些关键字记录的指针</strong></li>
+<li>叶子节点的链表是有序的</li>
+<li>非终端节点只是索引的一部分，<strong>节点中仅含有其子树（根节点）中的最大（或最小)关键字</strong></li>
+</ul>
+<h1 id="2-堆栈"><a href="#2-堆栈" class="headerlink" title="2. 堆栈"></a>2. 堆栈</h1><h2 id="2-1-什么时候可能发生栈溢出"><a href="#2-1-什么时候可能发生栈溢出" class="headerlink" title="2.1 什么时候可能发生栈溢出"></a>2.1 什么时候可能发生栈溢出</h2><ul>
+<li><strong>局部数组过大</strong>。解决办法：增大栈空间或者使用动态分配(堆空间)</li>
+<li><strong>递归调用层次太多</strong>。递归函数在运行时会执行压栈操作，当压栈次数太多时，也会导致堆栈溢出。</li>
+<li><strong>指针或者数组越界</strong>。</li>
+</ul>
+<h2 id="2-2-堆和栈的区别"><a href="#2-2-堆和栈的区别" class="headerlink" title="2.2 堆和栈的区别"></a>2.2 堆和栈的区别</h2><ul>
+<li><strong>地址方向</strong>：堆是由低地址向高地址扩展；栈是由高地址向低地址扩展</li>
+<li><strong>管理方式</strong>：堆中的内存需要手动申请和手动释放；栈中内存是由OS自动申请和自动释放</li>
+<li><strong>使用效率：</strong>堆中频繁调用malloc和free,会产生内存碎片，降低程序效率；而栈由系统分配，不会产生内存碎片</li>
+</ul>
+<h2 id="2-3-什么是小根堆和大根堆？"><a href="#2-3-什么是小根堆和大根堆？" class="headerlink" title="2.3 什么是小根堆和大根堆？"></a>2.3 什么是小根堆和大根堆？</h2><p>小根堆：</p>
+<ul>
+<li>若存在左子节点，则根节点的值小于左子节点</li>
+<li>若存在右子几点，则根节点的值小于左子节点</li>
+</ul>
+<p>大根堆，小于换成大于。</p>
+<h1 id="3-排序"><a href="#3-排序" class="headerlink" title="3. 排序"></a>3. 排序</h1><h2 id="3-1-选择排序"><a href="#3-1-选择排序" class="headerlink" title="3.1 选择排序"></a>3.1 选择排序</h2><p>选择一组数列中最小的一个放到前面去。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221150141.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code class="lang-go">func selectSort(b []int) []int {
+    n:=len(b)
+    a:=make([]int,n)
+    copy(a,b)
+
+    for i:=0;i&lt;n;i++{
+        min:=i
+        for j:=min+1;j&lt;n;j++{
+            if a[j]&lt;a[min]{
+                min=j
+            }
+        }
+        swap(a,i,min)
+    }
+    return a
+}
+</code></pre>
+<hr>
+<p>选择、插入、希尔都是N^2级别的排序，希尔的平均速度要快于前两种。</p>
+<h2 id="3-2-插入排序"><a href="#3-2-插入排序" class="headerlink" title="3.2 插入排序"></a>3.2 插入排序</h2><p>对于某数n来说，前n-1个数已经完成排序，则n要插入到其中正确的位置。编程时双循环，第一个循环表明确定序列的范围，第二个循环则是将n与n-1，n-2…相比较，确定位置（冒泡）</p>
+<pre><code class="lang-go">func insertSort(b []int)[]int{
+    n:=len(b) //切片传进来都是地址，要拷贝
+    a:=make([]int,n)
+    copy(a,b)
+    for i:=1;i&lt;n;i++{
+        for j:=i;j&gt;=1;j--{
+            if a[j-1]&gt;a[j]{ //注意这里的符号
+                swap(a,j-1,j)
+            }
+        }
+    }
+    return a
+}
+</code></pre>
+<pre><code class="lang-CPP">void inserSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int i = 1; i &lt; n; i++) {
+        for (int j = i; j &gt;= 1; j--) {
+            if (a[j - 1] &gt; a[j]) {
+                swap(a[j - 1], a[j]);
+            }
+        }
+    }
+}
+</code></pre>
+<h2 id="3-3-希尔排序"><a href="#3-3-希尔排序" class="headerlink" title="3.3 希尔排序"></a>3.3 希尔排序</h2><p>也就是分组插入排序，编程时三重循环，第一重是步长选择，初始值为length/2，每次迭代都除以2，直到为0；后面两重循环和插入排序一模一样，只不过把i替换为step；比如正常插入排序i=1，把1替换为step即可完成希尔排序。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221150513.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code class="lang-go">func shellSort(b []int)[]int{
+    n:=len(b)
+    a:=make([]int,n)
+    copy(a,b)
+    for step:=n/2;step&gt;=1;step=step/2{ //分组
+        for i:=step;i&lt;n;i++{ //在不同组内进行
+            for j:=i;j&gt;=step;j=j-step{
+                if a[j-step]&gt;a[j] {
+                    swap(a, j-step, j)
+                }
+            }
+        }
+    }
+    return a
+}
+</code></pre>
+<pre><code class="lang-CPP">void shellSort(vector&lt;int&gt;&amp; a) {
+    int n = a.size();
+    for (int len = n / 2; len &gt;= 1; len = len / 2) {
+        for (int i = len; i &lt; n; i++) {
+            for (int j = i; j &gt;= len; j--) {
+                if (a[j - len] &gt; a[j]) {
+                    swap(a[j - len], a[j]);
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<h2 id="3-4-归并排序"><a href="#3-4-归并排序" class="headerlink" title="3.4 归并排序"></a>3.4 归并排序</h2><p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200221154928.png"/></p>
+<pre><code class="lang-go">func mergeSort(b []int) []int{
+   n:=len(b)
+   a:=make([]int,n)
+   copy(a,b)
+    //在排序前，先建好临时数组，避免递归中频繁开辟空间
+   tmp:=make([]int,n)
+   sort(a,0,n-1,tmp)
+   return a
+}
+func sort(a []int,left int, right int, tmp []int){
+   if left&lt;right{
+      mid:=(left+right)/2
+      sort(a ,left,mid,tmp) //左半边归并
+      sort(a, mid+1,right,tmp) //右半边归并
+      merge(a,left,mid,right,tmp)
+   }
+}
+func merge(a []int,left,mid,right int,tmp []int){
+   i,j,t:=left,mid+1,0
+   for i&lt;=mid&amp;&amp;j&lt;=right { //融合的前提是左半边和右半边分别有序
+      if a[i]&lt;=a[j]{
+         tmp[t]=a[i];t++;i++
+      }else{
+         tmp[t]=a[j];t++;j++
+      }
+   }
+   //一边比完后，就把剩下的一边全放进去
+   for i&lt;=mid{
+      tmp[t]=a[i];t++;i++
+   }
+   for j&lt;=right{
+      tmp[t]=a[j];t++;j++
+   }
+   t=0
+   for left&lt;=right{//将排好的放回原数组
+      a[left]=tmp[t];left++;t++ //必须有left！！！！
+   }
+}
+</code></pre>
+<p>大O代表的算法法复杂度一样只是说明随着数据量的增加，<strong>算法时间代价增长的趋势相同</strong>。在公式里各个排序算法的前面都省略了一个c，这个c对于堆排序来说是100，可能对于快速排序来说就是10，但因为是常数级所以不影响大O。</p>
+<p><a href="https://blog.csdn.net/qq_39521554/article/details/79364718" target="_blank" rel="noopener">https://blog.csdn.net/qq_39521554/article/details/79364718</a></p>
+<pre><code class="lang-CPP">void merge(vector&lt;int&gt;&amp; a, int left, int right, int mid) {
+    vector&lt;int&gt; tmp(right - left+1,0);
+    int p1 = left, p2 = mid + 1, index = 0;
+    while (p1 &lt;= mid &amp;&amp; p2 &lt;= right) {
+        tmp[index++] = a[p1] &gt; a[p2] ? a[p2++] : a[p1++];
+    }
+    while (p1 &lt;= mid) {
+        tmp[index++] = a[p1++];
+    }
+    while (p2 &lt;= right) {
+        tmp[index++] = a[p2++];
+    }
+    for (int i = 0; i &lt; tmp.size(); i++) {
+        a[left + i] = tmp[i];
+    }
+}
+void cut(vector&lt;int&gt;&amp; a, int left, int right) {
+    if (left &lt; right) {
+        int mid = (left + right) / 2;
+        cut(a, left, mid);
+        cut(a, mid + 1, right);
+        merge(a, left, right, mid);
+    }
+}
+
+void mergeSort(vector&lt;int&gt;&amp; a) {
+    if (a.size() &lt; 2) return;
+    cut(a, 0, a.size() - 1);
+}
+</code></pre>
+<h2 id="3-5-快速排序"><a href="#3-5-快速排序" class="headerlink" title="3.5 快速排序"></a>3.5 快速排序</h2><p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222114044.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<pre><code class="lang-go">func quickSort(a []int,left,right int){
+    if left&lt;right{
+        i,j:=left,right
+        mid:=(left+right)/2
+        key:=a[(left+right)/2] //取中间作为pivot，效率更高
+        for i&lt;=j{ //调序，直到满足条件
+            for a[i]&lt;key{ //到key时一定会停
+                i++
+            }
+            for a[j]&gt;key{
+                j--
+            }
+            if i&lt;=j { //交换之前必须检查
+                a[i], a[j] = a[j], a[i]
+                i++;j--
+            }
+        }
+        if left&lt;mid-1{ //满足条件时，i一定大于j
+            quickSort(a,left,mid-1)
+        }
+        if right&gt;mid+1{
+            quickSort(a,mid+1,right)
+        }
+    }
+}
+</code></pre>
+<pre><code class="lang-CPP">void quickSort(vector&lt;int&gt;&amp; a, int left, int right) {
+    if (left &lt; right) {
+        int i = left, j = right;
+        int mid = (left + right) / 2;
+        int pivot = a[mid];
+        while (i &lt;= j) {
+            while (a[i] &lt; pivot) {
+                i++;
+            }
+            while (a[j] &gt; pivot) {
+                j--;
+            }
+            if (i &lt;= j) {
+                swap(a[i], a[j]);
+                i++, j--;
+            }
+        }
+        if (left &lt; mid - 1) {
+            quickSort(a, left, mid - 1);
+        }
+        if (right &gt; mid + 1) {
+            quickSort(a, mid + 1, right);
+        }
+    }
+}
+</code></pre>
+<h2 id="3-6-三项切分快速排序"><a href="#3-6-三项切分快速排序" class="headerlink" title="3.6 三项切分快速排序"></a>3.6 三项切分快速排序</h2><p>采用了三指针，<strong>两个放首尾，<code>index</code>放中间</strong>。要保证<code>index</code>以前的都是有序的，我们构建两个标志<code>zerotail</code>和<code>twohead</code>分别表示<strong>最后一个0的下一个和第一个2的前一个</strong>，比如<code>[0,1,1,2]</code>，<code>zerotail=1</code>，<code>twohead=2</code>。</p>
+<p>注意：当<code>nums[index] == 2</code>交换时，<code>index</code><strong>不能盲目前进</strong>，因为不知道被换过来的是1还是2，需要放到下一轮进行检验。（由于我们保证了index以前都是有序的，所以和0做交换是安全的）</p>
+<p>注意：去重时，必须要判断<code>twohead &gt;= 0</code>和<code>zerotail &lt; nums.size()</code>，不然会溢出。比如<code>[2]</code>，使得<code>twohead=-1</code>，下一次while就会导致<code>nums[twohead]</code>溢出。</p>
+<pre><code class="lang-Cpp">void sortColors(vector&lt;int&gt;&amp; nums) {
+    int zerotail = 0, twohead = nums.size() - 1;
+    while (zerotail &lt; nums.size() &amp;&amp; nums[zerotail] == 0) zerotail++;
+    while (twohead &gt;= 0 &amp;&amp; nums[twohead] == 2) twohead--;
+    int index = zerotail;
+    while (index &lt;= twohead)
+    {
+        if (nums[index] == 0)
+            std::swap(nums[zerotail++], nums[index++]);
+        else if (nums[index] == 2)
+            std::swap(nums[twohead--], nums[index]);
+        else
+            index++;
+    }
+}
+</code></pre>
+<h2 id="3-7-堆排序"><a href="#3-7-堆排序" class="headerlink" title="3.7 堆排序"></a>3.7 堆排序</h2><p>当堆中某个节点的编号为i时，如果这个节点有左右子树，那么左子树的节点编号为<code>2*i</code>,右子树的节点编号为<code>2*i+1</code></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://img-blog.csdn.net/20171220151228505?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbHlsNzcxODU3NTA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img" title="">
+                </div>
+                <div class="image-caption">img</div>
+            </figure>
+<p>先用<code>buildMaxHeap</code>将数组构建成最大堆（第i层总是比第i+1层大）。因为数组中最大元素总在根节点A[0]处，每次都取出最大值，然后放入res数组。同时维护被破坏的堆。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://img-blog.csdn.net/20171220153219983?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbHlsNzcxODU3NTA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img" title="">
+                </div>
+                <div class="image-caption">img</div>
+            </figure>
+<pre><code class="lang-CPP">int nsize;//因为每次移除根节点，size都会变小，所以需要全局变量掌控
+void maxHeap(vector&lt;int&gt;&amp; a, int n) {
+    int leftChild, rightChild, largest;
+    leftChild = 2 * n;
+    rightChild = 2 * n + 1;
+
+    if (leftChild &lt;= nsize &amp;&amp; a[leftChild - 1] &gt; a[n - 1]) {
+        largest = leftChild;
+    }
+    else {
+        largest = n;
+    }
+    if (rightChild &lt;= nsize &amp;&amp; a[rightChild - 1] &gt; a[largest - 1]) {
+        largest = rightChild;
+    }
+    if (largest != n) {
+        swap(a[n - 1], a[largest - 1]);
+        maxHeap(a, largest);
+    }
+}
+void buildHeap(vector&lt;int&gt;&amp; a, int n) {
+    int i = n / 2;
+    for (; i &gt; 0; i--) {
+        maxHeap(a, i);
+    }
+}
+void heapSort(vector&lt;int&gt;&amp; a, int n) {
+    nsize = n;
+    int i;
+    buildHeap(a, n);
+    vector&lt;int&gt; res;
+    for (i = nsize; i &gt; 0; i--)
+    {
+        res.push_back(a[0]);
+        a.erase(a.begin());
+        nsize=nsize-1;
+        maxHeap(a, 1);
+        for (auto x : res) {
+            cout &lt;&lt; x &lt;&lt; &quot;,&quot;;
+        }
+        cout &lt;&lt; endl;
+
+    }
+}
+</code></pre>
+<h2 id="3-8-TopK问题"><a href="#3-8-TopK问题" class="headerlink" title="3.8 TopK问题"></a>3.8 TopK问题</h2><p><strong>（1）分治法</strong></p>
+<pre><code class="lang-CPP">/*
+     * 基于快排Partition函数
+     * 时间复杂度O（n）空间复杂度O（1）需要改变输入
+     */
+vector&lt;int&gt; getTopK(vector&lt;int&gt; nums, int k){
+    if (nums.empty() || k &gt; nums.size() || k&lt;=0) return {};
+    vector&lt;int&gt; ret;
+    int begin = 0, end = nums.size()-1;
+    int idx = Partition(nums,begin,end);
+    while (idx != k-1){
+        if (idx &lt; k-1){
+            begin = idx + 1;
+            idx = Partition(nums,begin,end);
+        }else{
+            end = idx - 1;
+            idx = Partition(nums,begin,end);
+        }
+    }
+
+    for (int i = 0; i &lt; k; ++i) {
+        ret.push_back(nums[i]);
+    }
+    return ret;
+}
+
+// 返回索引值idx，idx前的元素均大于该处的元素值；idx后的元素均小于该处的元素值
+int Partition(vector&lt;int&gt; &amp;nums, int begin, int end){
+    if (begin &gt; end) return begin;
+    int key = nums[begin];    // 取最后一个值为基准值
+    while (begin &lt; end){
+        while (nums[end] &lt;= key &amp;&amp; begin &lt; end) --end;
+        nums[begin] = nums[end];
+        while (nums[begin] &gt; key &amp;&amp; begin &lt; end) ++ begin;
+        nums[end] = nums[begin];
+    }
+    nums[begin] = key;
+    return begin;
+}
+</code></pre>
+<p><strong>（2）堆排序</strong></p>
+<p>时间复杂度nlg(K)，比分治法n要慢，但是不需要修改输入数据，适用于海量数据。</p>
+<p><code>multiset&lt;T&gt;</code> 容器就像 <code>set&lt;T&gt;</code> 容器，但它可以保存重复的元素，默认用 <code>less&lt;T&gt;</code> 来比较元素，也可以<code>greater&lt;T&gt;</code></p>
+<pre><code class="lang-CPP">vector&lt;int&gt; getTopK(vector&lt;int&gt;&amp; nums, int k){
+    if (nums.empty() || k &gt; nums.size() || k&lt;1) return {};
+    vector&lt;int&gt; ret;
+    multiset&lt;int, less&lt;int&gt;&gt; m; // 最小堆，保存最大的K个数
+    for (int i = 0; i &lt; nums.size(); ++i) {
+        if(m.size()&lt;k){
+            m.insert(nums[i]);
+        } else{
+            it = m.begin();
+            // 如果当前值大于topK的最小元素（最小堆堆顶），替换该值
+            if (nums[i]&gt; *it){
+                m.erase(it);
+                m.insert(nums[i]);
+            }
+        }
+    }
+    for (auto x : m) {
+        ret.push_back(x);
+    }
+
+    return ret;
+}
+</code></pre>
+<h1 id="4-哈希"><a href="#4-哈希" class="headerlink" title="4. 哈希"></a>4. 哈希</h1><h2 id="4-1-什么是哈希表？"><a href="#4-1-什么是哈希表？" class="headerlink" title="4.1 什么是哈希表？"></a>4.1 什么是哈希表？</h2><p>又称散列表。通过<strong>键-值映射</strong>进行访问的表，<strong>把键映射到数组的某个下标</strong>来加快查找速度。</p>
+<h2 id="4-2-哈希表的定址方法有哪些？"><a href="#4-2-哈希表的定址方法有哪些？" class="headerlink" title="4.2 哈希表的定址方法有哪些？"></a>4.2 哈希表的定址方法有哪些？</h2><ul>
+<li>直接法：key=value+C,C是常量</li>
+<li>取余法：key=value%C</li>
+<li>折叠法：比如value=135790，将value变为13+57+90=160，再去除最高位，得到的60就是key。</li>
+</ul>
+<h2 id="4-3-哈希表解决冲突的办法有哪些？"><a href="#4-3-哈希表解决冲突的办法有哪些？" class="headerlink" title="4.3 哈希表解决冲突的办法有哪些？"></a>4.3 哈希表解决冲突的办法有哪些？</h2><ul>
+<li><p>线性探测：5421 是要插入数据的位置，若被占用就使用5422，以此类推</p>
+</li>
+<li><p>二次探测：防止聚集，线性探测是x+1,x+2，而二次探测就是x+1,x+4,x+9</p>
+</li>
+<li><p>再哈希法：消除原始聚集和二次聚集，把关键字用不同的哈希函数再做一遍哈希化，用这个结果作为<strong>步长</strong></p>
+</li>
+<li><p>链地址法：某个数据项的关键字值还是像通常一样映射到哈希表的单元，而数据项本身插入到这个单元的链表中。其中每一条链子都是一个<strong>桶</strong>。假设桶的个数为17，则将哈希值取17的模即可分配。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200222125649.png"  style="zoom:55%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+</li>
+</ul>
+<h2 id="4-4-为什么哈希表的桶的个数是质数"><a href="#4-4-为什么哈希表的桶的个数是质数" class="headerlink" title="4.4 为什么哈希表的桶的个数是质数"></a>4.4 为什么哈希表的桶的个数是质数</h2><p>取合数会导致某些位失效，比如如果桶的个数是<code>2^3=8</code>，那么第4位就会失效：</p>
+<pre><code>H( 11100 ) = H( 28 ) = 4
+H( 10100 ) = H( 20 ）= 4
+</code></pre>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" target="_blank" rel="external">jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E7%BB%8F%E9%AA%8C/" rel="tag">面试经验</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《数据结构面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《数据结构面试题目汇总》 — JR's Blog&source=本篇针对的是问答题而不是编程题，所以大部分都是在文字叙述，外加少部分的编程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《数据结构面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CPP面试题目汇总</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/02/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">数据库面试题目汇总</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《数据结构面试题目汇总》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&title=《数据结构面试题目汇总》 — JR's Blog&source=本篇针对的是问答题而不是编程题，所以大部分都是在文字叙述，外加少部分的编程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《数据结构面试题目汇总》 — JR's Blog&url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/02/22/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

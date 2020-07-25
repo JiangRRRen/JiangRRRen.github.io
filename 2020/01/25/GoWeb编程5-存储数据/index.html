@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>GoWeb编程5-存储数据 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go">
+    <meta name="description" content="本章介绍go中对数据如何进行持久化，说明如何才能将数据存储到内存、文件、关系数据库以及NoSQL数据库中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoWeb编程5-存储数据">
+<meta property="og:url" content="jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本章介绍go中对数据如何进行持久化，说明如何才能将数据存储到内存、文件、关系数据库以及NoSQL数据库中。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-25T07:41:29.000Z">
+<meta property="article:modified_time" content="2020-01-26T12:40:18.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">GoWeb编程5-存储数据</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">GoWeb编程5-存储数据</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-01-25T07:41:29.000Z" itemprop="datePublished" class="page-time">
+  2020-01-25
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-文件存储"><span class="post-toc-text">1. 文件存储</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-CSV文件"><span class="post-toc-text">1.1 CSV文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-gob包"><span class="post-toc-text">1.2 gob包</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-Go与SQL"><span class="post-toc-text">2. Go与SQL</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-连接数据库"><span class="post-toc-text">2.1 连接数据库</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-创建数据"><span class="post-toc-text">2.2 创建数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-查询数据"><span class="post-toc-text">2.3 查询数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-更新数据"><span class="post-toc-text">2.3 更新数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-删除数据"><span class="post-toc-text">2.4 删除数据</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-数据库关系"><span class="post-toc-text">3. 数据库关系</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-GoWeb编程5-存储数据"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">GoWeb编程5-存储数据</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-01-25 15:41:29" datetime="2020-01-25T07:41:29.000Z"  itemprop="datePublished">2020-01-25</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本章介绍go中对数据如何进行持久化，说明如何才能将数据存储到内存、文件、关系数据库以及<code>NoSQL</code>数据库中。<a id="more"></a></p>
+<p>Web应用通常会采取以下手段存储数据：</p>
+<ul>
+<li>在程序运行时，将数据存储到内存里面；</li>
+<li>将数据存储到文件系统的文件里面；</li>
+<li>通过服务器程序前端，将数据存储到数据库里面。</li>
+</ul>
+<h1 id="1-文件存储"><a href="#1-文件存储" class="headerlink" title="1. 文件存储"></a>1. 文件存储</h1><p>内存存储无法做到持久化，Go持久化有两种：<strong>CSV和gob包</strong>。</p>
+<h2 id="1-1-CSV文件"><a href="#1-1-CSV文件" class="headerlink" title="1.1 CSV文件"></a>1.1 CSV文件</h2><p>CSV，即comma separated value，<strong>逗号分隔值文本格式</strong>。</p>
+<p>当你需要用户提供大量数据，但是却因为某些原因而无法让用户把数据填入你提供的表单时，CSV格式就可以派上用场了：你只需要让用户<strong>使用电子表格程序（spreadsheet）输入所有数据，然后将这些数据导出为CSV文件，并将其上传到你的Web应用中</strong>，这样就可以在获得CSV文件之后，根据自己的需要对数据进行解码。同样地，你的Web应用也可以将用户的数据打包成CSV文件，然后通过向用户发送CSV文件来为他们提供数据。</p>
+<p>对Go语言来说，CSV文件可以通过<code>encoding/csv</code>包进行操作。</p>
+<p>下面展示如何写入CSV文件：</p>
+<ol>
+<li>创建一个名为<code>post.csv</code>的文件</li>
+<li>创建一个post切片，作为数据源</li>
+<li>使用<code>NewWriter</code>函数创建一个新的写入器<code>writer</code>，并把文件用作参数，将其传递给写入器</li>
+<li>利用写入器迭代地写入数据</li>
+<li>FLUSH刷新缓冲区</li>
+</ol>
+<pre><code class="lang-go">type post struct{
+    Id int
+    Content string
+    Author string
+}
+
+func main(){
+    csvFile,err:=os.Create(&quot;post.csv&quot;)
+    if err!=nil{
+        panic(err)
+    }
+    defer csvFile.Close()
+
+    allposts:=[]post{
+        post{Id:1,Content:&quot;hello&quot;,Author:&quot;Bob&quot;},
+        post{Id:2,Content:&quot;world&quot;,Author:&quot;Tom&quot;},
+    }
+
+    writer:=csv.NewWriter(csvFile)
+    for _,post:=range allposts{
+        line := []string{strconv.Itoa(post.Id),post.Content,post.Author}
+        err := writer.Write(line)
+        if err!=nil{
+            panic(err)
+        }
+    }
+    writer.Flush()
+}
+</code></pre>
+<p>下面展示如何读取CSV文件：</p>
+<pre><code class="lang-go">func main(){
+    file,err:=os.Open(&quot;post.csv&quot;)
+    if err != nil{
+        panic(err)
+    }
+    defer file.Close()
+
+    reader:=csv.NewReader(file)
+    reader.FieldsPerRecord = -1
+    record ,err :=reader.ReadAll()
+    if err != nil{
+        panic(err)
+    }
+    var posts []post
+    for _, item:= range record{
+        id, _ := strconv.ParseInt(item[0], 0, 0)
+        post := post{Id: int(id), Content: item[1], Author: item[2]}
+        posts = append(posts,post)
+    }
+    fmt.Println(posts[0].Id)
+    fmt.Println(posts[0].Content)
+    fmt.Println(posts[0].Author)
+}
+</code></pre>
+<h2 id="1-2-gob包"><a href="#1-2-gob包" class="headerlink" title="1.2 gob包"></a>1.2 gob包</h2><p><code>encoding/gob</code>包用于管理由<code>gob</code>组成的流（stream），这是一种<strong>在编码器（encoder）和解码器（decoder）之间进行交换的二进制数据</strong>，这种数据原本是为序列化以及数据传输而设计的，但它也可以用于对数据进行持久化。</p>
+<pre><code class="lang-go">func store(data interface{}, filename string) {//  ①    
+    buffer := new(bytes.Buffer)    
+    encoder := gob.NewEncoder(buffer)    
+    err := encoder.Encode(data)    
+    if err != nil {        
+        panic(err)    
+    }    
+    err = ioutil.WriteFile(filename, buffer.Bytes(), 0600)    
+    if err != nil {        
+        panic(err)    
+    }
+}
+</code></pre>
+<p>存储函数的第一个参数是空接口，而第二个参数则是被存储的二进制文件的名字。<strong>空接口参数能够接受任意类型的数据作为值。</strong></p>
+<ol>
+<li><code>store</code>函数会创建一个<code>bytes.Buffer</code>结构，这是是一个<strong>拥有<code>Read</code>方法和<code>Write</code>方法的可变长度（variable sized）字节缓冲区</strong>，既是<strong>读入器也是写入器</strong></li>
+<li>把缓冲区传递给<code>NewEncoder</code>函数，以此来创建出一个<code>gob</code>编码器。接着将数据编码到缓冲区里面。</li>
+<li>将缓冲区中已编码的数据写入文件。</li>
+</ol>
+<p>load方法正好相反：</p>
+<pre><code class="lang-go">func load(data interface{}, filename string) {// ②    
+    raw, err := ioutil.ReadFile(filename)    
+    if err != nil {        
+        panic(err)    
+    }    
+    buffer := bytes.NewBuffer(raw)    
+    dec := gob.NewDecoder(buffer)    
+    err = dec.Decode(data)    
+    if err != nil {        
+        panic(err)    
+    }
+}
+</code></pre>
+<ol>
+<li>从文件里面读取出未经处理的原始数据</li>
+<li>根据这些原始数据创建一个缓冲区，并藉此为原始数据提供相应的<code>Read</code>方法和<code>Write</code>方法</li>
+<li>调用<code>NewDecoder</code>函数，为缓冲区创建相应的解码器</li>
+<li>使用解码器去解码从文件中读取的原始数据，并最终得到之前写入的真正的数据。</li>
+</ol>
+<h1 id="2-Go与SQL"><a href="#2-Go与SQL" class="headerlink" title="2. Go与SQL"></a>2. Go与SQL</h1><p>以postgres数据库为例，讲解如何利用go对数据库操作。</p>
+<h2 id="2-1-连接数据库"><a href="#2-1-连接数据库" class="headerlink" title="2.1 连接数据库"></a>2.1 连接数据库</h2><p>首先需要创建数据库句柄，程序首先使用<code>Db</code>变量定义了一个指向<code>sql.DB</code>结构的指针，然后使用<code>init()</code>函数来初始化这个变量（Go语言的每个包都会自动调用定义在包内的<code>init()</code>函数）。</p>
+<pre><code class="lang-go">func init() {    
+    var err error    
+    Db, err = sql.Open(&quot;postgres&quot;, &quot;user=gwp dbname=gwp password=gwp sslmode=disable&quot;) 
+    if err != nil {        
+        panic(err)    
+    }
+}
+</code></pre>
+<p><code>sql.DB</code>结构是一个数据库句柄（handle），它代表的是一个包含了零个或任意多个数据库连接的连接池（pool），这个连接池由sql包管理。程序可以通过调用<code>Open</code>函数，<strong>并将相应的数据库驱动名字（driver name）以及数据源名字（data source name）传递给该函数来建立与数据库的连接。</strong></p>
+<p><code>Open</code>函数在执行时并不会真正地与数据库进行连接，真正作用是设置好连接数据库所需的各个结构，并以惰性的方式，等到真正需要时才建立相应的数据库连接。</p>
+<hr>
+<p>我们采用第三方程序注册数据库：</p>
+<pre><code class="lang-go">import (    
+    &quot;fmt&quot;    
+    &quot;database/sql&quot;    
+    _ &quot;github.com/lib/pq&quot;
+)
+</code></pre>
+<p><code>github.com/lib/pq</code>包就是程序导入的<code>Postgres</code>驱动，在导入这个包之后，包内定义的<code>init</code>函数就会被调用，并对其自身进行注册。因为<strong>Go语言没有提供任何官方数据库驱动，所以Go语言的所有数据库驱动都是第三方函数库，并且这些库必须遵守<code>sql.driver</code>包中定义的接口。</strong></p>
+<h2 id="2-2-创建数据"><a href="#2-2-创建数据" class="headerlink" title="2.2 创建数据"></a>2.2 创建数据</h2><p>代码如下：</p>
+<pre><code class="lang-go">func (post *Post) Create() (err error) {    
+    statement := &quot;insert into posts (content, author) values ($1, $2) returning id &quot;    
+    stmt, err := db.Prepare(statement)    
+    if err != nil {          
+        return    
+    }    
+    defer stmt.Close()    
+    err = stmt.QueryRow(post.Content, post.Author).Scan(&amp;post.Id)    
+    if err != nil {          
+        return    
+    }    
+    return
+}
+</code></pre>
+<p><code>func</code>和<code>Create</code>之间的括号表明了<code>Create</code>函数是<code>Post</code>结构的一个方法。</p>
+<p><strong>（1）定义一条SQL预处理语句</strong></p>
+<p>一条预处理语句（prepared statement）就是一个<code>SQL</code>语句模板，这种语句通常<strong>用于重复执行</strong>指定的<code>SQL</code>语句，<strong>用户在执行预处理语句时需要为语句中的参数提供实际值</strong>。</p>
+<p>在创建数据库记录的时候，<code>Create</code>函数就会使用实际值去替换以下语句中的<code>$1</code>和<code>$2</code>。</p>
+<p>创建完后，利用<code>sql.DB</code>结构的<code>Prepare</code>方法记性转化，创建一个指向<code>sql.Stmt</code>接口的引用。</p>
+<pre><code class="lang-go">stmt, err := db.Prepare(statement)
+</code></pre>
+<p>（<strong>2）执行预处理语句</strong></p>
+<p>调用预处理语句的<code>QueryRow</code>方法，并把来自接收者的数据传递给该方法，以此来执行预处理语句：</p>
+<pre><code class="lang-go">err = stmt.QueryRow(post.Content, post.Author).Scan(&amp;post.Id)
+</code></pre>
+<p>scan的目的是让数据库的Id和post原有的id同步。Scan可以把数据库取出的字段值赋值给指定的数据结构。它的参数是一个空接口的切片，这就意味着可以传入任何值。<strong>通常把需要赋值的目标变量的指针当成参数传入，它能将数据库取出的值赋值到指针值对象上</strong>。</p>
+<h2 id="2-3-查询数据"><a href="#2-3-查询数据" class="headerlink" title="2.3 查询数据"></a>2.3 查询数据</h2><p>代码如下：</p>
+<pre><code class="lang-go">func GetPost(id int) (post Post, err error) {    
+    post = Post{}    
+    err = Db.QueryRow(&quot;select id, content, author from posts where id = $1&quot;, id)
+        .Scan(&amp;post.Id, &amp;post.Content, &amp;post.Author)
+    return
+}
+</code></pre>
+<p>假设我们不需要重复使用查询语句，所以就不必邀使用stmt结构。程序通过串联<code>QueryRow</code>方法和<code>Scan</code>方法，<strong>将执行查询所得的数据复制到空的<code>Post</code>结构里面</strong>。</p>
+<p>调用方法如下：</p>
+<pre><code class="lang-go">readPost, _ := GetPost(1)
+</code></pre>
+<hr>
+<p>也可以一次性获取多个数据</p>
+<pre><code class="lang-go">func Posts(limit int) (posts []Post, err error) {    
+    rows, err := Db.Query(&quot;select id, content, author from posts limit $1&quot;, limit)    
+    if err != nil {        
+        return    
+    }    
+    for rows.Next() {        
+        post := Post{}        
+        err = rows.Scan(&amp;post.Id, &amp;post.Content, &amp;post.Author)        
+        if err != nil {            
+            return        
+        }        
+        posts = append(posts, post)    
+    }    
+    rows.Close()    
+    return
+}
+</code></pre>
+<p>来执行查询，这个方法会返回一个<code>Rows</code>接口。<code>Rows</code>接口是一个迭代器，程序可以通过重复调用它的<code>Next</code>方法来对其进行迭代并获得相应的<code>sql.Row</code>；当所有行都被迭代完毕时，<code>Next</code>方法将返回<code>io.EOF</code>作为结果。</p>
+<h2 id="2-3-更新数据"><a href="#2-3-更新数据" class="headerlink" title="2.3 更新数据"></a>2.3 更新数据</h2><p>代码如下：</p>
+<pre><code class="lang-go">func (post *Post) Update() (err error) {    
+    _, err = Db.Exec(&quot;update posts set content = $2, author = $3 where id = $1&quot;,
+            post.Id, post.Content, post.Author)    
+    return
+}
+</code></pre>
+<p>直接调用<code>sql.DB</code>结构的<code>Exec</code>方法，原因主要是不需要对对接收者进行任何更新，<strong>所以不需要使用SCAN扫描方法</strong>，才会选择使用速度更快的<code>Exec</code>方法来执行查询。</p>
+<p><code>Exec</code>方法会返回一个<code>sql.Result</code>和一个可能出现的错误，其中<code>sql.Result</code>记录的是受查询影响的行的数量以及可能会出现的最后插入<code>id</code>。因为更新操作对<code>sql.Result</code>记录的这两项信息都不感兴趣，所以程序会通过将<code>sql.Result</code>赋值给下划线<code>_</code>来忽略它。</p>
+<p>调用如下：</p>
+<pre><code class="lang-go">readPost.Content = &quot;Bonjour Monde!&quot;
+readPost.Author = &quot;Pierre&quot;
+readPost.Update()
+</code></pre>
+<h2 id="2-4-删除数据"><a href="#2-4-删除数据" class="headerlink" title="2.4 删除数据"></a>2.4 删除数据</h2><p>代码如下：</p>
+<pre><code class="lang-go">func (post *Post) Delete() (err error) {    
+    _, err = Db.Exec(&quot;delete from posts where id = $1&quot;, post.Id)    
+    return
+}
+</code></pre>
+<h1 id="3-数据库关系"><a href="#3-数据库关系" class="headerlink" title="3. 数据库关系"></a>3. 数据库关系</h1><p>关系型数据库很重要的一个特征是：它可以在表与表之间建立关系，从而使不同的数据能够以一种一致且易于理解的方式互相进行关联。</p>
+<p>按照如下的思路创建数据库表，就可以达到联结的效果：</p>
+<pre><code class="lang-sql">create table posts (  
+    id     serial primary key,  
+    content text,  
+    author  varchar(255)
+);
+
+create table comments (  
+    id     serial primary key,  
+    content text,  
+    author  varchar(255),  
+    post_id integer references posts(id)
+);
+</code></pre>
+<p><code>comments</code>表的大部分列都跟<code>posts</code>表一样，主要区别在于<code>comments</code>表多了一个额外的<code>post_id</code>列：这个<code>post_id</code>会作为外键（foreign key），对<code>posts</code>表的主键<code>id</code>进行引用。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" target="_blank" rel="external">jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&title=《GoWeb编程5-存储数据》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&title=《GoWeb编程5-存储数据》 — JR's Blog&source=本章介绍go中对数据如何进行持久化，说明如何才能将数据存储到内存、文件、关系数据库以及NoSQL数据库中。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程5-存储数据》 — JR's Blog&url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/01/26/GoWeb%E7%BC%96%E7%A8%8B6-%E6%90%AD%E5%BB%BAWeb%E6%9C%8D%E5%8A%A1/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb编程6-搭建Web服务</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B4-%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">GoWeb编程4-内容展示</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&title=《GoWeb编程5-存储数据》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&title=《GoWeb编程5-存储数据》 — JR's Blog&source=本章介绍go中对数据如何进行持久化，说明如何才能将数据存储到内存、文件、关系数据库以及NoSQL数据库中。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb编程5-存储数据》 — JR's Blog&url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/01/25/GoWeb%E7%BC%96%E7%A8%8B5-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

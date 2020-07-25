@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>MySQL总结5-函数与计算 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="读书笔记,数据库,MySQL">
+    <meta name="description" content="讲解计算字段和函数的使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL总结5-函数与计算">
+<meta property="og:url" content="jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="讲解计算字段和函数的使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229113529.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229114045.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229114959.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229124312.png">
+<meta property="article:published_time" content="2019-11-29T03:01:12.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:41:32.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229113529.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL总结5-函数与计算</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL总结5-函数与计算</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-11-29T03:01:12.000Z" itemprop="datePublished" class="page-time">
+  2019-11-29
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-创建计算字段"><span class="post-toc-text">1. 创建计算字段</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-计算字段"><span class="post-toc-text">1.1 计算字段</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-拼接字段"><span class="post-toc-text">1.2 拼接字段</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-算数计算"><span class="post-toc-text">1.3 算数计算</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-基本的数据处理函数"><span class="post-toc-text">2. 基本的数据处理函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-文本处理函数"><span class="post-toc-text">2.1 文本处理函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-日期和时间处理函数"><span class="post-toc-text">2.2 日期和时间处理函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-数值处理函数"><span class="post-toc-text">2.3 数值处理函数</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-数据汇总函数"><span class="post-toc-text">3. 数据汇总函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-1-聚集函数"><span class="post-toc-text">3.1 聚集函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-2-组合聚集"><span class="post-toc-text">3.2 组合聚集</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-MySQL总结5-函数与计算"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL总结5-函数与计算</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-11-29 11:01:12" datetime="2019-11-29T03:01:12.000Z"  itemprop="datePublished">2019-11-29</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>讲解计算字段和函数的使用。<a id="more"></a></p>
+<h1 id="1-创建计算字段"><a href="#1-创建计算字段" class="headerlink" title="1. 创建计算字段"></a>1. 创建计算字段</h1><h2 id="1-1-计算字段"><a href="#1-1-计算字段" class="headerlink" title="1.1 计算字段"></a>1.1 计算字段</h2><p>存储在数据库表中的数据一般不是应用程序所需要的格式。比如</p>
+<ul>
+<li>小区、户型和楼层存储在不同列中，而打印程序需要把它们作为一个恰当格式的字段检索出来。</li>
+<li>列数据是大小写混合的，程序需要将它们按大写打印。</li>
+<li>需要对某列的数据进行平均数计算。</li>
+</ul>
+<p>实质上，<strong>字段（field）</strong>基本上与<strong>列（column）</strong>的<strong>意思相同</strong>，不过数据库列一般称为列，而术语字段通常用在计算字段的连接上</p>
+<h2 id="1-2-拼接字段"><a href="#1-2-拼接字段" class="headerlink" title="1.2 拼接字段"></a>1.2 拼接字段</h2><p>举个例子：在Vendor表中，包含了制造商的名字和国家，但分属于不同的列，我们想把这两个信息拼接起来。所谓拼接(concatenate)<strong>将值联结到一起构成单个值</strong>。 </p>
+<p>MySQL使用 <code>Concat()</code>函数来拼接两个列，而其他DBMS使用<code>+</code>或<code>||</code>来实现，所以转换时要小心。</p>
+<pre><code class="lang-SQL">mysql&gt; SELECT Concat(vend_name,&#39;(&#39;,vend_country,&#39;)&#39;)
+    -&gt; FROM vendors;
++----------------------------------------+
+| Concat(vend_name,&#39;(&#39;,vend_country,&#39;)&#39;) |
++----------------------------------------+
+| Anvils R Us(USA)                       |
+| LT Supplies(USA)                       |
+| ACME(USA)                              |
+| Furball Inc.(USA)                      |
+| Jet Set(England)                       |
+| Jouets Et Ours(France)                 |
++----------------------------------------+
+6 rows in set (0.24 sec)
+</code></pre>
+<p>可以用<code>RTrim()</code>去掉右边的空格，<code>LTrim()</code>去掉左边的空格，<code>Trim()</code>去掉两边的空格。</p>
+<hr>
+<p>别名（alias）是一个字段或值的替换名，别名用<strong>AS关键字</strong>赋予。通过别名，客户机能够方便的引用它。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT Concat(vend_name,&#39;(&#39;,vend_country,&#39;)&#39;)
+    -&gt; AS vend_title
+    -&gt; FROM vendors;
++------------------------+
+| vend_title             |
++------------------------+
+| Anvils R Us(USA)       |
+| LT Supplies(USA)       |
+| ACME(USA)              |
+| Furball Inc.(USA)      |
+| Jet Set(England)       |
+| Jouets Et Ours(France) |
++------------------------+
+6 rows in set (0.54 sec)
+</code></pre>
+<h2 id="1-3-算数计算"><a href="#1-3-算数计算" class="headerlink" title="1.3 算数计算"></a>1.3 算数计算</h2><p>举个例子假设有一列表示数量，有一列表示单价，现在我要生成一列计算总价</p>
+<pre><code class="lang-sql">mysql&gt; SELECT prod_id,quantity,item_price,
+    -&gt; quantity*item_price AS expanded_price
+    -&gt; FROM orderitems
+    -&gt; WHERE order_num=20005;
++---------+----------+------------+----------------+
+| prod_id | quantity | item_price | expanded_price |
++---------+----------+------------+----------------+
+| ANV01   |       10 |       5.99 |          59.90 |
+| ANV02   |        3 |       9.99 |          29.97 |
+| TNT2    |        5 |      10.00 |          50.00 |
+| FB      |        1 |      10.00 |          10.00 |
++---------+----------+------------+----------------+
+4 rows in set (0.24 sec)
+</code></pre>
+<p>输出中显示的expanded_price列为一个计算字段，此计算为 <code>quantity*item_price</code>。客户机应用现在可以使用这个新计算 列，就像使用其他列一样。 </p>
+<h1 id="2-基本的数据处理函数"><a href="#2-基本的数据处理函数" class="headerlink" title="2. 基本的数据处理函数"></a>2. 基本的数据处理函数</h1><p>由于不同DBMS的函数不通用，所以在使用时必须做好注释，表明使用的目的。</p>
+<h2 id="2-1-文本处理函数"><a href="#2-1-文本处理函数" class="headerlink" title="2.1 文本处理函数"></a>2.1 文本处理函数</h2><p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229113529.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>比如，全部将其转化为大写：</p>
+<pre><code class="lang-sql">mysql&gt; SELECT vend_name,Upper(vend_name)
+    -&gt; FROM vendors;
++----------------+------------------+
+| vend_name      | Upper(vend_name) |
++----------------+------------------+
+| Anvils R Us    | ANVILS R US      |
+| LT Supplies    | LT SUPPLIES      |
+| ACME           | ACME             |
+| Furball Inc.   | FURBALL INC.     |
+| Jet Set        | JET SET          |
+| Jouets Et Ours | JOUETS ET OURS   |
++----------------+------------------+
+6 rows in set (0.26 sec)
+</code></pre>
+<p>其中，<code>Soundx()</code>是发音相似匹配，用于校正错误。</p>
+<h2 id="2-2-日期和时间处理函数"><a href="#2-2-日期和时间处理函数" class="headerlink" title="2.2 日期和时间处理函数"></a>2.2 日期和时间处理函数</h2><p>日期和时间采用相应的数据类型和特殊的格式存储，以便能快速和 有效地排序或过滤，并且节省物理存储空间。 需要注意<strong>日期必须为格式yyyy-mm-dd</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229114045.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>假设我们希望检索一个创建于2005-09-01的订单，但是在<code>order_Date</code>中存储的是2005-09-01 11:30:05，这样匹配就变得麻烦了，所以我们需要将年月日单独提取出来。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_id,order_num
+    -&gt; FROM orders
+    -&gt; WHERE Date(order_date)=&#39;2005-09-01&#39;;
++---------+-----------+
+| cust_id | order_num |
++---------+-----------+
+|   10001 |     20005 |
++---------+-----------+
+1 row in set (0.26 sec)
+</code></pre>
+<p>另一个例子：我们需要9月里所有的订单信息。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT cust_id,order_num,order_date
+    -&gt; FROM orders
+    -&gt; WHERE Year(order_date)=2005 AND Month(order_date)=9;
++---------+-----------+---------------------+
+| cust_id | order_num | order_date          |
++---------+-----------+---------------------+
+|   10001 |     20005 | 2005-09-01 00:00:00 |
+|   10003 |     20006 | 2005-09-12 00:00:00 |
+|   10004 |     20007 | 2005-09-30 00:00:00 |
++---------+-----------+---------------------+
+3 rows in set (0.24 sec)
+</code></pre>
+<h2 id="2-3-数值处理函数"><a href="#2-3-数值处理函数" class="headerlink" title="2.3 数值处理函数"></a>2.3 数值处理函数</h2><p>数一般主要用于代数、三角或几何运算</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229114959.png"  style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h1 id="3-数据汇总函数"><a href="#3-数据汇总函数" class="headerlink" title="3. 数据汇总函数"></a>3. 数据汇总函数</h1><h2 id="3-1-聚集函数"><a href="#3-1-聚集函数" class="headerlink" title="3.1 聚集函数"></a>3.1 聚集函数</h2><p>我们经常需要<strong>汇总数据而不用把它们实际检索出来</strong>，为此MySQL提供了专门的函数。常见的有以下几种：</p>
+<ul>
+<li>确定表中行数（或者满足特定情况的行数）</li>
+<li>计算表中行组的和</li>
+<li>找出某列的最值平均值。</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191229124312.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p><strong>（1）AVG函数</strong></p>
+<p><code>AVG()</code>可用来返回所有列的平均值，也可以用来返回特定列或行的平均值。 </p>
+<pre><code class="lang-sql">mysql&gt; SELECT AVG(prod_price) AS avg_price
+    -&gt; FROM products;
++-----------+
+| avg_price |
++-----------+
+| 16.133571 |
++-----------+
+1 row in set (0.24 sec)
+</code></pre>
+<p>当然也可以指定条件：</p>
+<pre><code class="lang-sql">mysql&gt; SELECT AVG(prod_price) AS avg_price
+    -&gt; FROM products;
++-----------+
+| avg_price |
++-----------+
+| 16.133571 |
++-----------+
+1 row in set (0.24 sec)
+</code></pre>
+<p><strong>（2）COUNT函数</strong> </p>
+<p><code>COUNT()</code>函数进行计数。可利用<code>COUNT()</code>确定表中行的数目或符合特 定条件的行的数目。 </p>
+<ul>
+<li>使用<code>COUNT(*)</code>对表中行的数目进行计数，不管表列中包含的是空 值（NULL）还是非空值。 </li>
+<li>使用<code>COUNT(column)</code>对特定列中具有值的行进行计数，忽略 NULL值</li>
+</ul>
+<p>下面的例子返回customers表中客户的总数： </p>
+<pre><code class="lang-sql">mysql&gt; SELECT COUNT(*) AS num_customers
+    -&gt; FROM customers;
++---------------+
+| num_customers |
++---------------+
+|             5 |
++---------------+
+1 row in set (0.24 sec)
+</code></pre>
+<p>下面的例子只对具有电子邮件地址的客户计数： </p>
+<pre><code class="lang-sql">mysql&gt; SELECT COUNT(cust_email) AS num_customers
+    -&gt; FROM customers;
++---------------+
+| num_customers |
++---------------+
+|             3 |
++---------------+
+1 row in set (0.24 sec)
+</code></pre>
+<p><strong>（3）MAX和MIN函数</strong></p>
+<p><code>MAX()</code>返回指定列中的最大值。<code>MAX()</code>要求指定列名，如下所示： </p>
+<pre><code class="lang-SQL">mysql&gt; SELECT MAX(prod_price) AS max_price
+    -&gt; FROM products;
++-----------+
+| max_price |
++-----------+
+|     55.00 |
++-----------+
+1 row in set (0.24 sec)
+</code></pre>
+<p><strong>（4）SUM函数</strong></p>
+<p><code>SUM()</code>用来返回指定列值的和（总计）。 </p>
+<p>下面举一个例子，orderitems表包含订单中实际的物品，每个物品 有相应的数量（quantity）。可如下检索所订购物品的总数： </p>
+<pre><code class="lang-sql">mysql&gt; SELECT SUM(quantity) AS items_ordered
+    -&gt; FROM orderitems
+    -&gt; WHERE order_num=20005;
++---------------+
+| items_ordered |
++---------------+
+|            19 |
++---------------+
+1 row in set (0.24 sec)
+</code></pre>
+<p><code>SUM()</code>也可以用来<strong>合计</strong>计算值。</p>
+<pre><code class="lang-sql">mysql&gt; SELECT SUM(quantity*item_price) AS items_ordered
+    -&gt; FROM orderitems
+    -&gt; WHERE order_num =20005;
++---------------+
+| items_ordered |
++---------------+
+|        149.87 |
++---------------+
+1 row in set (0.24 sec)
+</code></pre>
+<h2 id="3-2-组合聚集"><a href="#3-2-组合聚集" class="headerlink" title="3.2 组合聚集"></a>3.2 组合聚集</h2><p>实际上SELECT 语句可根据需要包含多个聚集函数。请看下面的例子： </p>
+<pre><code class="lang-SQL">mysql&gt; SELECT COUNT(*) AS num_items,
+    -&gt; MAX(prod_price) AS price_max,
+    -&gt; MIN(prod_price) AS price_min
+    -&gt; FROM products;
++-----------+-----------+-----------+
+| num_items | price_max | price_min |
++-----------+-----------+-----------+
+|        14 |     55.00 |      2.50 |
++-----------+-----------+-----------+
+1 row in set (0.24 sec)
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" target="_blank" rel="external">jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&title=《MySQL总结5-函数与计算》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&title=《MySQL总结5-函数与计算》 — JR's Blog&source=讲解计算字段和函数的使用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结5-函数与计算》 — JR's Blog&url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%936-%E8%81%94%E7%BB%93/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL总结6-联结</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/11/29/MySQL%E6%80%BB%E7%BB%934-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL总结4-正则表达式</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&title=《MySQL总结5-函数与计算》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&title=《MySQL总结5-函数与计算》 — JR's Blog&source=讲解计算字段和函数的使用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL总结5-函数与计算》 — JR's Blog&url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/11/29/MySQL%E6%80%BB%E7%BB%935-%E5%87%BD%E6%95%B0%E4%B8%8E%E8%AE%A1%E7%AE%97/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

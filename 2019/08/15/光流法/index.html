@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>光流法 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,图像处理,算法,计算机视觉">
+    <meta name="description" content="光流法是计算机视觉中非常重要的方法，本文介绍了光流法的基本原理和提高精度的进阶办法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="光流法">
+<meta property="og:url" content="jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="光流法是计算机视觉中非常重要的方法，本文介绍了光流法的基本原理和提高精度的进阶办法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218110333.png">
+<meta property="article:published_time" content="2019-08-15T05:22:52.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:23:35.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="图像处理">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218110333.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">光流法</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">光流法</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-15T05:22:52.000Z" itemprop="datePublished" class="page-time">
+  2019-08-15
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-光流法基本原理"><span class="post-toc-text">1. 光流法基本原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-金字塔光流法"><span class="post-toc-text">2. 金字塔光流法</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-光流法"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">光流法</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-15 13:22:52" datetime="2019-08-15T05:22:52.000Z"  itemprop="datePublished">2019-08-15</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">图像处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>光流法是计算机视觉中非常重要的方法，本文介绍了光流法的基本原理和提高精度的进阶办法。<a id="more"></a></p>
+<h1 id="1-光流法基本原理"><a href="#1-光流法基本原理" class="headerlink" title="1. 光流法基本原理"></a>1. 光流法基本原理</h1><p>光流是一种描述像素随时间在图像之间运动的方法，随着时间的流逝，同一个像素会在图像中运动,我们可以追踪他的运动。</p>
+<p>光流法应用的前提是<strong>灰度不变假设</strong>，也就是说$I(x_1,y_1,t_1)=I(x_2,y_2,t_2)$，虽然这是一个很苛刻的假设，但我们还是需要认为其在某些场景下具有合理性。</p>
+<p>假设在$t+dt$的时刻某个像素运动到了$(x+dx,y+dy)$，我们可以得到：</p>
+<script type="math/tex; mode=display">
+I(x,y,t) = I(x+dx, y+dy,t+dt)</script><p>如果对上式中右侧进行一阶泰勒展开：</p>
+<script type="math/tex; mode=display">
+I(x+dx,y+dy,t+dt) \approx I(x,y,t)+\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt</script><p>根据灰度不变假设可以得到：</p>
+<script type="math/tex; mode=display">
+\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt = 0.</script><p>两侧同时除以$dt$，可以得到：</p>
+<script type="math/tex; mode=display">
+\frac{\partial I}{\partial x}\frac{dx}{dt} + \frac{\partial I}{\partial y}\frac{dy}{dt} = -\frac{\partial I}{\partial t}</script><p>其中 $\frac{dx}{dt},\frac{dy}{dt}$ 为像素在$x,y$轴上的运动速度，将他们记为 $u,v$。同时 $\frac{\partial I }{\partial x},\frac{\partial I}{\partial y}$ 记为图像在$x,y$方向上的梯度，分别记为$I_x,I_y$，把图像灰度对于时间的变化量记为 $I_t$，上面的式子可以表示为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+I_x&I_y
+\end{bmatrix}
+\begin{bmatrix}
+u\\
+v
+\end{bmatrix} = - I_t</script><p>我们假设某个$W\times W$的窗口内的像素具有相同的运动，则：</p>
+<script type="math/tex; mode=display">
+A=\left[\begin{array}{c}{\left[I_{x}, I_{y}\right]_{1}} \\ {\vdots} \\ {\left[I_{x}, I_{y}\right]_{k}}\end{array}\right], b=\left[\begin{array}{c}{I_{t 1}} \\ {\vdots} \\ {I_{t k}}\end{array}\right]</script><p>简化后可得：</p>
+<script type="math/tex; mode=display">
+A\left[\begin{array}{l}{u} \\ {v}\end{array}\right]=-b</script><p>这是一个超定方程(方程个数大于未知数个数)，可以使用最小二乘法求解：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+u\\
+v
+\end{bmatrix}^* = -(A^TA)^{-1}A^Tb</script><blockquote>
+<p>超定方程组是指方程个数大于未知量个数的方程组，在方程$Ax=b$两边乘以$A^T$，所以该方程有唯一解且为原方程的最小二乘解：</p>
+<script type="math/tex; mode=display">
+\begin{equation} 
+\begin{split} 
+A^TAx=A^Tb 
+\end{split} 
+\\
+x=(A^TA)^{-1}A^Tb 
+\end{equation}</script></blockquote>
+<p>总结一下，光流法<strong>基于三个假设</strong>：</p>
+<ul>
+<li><strong>灰度不变</strong>，所以$I(x+dx,y+dy,t+dt) =I(x,y,t)$</li>
+<li><strong>小运动</strong>，所以我们可以取一阶泰勒展开</li>
+<li><strong>邻域内光流不变</strong>，所以我们可以取$W\times W$的小窗口</li>
+</ul>
+<h1 id="2-金字塔光流法"><a href="#2-金字塔光流法" class="headerlink" title="2. 金字塔光流法"></a>2. 金字塔光流法</h1><p>光流法重要前提是小运动，也就是说图像随时间变化缓慢，这样灰度才能求偏导，最理想的条件当然是相邻帧图片间隔1个像素。为了解决运动过快导致的误差较大问题，我们可以通过<strong>减少图像中物体的位移</strong>。</p>
+<p>缩小图像尺寸能有效减少位移，比如图像为400×400时，物体单位时间位移为[16,16]，那么当图像缩小为200×200时，位移变为[8,8]。缩小尺寸的办法可以使用<strong>金字塔分层</strong>。</p>
+<p>高斯金字塔的概念在SIFT特征检测中已经详细说明。通过高斯金字塔能形成<strong>组（Octave）和层（Level或Interval）</strong>。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191218110333.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>下面开始公式推导，假设$I,J$是两幅相邻运动图像。图像$I$的点$(x,y)$对应了图像$J$的点$(x+dx,y+dy)$，也就是说：</p>
+<script type="math/tex; mode=display">
+I(x,y)=J(x+dx,y+dy)</script><p>当然这之间肯定会存在误差，写出一片领域下的误差函数：</p>
+<script type="math/tex; mode=display">
+e=\sum_{x=u_{x}-\omega_{x}}^{u_{x}+\omega_{x}} \sum_{y=u_{y}-\omega_{y}}^{u_{y}+\omega_{y}}\left(I(x, y)-J\left(x+d_{x}, y+d_{y}\right)\right)^{2}</script><p>假设图像的尺寸每次缩放为原来的一半，共缩放了$Lm$组，第0组误差为$e(d)$，则每组的光流计算结果为为：</p>
+<script type="math/tex; mode=display">
+g(L)=\frac{g(0)}{2^L}</script><p>这并不是准确的结果，还得加上残差：</p>
+<script type="math/tex; mode=display">
+g(L)_{real}=g(L)+d(L)</script><p>反馈到第$L-1$层：</p>
+<script type="math/tex; mode=display">
+g(L-1)=2[g(L)+d(L)]</script><p>对于每一层，我们都希望光流的计算基于邻域内所有点匹配误差和最小化：</p>
+<script type="math/tex; mode=display">
+e(L)=\sum_{x=u_{x}^{L}-\omega_{x}}^{u_{x}^{L}+w_x} \sum_{y=u_{y}^{L}-\omega_{y}}^{u_{y}^{L}+\omega_{y}}\left(I^{L}(x, y)-J^{L}\left(x+g_{x}^{L}+d_{x}^{L}, y+g_{y}^{L}+d_{y}^{L}\right)\right)^{2}</script><p>具体算法是：</p>
+<ol>
+<li>利用最小二乘法计算最顶层的最小光流</li>
+<li>更新光流$v=2*v$，将光流方向传递到下一层，计算最小光流</li>
+<li>持续传递，直到传递到原图像输出</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" target="_blank" rel="external">jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag">计算机视觉</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&title=《光流法》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&title=《光流法》 — JR's Blog&source=光流法是计算机视觉中非常重要的方法，本文介绍了光流法的基本原理和提高精度的进阶办法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《光流法》 — JR's Blog&url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/15/ORB%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">ORB特征检测</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/14/%E8%87%AA%E9%80%82%E5%BA%94%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">自适应直方图均衡化</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&title=《光流法》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&title=《光流法》 — JR's Blog&source=光流法是计算机视觉中非常重要的方法，本文介绍了光流法的基本原理和提高精度的进阶办法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《光流法》 — JR's Blog&url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/15/%E5%85%89%E6%B5%81%E6%B3%95/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

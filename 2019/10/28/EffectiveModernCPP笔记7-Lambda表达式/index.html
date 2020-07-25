@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>EffectiveModernCPP笔记7-Lambda表达式 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,读书笔记">
+    <meta name="description" content="介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记7-Lambda表达式">
+<meta property="og:url" content="jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-10-28T05:27:58.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:06:31.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">EffectiveModernCPP笔记7-Lambda表达式</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">EffectiveModernCPP笔记7-Lambda表达式</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-10-28T05:27:58.000Z" itemprop="datePublished" class="page-time">
+  2019-10-28
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-31-Avoid-default-capture-modes"><span class="post-toc-text">Item 31:Avoid default capture modes.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-32-Use-init-capture-to-move-objects-into-closures"><span class="post-toc-text">Item 32:Use init capture to move objects into closures.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-33-Use-decltype-on-auto-amp-amp-parameters-to-std-forward-them"><span class="post-toc-text">Item 33:Use decltype on auto&amp;&amp; parameters to std::forward them.</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-EffectiveModernCPP笔记7-Lambda表达式"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">EffectiveModernCPP笔记7-Lambda表达式</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-10-28 13:27:58" datetime="2019-10-28T05:27:58.000Z"  itemprop="datePublished">2019-10-28</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。<a id="more"></a></p>
+<p>首先先澄清一些术语：</p>
+<ul>
+<li><p>lambda表达式就是一个表达式，如下面代码花括号部分</p>
+<pre><code class="lang-cpp">std::find_if(container.begin(), container.end(), 
+             { return 0 &lt; val &amp;&amp; val &lt; 10; });
+</code></pre>
+</li>
+<li><p>closure闭包是通过lambda表达式创建的对象，闭包持有被捕获的拷贝和引用。<strong>lambda通常用于一次使用的场景。但closure通常是可复制的</strong>，因此一个lambda表达式可能会对应着多个closure。</p>
+<pre><code class="lang-cpp">auto c1 = [x](int y) { return x * y &gt; 55; };
+auto c2 = c1;
+</code></pre>
+</li>
+<li><p>closure class闭包类是一个闭包的实现。编译器会为每个lambda表达式生成一个唯一的closure class，lambda表达式中的代码会成为这个类的成员函数的可执行代码。</p>
+</li>
+</ul>
+<h1 id="Item-31-Avoid-default-capture-modes"><a href="#Item-31-Avoid-default-capture-modes" class="headerlink" title="Item 31:Avoid default capture modes."></a>Item 31:Avoid default capture modes.</h1><p>先介绍一些基础知识。Lambda表达式的完整声明格式如下：</p>
+<pre><code class="lang-cpp">[capture list] (params list) mutable exception-&gt; return type { function body }
+</code></pre>
+<p>各项含义如下：</p>
+<ul>
+<li>capture list：捕获外部变量列表</li>
+<li>params list：形参列表</li>
+<li>mutable指示符：用来说用是否可以修改捕获的变量</li>
+<li>exception：异常设定</li>
+<li>return type：返回类型</li>
+<li>function body：函数体</li>
+</ul>
+<p>明确几个捕获类型：</p>
+<ul>
+<li><p>值捕获</p>
+<pre><code class="lang-cpp">int a = 123;
+auto f = [a] { cout &lt;&lt; a &lt;&lt; endl; };
+</code></pre>
+</li>
+<li><p>引用捕获</p>
+<pre><code class="lang-cpp">int a = 123;
+auto f = [&amp;a] { cout &lt;&lt; a &lt;&lt; endl; };
+</code></pre>
+</li>
+<li><p>隐式捕获</p>
+<p>隐式捕获有两种方式，分别是[=]和[&amp;]。[=]表示以值捕获的方式捕获外部变量，[&amp;]表示以引用捕获的方式捕获外部变量。可以让编译器根据函数体中的代码来推断需要捕获哪些变量。</p>
+</li>
+</ul>
+<p><strong>那么为什么要避免使用隐式捕获呢？</strong></p>
+<p>如果一个<strong>由lambda创建的闭包的生命期超过了局部变量或者形参的生命期，那么闭包的引用将会空悬。</strong></p>
+<pre><code class="lang-cpp">void addDivisorFilter()
+{
+    auto calc1 = computeSomeValue1();
+    auto calc2 = computeSomeValue2();
+
+    auto divisor = computeDivisor(calc1, calc2);
+
+    filters.emplace_back(
+      [&amp;](int value) { return value % divisor == 0; }   // 危险！对divisor的引用会空悬
+    );
+}
+</code></pre>
+<p>这代码有个定时炸弹。lambda引用了局部变量<code>divisor</code>， 但是局部变量的生命期在<code>addDivisorFilter</code>返回时终止，也就是在<code>filters.emplace_back</code>返回之后。<strong>由于<code>filters</code>容器不属于这个局部，</strong>我们采用的是引用的形式，当本体作为局部变量被销毁后，就会变为未定义行为。</p>
+<p>即使我们加上显示引用捕获<code>divisor</code>，会存在着同样的问题：</p>
+<pre><code class="lang-cpp">filters.emplace(
+  [&amp;divisor](int value)          // 危险！对divisor的引用依然会空悬
+  { return value % divisor == 0; }
+);
+</code></pre>
+<p>虽然依然存在问题，但我们可以从中看到lambda的活性依赖于<code>divisor</code>的生命期，显示地写出能够提醒我们要确保<code>divisor</code>的生命期至少和lambda闭包一样长。即使是我们知道一个closure只在<strong>当前作用域范围内使用</strong>（不同于上面的<code>filters</code>），不会传播出去，使用隐式捕获依然可能出现一些问题。</p>
+<pre><code class="lang-cpp">template &lt;typename C&gt;
+void workWithContainer(const C&amp; container) {
+    auto calc1 = computeSomeValue1();
+    auto calc2 = computeSomeValue2();
+    auto divisor = computeDivisor(calc1, calc2);
+
+    using ContElemT = typename C::value_type;
+    using std::begin;
+    using std::end;
+
+    if (std::all_of(
+        begin(container), end(container),
+        [&amp;](const ContElemT&amp; value) { return value % divisor == 0; })) {
+        ...
+    ) else {
+        ...
+    }
+}
+//c++14 auto can be used in params type
+if (std::all_of(
+    begin(container), end(container),
+    [&amp;](const auto&amp; value) { return value % divisor == 0; }))
+</code></pre>
+<p>这段代码本身没什么问题，但你没办法保证不会有人把这段代码拷贝到其它地方，没注意这里有个默认的引用捕获，结果出现孤悬引用。</p>
+<p>为了解决这个问题，人们提出了几种可能的解决方案：</p>
+<p><strong>（1）默认的值捕获</strong> 可行，但不能捕获指针</p>
+<pre><code class="lang-cpp">filters.emplace_back([=](int value) 
+                     { return value % divisor == 0; }
+</code></pre>
+<p><strong>（2）拷贝一份成员变量，再捕获</strong> 可行</p>
+<pre><code class="lang-cpp">class Widget {
+public:
+    ...
+    void addFilter() const;
+private:
+    int divisor;
+void Widget::addFilter() const {
+    auto divisorCopy = divisor;
+    filters.emplace_back([divisorCopy] (int value) 
+    {
+        return value % divisorCopy == 0;
+    });
+}
+};
+</code></pre>
+<p><strong>（3）初始化捕获</strong>作用于14</p>
+<pre><code class="lang-cpp">void Widget::addFilter() const {
+    filters.emplace_back(
+        [divisor = divisor] (int value) {
+            return value % divisor == 0;
+        }
+    );
+}
+</code></pre>
+<h1 id="Item-32-Use-init-capture-to-move-objects-into-closures"><a href="#Item-32-Use-init-capture-to-move-objects-into-closures" class="headerlink" title="Item 32:Use init capture to move objects into closures."></a>Item 32:Use init capture to move objects into closures.</h1><p>有时候我们想把一个对象移动到closure中，比如一个只能移动的对象（<code>std::unique_ptr</code>或<code>std::future</code>），或是移动的代价远小于复制的对象（比如大多数的STL容器），这个时候默认的引用捕获和值捕获都无法做到。C++14提供了一种方式，叫“<strong>初始化捕获</strong>”，能满足这一需求。C++11无法直接实现，但后面会介绍一种间接实现的方式。</p>
+<pre><code class="lang-cpp">class Widget;
+...
+auto pw = std::make_unique&lt;Widget&gt;();
+...                                     // confiture *pw
+auto func = [pw = std::move(pw)] { return pw-&gt;isValidated() &amp;&amp; pw-&gt;isArchived(); };
+</code></pre>
+<p><code>pw = std::move(pw)</code>中，<code>=</code>左边的是数据成员的名字，它的<strong>作用域就是这个closure</strong>；右边是它的初始化式，它的<strong>作用域就是closure所在的作用域</strong>。</p>
+<p>举个更简单的例子：</p>
+<pre><code class="lang-cpp">auto testNumber = 10;
+auto divisor = 3;
+
+auto pw = make_unique&lt;int&gt;(divisor);
+auto fun = [pw = std::move(pw)](auto&amp; divided){ return divided / *pw; };
+
+cout &lt;&lt; fun(testNumber) &lt;&lt; endl; // result is 3
+</code></pre>
+<p><strong>C++11实现</strong></p>
+<p>先介绍一下<code>std::bind</code>，上代码。</p>
+<pre><code class="lang-cpp">#include &lt;iostream&gt;  
+#include &lt;functional&gt;  
+using namespace std;  
+using namespace std::placeholders;  
+
+int main()  
+{  
+    auto fun = [](int *array, int n, int num){  
+        for (int i = 0; i &lt; n; i++)  
+        {  
+            if (array[i] &gt; num)  
+                cout &lt;&lt; array[i] &lt;&lt; ends;  
+        }  
+        cout &lt;&lt; endl;  
+    };  
+    int array[] = { 1, 3, 5, 7, 9 };  
+    //_1，_2 是占位符  
+    auto fun1 = bind(fun, _1, _2, 5);  
+    //等价于调用fun(array, sizeof(array) / sizeof(*array), 5);  
+    fun1(array, sizeof(array) / sizeof(*array));  
+    cin.get();  
+    return 0;  
+}
+</code></pre>
+<p><code>fun1</code>函数由闭包转化而来，bind就是用于这种捆绑转化，它通过占位符汲取了闭包的第一、二个参数，然后将第三个参数置为5。这样就形成了：</p>
+<pre><code class="lang-cpp">void fun(int* array,int n)
+{
+        for (int i = 0; i &lt; n; i++)  
+        {  
+            if (array[i] &gt; 5)  
+                cout &lt;&lt; array[i] &lt;&lt; ends;  
+        }  
+        cout &lt;&lt; endl;  
+};
+</code></pre>
+<p>在C++11中我们可以用bind+lambda实现14中的移动捕获</p>
+<pre><code class="lang-cpp">std::vector&lt;double&gt; data;
+...
+auto func = std::bind(
+    [](const std::vector&lt;double&gt;&amp; data) {...},
+    std::move(data)
+);
+</code></pre>
+<p>默认情况下closure class的<code>operator()</code>会被认为是const，因此我们在lambda中无法修改捕获的对象。这时我们可以给lambda添加上<code>mutable</code>标识符，令它可以修改捕获的对象：</p>
+<pre><code class="lang-cpp">auto func = std::bind(
+    [](std::vector&lt;double&gt;&amp; data) mutable {...},
+    std::move(data)
+);
+</code></pre>
+<h1 id="Item-33-Use-decltype-on-auto-amp-amp-parameters-to-std-forward-them"><a href="#Item-33-Use-decltype-on-auto-amp-amp-parameters-to-std-forward-them" class="headerlink" title="Item 33:Use decltype on auto&amp;&amp; parameters to std::forward them."></a>Item 33:Use decltype on auto&amp;&amp; parameters to std::forward them.</h1><p>C++14的一项引入注目的新功能就是泛型lambda，即lambda的参数可以用<code>auto</code>来修饰。</p>
+<p>它的实现很直接：closure class的<code>operator()</code>是个模板函数。给定下面的lambda：···</p>
+<pre><code class="lang-cpp">auto f = [](auto x) {return normalize(x);};
+
+// closure class
+class SomeClosureClass {
+public:
+    template &lt;typename T&gt;
+    auto operator()(T x) const {
+        return normalize(x);
+    }
+    ...
+};
+</code></pre>
+<p>上面的例子中，如果<code>normalize</code>处理左值参数和右值参数的方式上有区别，那么我们写的还不算对，应该用上完美转发。</p>
+<pre><code class="lang-cpp">auto f = [](auto&amp;&amp; x) 
+{ return normalize(std::forward&lt;???&gt;(x)); };
+</code></pre>
+<p>但问题是<code>std::forward</code>的实例化类型是什么。通常的完美转发我们能有一个模板参数<code>T</code>，但在泛型lambda中我们只有<code>auto</code>。closure class的模板函数中有这个<code>T</code>，但我们没办法用上它。<strong>用<code>decltype</code>可以解决这个问题！</strong></p>
+<p>我们在Item3学到过：通过<code>decltype</code>保证返回变量的本来类型这一特性，保证不丢失<code>CV</code>限制符，和引用等。</p>
+<pre><code class="lang-cpp">auto f = [](auto&amp;&amp; x) {
+    return normalize(std::forward&lt;decltype(x)&gt;(x));
+};
+</code></pre>
+<p>甚至还支持变量个数可变的泛型lambda：</p>
+<pre><code class="lang-cpp">auto f = [](auto&amp;&amp;... xs) {
+    return normalize(std::forward&lt;decltype(xs)&gt;(xs)...);
+};
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" target="_blank" rel="external">jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&title=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&title=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&source=介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/11/26/CPP%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%931-%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CPP多线程总结1-线程管理</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/10/27/EffectiveModernCPP%E7%AC%94%E8%AE%B06-%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E4%B8%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">EffectiveModernCPP笔记6-右值引用与移动语义</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&title=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&title=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&source=介绍Lambda表达式中的一些细节：避免隐式捕获、最好通过初始化（移动）进行捕获、如何处理右值。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记7-Lambda表达式》 — JR's Blog&url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/10/28/EffectiveModernCPP%E7%AC%94%E8%AE%B07-Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

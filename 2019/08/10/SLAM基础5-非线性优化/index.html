@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SLAM基础5-非线性优化 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,数学">
+    <meta name="description" content="SLAM系统保证精度的主要手段是优化，本文介绍了优化方程的构建过程和几种常见的非线性优化方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础5-非线性优化">
+<meta property="og:url" content="jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="SLAM系统保证精度的主要手段是优化，本文介绍了优化方程的构建过程和几种常见的非线性优化方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812101218.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809142904.png">
+<meta property="article:published_time" content="2019-08-10T11:42:22.000Z">
+<meta property="article:modified_time" content="2019-12-29T16:06:51.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="数学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812101218.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SLAM基础5-非线性优化</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SLAM基础5-非线性优化</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-10T11:42:22.000Z" itemprop="datePublished" class="page-time">
+  2019-08-10
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-状态估计问题"><span class="post-toc-text">1. 状态估计问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-最大似然概念"><span class="post-toc-text">1.1 最大似然概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-SLAM中的最大后验与最大似然"><span class="post-toc-text">1.2 SLAM中的最大后验与最大似然</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-最小二乘法的引出"><span class="post-toc-text">1.3 最小二乘法的引出</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-非线性最小二乘"><span class="post-toc-text">2.非线性最小二乘</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-一阶和二阶梯度法"><span class="post-toc-text">2.1 一阶和二阶梯度法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-高斯牛顿法-GN优化"><span class="post-toc-text">2.2 高斯牛顿法 GN优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-列文伯格-马夸尔特法-LM优化"><span class="post-toc-text">2.3 列文伯格-马夸尔特法 LM优化</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SLAM基础5-非线性优化"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SLAM基础5-非线性优化</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-10 19:42:22" datetime="2019-08-10T11:42:22.000Z"  itemprop="datePublished">2019-08-10</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>SLAM系统保证精度的主要手段是优化，本文介绍了优化方程的构建过程和几种常见的非线性优化方法。<a id="more"></a></p>
+<h1 id="1-状态估计问题"><a href="#1-状态估计问题" class="headerlink" title="1. 状态估计问题"></a>1. 状态估计问题</h1><h2 id="1-1-最大似然概念"><a href="#1-1-最大似然概念" class="headerlink" title="1.1 最大似然概念"></a>1.1 最大似然概念</h2><p>极大似然估计，通俗理解来说，就是利用<strong>已知的样本结果信息</strong>，反推最<strong>具有可能</strong>（最大概率）导致这些样本结果出现的<strong>模型参数值</strong>。</p>
+<p>对于函数$p(x|\theta)$输入有两个：$x$表示具体观测数据，$\theta$表示模型的参数。如果$\theta$是确定的，$x$是变量，这函数叫做概率函数(probability function)，他表述了<strong>在一个模型下，样本点$x$出现的概率是多少</strong>。</p>
+<p>反之，如果$x$是确定的，$\theta$是变量，这个函数叫做似然函数(likelihood function)，它描述了<strong>在不同的模型下，样本点$x$出现的概率是多少</strong>。</p>
+<p>举例说明：假如有一个罐子，里面有黑白两种颜色的球，数目多少不知，两种颜色的比例也不知。现在我们可以每次任意从已经摇匀的罐中拿一个球出来，记录球的颜色，然后把拿出来的球再放回罐中。假如在前面的一百次重复记录中，<strong>有七十次是白球</strong>，请问罐中白球所占的比例最有可能是多少？</p>
+<script type="math/tex; mode=display">
+P(x_1,x_2...,x_{100}|Model)
+=P(x_1|M)P(x_2|M)...P(x_{100}|M)
+=p^{70}(1-p)^{30}</script><p>要求这个式子的最大值，对他求导即可，得到的结果是：p=0.7时，结果最大，符合我们的日常逻辑认知。</p>
+<h2 id="1-2-SLAM中的最大后验与最大似然"><a href="#1-2-SLAM中的最大后验与最大似然" class="headerlink" title="1.2 SLAM中的最大后验与最大似然"></a>1.2 SLAM中的最大后验与最大似然</h2><p>对于SLAM经典模型，我们知道是由一个运动方程和一个观测方程构成，如下方程：</p>
+<script type="math/tex; mode=display">
+\left\{\begin{matrix} \mathit{x}_{k}=f(\mathit{x}_{k-1},\mathit{u}_{k})+\mathit{w}_{k} \\ {z}_{k,j}=f(\mathit{y}_{j},\mathit{x}_{k})+\mathit{v}_{k,j} \end{matrix}\right.</script><p>其中$\mathit{x}<em>{k}$为相机位姿，$u_k$为传感器采集到的数据；$z</em>{k,j}$为图像的像素位置，$y_j$为观测到的路标。</p>
+<p>在运动方程和观测方程中，假设<strong>假设噪声都满足于均值为0的高斯分布</strong>：</p>
+<script type="math/tex; mode=display">
+\mathit{w}_{k}\sim N(0,\mathit{R}_{k}),\mathit{v}_{k}\sim N(0,\mathit{Q}_{k,j})</script><p>因此这个问题变成了：<strong>我们希望通过带噪声的数据 z 和 u来推断位姿 x 和地图 y(以及他们的概率分布)</strong>，在已知传感器采集数据u和图像数据z的情况下，x的条件概率为：</p>
+<script type="math/tex; mode=display">
+P(x|z,u)</script><p>如果没有传感器采集数据，只有一张张图片时，就变成了：</p>
+<script type="math/tex; mode=display">
+P(x|z)=\frac{P(z|x)P(x)}{P(z)}\propto P(z|x)P(x)</script><p>其中$P(x|z)$为后验概率，$P(z|x)$为似然，$P(x)$为先验概率。直接求后验概率比较困难，我们可以先求出一个最有可能的模型（$P(z|x)$最大），与先验概率相结合，就可以求出在这个模型下，以后x的可能结果。即：<strong>最大后验概率=最大似然×先验概率</strong>。</p>
+<p>当不知道机器人在哪里时，我们缺乏先验概率，因此需要直接求解最大似然估计(MLE)：</p>
+<script type="math/tex; mode=display">
+x^{*}_{MLE}=\mathrm{arg} max P(z|x)</script><p>其中$argmax F(x)$返回的是函数F取得最大时的$x$</p>
+<h2 id="1-3-最小二乘法的引出"><a href="#1-3-最小二乘法的引出" class="headerlink" title="1.3 最小二乘法的引出"></a>1.3 最小二乘法的引出</h2><p>多变量的高维高斯分布$x\sim N(u,\Sigma)$它的概率密度函数展开形式为：</p>
+<script type="math/tex; mode=display">
+P(\boldsymbol{x})=\frac{1}{\sqrt{(2 \pi)^{N} \operatorname{det}(\boldsymbol{\Sigma})}} \exp \left(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^{T} \boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\right)</script><p>取负对数可知：</p>
+<script type="math/tex; mode=display">
+-\ln (P(x))=\frac{1}{2} \ln \left((2 \pi)^{N} \operatorname{det}(\Sigma)\right)+\frac{1}{2}(x-\mu)^{T} \Sigma^{-1}(x-\mu)</script><p>对于观测模型${z}<em>{k,j}=f(\mathit{y}</em>{j},\mathit{x}<em>{k})+\mathit{v}</em>{k,j} $来说，由于我们设置了噪声项$v<em>k\sim N(0,Q</em>{k,j})$，因此观测到的数据的条件概率是：</p>
+<script type="math/tex; mode=display">
+P(z|x_k,y_j)=N(h(y_j,x_k),Q_{k,j})</script><p>按照高维高斯模型，第一项和x无关，因此我们可以忽略。最后问题转化为求第二项取最小时，x的取值。</p>
+<p>我们定义数据与估计值之间的误差：</p>
+<script type="math/tex; mode=display">
+\left\{\begin{matrix} e_{v,k}=x_{k}-f(x_{k-1},u_{k})\\ e_{y,j,k}=z_{k,j}-h(x_{k},y_{j}) \end{matrix}\right.</script><p>并求该误差的平方和：</p>
+<script type="math/tex; mode=display">
+J(x)=\sum_{k}e_{v,k}^{T}R_{k}^{-1}e_{v,k}+\sum_{k}\sum_{j}e_{y,k,j}^{T}Q_{k,j}^{-1}e_{y,k,j}</script><p>这就得到了一个总体意义下的最小二乘问题（Least Square Problem）。我们明白它的<strong>最优解等价于状态的最大似然估计</strong>。</p>
+<h1 id="2-非线性最小二乘"><a href="#2-非线性最小二乘" class="headerlink" title="2.非线性最小二乘"></a>2.非线性最小二乘</h1><p>对于一个简单的最小二乘问题${min}\frac{1}{2}\left | f(x) \right |^{2}_{2}$，要求取他的最小值，只需要求取导数即可，通过比较这些极小值，能得到<strong>全局最优解</strong>，这样一般适用于线性最小二乘。对于非线性最小二乘，最好采用<strong>迭代</strong>的方式求取，但只能得到<strong>局部最优解</strong>(极小值)。其步骤如下:</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，寻找增量$\Delta x_k$，使得$||f(x_k+\Delta x_k)||^2$达到最小。</li>
+<li>若$\Delta x<em>k$足够小，则停止；否则令$x</em>{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>所以现在的问题时，<strong>如何选取$\Delta x_k$</strong></p>
+<h2 id="2-1-一阶和二阶梯度法"><a href="#2-1-一阶和二阶梯度法" class="headerlink" title="2.1 一阶和二阶梯度法"></a>2.1 一阶和二阶梯度法</h2><p>求解增量最直观的方式是将目标函数在 x 附近进行泰勒展开，得到：</p>
+<script type="math/tex; mode=display">
+\left \| f(x+\Delta x) \right \|^{2}_{2}\approx \left \| f(x) \right \|^{2}_{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x</script><p>这里的$J$是$||f(x)||^2$关于x的一阶导数（雅克比矩阵），H则是二阶导数（黑塞矩阵），其中黑塞矩阵是对称矩阵。</p>
+<script type="math/tex; mode=display">
+\mathbf{J}=\left[\begin{array}{ccc}{\frac{\partial \mathbf{f}}{\partial x_{1}}} & {\cdots} & {\frac{\partial \mathbf{f}}{\partial x_{n}}}\end{array}\right]=\left[\begin{array}{ccc}{\frac{\partial f_{1}}{\partial x_{1}}} & {\cdots} & {\frac{\partial f_{1}}{\partial x_{n}}} \\ {\vdots} & {\ddots} & {\vdots} \\ {\frac{\partial f_{m}}{\partial x_{1}}} & {\cdots} & {\frac{\partial f_{m}}{\partial x_{n}}}\end{array}\right]</script><script type="math/tex; mode=display">
+\mathbf{H}=\left[\begin{array}{cccc}{\frac{\partial^{2} f}{\partial x_{1}^{2}}} & {\frac{\partial^{2} f}{\partial x_{1} \partial x_{2}}} & {\cdots} & {\frac{\partial^{2} f}{\partial x_{1} \partial x_{n}}} \\ {\frac{\partial^{2} f}{\partial x_{2} \partial x_{1}}} & {\frac{\partial^{2} f}{\partial x_{2}^{2}}} & {\cdots} & {\frac{\partial^{2} f}{\partial x_{2} \partial x_{n}}} \\ {\vdots} & {\vdots} & {\ddots} & {\vdots} \\ {\frac{\partial^{2} f}{\partial x_{n} \partial x_{1}}} & {\frac{\partial^{2} f}{\partial x_{n} \partial x_{2}}} & {\cdots} & {\frac{\partial^{2} f}{\partial x_{n}^{2}}}\end{array}\right]</script><p>其中$J(x)$是一阶梯度，$\frac{1}{2}\Delta x^TH$是二阶梯度，我们可以选择保留泰勒展开的一阶或二阶项，对应的求解方法则为一阶梯度或二阶梯度法。</p>
+<p>首先考虑只<strong>保留一阶梯度</strong>。梯度下降的时候我们需要<strong>确定下降$\Delta x$的方向</strong>，这就是所谓梯度下降法，下降的方向就是梯度的反方向$-J^T(x)$</p>
+<blockquote>
+<p>在$y$是标量的情况下，$J^T$便是梯度，在$y$是高维的情况下，$J^T$每个列向量都是对应的$y_i$的梯度。</p>
+</blockquote>
+<p>同时还需要添加一个步长$\lambda$，<strong>有了方向和步长</strong>，就可以的到$\Delta x$顺利求取局部最小值了。步长通过公式求解，越接近目标值，步长越小，前进越慢。这种方法被称为<strong>最速下降法</strong>。</p>
+<script type="math/tex; mode=display">
+\Delta x^*=-\lambda J^T(x)</script><p>另一方面，<strong>如果保留二阶梯度信息</strong>，那么增量方程为：</p>
+<script type="math/tex; mode=display">
+\left \| f(x+\Delta x) \right \|^{2}_{2}\approx \left \| f(x) \right \|^{2}_{2}+J(x)\Delta x+\frac{1}{2}\Delta x^{T}H\Delta x</script><p>我们知道当$f’(x)=0$时函数有极小值，对右侧关于$\Delta x$求导就得到了增量解：</p>
+<script type="math/tex; mode=display">
+J(x)^T+\frac{1}{2}(H\Delta x+H^T\Delta x)=0</script><p>化简以后可得：</p>
+<script type="math/tex; mode=display">
+H\Delta x=-J^T</script><blockquote>
+<p>矩阵求导公式：</p>
+<script type="math/tex; mode=display">
+\frac{\partial (X^TAX)}{\partial X}=(A^T+A)X</script><p>黑塞矩阵是一个对称矩阵$H^T=H$</p>
+</blockquote>
+<p>这种方法又称为<strong>牛顿法</strong>。由于泰勒展开之后函数变成了多项式， 所以求解增量时只需解线性方程即可，避免了直接求导函数为零这样的非线性方程的困难。</p>
+<p>牛顿法与最速下降法的<strong>区别</strong>在于：牛顿法是二阶收敛，最速下降法是一阶收敛。最速下降法每次只从你当前所处位置<strong>选一个坡度最大的方向走一步</strong>，在局部进行下降，然后步步逼近极值，往往是<strong>走之字型</strong>的。</p>
+<p>牛顿法在二阶导数的作用下，从函数的凸性出发，直接搜索怎样到达极值点。在选择方向时，不仅会考虑坡度是否够大，还会考虑你<strong>走了一步之后，坡度是否会变得更大</strong>。所以，可以说牛顿法比最速下降法看得更远一点，能更快地走到最底部。如图，红色代表牛顿法，绿色代表最速下降法。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812101218.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这两种方法的<strong>缺点</strong>在于：最速下降法<strong>过于贪心，容易走出锯齿路线</strong>，反而增加了迭代次数。牛顿法<strong>需要计算H矩阵，十分繁琐</strong>。牛顿法则需要计算目标函数的 H 矩阵，这在问题规模较大时非常困难。</p>
+<h2 id="2-2-高斯牛顿法-GN优化"><a href="#2-2-高斯牛顿法-GN优化" class="headerlink" title="2.2 高斯牛顿法 GN优化"></a>2.2 高斯牛顿法 GN优化</h2><p>高斯牛顿法，它的思想是将$f(x)$进行泰勒展开<strong>（目标函数不是$f(x)$的二范数</strong>，和2.1的内容前提相区别）：</p>
+<script type="math/tex; mode=display">
+f(x+\Delta x)\approx f(x)+J(x)\Delta x</script><p>根据前面的框架，需要求得下降矢量$\Delta x$使得$||f(x+\Delta x)||^{2}$最小，如果将$\Delta x$看做变量，就会得到如下的最小二乘问题：</p>
+<script type="math/tex; mode=display">
+\Delta x^*=argmin||f(x)+J(x)\Delta x||^2</script><p>目标函数展开后可得：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \frac{1}{2}\|f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}\|^{2} &=\frac{1}{2}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x})^{T}(f(\boldsymbol{x})+\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}) \\ &=\frac{1}{2}\left(\|f(\boldsymbol{x})\|_{2}^{2}+2 f(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}+\Delta \boldsymbol{x}^{T} \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}\right) \end{aligned}</script><p>对目标函数的$\Delta x$求导，并令其等于0：</p>
+<script type="math/tex; mode=display">
+2 \boldsymbol{J}(\boldsymbol{x})^{T} f(\boldsymbol{x})+2 \boldsymbol{J}(\boldsymbol{x})^{T} \boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}=\mathbf{0}</script><p>最后得到：</p>
+<script type="math/tex; mode=display">
+J(x)^{T}J(x)\Delta x=-J(x)^{T}f(x)</script><blockquote>
+<p>$||A||_2=\sqrt \lambda$其中$\lambda$是谱范数，即$A^TA$的最大特征值</p>
+<p>这里认为$f(x)^TJ(x)\Delta x$是对称矩阵</p>
+</blockquote>
+<p>这个方程称之为<strong>增量方程</strong>，也称之为<strong>高斯牛顿方程</strong>。将左边的系数设为$H$右边的系数设为$g$，则有：</p>
+<script type="math/tex; mode=display">
+H\Delta x=g</script><p>注意这里并不是真正的黑塞矩阵，而是<strong>利用$J^TJ$代替了牛顿法中的黑塞矩阵</strong>，简化了计算。</p>
+<p><strong>求解增量方程是整个优化问题的核心所在。</strong>其步骤可以写为：</p>
+<ol>
+<li>给定某个初值</li>
+<li>对于第$k$次迭代，求出当前的雅克比矩阵$J(x_{k})$和误差$f(x_k)$</li>
+<li>求解增量方程$H\Delta x=g$</li>
+<li>若$\Delta x<em>k$足够小，则停止；否则令$x</em>{k+1}=x_k+\Delta x_k$返回第2步</li>
+</ol>
+<p>缺点在于$H$是半正定矩阵，可能是奇异矩阵(不可逆)导致算法不收敛，且即使可逆，如果步长太长可能导致局部近似不准确，甚至不收敛。</p>
+<h2 id="2-3-列文伯格-马夸尔特法-LM优化"><a href="#2-3-列文伯格-马夸尔特法-LM优化" class="headerlink" title="2.3 列文伯格-马夸尔特法 LM优化"></a>2.3 列文伯格-马夸尔特法 LM优化</h2><p>高斯牛顿法只能在展开点附近有比较好的效果，所以我们可以给$\Delta x$添加一个信赖区域(Trust Region)。</p>
+<p>那么如何确定这个信赖区域的范围呢？一个比较好的方法是根据我们的近似模型跟实际函数之间的差异来确定这个范围：如果差异小，我们就让范围尽可能大；如果差异大，我们就缩小这个近似范围。因此，考虑使用：</p>
+<script type="math/tex; mode=display">
+\rho=\frac{f(\boldsymbol{x}+\Delta \boldsymbol{x})-f(\boldsymbol{x})}{\boldsymbol{J}(\boldsymbol{x}) \Delta \boldsymbol{x}}</script><p>分子是实际函数下降的值，分母是近似模型下降的值。<strong>如果 ρ 接近于 1，则近似是好的</strong>。<strong>如果 ρ 太小，说明实际减小的值远少于近似减小的值</strong>，则认为近似比较差，需要缩小近似范围。反之，如果 ρ 比较大，则说明实际下降的比预计的更大，我们可以放大近似范围。</p>
+<p>具体算法步骤如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190809142904.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>这里近似范围扩大的倍数和阈值都是经验值，可以替换成其他数值。上述约束中相当于把增量限定在<strong>半径为u的球</strong>里面，认为在球内的才有效。<strong>带上D后成为椭圆</strong>。</p>
+<p>在上述求解中，由于是有约束优化，可以利用拉格朗日乘子将其转化为一个无约束优化问题(其中λ为拉格朗日乘子)：</p>
+<script type="math/tex; mode=display">
+\underset{\Delta x_{k}}{min}\frac{1}{2}||f(x_{k})+J(x_{k}\Delta x_{k})||^{2}+\frac{\lambda }{2}||D\Delta x||^{2}</script><p>展开后可得：</p>
+<script type="math/tex; mode=display">
+(H+\lambda D^{T}D)\Delta x = g</script><p>当参数λ较小时，H占主导地位，<strong>说明二次近似模型在该范围内是比较好的</strong>，<strong>该方法接近于高斯牛顿法</strong>。当参数λ较大时，λ所在项<strong>接近于一阶梯度下降法</strong>。该方法可在一定程度上避免线性方程组的系数矩阵的非奇异和病态问题。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" target="_blank" rel="external">jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag">数学</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&title=《SLAM基础5-非线性优化》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&title=《SLAM基础5-非线性优化》 — JR's Blog&source=SLAM系统保证精度的主要手段是优化，本文介绍了优化方程的构建过程和几种常见的非线性优化方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础5-非线性优化》 — JR's Blog&url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SLAM基础6-后端</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/10/SLAM%E5%9F%BA%E7%A1%804-%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础4-相机模型</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&title=《SLAM基础5-非线性优化》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&title=《SLAM基础5-非线性优化》 — JR's Blog&source=SLAM系统保证精度的主要手段是优化，本文介绍了优化方程的构建过程和几种常见的非线性优化方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础5-非线性优化》 — JR's Blog&url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

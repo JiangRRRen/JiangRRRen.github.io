@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SVD解超定方程 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,算法,数学">
+    <meta name="description" content="超定方程就是方程个数大于未知数的方程组，本文介绍了如何用最小二乘法解这样的方程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SVD解超定方程">
+<meta property="og:url" content="jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="超定方程就是方程个数大于未知数的方程组，本文介绍了如何用最小二乘法解这样的方程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815150921.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815151022.png">
+<meta property="article:published_time" content="2019-08-17T04:36:45.000Z">
+<meta property="article:modified_time" content="2019-12-30T16:39:47.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="数学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815150921.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SVD解超定方程</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SVD解超定方程</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-17T04:36:45.000Z" itemprop="datePublished" class="page-time">
+  2019-08-17
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-奇异值分解原理"><span class="post-toc-text">1. 奇异值分解原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-特征值的数学含义"><span class="post-toc-text">1.1 特征值的数学含义</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-奇异值的含义"><span class="post-toc-text">2.2 奇异值的含义</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-奇异值分解解线性方程"><span class="post-toc-text">2. 奇异值分解解线性方程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-解非齐次线性方程组-Ax-b"><span class="post-toc-text">2.1 解非齐次线性方程组($Ax&#x3D;b$)</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-解齐次线性方程组-Ax-0"><span class="post-toc-text">2.2 解齐次线性方程组($Ax&#x3D;0$)</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SVD解超定方程"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SVD解超定方程</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-17 12:36:45" datetime="2019-08-17T04:36:45.000Z"  itemprop="datePublished">2019-08-17</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>超定方程就是方程个数大于未知数的方程组，本文介绍了如何用最小二乘法解这样的方程。<a id="more"></a></p>
+<h1 id="1-奇异值分解原理"><a href="#1-奇异值分解原理" class="headerlink" title="1. 奇异值分解原理"></a>1. 奇异值分解原理</h1><h2 id="1-1-特征值的数学含义"><a href="#1-1-特征值的数学含义" class="headerlink" title="1.1 特征值的数学含义"></a>1.1 特征值的数学含义</h2><p><strong>对角矩阵</strong>$M$作用在任何一个向量上：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}3&0\\0&1 \end{bmatrix}
+\begin{bmatrix}x\\y \end{bmatrix}
+=
+\begin{bmatrix}3x\\y \end{bmatrix}</script><p>换言之这个变换让$x$方向拉伸了3倍，$y$方向保持不变，<strong>对角矩阵起到作用是将水平垂直网格作水平拉伸（或者反射后水平拉伸）的线性变换</strong>。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815150921.png" alt="img" style="zoom:70%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>对于一个<strong>一般矩阵</strong>$M=\begin{bmatrix}1&amp;1\0&amp;1 \end{bmatrix}$，我们可以找到一组网格，然后通过<strong>旋转+拉伸</strong>的方法保证变换后的网格依旧互相垂直。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190815151022.png" alt="img" style="zoom:70%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p><strong>特征向量</strong>的几何含义为：<strong>对于任何的一个矩阵，我们要找到一组两两正交单位向量序列，使得矩阵作用在此向量序列上后得到新的向量序列保持两两正交</strong>。特征值的几何含义为：拉伸</p>
+<script type="math/tex; mode=display">
+A=W\Sigma W^{-1}</script><p>其中$W$是这$n$个特征向量张成的$n$维矩阵，一般而言我们会把$W$的这$n$个特征向量标准化，即:</p>
+<script type="math/tex; mode=display">
+||w_i||_2=w_i^Tw_i=1</script><p>此时$W$就变为了<strong>标准正交基</strong>，满足：</p>
+<script type="math/tex; mode=display">
+W^TW=I,\ W^T=W^{-1}</script><p>这样我们的特征分解表达式可以写成：</p>
+<script type="math/tex; mode=display">
+A=W\Sigma W^{T}</script><h2 id="2-2-奇异值的含义"><a href="#2-2-奇异值的含义" class="headerlink" title="2.2 奇异值的含义"></a>2.2 奇异值的含义</h2><p><strong>特征值需要方阵</strong>，对于一个非方阵而言我们可以通过$M=AA^T$将它变为方阵，对变换后的方阵$M$求特征值的结果就是奇异值。</p>
+<p>若$AA^T$的特征值为：</p>
+<script type="math/tex; mode=display">
+\lambda _{1} \geq \lambda _{2} \geq ... \geq \lambda _{r} > \lambda _{r+1} = \cdots = \lambda_{m} = 0</script><p>则称$\sigma <em>{i}=\sqrt {\lambda </em>{i}}  \quad (i=1, 2, …, r)$为矩阵$A$的<strong>奇异值</strong>（注意这里只有r个）。</p>
+<p>存在$m$阶酉矩阵$U$和$n$阶酉矩阵$V$，使得：</p>
+<script type="math/tex; mode=display">
+A=UDV^{T}=U
+    \left[
+          \begin{matrix}
+           \Sigma                   &  0_{r \times (n-r)}        \\
+           0_{(m-r) \times r}   &  0_{(m-r) \times (n-r)}  \\          
+          \end{matrix}
+    \right] 
+    V^{T}
+    \\其中, \quad
+\Sigma = 
+    \left[
+          \begin{matrix}
+           \sigma_{1} &                      &                &                          \\
+                             &   \sigma_{2}  &                &                           \\ 
+                             &                      &   \ddots  &                           \\ 
+                             &                      &                &   \sigma_{r}       \\
+          \end{matrix} 
+    \right]</script><p>上式中 <strong>D的对角元叫做 A 的奇异值</strong>，<strong>U 中的列向量称为 A 的左奇异向量</strong>，<strong>V 中的列向量称为 A 的右奇异向量</strong>。</p>
+<h1 id="2-奇异值分解解线性方程"><a href="#2-奇异值分解解线性方程" class="headerlink" title="2. 奇异值分解解线性方程"></a>2. 奇异值分解解线性方程</h1><h2 id="2-1-解非齐次线性方程组-Ax-b"><a href="#2-1-解非齐次线性方程组-Ax-b" class="headerlink" title="2.1 解非齐次线性方程组($Ax=b$)"></a>2.1 解非齐次线性方程组($Ax=b$)</h2><p>若矩阵的行数大于列数，则为超定方程，需要求最小二乘解，即使得$||Ax-b||_{2}$<strong>最小时</strong>的$x$，由2-范数具有酉不变性，有：</p>
+<script type="math/tex; mode=display">
+||Ax-b||_{2} = 
+   \left| \left|
+    U
+    \left[
+          \begin{matrix}
+           \Sigma                   &  0_{r \times (n-r)}        \\
+           0_{(m-r) \times r}   &  0_{(m-r) \times (n-r)}  \\          
+          \end{matrix}
+    \right]
+    V^{T} x-b
+    \right| \right|
+    \\=
+   \left| \left|
+    \left[
+          \begin{matrix}
+           \Sigma                   &  0_{r \times (n-r)}        \\
+           0_{(m-r) \times r}   &  0_{(m-r) \times (n-r)}  \\          
+          \end{matrix}
+    \right]
+    V^{T} x-U^{T}b
+    \right| \right|</script><blockquote>
+<p>如果范数满足$║A║=║UAV║$对任何矩阵$A$以及酉矩阵$(U,V)$成立，则此范数为酉不变范数。2-范数是酉不变范数。</p>
+</blockquote>
+<p>要让上述二范数最小，<strong>让里面的内容等于0即可</strong>。所以$Ax=b$的最小二乘解为$\left[         \begin{matrix}            \Sigma                   &amp;  0<em>{r \times (n-r)}        \            0</em>{(m-r) \times r}   &amp;  0_{(m-r) \times (n-r)}  \                     \end{matrix}   \right]   V^{T}x = U^{T}b$的最小二乘解。</p>
+<p>令$y=V^{H}x，c=U^{H}b$，则原方程可亦表示为:</p>
+<script type="math/tex; mode=display">
+\left[  
+      \begin{matrix}
+           \Sigma                   &  0_{r \times (n-r)}        \\
+           0_{(m-r) \times r}   &  0_{(m-r) \times (n-r)}  \\          
+          \end{matrix}  
+\right]  
+y = c</script><p>表达成<strong>矩阵形式</strong>如下：</p>
+<script type="math/tex; mode=display">
+\left[
+          \begin{array}{cccc:c}
+           \sigma_{1} &                      &               &                       &    \\
+                             &   \sigma_{2}  &               &                       &    \\ 
+                             &                      &   \ddots  &                       &  0_{r \times (n-r)}  \\ 
+                             &                      &                &   \sigma_{r}   &     \\
+                             \hdashline 
+                             &                     &  0_{(m-r) \times r}      &    &  0_{(m-r) \times (n-r)}
+          \end{array}
+    \right]_{m \times n}
+    \cdot
+     \left[
+          \begin{matrix}
+          y_{1}     \\
+          y_{2}     \\
+          \vdots  \\
+          y_{r}      \\
+          \hdashline  
+           \mathcal{Y_{(n-r) \times 1}}     \\  
+          \end{matrix}
+    \right]_{n \times 1}    
+    =
+     \left[
+          \begin{matrix}
+          c_{1}     \\
+          c_{2}     \\
+          \vdots  \\
+          c_{r}      \\
+          \hdashline  
+           \mathcal{C_{(m-r) \times 1}}     \\  
+          \end{matrix}
+    \right]_{m \times 1}</script><p>所以$Dy=c$的最小二乘解为：</p>
+<script type="math/tex; mode=display">
+y=[\frac{c_{1}}{\sigma _{1}}, \frac{c_{2}}{\sigma _{2}}, \cdots, \frac{c_{r}}{\sigma _{r}}, \underbrace{0, \cdots, 0}_{n-r} ]^{T}</script><p><strong>原方程组</strong>的最小二乘解为：</p>
+<script type="math/tex; mode=display">
+x=V^{T}y</script><h2 id="2-2-解齐次线性方程组-Ax-0"><a href="#2-2-解齐次线性方程组-Ax-0" class="headerlink" title="2.2 解齐次线性方程组($Ax=0$)"></a>2.2 解齐次线性方程组($Ax=0$)</h2><p>2.1的情况是让$||Ax-b||<em>{2}$的值最小，但2.2由于$b=0$所以是让$||Ax||</em>{2}$最小，由于$x=0$是方程的解，而我们一般不想要这个解，所以<strong>增加一个约束</strong>$||x||_2=1$，这样问题就变成了：</p>
+<script type="math/tex; mode=display">
+min(||Ax||_{2})，||x||_{2}=1</script><p>又因为：</p>
+<script type="math/tex; mode=display">
+||Ax||=||UDV^{T}x||=||DV^{T}x||</script><p>令$y=V^{T}x$，则问题变为：</p>
+<script type="math/tex; mode=display">
+min(||Dy||), ||y||=1</script><p>展开以后得到：</p>
+<script type="math/tex; mode=display">
+\left[
+          \begin{array}{cccc:c}
+           \sigma_{1} &                      &               &                       &    \\
+                             &   \sigma_{2}  &               &                       &    \\ 
+                             &                      &   \ddots  &                       &  0_{r \times (n-r)}  \\ 
+                             &                      &                &   \sigma_{r}   &     \\
+                             \hdashline 
+                             &                     &  0_{(m-r) \times r}      &    &  0_{(m-r) \times (n-r)}
+          \end{array}
+    \right]_{m \times n}
+    \cdot
+     \left[
+          \begin{matrix}
+          y_{1}     \\
+          y_{2}     \\
+          \vdots  \\
+          y_{r}      \\
+          \hdashline  
+           \mathcal{Y_{(n-r) \times 1}}     \\  
+          \end{matrix}
+    \right]_{n \times 1}    
+    =
+     \left[
+          \begin{matrix}
+          0     \\
+          0     \\
+          \vdots  \\
+          0      \\
+          \hdashline  
+           \mathcal{0_{(m-r) \times 1}}     \\  
+          \end{matrix}
+    \right]_{m \times 1}</script><p>因为对角阵$D$的对角元素（奇异值）按递减顺序排列，所以最优解为$y=[0, 0, \cdots, 1]^{T}$（考虑到约束条件）,又因为$x=Vy$，所以最优解是最小奇异值对应的$V$的列向量(<strong>右奇异向量</strong>)，<strong>也就是$V$的最右边一列</strong>。比如下面的结果就是$[a_3,b_3,c_3]^T$</p>
+<script type="math/tex; mode=display">
+V=\begin{bmatrix}a_1&a_2&a_3\\
+b_1&b_2&b_3\\
+c_1&c_2&c_3\end{bmatrix}</script>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" target="_blank" rel="external">jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag">数学</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&title=《SVD解超定方程》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&title=《SVD解超定方程》 — JR's Blog&source=超定方程就是方程个数大于未知数的方程组，本文介绍了如何用最小二乘法解这样的方程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SVD解超定方程》 — JR's Blog&url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/17/%E8%AF%A6%E8%A7%A3BA/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">详解BA</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/16/Harris%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Harris特征检测</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&title=《SVD解超定方程》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&title=《SVD解超定方程》 — JR's Blog&source=超定方程就是方程个数大于未知数的方程组，本文介绍了如何用最小二乘法解这样的方程。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SVD解超定方程》 — JR's Blog&url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/17/SVD%E8%A7%A3%E8%B6%85%E5%AE%9A%E6%96%B9%E7%A8%8B/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

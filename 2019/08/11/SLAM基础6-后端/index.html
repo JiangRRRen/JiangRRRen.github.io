@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SLAM基础6-后端 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM,数学">
+    <meta name="description" content="前一章讲的非线性优化方法其实是后端优化中的一个工具。后端需要对前端传来的传感信息进行优化，方法有卡尔曼滤波和光束法平差BA两种。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础6-后端">
+<meta property="og:url" content="jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="前一章讲的非线性优化方法其实是后端优化中的一个工具。后端需要对前端传来的传感信息进行优化，方法有卡尔曼滤波和光束法平差BA两种。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190811142227.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812105722.png">
+<meta property="article:published_time" content="2019-08-11T04:41:14.000Z">
+<meta property="article:modified_time" content="2020-02-08T19:41:29.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="数学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190811142227.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SLAM基础6-后端</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SLAM基础6-后端</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-11T04:41:14.000Z" itemprop="datePublished" class="page-time">
+  2019-08-11
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-经典的后端优化方法"><span class="post-toc-text">1. 经典的后端优化方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-状态估计的概率解释"><span class="post-toc-text">1.1 状态估计的概率解释</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-线性系统和KF"><span class="post-toc-text">1.2 线性系统和KF</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-3-非线性系统和EKF"><span class="post-toc-text">1.3 非线性系统和EKF</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-4-EKF的问题讨论"><span class="post-toc-text">1.4 EKF的问题讨论</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-现代优化方法：BA与图优化"><span class="post-toc-text">2. 现代优化方法：BA与图优化</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SLAM基础6-后端"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SLAM基础6-后端</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-11 12:41:14" datetime="2019-08-11T04:41:14.000Z"  itemprop="datePublished">2019-08-11</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>前一章讲的非线性优化方法其实是后端优化中的一个工具。后端需要对前端传来的传感信息进行优化，方法有卡尔曼滤波和光束法平差BA两种。<a id="more"></a></p>
+<h1 id="1-经典的后端优化方法"><a href="#1-经典的后端优化方法" class="headerlink" title="1. 经典的后端优化方法"></a>1. 经典的后端优化方法</h1><h2 id="1-1-状态估计的概率解释"><a href="#1-1-状态估计的概率解释" class="headerlink" title="1.1 状态估计的概率解释"></a>1.1 状态估计的概率解释</h2><p>视觉里程计只有<strong>短暂的记忆</strong>，在后端优化中，我们通常考虑一个<strong>更长时间内（或所有时间内）的状态估计问题</strong>，而且不仅使用过去的信息更新自己的状态，也会用未来的信息来更新自己。</p>
+<script type="math/tex; mode=display">
+\begin{equation}  
+\left\{  
+             \begin{array}\\  
+x_k=f(x_{k-1},u_k,\omega_k) \\
+z_{k,j}=h(y_j,x_k,v_{k,j})
+             \end{array}  
+\right.  
+\end{equation}</script><p><strong>运动方程</strong>和<strong>观测方程</strong>组成了SLAM系统，每个方程都受噪声影响，所以要把这里的位姿 $x$ 和路标 $y$ 看成<strong>服从某种概率分布的随机变量</strong>，而不是单独的一个数。因此整个问题变成了：当我拥有某些运动数据 $u$ 和观测数据 $z$ 时，如何来<strong>确定状态量 $x,y$ 的分布</strong>？</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190811142227.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>当没有观测数据，只有运动方程时，如左图所示，噪声导致的误差会逐渐累积，不确定性越来越大。如果我们可以观测路标点，误差会得到修正，不确定性就会减小。</p>
+<p>下面以定量的角度思考。令$x_k$为$k$时刻的所有未知量，它包含了当前时刻的相机位姿和$m$个路标点。</p>
+<script type="math/tex; mode=display">
+x_k=(x_k,y_1,...,y_m)​</script><p>>同时，把$k$时刻的所有<strong>观测</strong>记为$z_k$，$u_k$还是表示传感器输入，整个方程可以写得比较简单。</p>
+<script type="math/tex; mode=display">
+\begin{equation}  
+\left\{ 
+\begin{array}\\ 
+x_k=f(x_{k-1},u_k)+w_k\\
+z_k=h(x_k)+v_k
+ \end{array}  
+\right.  
+\end{equation}</script><p>现在考虑第$k$时刻的情况。我们希望用过去0到$k$的数据，来估计现在的状态分布：</p>
+<script type="math/tex; mode=display">
+P(x_{k}|x_{0},u_{1:k},z_{1:k})</script><p>下标 $0:k$表示从 0 时刻到 k 时刻的所有数据。请注意 $z_k$ 来表达所有在k时刻的观测数据，注意它可能不止一个，只是这种记法更加方便。这个式子表达了：<strong>已知初始位姿、之前所有的观测数据和传感器数据，通过这些条件来估计$k$时刻的位姿</strong>。</p>
+<p>按照贝叶斯法则，展开可得：</p>
+<script type="math/tex; mode=display">
+P(x|x_{0},u_{1:k},z_{1:k})\propto P(z_{k}|x_{k})P(x_{k}|x_{0},u_{1:k},z_{1:k-1})</script><p>左边为<strong>后验概率</strong>，右边第一项为<strong>似然概率</strong>（已知数据求模型参数），第二项为<strong>先验概率</strong>。似然概率可以由观测方程计算得到，至于先验概率，我们知道当前状态$x(k)$是根据过去所有状态估计得到，所以他至少会受到$x(k-1)$的影响，于是在此处按照条件概率展开：</p>
+<script type="math/tex; mode=display">
+P(x_{k}|x_{0},u_{1:k},z_{1:k-1})=\int P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})d_{x_{k-1}}</script><p><strong>如果我们考虑更久之前的状态，也可以继续对此式进行展开</strong>，但现在我们只关心 $k$ 时刻和 $k−1$ 时刻的情况。</p>
+<p>后续的处理有两种方式：其一是假设<strong>马尔可夫性</strong>，即<strong>k 时刻状态只与k−1时刻状态有关</strong>，而与再之前的无关；其二依然考虑 <strong>k 时刻状态与之前所有状态的关系</strong>。前一种得到的方法是<strong>扩展卡尔曼滤波(EKF)</strong>，第二种得到<strong>非线性优化</strong>。</p>
+<h2 id="1-2-线性系统和KF"><a href="#1-2-线性系统和KF" class="headerlink" title="1.2 线性系统和KF"></a>1.2 线性系统和KF</h2><p>按照马尔科夫性，状态只与上一个时刻有关，因此公式可以进行简化。</p>
+<script type="math/tex; mode=display">
+P(x_{k}|x_{0},u_{1:k},z_{1:k})=\int P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})d_{x_{k-1}}</script><p>由于$k$时刻的状态与$k-1$之前无关，所以可以简化为只与$x_{k-1}$和$u_k$相关的形式，所以第一项可以简化为：</p>
+<script type="math/tex; mode=display">
+P(x_{k}|x_{k-1},x_{0},u_{1:k},z_{1:k-1})=P(x_{k}|x_{k-1},u_{k})</script><p>第二项由于输入量$u_k$与$k-1$无关，所以可以将其去掉：</p>
+<script type="math/tex; mode=display">
+P(x_{k-1}|x_{0},u_{1:k},z_{1:k-1})=P(x_{k-1}|x_{0},u_{1:k-1},z_{1:k-1})</script><p>可以看到这就<strong>是$k-1$时刻的状态分布</strong>（参照贝叶斯法则展开前$P(x<em>{k}|x</em>{0},u<em>{1:k},z</em>{1:k})$）。我们实际在做的是“<strong>如何把 k−1 时刻的状态分布推导至 k 时刻</strong>”这样一件事。</p>
+<p>首先从简单的<strong>线性高斯系统</strong>开始。</p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{matrix} x_{k}=A_{k}x_{k-1}+u_{k}+w_{k} \\ 
+z_{k}=C_{k}x_{k}+v_{k}\ 
+\end{matrix}\right.</script><p>第一个公式描述状态量$x<em>k$，$A_k$是状态转移矩阵，负责描述$x</em>{k-1}$时刻到$x_k$的状态，$u_k$是控制矩阵，是k-1到k状态改变的原因，$w_k$是噪声。</p>
+<p>第二个公式描述观测量$z_k$，$C_k$时观测矩阵，$v_k$是噪声。并假设所有的状态和噪声均满足高斯分布。记这里的噪声服从零均值高斯分布：</p>
+<script type="math/tex; mode=display">
+w_k\sim N(0,R),\ v_k\sim N(0,Q)</script><p>假设我们已知$x<em>{k-1}$状态分布的后验状态估计$\overset{\wedge }{x}</em>{k-1}$和协方差$\overset {\wedge }x<em>{k-1}$根据输入数据和观测数据，确定$x_k$的后验分布。$\overset{\wedge }x</em>{k}$表示后验，$\overset{- }x_{k}$表示先验。</p>
+<blockquote>
+<p>高斯分布运算性质：</p>
+<script type="math/tex; mode=display">
+x+y\sim N(\mu_x+\mu_y,\sum _{xx}+\sum_{yy})</script><p>若$y=\textbf{A}x$，则y满足：</p>
+<script type="math/tex; mode=display">
+y\sim N(A\mu,A\sum_{xx}A^T)</script></blockquote>
+<p>所以有：</p>
+<script type="math/tex; mode=display">
+P(x_{k}|x_{0},u_{1:k},z_{1:k-1})=N(A_{k}\overset{-}{x}_{k-1}+u_{k},A_{k}\overset{-}{P}_{k-1}A_{k}^{T}+R)=N(\overset{-}{x}_{k},\overset{-}{P}_{k})</script><p>因此我们得到了两个公式：<strong>状态预测公式</strong>，<strong>协方差预测公式</strong></p>
+<script type="math/tex; mode=display">
+\overset{-}{x}_{k}=A_{k}\overset{-}{x}_{k-1}+u_{k}\\
+\overset{-}{P}_{k}=A_{k}\overset{-}{P}_{k-1}A_{k}^{T}+R</script><p>这里$\overset{-}{x}<em>{k}$表示<strong>先验分布</strong>，也就是<strong>不准确</strong>的，$\overset{\wedge }{x}</em>{k}$表示的是<strong>后验分布</strong>，是经过<strong>修正</strong>的。</p>
+<p>得到的这两个结果都是<strong>预测结果</strong>，他们需要<strong>通过观测方程来进行修正</strong>。由于计算过程太复杂，直接给出结果：</p>
+<script type="math/tex; mode=display">
+\overset{\wedge }{x}_{k}=\overset{- }{x}_{k}+K(z_{k}-C_{k}\overset{- }{x}_{k})\\
+\overset{\wedge }{P}_{k}=(I-KC_{k})\overset{-}{P }_{ k}\\</script><p>计算出$\overset{\wedge }{P}_{k}$是为了<strong>留给下一次迭代使用</strong>。</p>
+<p>这里的$K$表示<strong>卡尔曼系数</strong>，它具有两个作用：</p>
+<ul>
+<li>决定相信预测模型$\overset{- }{x}_{k}$更多一些还是观测模型更多一些</li>
+<li>将残差$(z<em>{k}-C</em>{k}\overset{- }{x}_{k})$的表现形式由<strong>观测域转化到状态域</strong></li>
+</ul>
+<p>卡尔曼系数的计算公式是：</p>
+<script type="math/tex; mode=display">
+K=\overset{\wedge }{P}_{k}C_{k}^{T}Q^{-1}=\overset{-}{P}_{k}{C}_{k}^{T}({C}_{k}\overset{-}{P}_{k}{C}_{k}^{T}+Q_{k})^{-1}</script><p>所以卡尔曼滤波可以由<strong>五个公式概括</strong>：</p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\left\{
+\begin{array}{lr}
+\overset{-}{x}_{k}=A_{k}\overset{-}{x}_{k-1}+u_{k}\\
+\overset{-}{P}_{k}=A_{k}\overset{-}{P}_{k-1}A_{k}^{T}+R\\
+\overset{\wedge }{x}_{k}=\overset{- }{x}_{k}+K(z_{k}-C_{k}\overset{- }{x}_{k})\\
+\overset{\wedge }{P}_{k}=(I-KC_{k})\overset{-}{P }_{ k}\\
+K=\overset{\wedge }{P}_{k}C_{k}^{T}Q^{-1}=\overset{-}{P}_{k}{C}_{k}^{T}({C}_{k}\overset{-}{P}_{k}{C}_{k}^{T}+Q_{k})^{-1}
+\end{array}
+\right.
+\end{equation}</script><p>前两个是<strong>预测公式</strong>，后两个是<strong>更新公式</strong>（将预测的先验值修正）。</p>
+<h2 id="1-3-非线性系统和EKF"><a href="#1-3-非线性系统和EKF" class="headerlink" title="1.3 非线性系统和EKF"></a>1.3 非线性系统和EKF</h2><p>卡尔曼滤波是针对线性方程，当系统非线性时需要通过一些操作来近似，这就是<strong>扩展卡尔曼滤波(Extended Kalman Filter, EKF)</strong></p>
+<p>EKF的做法主要有两点：</p>
+<p><strong>其一</strong>是在工作点$\overset{\wedge }{x}<em>{k-1},\overset{-}{x}</em>{k}$附近进行泰勒展开，将系统线性化：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}{f\left(x_{k-1}, v_{k}, w_{k}\right) \approx f\left(\hat{x}_{k-1}, v_{k}, 0\right)+\frac{\partial f}{\partial x_{k-1}}\left(x_{k-1}-\hat{x}_{k-1}\right)+\frac{\partial f}{\partial w_{k}} w_{k}} \\ {g\left(x_{k}, n_{k}\right) \approx g\left(\tilde{x}_{k}, 0\right)+\frac{\partial g}{\partial x_{k}} n_{k}}\end{array}</script><p>这里的偏导数都在工作点附近取值，最后<strong>变成了一个线性系统</strong>。</p>
+<p><strong>其二</strong>是在线性系统近似下，把噪声项和状态都当成了<strong>高斯分布</strong>。经过这两项近似以后得到的结果和普通卡尔曼滤波就一样了：</p>
+<script type="math/tex; mode=display">
+\begin{aligned} \tilde{P}_{k} &=F_{k-1} \hat{P}_{k-1} F_{k-1}^{T}+Q_{k}^{\prime} \\ \tilde{x}_{k} &=f\left(\hat{x}_{k-1}, v_{k}, 0\right) \\ K_{k} &=\tilde{P}_{k} G_{k}^{T}\left(G_{k} \tilde{P}_{k} G_{k}^{T}+R_{k}^{\prime}\right)^{-1} \\ \hat{P}_{k} &=\left(I-K_{k} G_{k}\right) \tilde{P}_{k} \\ \hat{x}_{k} &=\tilde{x}_{k}+K_{k}\left(y_{k}-g\left(\tilde{x}_{k}, 0\right)\right) \\ 
+\mathbf{其中，}\\F_{k-1} &=\left.\frac{\partial f}{\partial x_{k-1}}\right|_{\hat{x}_{k-1}}, G_{k}=\left.\frac{\partial f}{\partial x_{k}}\right|_{\bar{x}_{k}} \end{aligned}</script><h2 id="1-4-EKF的问题讨论"><a href="#1-4-EKF的问题讨论" class="headerlink" title="1.4 EKF的问题讨论"></a>1.4 EKF的问题讨论</h2><p>EKF主要有三个问题：</p>
+<ul>
+<li><p>滤波器方法假设了<strong>马尔可夫性</strong>，也就是 k 时刻的状态只与 k−1 时刻相关，而与 k −1 之前的状态和观测都无关。这比较像视觉里程计的原理，但是如果当前帧确实和以前的数据有关（例如回环检测），滤波器就无法应对。</p>
+</li>
+<li><p>由非线性转化到线性时我们安排了两个假设：<strong>展开点取一次项，把噪声项和状态都当成了高斯分布</strong>。系统本身线性化过程中，<strong>丢掉了高阶项</strong>。即使是高斯分布<strong>，经过一个非线性变换后也不是高斯分布</strong>。举个例子，假设一个$x\sim N(0,1)$，那么$y=x^2$服从的是<strong>卡方分布</strong>，当卡方分布n较大时，比较接近高斯分布，这样我们就可以很好近似。但是当n比较小近似的结果就很差。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190812105722.png" alt="img"></p>
+</li>
+<li><p>从程序实现上来说，EKF 需要存储状态量的均值和方差，并对它们进行维护和更新。 如果把路标也放进状态的话，由于视觉 SLAM 中路标数量很大，这个存储量是相当可观的，且<strong>与状态量呈平方增长</strong>（因为要存储协方差矩阵）。因此，EKF普遍被认为不可适用于大型场景SLAM。</p>
+</li>
+</ul>
+<h1 id="2-现代优化方法：BA与图优化"><a href="#2-现代优化方法：BA与图优化" class="headerlink" title="2. 现代优化方法：BA与图优化"></a>2. 现代优化方法：BA与图优化</h1><p>见专题</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" target="_blank" rel="external">jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag">数学</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&title=《SLAM基础6-后端》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&title=《SLAM基础6-后端》 — JR's Blog&source=前一章讲的非线性优化方法其实是后端优化中的一个工具。后端需要对前端传来的传感信息进行优化，方法有卡尔曼滤波和光束法平差BA两种。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础6-后端》 — JR's Blog&url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/11/SLAM%E5%9F%BA%E7%A1%807-%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SLAM基础7-回环检测</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/10/SLAM%E5%9F%BA%E7%A1%805-%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">SLAM基础5-非线性优化</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&title=《SLAM基础6-后端》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&title=《SLAM基础6-后端》 — JR's Blog&source=前一章讲的非线性优化方法其实是后端优化中的一个工具。后端需要对前端传来的传感信息进行优化，方法有卡尔曼滤波和光束法平差BA两种。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础6-后端》 — JR's Blog&url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/11/SLAM%E5%9F%BA%E7%A1%806-%E5%90%8E%E7%AB%AF/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

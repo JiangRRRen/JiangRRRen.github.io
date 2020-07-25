@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>SLAM基础1-综述 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="SLAM">
+    <meta name="description" content="这个系列是对SLAM的基本介绍。分为8+1个部分，其中视觉里程计的部分被单独拆分为小专题的形式。 第一部分是综述，主要介绍SLAM的基本概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM基础1-综述">
+<meta property="og:url" content="jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="这个系列是对SLAM的基本介绍。分为8+1个部分，其中视觉里程计的部分被单独拆分为小专题的形式。 第一部分是综述，主要介绍SLAM的基本概念。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805141714.png">
+<meta property="article:published_time" content="2019-08-08T03:55:25.000Z">
+<meta property="article:modified_time" content="2019-12-29T16:07:35.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805141714.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">SLAM基础1-综述</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">SLAM基础1-综述</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-08T03:55:25.000Z" itemprop="datePublished" class="page-time">
+  2019-08-08
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-什么是SLAM"><span class="post-toc-text">1. 什么是SLAM</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-经典视觉SLAM框架"><span class="post-toc-text">2. 经典视觉SLAM框架</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-视觉里程计"><span class="post-toc-text">2.1 视觉里程计</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-后端优化"><span class="post-toc-text">2.2 后端优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-回环检测"><span class="post-toc-text">2.3 回环检测</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-4-建图"><span class="post-toc-text">2.4 建图</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#3-SLAM的数学表达"><span class="post-toc-text">3. SLAM的数学表达</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-SLAM基础1-综述"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">SLAM基础1-综述</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-08 11:55:25" datetime="2019-08-08T03:55:25.000Z"  itemprop="datePublished">2019-08-08</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SLAM/">SLAM</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>这个系列是对SLAM的基本介绍。分为8+1个部分，其中视觉里程计的部分被单独拆分为小专题的形式。</p>
+<p>第一部分是综述，主要介绍SLAM的基本概念。<a id="more"></a></p>
+<h1 id="1-什么是SLAM"><a href="#1-什么是SLAM" class="headerlink" title="1. 什么是SLAM"></a>1. 什么是SLAM</h1><p><strong>同步定位与地图构建</strong>（<strong>SLAM</strong>或<strong>Simultaneous localization and mapping</strong>）是一种概念：希望机器人从未知环境的未知地点出发，在运动过程中通过重复观测到的地图特征（比如，墙角，柱子等）<strong>定位</strong>自身位置和姿态，再根据自身位置增量式的<strong>构建地图</strong>，从而达到同时定位和地图构建的目的。</p>
+<h1 id="2-经典视觉SLAM框架"><a href="#2-经典视觉SLAM框架" class="headerlink" title="2. 经典视觉SLAM框架"></a>2. 经典视觉SLAM框架</h1><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20190805141714.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>视觉SLAM分为以下几步：</p>
+<ol>
+<li><strong>传感器信息读取</strong>。在视觉 SLAM 中主要为相机图像信息的读取和预处理。</li>
+<li><strong>视觉里程计 (Visual Odometry, VO)</strong>。视觉里程计任务是估算相邻图像间相机的运动， 以及局部地图的样子。VO 又称为前端（Front End）。</li>
+<li><strong>后端优化（Optimization）</strong>。后端接受不同时刻视觉里程计测量的相机位姿，以及回环检测的信息，对它们进行优化，得到全局一致的轨迹和地图。由于接在 VO 之后，又称为后端（Back End）。</li>
+<li><strong>回环检测（Loop Closing）</strong>。回环检测判断机器人是否曾经到达过先前的位置。如果 检测到回环，它会把信息提供给后端进行处理。</li>
+<li><strong>建图（Mapping）</strong>。它根据估计的轨迹，建立与任务要求对应的地图</li>
+</ol>
+<h2 id="2-1-视觉里程计"><a href="#2-1-视觉里程计" class="headerlink" title="2.1 视觉里程计"></a>2.1 视觉里程计</h2><p>视觉里程计关心<strong>相邻图像</strong>之间的相机运动，而和再往前的信息没有关联。换句话说，里程计记录的是<strong>相对差值</strong>而不是绝对值。我们可以通过将相邻时刻的运动<strong>串</strong>起来，构成最终的运动轨迹。</p>
+<p>仅通过视觉里程计来估计轨迹，将不可避免地出现<strong>累计漂移</strong>（Accumulating Drift）。这是由于视觉里程计（在最简单的情况下）只估计两个图像间运动造成的。每次估计都带有一定的误差，而由于里程计的工作方式，<strong>先前时刻的误差将会传递到下一时刻</strong>，导致经过一段时间之后，估计的轨迹将不再准确。因此我们还需要后端优化和回环检测。</p>
+<h2 id="2-2-后端优化"><a href="#2-2-后端优化" class="headerlink" title="2.2 后端优化"></a>2.2 后端优化</h2><p>后端优化主要指处理 SLAM 过程中<strong>噪声</strong>的问题。</p>
+<p>后端优化要考虑的问题， 就是如何从这些带有噪声的数据中，<strong>估计整个系统的状态</strong>，以及这个状态<strong>估计的不确定性有多大</strong>——这称为<strong>最大后验概率估计</strong>（Maximum-a-Posteriori，MAP）。</p>
+<p>在视觉 SLAM 中，前端和计算机视觉研究领域更为相关，比如图像的特征提取与匹配等，后端则主要是滤波与非线性优化算法。</p>
+<h2 id="2-3-回环检测"><a href="#2-3-回环检测" class="headerlink" title="2.3 回环检测"></a>2.3 回环检测</h2><p>回环检测，又称闭环检测（Loop Closure Detection），主要解决位置估计随时间漂移的问题。实现的途径就是让机器人具有<strong>识别曾到达过的场景的能力</strong>，比如识别二维码、环境特征等等。</p>
+<p>在检测到回环之后，我们会把“A 与 B 是同一个点”这样的信息告诉后端优化算法。 然后，后端根据这些新的信息，把轨迹和地图调整到符合回环检测结果的样子。这样就可以消除累积误差，得到全局一致的轨迹地图。</p>
+<h2 id="2-4-建图"><a href="#2-4-建图" class="headerlink" title="2.4 建图"></a>2.4 建图</h2><p>建图（Mapping）是指构建地图的过程。地图是对环境的描述，但这个描述并不是固定的，需要视 SLAM 的应用而定。</p>
+<p>地图可分为<strong>度量地图</strong>（Metric Map）和 <strong>拓扑地图</strong>（Topological Map）</p>
+<ul>
+<li><strong>度量地图</strong>强调精确地表示地图中物体的位置关系，通常我们用<strong>稀疏（Sparse）</strong>与<strong>稠密 （Dense）</strong>对它们进行分类。<ul>
+<li><strong>稀疏地图</strong>进行了一定程度的<strong>抽象</strong>，并不需要表达所有的物体。例如，我们选择一部分具有代表意义的东西，称之为路标（Landmark），那么一张稀疏地图就是由路标组成的地图，而不是路标的部分就可以忽略掉，一般适用于<strong>定位</strong>。</li>
+<li><strong>稠密地图</strong>通常按照某种分辨率，由许 多个小块组成，一个小块含有占据、空闲、未知三种状态，以表达该格内是否有物体。一般适用于<strong>导航</strong>。</li>
+</ul>
+</li>
+<li><strong>拓扑地图</strong>则更强调地图元素之间的关系。拓扑地图是一个<strong>图</strong>（Graph），由<strong>节点</strong>和<strong>边</strong>组成，只考虑节点间的连通性。它放松了地图对精确位置的需要，去掉地图的细节问题， 是一种<strong>更为紧凑的表达方式</strong></li>
+</ul>
+<h1 id="3-SLAM的数学表达"><a href="#3-SLAM的数学表达" class="headerlink" title="3. SLAM的数学表达"></a>3. SLAM的数学表达</h1><p>假设将时间变为离散 $t=1,2,…,K$，然后我们用$x$表示机器人的<strong>位置</strong> $x_1,…,x_k$，而每个时刻，传感器会测量到一部分路标点，得到它们的观测数据。不妨设<strong>路标点</strong>一共有$N$个，用 $y_1,…,y_N$表示它们。 那么机器人携带传感器在环境中的运动就可以描述为：</p>
+<ol>
+<li>什么是运动？我们要考虑从 $k−1$ 时刻到 $k$ 时刻，机器人的位置 $x$ 是如何变化的。</li>
+<li>什么是观测？假设机器人在 $k$ 时刻，于 $x_k$ 处探测到了某一个路标 $y_j$，我们要考虑这件事情是如何用数学语言来描述的。</li>
+</ol>
+<p>运动方程$x<em>k$和观测方程$z</em>{k,j}$可以分别抽象为如下数学表达式：</p>
+<script type="math/tex; mode=display">
+\begin{equation}  
+\left\{  
+             \begin{array}\\  
+x_k=f(x_{k-1},u_k,\omega_k) \\
+z_{k,j}=h(y_j,x_k,v_{k,j})
+             \end{array}  
+\right.  
+\end{equation}</script><p>$\omega<em>k$和$v</em>{k,j}$为噪声，$u<em>k$为运动测量读数，$y_j$为路标点，$z</em>{k,j}$为传感器读数。</p>
+<p>因此问题就转化为：知道<strong>运动测量的读数 $u$，以及传感器的读数 $z$ 时</strong>，<strong>如何求解定位问题（估计 $x$）和建图问题（估计 $y$）</strong>？</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" target="_blank" rel="external">jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SLAM/" rel="tag">SLAM</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&title=《SLAM基础1-综述》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&title=《SLAM基础1-综述》 — JR's Blog&source=这个系列是对SLAM的基本介绍。分为8+1个部分，其中视觉里程计的部分被单独拆分为小专题的形式。
+第一部分是综述，主要介绍SLAM的基本概念。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础1-综述》 — JR's Blog&url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/09/SLAM%E5%9F%BA%E7%A1%802-%E4%B8%89%E7%BB%B4%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">SLAM基础2-三维刚体运动</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/07/GDB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">GDB使用方法</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&title=《SLAM基础1-综述》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&title=《SLAM基础1-综述》 — JR's Blog&source=这个系列是对SLAM的基本介绍。分为8+1个部分，其中视觉里程计的部分被单独拆分为小专题的形式。
+第一部分是综述，主要介绍SLAM的基本概念。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《SLAM基础1-综述》 — JR's Blog&url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/08/08/SLAM%E5%9F%BA%E7%A1%801-%E7%BB%BC%E8%BF%B0/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

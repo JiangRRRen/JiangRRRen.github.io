@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>EffectiveModernCPP笔记5-智能指针 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="C++,读书笔记">
+    <meta name="description" content="描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EffectiveModernCPP笔记5-智能指针">
+<meta property="og:url" content="jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108103101.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108110927.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108111028.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113130.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113840.png">
+<meta property="og:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108132318.png">
+<meta property="article:published_time" content="2019-10-26T03:34:53.000Z">
+<meta property="article:modified_time" content="2019-12-30T21:10:11.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108103101.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">EffectiveModernCPP笔记5-智能指针</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">EffectiveModernCPP笔记5-智能指针</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-10-26T03:34:53.000Z" itemprop="datePublished" class="page-time">
+  2019-10-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-18-Use-unique-ptr-for-exclusive-ownership-resource-management"><span class="post-toc-text">Item 18:Use unique_ptr for exclusive-ownership resource management.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-19-Use-shared-ptr-for-shared-ownership-resource-management"><span class="post-toc-text">Item 19:Use shared_ptr for shared-ownership resource management.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-20-Use-weak-ptr-for-shared-ptr-like-pointers-that-can-dangle"><span class="post-toc-text">Item 20:Use weak_ptr for shared_ptr-like pointers that can dangle.</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-21-Prefer-std-make-unique-and-std-make-shared-to-direct-use-of-new"><span class="post-toc-text">Item 21:Prefer std::make_unique and std::make_shared to direct use of new</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Item-22-When-using-the-Pimpl-Idiom-define-special-member-functions-in-the-implementation-file"><span class="post-toc-text">Item 22:When using the Pimpl Idiom, define special member functions in the implementation file.</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-EffectiveModernCPP笔记5-智能指针"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">EffectiveModernCPP笔记5-智能指针</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-10-26 11:34:53" datetime="2019-10-26T03:34:53.000Z"  itemprop="datePublished">2019-10-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/C/">C++</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来减轻编译负担。<a id="more"></a></p>
+<h1 id="Item-18-Use-unique-ptr-for-exclusive-ownership-resource-management"><a href="#Item-18-Use-unique-ptr-for-exclusive-ownership-resource-management" class="headerlink" title="Item 18:Use unique_ptr for exclusive-ownership resource management."></a>Item 18:Use unique_ptr for exclusive-ownership resource management.</h1><p>先解释一下，exclusive ownership是独占所有权的意思，顾名思义这一章的主要目的是介绍如何利用<code>unique_ptr</code>管理独占所有权的资源。</p>
+<p><code>std::unique_ptr</code>体现了显式所有权的语义：非空的<code>std::unique_ptr</code>总是拥有它指向的对象，换句话说我们只能<strong>通过移动转移所有权，而不允许复制</strong>。</p>
+<p>它的主要应用是在<strong>工厂模式</strong>。假设有一个基类和三个派生类，通过一个工厂函数来返回某个派生类的<code>std::unique_ptr</code>，这样调用方就不需要费心什么时候销毁返回的对象了：<code>std::unique_ptr</code>会负责这件事。</p>
+<blockquote>
+<p>工厂函数使用了C++<strong>多态</strong>的特性，将存在<strong>继承</strong>关系的类，通过一个<strong>工厂类创建</strong>对应的子类（派生类）对象。比如父类是Shoes，子类有Nike，LiNing，Adidas，假设有一个工厂函数，把生产鞋子的需求输入其中，他就能调用shoes父类下面的子类进行构造。</p>
+</blockquote>
+<p>我们做一个完整的例子，投资类下面有三个子类：股票、债券、期货，再带一个工厂函数：</p>
+<pre><code class="lang-cpp">#pragma once
+#include &lt;assert.h&gt;
+#include &lt;memory&gt;
+#include &lt;iostream&gt;
+#include &lt;functional&gt;
+
+//类定义
+class Investment {
+public:
+    virtual ~Investment() {
+        std::cout &lt;&lt; &quot;investment destoryed\n&quot;;
+    }
+};
+
+void makeLogEntry(Investment* pInv) {
+    std::cout &lt;&lt; &quot;deleting investment on &quot; &lt;&lt; pInv &lt;&lt; &quot;\n&quot;;
+}
+
+class Stock : public Investment {
+public:
+    Stock() {
+        std::cout &lt;&lt; &quot;make an invesetment on stock\n&quot;;
+    }
+    virtual ~Stock() {
+        std::cout &lt;&lt; &quot;a stock investment destoryed,&quot;;
+    }
+};
+
+class Bond : public Investment {
+public:
+    Bond() {
+        std::cout &lt;&lt; &quot;make an investmentt on bond\n&quot;;
+    }
+    virtual ~Bond() {
+        std::cout &lt;&lt; &quot;a bond investment destroyed,&quot;;
+    }
+};
+
+class RealEstate : public Investment {
+public:
+    RealEstate() {
+        std::cout &lt;&lt; &quot;make an investmentt on RealEstate\n&quot;;
+    }
+    virtual ~RealEstate() {
+        std::cout &lt;&lt; &quot;a RealEstatend investment destroyed,&quot;;
+    }
+};
+
+void deleteAndLog(Investment* pInv) {
+    makeLogEntry(pInv);
+    delete pInv;
+}
+
+template&lt;typename T, typename... Ts&gt;
+static auto makeInvestment(Ts&amp;&amp;... params) {
+    auto delInvmt = [](Investment* pInv)
+    {
+        makeLogEntry(pInv);
+        delete pInv;
+    };
+
+    typedef std::unique_ptr&lt;Investment, decltype(delInvmt)&gt; InvestmentPtr;
+    std::cout &lt;&lt; sizeof(InvestmentPtr) &lt;&lt; &quot;\n&quot;;
+
+    InvestmentPtr pInv(nullptr, delInvmt);
+    pInv.reset(new T(std::forward&lt;Ts&gt;(params)...));//不能直接将裸指针赋值给一个unique_ptr，要使用reset
+    return pInv;
+}
+</code></pre>
+<p><code>unique_ptr</code>默认的销毁方式是通过对<code>unique_ptr</code>中的裸指针进行<code>delete</code>操作，但是也可以在声明的时候指定销毁函数，在上面的代码中，通过<code>lambda</code>表达式置顶了一个打印日志函数，要在销毁指针的时候会打印日志。</p>
+<pre><code class="lang-cpp">auto delLog = [](int* pInv)
+{
+    cout &lt;&lt; &quot;See you !&quot; &lt;&lt; endl;
+    delete pInv;
+};
+std::unique_ptr&lt;int, decltype(delLog)&gt; pInt(nullptr, delLog);
+pInt.reset(new int(1));
+std::cout &lt;&lt; *pInt &lt;&lt; &quot;\n&quot;;
+</code></pre>
+<p>客户端的调用方法如下，这样会产生一个<code>unique_ptr</code>指针指向stock，只要这个程序不结束，那么他就不会调用销毁函数，反之当程序终止时调用函数销毁对象。</p>
+<pre><code class="lang-cpp">auto pInvestment = makeInvestment&lt;Stock&gt;();
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108103101.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>我们还可以通过<code>move</code>的方式转移所有权，但不能调用拷贝构造，参见delete那一章。</p>
+<pre><code class="lang-cpp">auto pInvestment = makeInvestment&lt;Bond&gt;();
+auto pInvestment2 = std::move(pInvestment);
+</code></pre>
+<p>总结一下：</p>
+<ul>
+<li><code>delInvmt</code>是自定义的销毁器，在<code>std::unique_ptr</code>析构时，自定义的销毁器会来完成释放资源必需的操作。这里用lambda表达式来实现<code>delInvmt</code>，不仅更方便，性能还更好。</li>
+<li>自定义的销毁器的类型必须与<code>std::unique_ptr</code>的第二个模板参数相同，因此我们要用<code>decltype(delInvmt)</code>来声明<code>std::unique_ptr</code>。</li>
+<li><code>makeInvestment</code>的基本策略是创建一个空的<code>std::unique_ptr</code>，再令它指向合适的类型，再返回。其中我们把<code>delInvmt</code>作为第二个构造参数传给<code>std::unique_ptr</code>，从而将销毁器与<code>pInv</code>关联起来。</li>
+<li>无法将裸指针隐式转换为<code>std::unique_ptr</code>，需要用<code>reset</code>来修改<code>std::unique_ptr</code>持有的裸指针。</li>
+<li>我们在创建具体的对象时，使用了<code>std::forward</code>将<code>makeInvestment</code>的所有参数完美转发给对应的构造函数。</li>
+<li>注意<code>delInvmt</code>的参数是<code>Investment*</code>，而它的实际类型可能是派生类，因此需要基类<code>Investment</code>有一个虚的析构函数。</li>
+</ul>
+<h1 id="Item-19-Use-shared-ptr-for-shared-ownership-resource-management"><a href="#Item-19-Use-shared-ptr-for-shared-ownership-resource-management" class="headerlink" title="Item 19:Use shared_ptr for shared-ownership resource management."></a>Item 19:Use shared_ptr for shared-ownership resource management.</h1><p>很多语言都有GC(garbage collection)机制，但这种机制带来的是资源释放的不确定性，而原始的C语言有两种内存：<strong>栈上的内存</strong>（函数的局部变量等等，由操作系统释放），<strong>动态内存</strong>（依靠new，malloc等方式用户自己分配的内存，需要手动释放）。如果我们在程序中忘了释放这些动态内存，而程序又是会持续运行的服务进程，会导致内存占用越来越高，轻者致残影响系统性能，重者致命导致进程崩溃。下面举个例子：</p>
+<p>下面这一段程序按照规范合理释放内存，他的内存使用情况如下</p>
+<pre><code class="lang-cpp">for (int i = 0; i &lt; 10000; i++) {
+    int* p = (int*)malloc(sizeof(int));
+    *p = i;
+    cout &lt;&lt; *p &lt;&lt; endl;
+    free(p);        
+}
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108110927.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>然而如果我去掉了<code>free(p)</code>这一句，就会导致如下的情况，问题一目了然！有可能你的程序从70MB跑了一年跑到200MB了。</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108111028.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>以上介绍了<strong>不及时释放内存导致泄露</strong>的结果，下面就正式介绍C++是如何<strong>在保证手工管理内存的确定性和自动GC机制的便利性</strong>中做平衡的。现代CPP给出的方案是<code>shared_ptr</code>！</p>
+<p>从c++11开始引入的<code>shared_ptr</code>，用来表示指针对指向对象的“<strong>共享所有权</strong>”；一个对象可以被多个<code>shared_ptr</code>指向和访问，这些<code>shared_ptr</code>类型的指针共同享有该对象的所有权，<strong>当最后一个指向该对象的<code>shared_ptr</code>生命周期结束的时候，对象被销毁</strong>。</p>
+<p>下面介绍他的机制和特点：</p>
+<p><strong>（1）基于引用计数实现</strong></p>
+<p>他的机制和JVM的机制一样，基于引用计数实现，<code>shared_ptr</code>的构造将引用计数加1，销毁的时候引用计数减1，而赋值则将源指针引用计数加1，目标指针引用计数减1，例如<code>P1=P2</code>，<code>P1</code>指向对象的引用计数减1，<code>P2</code>指向对象的引用计数加1。当引用计数减1之后为0的时候，<code>shared_ptr</code>将会销毁指向的对象。<code>shared_ptr</code>的<strong>构造函数函数会增加引用计数</strong>，但是移动构造除外，因为<strong>移动构造并没有增加指向对象的引用计数，所以不需要改变引用计数</strong>；需要注意：</p>
+<ul>
+<li><code>std::shared_ptr</code>占用的内存空间是原生指针的两倍</li>
+<li>被指向对象的内存空间必须是<strong>动态分配</strong>的</li>
+<li>增加或者减少指针引用对象的操作必须是原子操作类型的，多线程操作时要谨慎使用<code>std::shared_ptr</code></li>
+</ul>
+<p><strong>（2）销毁器不是指针类型的一部分</strong></p>
+<p>与<code>unique_ptr</code>类似，<code>shared_ptr</code>同样也支持自定义销毁方法（默认是直接调用<code>delete</code>），<strong>与<code>unique_ptr</code>不同的是，销毁方式是<code>unique_ptr</code>类型的一部分，而<code>shared_ptr</code>的销毁方式却不是。</strong></p>
+<pre><code class="lang-cpp">auto loggingDel = [](Widget *pw)
+                  {
+                      makeLogEntry(pw);
+                      delete pw;
+                  };
+std::unique_ptr&lt;Widget, decltype(loggingDel)&gt; upw(new Widget, loggingDel);
+std::shared_ptr&lt;Widget&gt; spw(new Widget, loggingDel);
+</code></pre>
+<p>不把销毁方式作为<code>shared_ptr</code>类型的一部分可以带来更大的灵活性，因为这里不同的<code>shared_ptr</code>指针对象可能需要不同的销毁方式：</p>
+<pre><code class="lang-cpp">auto customDeleter1 = [](Widget *pw) { … }; // custom deleters,
+auto customDeleter2 = [](Widget *pw) { … }; // each with adifferent type
+std::shared_ptr&lt;Widget&gt; pw1(new Widget, customDeleter1);
+std::shared_ptr&lt;Widget&gt; pw2(new Widget, customDeleter2);
+//由于有相同的结构，所以可以写成
+std::vector&lt;std::shared_ptr&lt;Widget&gt;&gt;vpw{pw1, pw2};
+</code></pre>
+<p><strong>（3）包含一个控制块</strong></p>
+<p>与unique_ptr不同的是<strong>，自定义销毁方式并不会改变shared_ptr的size，shared_ptr的size始终是两倍的裸指针size，</strong>其内存布局是如下图所示：</p>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113130.png" alt="img" style="zoom:67%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<ul>
+<li>使用<code>std::make_shared</code>的时候<strong>总是</strong>分配控制块</li>
+<li><code>shared_ptr</code>由<code>unique_ptr</code>或裸指针构建时分配控制块</li>
+<li><code>shared_ptr</code>由其他<code>shared_ptr</code>或<code>weak_ptr</code>构建时不分配新的控制块，而是沿用既有智能指针的控制块</li>
+</ul>
+<p>这就会带来一个问题，当我们用一个裸指针构建多个shared_ptr时，会<strong>分配多个控制块</strong>，同一个对象确有多个引用计数（控制块），这就很容易<strong>导致一个对象被销毁多次</strong>，下面的代码描述了这种情况：</p>
+<pre><code class="lang-cpp">auto pw = new Widget; // pw 是原生指针
+//…
+std::shared_ptr&lt;Widget&gt; spw1(pw, loggingDel); // create control block for *pw
+std::shared_ptr&lt;Widget&gt; spw2(pw, loggingDel); // create 2nd control block
+</code></pre>
+<p><img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108113840.png" alt="img" style="zoom:86%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>如何避免这个问题呢？尽可能<strong>避免使用裸指针来构建<code>shared_ptr</code>，使用<code>make_shared</code></strong>。</p>
+<p><strong>关于shared_ptr性能的讨论</strong></p>
+<p><code>shared_ptr</code>的控制块是动态生成的，尽管占用的空间并不大，但是控制块的实际实现比想象的要复杂，实现控制块<strong>使用到了继承和虚函数，同时引用计数的增减是原子操作</strong>也增加了性能上的代价，这些都导致了<code>shared_ptr</code>并不是管理所有动态资源的最好方案，使用<code>shared_ptr</code>解引用获取对象时会比直接使用裸指针的代价更高；</p>
+<p>然而，尽管<code>shared_ptr</code>有在性能上付出了一定的代价，其带来的收益是非常显著的，<code>shared_ptr</code>解决了动态分配资源的生命周期自动管理，大多数时候，在“共享所有权”的语义下，使用<code>shared_ptr</code>管理动态资源都是值得推荐的；而没有“共享所有权”语义的其他情况下，例如“独占所有权”，则可以使用<code>unique_ptr</code>来代替；</p>
+<p>另一个<code>shared_ptr</code>不能做的事情是管理数组，不能使用<code>std::shared_ptr</code>这样的类型，然而，c++ 11之后标准库已经引入了<code>std::array</code>，<code>shared_ptr</code>管理一个<code>std::array</code>类型的对象是可行的。</p>
+<h1 id="Item-20-Use-weak-ptr-for-shared-ptr-like-pointers-that-can-dangle"><a href="#Item-20-Use-weak-ptr-for-shared-ptr-like-pointers-that-can-dangle" class="headerlink" title="Item 20:Use weak_ptr for shared_ptr-like pointers that can dangle."></a>Item 20:Use weak_ptr for shared_ptr-like pointers that can dangle.</h1><p>虽然有了<code>std::shared_ptr</code>，但我们却并不知道指向的资源到底有没有被销毁，我们希望有一种智能指针能够追踪他什么时候空悬(dangle，即对象不存在)，解决方案就是采用<code>std::weak_ptr</code>。</p>
+<p>先，这个指针并不是单独存在的，他需要搭配<code>shared_ptr</code>一起使用。<code>std::weak_ptr</code>通常是由<code>std::shared_ptr</code>中创建而来。它们指向的地方与初始化它们的<code>std::shared_ptr</code>指向的地方相同，但它们<strong>不会影响指向对象的引用计数</strong>：</p>
+<pre><code class="lang-cpp">auto spw = std::make_shared&lt;Widget&gt;();  // spw是std::shared_ptr&lt;Widget&gt;
+                                        // 引用计数为1
+...
+std::weak_ptr&lt;Widget&gt; wpw(spw); // wpw指向spw指向的Widget，引用计数仍然为1
+...
+spw = nullptr;    // 引用计数变成0，Widget被销毁，wpw现在变成空悬指针
+</code></pre>
+<p>如上所示，当<code>weak_ptr</code>变为空悬指针时，我们可以去检查它<code>if (wpw.expired())</code></p>
+<p>不过一般状况是：当你去检查<code>std::weak_ptr</code>是否过期，如果没有过期（即不是空悬），就要取得它指向的对象。</p>
+<p>因为<code>std::weak_ptr</code>没有解引用操作，所以没有办法写出解引用的代码。就算有这个操作，<strong>单独的检查操作和解引用操作会引出一个竞争条件</strong>：在调用检查操作和解引用操作之间，另一个线程重赋值或销毁最后一个指向对象的<code>std::shared_ptr</code>，因此导致对象被销毁，这样解引用就产生了未定义行为。</p>
+<p>因此需要原子操作来检查<code>shared_ptr</code>是否过期，通常情况我们使用<code>std::weak_ptr::lock</code>，如果<strong>不为空则返回对应的<code>shared_ptr</code>否则返回<code>nullptr</code></strong></p>
+<p><strong>（1）应用一：cache缓存</strong></p>
+<p>下面是一个使用<code>weak_ptr</code>和哈希表容器构建缓存的示例，由于<code>loadWidget</code>的操作可能是大开销函数，所以我们最好设计一个缓存，保存我们加载过的对象。</p>
+<pre><code class="lang-cpp">std::shared_ptr&lt;const Widget&gt; fastLoadWidget(WidgetID id)
+{
+    static std::unordered_map&lt;WidgetID, std::weak_ptr&lt;const Widget&gt;&gt; cache; 
+
+    auto objPtr = cache[id].lock(); // objPtr是指向缓存对象的shared_ptr(否则为空)
+
+    if (!objPtr) {                    // 如果不在缓存中
+        objPtr = loadWidget(id);      // 大开销函数加载它
+        cache[id] = objPtr;           // 缓存它
+    }
+    return objPtr;
+}
+</code></pre>
+<blockquote>
+<p>在局部变量前，加上关键字static，该变量就被定义成为一个静态局部变量。</p>
+<ul>
+<li>该变量在全局数据区分配内存；</li>
+<li>静态局部变量在程序执行到该对象的声明处时被首次初始化，即以后的函数调用不再进行初始化；</li>
+<li>静态局部变量一般在声明处初始化，如果没有显式初始化，会被程序自动初始化为0；</li>
+<li>其作用域为局部作用域</li>
+</ul>
+</blockquote>
+<p><strong>（2）应用二：观察者模式</strong></p>
+<p>这个设计模式的主要组成是subject（主题，即状态可能改变的对象）和observer（观察者，即出现状态改变时被通知的对象）。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://bucket-1259555870.cos.ap-chengdu.myqcloud.com/20191108132318.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>B是主题，AC为观察者，AC对B有共同使用权，他们都有指向B的<code>shared_ptr</code>用于接收B的改变。现在的问题是如果B要及时知道A是否被销毁，问号处应该使用什么指针？有三种选择：</p>
+<ul>
+<li>原生指针。若A被销毁，则B指向A的指针会空悬，B没有能力发现，B去解指针的引用时会发生未定义行为！</li>
+<li><code>shared_ptr</code>。A指向B且B指向A，形成循环。他们两抱团取暖，互相引用计数，形成闭环，即使其他数据不再指向AB，他们依然不会被销毁。从另一个角度来说，AB已经泄露：程序不能使用它们，资源无法回收。</li>
+<li><code>weak_ptr</code>。很好的解决了问题！尽管A和B在互指，B的指针也不会影响A对象的引用计数。如果A被销毁了，B的指针能知道它已经过期了。</li>
+</ul>
+<h1 id="Item-21-Prefer-std-make-unique-and-std-make-shared-to-direct-use-of-new"><a href="#Item-21-Prefer-std-make-unique-and-std-make-shared-to-direct-use-of-new" class="headerlink" title="Item 21:Prefer std::make_unique and std::make_shared to direct use of new"></a>Item 21:Prefer std::make_unique and std::make_shared to direct use of new</h1><p>为什么用make比用new好？直接上结论：</p>
+<p><strong>（1）不用重复类型</strong></p>
+<pre><code class="lang-cpp">auto upw1(std::make_unique&lt;Widget&gt;());
+std::unique_ptr&lt;Widget&gt; upw2(new Widget);
+</code></pre>
+<p>上述代码通过make，我们只用写一遍<code>widget</code>，如果连续重复类型，有可能会导致dump</p>
+<p><strong>（2）异常安全</strong></p>
+<p>假设我们有这样的两个函数</p>
+<pre><code class="lang-cpp">void processWidget(std::shared_ptr&lt;Widget&gt; spw, int priority);
+int computePriority();
+
+processWidget(std::shared_ptr&lt;Widget&gt;(new Widget), computePriority()); // potential resource leak!
+</code></pre>
+<p>在<code>processWidget</code>的参数求值过程中，我们只能确定下面几点：</p>
+<ul>
+<li><code>new Widget</code>一定会执行，即一定会有一个<code>Widget</code>对象在堆上被创建。</li>
+<li><code>std::shared_ptr</code>的构造函数一定会执行。</li>
+<li><code>computePriority</code>一定会执行。</li>
+</ul>
+<p><code>new Widget</code>的结果是<code>std::shared_ptr</code>构造函数的参数，因此前者一定早于后者执行。除此之外，编译器不保证其它操作的顺序，即有可能执行顺序为：</p>
+<ol>
+<li><code>new Widget</code></li>
+<li>执行<code>computePriority</code></li>
+<li>构造<code>std::shared_ptr</code></li>
+</ol>
+<p><strong>如果第2步抛异常，第1步创建的对象还没有被<code>std::shared_ptr</code>管理，就会发生内存泄漏。</strong>如果这里我们用<code>std::make_shared</code>，就能<strong>保证<code>new Widget</code>和<code>std::shared_ptr</code>是一起完成</strong>的，中间不会有其它操作插进来，即不会有不受智能指针保护的裸指针出现：</p>
+<pre><code class="lang-cpp">processWidget(std::make_shared&lt;Widget&gt;(), computePriority()); // no potential resource leak
+</code></pre>
+<p><strong>（3）更高效</strong></p>
+<pre><code class="lang-cpp">std:shared_ptr&lt;Widget&gt; spw(new Widget);
+</code></pre>
+<p>这行代码中，我们以为只有一次内存分配，实际发生了两次，第二次是在分配<code>std::shared_ptr</code>控制块。如果用<code>std::make_shared</code>，它会把<code>Widget</code>对象和控制块合并为一次内存分配。</p>
+<hr>
+<p>但他也存在一些问题：</p>
+<ul>
+<li>无法传入自定义的销毁器。</li>
+<li>make函数初始化时使用了括号初始化，而不是花括号初始化，比如<code>std::make_unique&gt;(10, 20)</code>创建了一个有着20个值为10的元素的<code>vector</code>，而不是创建了<code>{10, 20}</code>这么两个元素的<code>vector</code></li>
+<li>对象和控制块分配在一块内存上，减少了内存分配的次数，但也导致对象和控制块占用的内存也要一次回收掉。即，如果还有<code>std::weak_ptr</code>存在，控制块就要在，对象占用的内存也没办法回收。如果对象比较大，且<code>std::weak_ptr</code>在对象析构后还可能长期存在，那么这种开销是不可忽视的。</li>
+</ul>
+<p>如果我们因为前面这三个缺点而不能使用<code>std::make_shared</code>，那么我们要保证<strong>，智能指针的构造一定要单独一个语句</strong>。回到之前<code>processWidget</code>的例子中，假设我们有个自定义的销毁器<code>void cusDel(Widget* ptr);</code>，因此不能使用<code>std::make_shared</code>，那么我们要这么写来保证异常安全性：</p>
+<pre><code class="lang-cpp">std::shared_ptr&lt;Widget&gt; spw(new Widget, cusDel);
+processWidget(spw, computePriority());
+</code></pre>
+<p>当然我们还可以加上移动语义，让它更高效：</p>
+<pre><code class="lang-cpp">std::shared_ptr&lt;Widget&gt; spw(new Widget, cusDel);
+processWidget(std::move(spw), computePriority());
+</code></pre>
+<h1 id="Item-22-When-using-the-Pimpl-Idiom-define-special-member-functions-in-the-implementation-file"><a href="#Item-22-When-using-the-Pimpl-Idiom-define-special-member-functions-in-the-implementation-file" class="headerlink" title="Item 22:When using the Pimpl Idiom, define special member functions in the implementation file."></a>Item 22:When using the Pimpl Idiom, define special member functions in the implementation file.</h1><p><strong>什么是Pimpl？</strong></p>
+<p><code>Pimpl</code>(Pointer to implementation)特别用于减轻编译负担，这是一个C++编程的小技巧，通过它你能<strong>将一个类的数据成员打包放进一个具体的实现类或者结构体中，这些数据成员的访问能将通过指针间接访问</strong>。举个例子</p>
+<pre><code class="lang-cpp">class Widget()      //定义在头文件`widget.h`
+{
+public:
+    Widget();
+    ...
+private:
+    std::string name;
+    std::vector&lt;double&gt; data;
+    Gadget g1, g2, g3;  //Gadget是用户自定义的类型
+}
+</code></pre>
+<p>当我们改变<code>Gadget</code>类的时候，整个程序都需要重新编译，所以我们希望改变这种现状。现在我们使用智能指针实现一个Pimpl来解决这个问题：</p>
+<pre><code class="lang-cpp">class Widget       //在&quot;Widget.h&quot;中
+{
+public:
+    Widget();
+    ...
+
+    private:
+    struct Impl;    //声明一个 实现结构体
+    std::unique_ptr&lt;Impl&gt; pImpl;   //使用智能指针而不是原始指针
+}
+</code></pre>
+<p>实现文件写为：</p>
+<pre><code class="lang-cpp">#include &quot;widget.h&quot;     //以下代码均在实现文件 widget.cpp里
+#include &quot;gadget.h&quot;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+struct Widget::Impl     //跟之前一样
+{
+    std::string name;
+    std::vector&lt;double&gt; data;
+    Gadget g1,g2,g3;
+}
+
+Widget::Widget(): pImpl(std::make_unique&lt;Imple&gt;()){}
+</code></pre>
+<p>以上代码不会编译通过，因为我们<strong>没有给<code>Widget</code>实现自定义的析构函数</strong>，因此编译器为<code>Widget</code>准备了一个。这个析构函数会被放到<code>Widget</code>的定义体内，默认是内联的，因此会有一份实现在用户文件中。<code>~Widget</code>中只做一件事：析构<code>pImpl</code>，即析构一个<code>std::unique_ptr</code>。注意，<strong>我们隐藏了<code>Impl</code>的实现，在析构<code>std::unique_ptr</code>时编译器发现<code>Impl</code>还是个不完整类型</strong>，此时对它调用<code>delete</code>是危险的，因此编译器用<code>static_cast</code>禁止了这种行为。</p>
+<p>解决方案就是我们自己实现一个析构函数，</p>
+<pre><code class="lang-cpp">// widget.h
+class Widget {
+public:
+    Widget();
+    ~Widget();
+    ...
+private:
+    struct Impl
+    std::unique_ptr&lt;Impl&gt; pImpl;
+};
+// widget.cpp
+...
+Widget::Widget(): pImpl(std::make_unique&lt;Impl&gt;()){}
+
+Widget::~Widget(){} = default; //参见item17
+</code></pre>
+<p>根据Item17，自定义的析构函数会阻止编译器生成移动构造函数和移动赋值函数，因此如果你想要<code>Widget</code>有移动的能力，就要自己实现（注意<strong>不要在这些特殊成员函数的声明后面加<code>= default</code></strong>，这样会重复上面析构函数的问题：会被内联，因此在用户代码中有一份实现，遇到不完整类型）：</p>
+<pre><code class="lang-cpp">class Widget {
+public:
+    Widget();
+    ~Widget();
+    //Widget(Widget&amp;&amp; rhs) = default; // right idea, wrong code!
+    //Widget&amp; operator=(Widget&amp;&amp; rhs) = default;
+    Widget(Widget&amp;&amp; rhs) ; 
+    Widget&amp; operator=(Widget&amp;&amp; rhs) ;
+    ...
+};
+</code></pre>
+<p>接下来就是复制构造函数和复制赋值函数了。我们用<code>std::unique_ptr</code>是为了更好的实现Pimpl方法，这也导致了<code>Widget</code>无法自动生成复制函数（<code>std::unique_ptr</code>不支持），但这并不意味着<code>Widget</code>就不能支持复制了，我们还可以自己定义两个复制函数：</p>
+<pre><code class="lang-cpp">// widget.h
+class Widget {
+public:
+    ...
+    Widget(const Widget&amp; rhs);
+    Widget&amp; operator=(const Widget&amp; rhs);
+    ...
+};
+// widget.cpp
+Widget::Widget(const Widget&amp; rhs)
+    : pImpl(nullptr) {
+    if (rhs.pImpl) {
+        pImpl = std::make_unique&lt;Impl&gt;(*rhs.pImpl);
+    }
+}
+Widget&amp; Widget::operator=(const Widget&amp; rhs) {
+    if (!rhs.pImpl) {
+        pImpl.reset();
+    } else if (!pImpl) {
+        pImpl = std::make_unique&lt;Impl&gt;(*rhs.pImpl);
+    } else {
+        *pImpl = *rhs.pImpl;
+    }
+}
+</code></pre>
+<p>如果你把<code>pImpl</code>的类型改为<code>std::shared_ptr</code>，你会发现上面所有这些注意事项，都不见了。你不需要手动实现析构函数、移动函数、构造函数，程序编译仍然是好的。所以这么多东西仅仅针对<code>unique_ptr</code>。<strong>这种差异来自于<code>std::unique_ptr</code>和<code>std::shared_ptr</code>对自定义销毁器的支持方式不同</strong>。</p>
+<p>对<code>std::unique_ptr</code>而言，<strong>销毁器的类型是<code>unique_ptr</code>的一部分</strong>，这让编译器有可能生成<strong>更小的运行时数据结构和更快的运行代码</strong>。 这种更高效率的后果之一就是<code>unique_ptr</code>指向的类型，在编译器的生成<strong>特殊成员函数被调用时(如析构函数，移动操作)时，必须已经是一个完成类型</strong>。 而对<code>std::shared_ptr</code>而言，销毁器的类型不是该智能指针的一部分，这让它会生成更大的运行时数据结构和稍微慢点的代码，但是当编译器生成的特殊成员函数被使用的时候，指向的对象不必是一个完成类型。</p>
+<p>对于<code>pImpl</code>惯用法而言，在<code>std::unique_ptr</code>和<code>std::shared_ptr</code>的特性之间，没有一个比较好的折中。 因为<strong>对于类<code>Widget</code>以及<code>Widget::Impl</code>而言，他们是独享占有权关系</strong>，这让<code>std::unique_ptr</code>使用起来很合适。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" target="_blank" rel="external">jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&title=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&title=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&source=描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/10/27/EffectiveModernCPP%E7%AC%94%E8%AE%B06-%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E4%B8%8E%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">EffectiveModernCPP笔记6-右值引用与移动语义</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B03-%E7%8E%B0%E4%BB%A3CPP%E7%89%B9%E6%80%A7%E4%B8%8B/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">EffectiveModernCPP笔记4-现代CPP特性下</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&title=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&title=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&source=描述了三大智能指针：unique_ptr, shared_ptr, weak_ptr，介绍了为什么更倾向于用make构造而不是new，如何构建Pimpl来..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EffectiveModernCPP笔记5-智能指针》 — JR's Blog&url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2019/10/26/EffectiveModernCPP%E7%AC%94%E8%AE%B05-%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

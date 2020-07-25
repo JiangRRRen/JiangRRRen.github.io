@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'true', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    <meta name="google-site-verification" content="google-site-verification=6xKBD4e783W5YvEkBJE-d7v5QxyEqF7MRInlhMNq8YU">
+    
+    
+    
+    
+    <title>GoWeb实战1-数据库与服务器的结合应用 | JR&#39;s Blog | 直挂云帆济沧海</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="计算机网络,go">
+    <meta name="description" content="本节是针对前面学到的数据库操作和Web编程的综合应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoWeb实战1-数据库与服务器的结合应用">
+<meta property="og:url" content="jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/">
+<meta property="og:site_name" content="JR&#39;s Blog">
+<meta property="og:description" content="本节是针对前面学到的数据库操作和Web编程的综合应用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200127153214.png">
+<meta property="og:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200127155739.png">
+<meta property="article:published_time" content="2020-03-01T07:29:27.000Z">
+<meta property="article:modified_time" content="2020-03-02T20:33:54.000Z">
+<meta property="article:author" content="Jiang Ren">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200127153214.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="JR&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/MapleStory.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg" style="max-width: 100%;">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Jiang Ren</h5>
+          <a href="mailto:jiangren@whu.edu.cn" title="jiangren@whu.edu.cn" class="mail">jiangren@whu.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/JiangRRRen" target="_blank" rel="noopener"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">GoWeb实战1-数据库与服务器的结合应用</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">GoWeb实战1-数据库与服务器的结合应用</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-03-01T07:29:27.000Z" itemprop="datePublished" class="page-time">
+  2020-03-01
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#1-数据库操作"><span class="post-toc-text">1. 数据库操作</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-1-连接初始化"><span class="post-toc-text">1.1 连接初始化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-查询"><span class="post-toc-text">1.2 查询</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-2-修改数据"><span class="post-toc-text">1.2 修改数据</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2-服务端操作"><span class="post-toc-text">2. 服务端操作</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-1-查询数据"><span class="post-toc-text">2.1 查询数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-2-删除数据"><span class="post-toc-text">2.2 删除数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-3-插入数据"><span class="post-toc-text">2.3 插入数据</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-GoWeb实战1-数据库与服务器的结合应用"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">GoWeb实战1-数据库与服务器的结合应用</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-03-01 15:29:27" datetime="2020-03-01T07:29:27.000Z"  itemprop="datePublished">2020-03-01</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/go/">go</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>本节是针对前面学到的数据库操作和Web编程的综合应用。<a id="more"></a></p>
+<h1 id="1-数据库操作"><a href="#1-数据库操作" class="headerlink" title="1. 数据库操作"></a>1. 数据库操作</h1><p>用mysql进行测试，测试用数据源如下，其中<code>order_num</code>作为主键。</p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200127153214.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<h2 id="1-1-连接初始化"><a href="#1-1-连接初始化" class="headerlink" title="1.1 连接初始化"></a>1.1 连接初始化</h2><p>连接初始化我们需要4块代码：</p>
+<ul>
+<li>连接信息</li>
+<li>全局变量：指向数据库的指针</li>
+<li>初始化函数</li>
+<li>一个结构变量，作为数据载体</li>
+</ul>
+<p>首先是连接信息：</p>
+<pre><code class="lang-go">const(
+    userName =&quot;test&quot;
+    password = &quot;asdfg12345&quot;
+    ip =&quot;cdb-axt937vt.gz.tencentcdb.com&quot;
+    port=&quot;10059&quot;
+    dbName = &quot;test&quot;
+)
+</code></pre>
+<p>关键词<code>const</code>加上括号，有两个作用：</p>
+<ul>
+<li>变量值自增，类似于C++的枚举（这里用不到）</li>
+<li>全部设置为常量类型，比较方便</li>
+</ul>
+<hr>
+<p>之后我们需要声明一个全局变量<code>DB</code>，作为数据库的指针。</p>
+<pre><code class="lang-go">var DB *sql.DB
+</code></pre>
+<hr>
+<p>然后重点就是初始化连接函数：</p>
+<pre><code class="lang-go">func init(){
+    connectInfo:=[]string{userName,&quot;:&quot;,password,&quot;@tcp(&quot;,ip,&quot;:&quot;,port,&quot;)/&quot;, dbName, &quot;?charset=utf8&quot;}
+    path := strings.Join(connectInfo,&quot;&quot;)
+    DB,_=sql.Open(&quot;mysql&quot;,path)
+
+    if err:=DB.Ping(); err !=nil{
+        fmt.Println(&quot;open database fail!&quot;)
+        return
+    }
+    fmt.Println(&quot;connect success&quot;)
+}
+</code></pre>
+<p>必须声明为<code>init()</code>，这个函数就会在主函数之前调用。这个函数首先<strong>将零散的连接信息拼接成一个字符切片。</strong><code>strings.Join</code>方法将切片的字符串元素拼接起来，比如：</p>
+<pre><code class="lang-go">string [] tmpStr={abc,def,ghi};
+string jn = string.Join(tmpStr，&quot;-&quot;);
+//jn=&quot;abc-def-ghi&quot;
+</code></pre>
+<p>我们之前已经通过如下语句引入了Mysql驱动：</p>
+<pre><code class="lang-go">import _&quot;github.com/Go-SQL-Driver/MySQL&quot;
+</code></pre>
+<p>所以<code>DB,_=sql.Open(&quot;mysql&quot;,path)</code>可以直接连接mysql。链结构，还要利用<code>ping</code>来检测连接是否成功。</p>
+<hr>
+<p>之后，我们需要针对特定的数据指定相应的结构体来承载数据：</p>
+<pre><code class="lang-go">type Orders struct{
+    Order_num int `json:&quot;order_num&quot;`
+    Order_date string `json:&quot;order_date&quot;`
+    Cust_id int `json:&quot;cust_id&quot;`
+}
+</code></pre>
+<h2 id="1-2-查询"><a href="#1-2-查询" class="headerlink" title="1.2 查询"></a>1.2 查询</h2><p>查询我们分为两类：</p>
+<ul>
+<li>单行查询，指定主键，查询内容</li>
+<li>多行查询，返回所有内容</li>
+</ul>
+<p>单行查询非常简单，思路是：<strong>传入查询的主键，返回查询结果（order结构）和错误</strong>。具体步骤是：</p>
+<ol>
+<li>新建一个order结构，<strong>不要使用<code>:=</code></strong>。</li>
+<li>调用查询语句</li>
+<li>将查询结果扫描进order结构，同时赋值错误，<strong>不要使用<code>：=</code></strong></li>
+</ol>
+<pre><code class="lang-go">func QueryOne(id int)(order Orders,err error){
+    order = Orders{}
+    row := DB.QueryRow(&quot;SELECT order_num, order_date,cust_id FROM orders WHERE order_num=?&quot;,id)
+    err = row.Scan(&amp;order.Order_num,&amp;order.Order_date,&amp;order.Cust_id)
+    return
+}
+</code></pre>
+<p>主要需要关注查询语句，可以通过<code>order_num=?</code>向其中填值。</p>
+<hr>
+<p>多行查询比较特殊，我们调用查询语句后返回的一个特殊的数据结构<code>database/sql.Rows</code></p>
+<p><img src="https://uk-1259555870.cos.eu-frankfurt.myqcloud.com/20200127155739.png"  style="zoom:75%;display: block; margin: 0px auto; vertical-align: middle;"></p>
+<p>结构体的<code>Next()</code>函数能够判断，是否存在下一行，因此我们需要循环读取，<strong>每次扫描都会清除一行</strong>：</p>
+<pre><code class="lang-go">func QueryMulti()(orders[] Orders,err error){
+    orders =[]Orders{}
+    rows,err:=DB.Query(&quot;SELECT * FROM orders&quot;)
+    if err!=nil{
+        fmt.Printf(&quot;Query failed,err:%v\n&quot;, err)
+        return
+    }
+    i:=0
+    for rows.Next(){
+        orders=append(orders, Orders{})
+        newerr := rows.Scan(&amp;orders[i].Order_num,&amp;orders[i].Order_date,&amp;orders[i].Cust_id)
+        if newerr != nil {
+            fmt.Printf(&quot;Scan failed,err:%v\n&quot;, err)
+        }
+        i++
+    }
+    return
+}
+</code></pre>
+<p>另一个重点是<strong>改用切片的形式返回数据</strong>，在next循环中切片需要用<code>append</code>添加！</p>
+<h2 id="1-2-修改数据"><a href="#1-2-修改数据" class="headerlink" title="1.2 修改数据"></a>1.2 修改数据</h2><p>改动数据有三种方式：增加、删除、更新，这三种方法其实大同小异。这里我们需要<strong>使用事务来保证原子性</strong>，防止并发时的资源竞争。</p>
+<p>一般查询使用的是db对象的方法，事务则是使用另外一个对象。sql.Tx对象。使用db的Begin方法可以创建tx对象。</p>
+<p>创建Tx对象的时候，会从连接池中取出连接。事务的连接生命周期从Beigin函数调用起，直到Commit和Rollback函数的调用结束。事务也提供了prepare语句的使用方式，但是需要使用Tx.Stmt方法创建。<strong>所以在事务开启过程中，是不能使用DB的方法的！</strong></p>
+<pre><code class="lang-go">tx, err := db.Begin()
+db.Exec(query1) //wrong!
+tx.Exec(query2)
+tx.commit()
+</code></pre>
+<pre><code class="lang-go">func Insert(order Orders)(err error){
+    tx,err := DB.Begin()
+    if err != nil{
+        fmt.Println(&quot;tx fail&quot;)
+        return
+    }
+    stmt,err := tx.Prepare(&quot;INSERT INTO orders (`order_num`,`order_date`,`cust_id`) VALUES(?,?,?)&quot;)
+    if err != nil{
+        fmt.Println(&quot;Prepare fail&quot;)
+        return
+    }
+    res,err:=stmt.Exec(order.Order_num,order.Order_date,order.Cust_id)
+    if err != nil{
+        fmt.Println(&quot;Exec fail&quot;)
+        return
+    }
+    tx.Commit()
+    fmt.Println(res.LastInsertId())
+    return
+}
+
+func Delete(id int) (err error){
+    tx,err := DB.Begin()
+    if err != nil{
+        fmt.Println(&quot;tx fail&quot;)
+        return
+    }
+    stmt,err := tx.Prepare(&quot;DELETE FROM orders WHERE order_num = ?&quot;)
+    if err != nil{
+        fmt.Println(&quot;Prepare fail&quot;)
+        return
+    }
+    res,err:=stmt.Exec(id)
+    if err != nil{
+        fmt.Println(&quot;Exec fail&quot;)
+        return
+    }
+    tx.Commit()
+    fmt.Println(res.LastInsertId())
+    return
+}
+</code></pre>
+<h1 id="2-服务端操作"><a href="#2-服务端操作" class="headerlink" title="2. 服务端操作"></a>2. 服务端操作</h1><p>服务端操作我们遵从REST原理：设计那些<strong>通过标准的几个动作来操纵资源</strong>。假设我们需要三个操作：</p>
+<ul>
+<li>获取单行数据GET</li>
+<li>获取全部数据MULTIGET</li>
+<li>插入数据INSERT</li>
+<li>删除数据DELETE</li>
+</ul>
+<p>首先是主程序：</p>
+<pre><code class="lang-go">func main(){
+    server := http.Server{
+        Addr:&quot;127.0.0.1:8080&quot;,
+    }
+    http.HandleFunc(&quot;/order/&quot;,handleRequest)
+    server.ListenAndServe()
+}
+</code></pre>
+<p>这里使用了<strong>多路复用器handleRequest</strong>，多路复用器会根据请求使用的HTTP方法，把请求转发给相应的CRUD(create, read, update, delete)处理器函数。</p>
+<pre><code class="lang-go">func handleRequest(w http.ResponseWriter, r *http.Request){
+    var err error
+    switch r.Method{
+    case &quot;GET&quot;:
+        err = handleGet(w,r)
+    case &quot;MULTIGET&quot;:
+        err = handleMultiGet(w,r)
+    case &quot;INSERT&quot;:
+        err = handleInsert(w,r)
+    case &quot;DELETE&quot;:
+        err = handleDelete(w,r)
+    }
+    if err!=nil{
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+}
+</code></pre>
+<p>下面就是多路复用器CRUD函数的实现：</p>
+<h2 id="2-1-查询数据"><a href="#2-1-查询数据" class="headerlink" title="2.1 查询数据"></a>2.1 查询数据</h2><p>这一类操作，我们只需要发送相应的主键ID，即可操作数据。由于查询结果需要通过响应包返回，所以我们还需要将其转化为JSON格式，完整步骤如下：</p>
+<ol>
+<li>从URL中解析出想要查询的主键ID</li>
+<li>调用数据库查询函数获取查询结果（order结构体）</li>
+<li>将结果转化为JSON格式</li>
+<li>封装响应包（头，主体，状态码）</li>
+</ol>
+<pre><code class="lang-go">func handleGet(w http.ResponseWriter, r *http.Request) (err error){
+    id, err :=strconv.Atoi(path.Base(r.URL.Path))
+    if err!=nil{
+        return
+    }
+    order, err := QueryOne(id)
+    if err!=nil{
+        return
+    }
+
+    output, err := json.MarshalIndent(&amp;order, &quot;&quot;, &quot;\t\t&quot;)
+    if err != nil {
+        return
+    }
+    w.Header().Set(&quot;Content-Type&quot;,&quot;application/json&quot;)
+    w.Write(output)
+    w.WriteHeader(200)
+    return
+}
+</code></pre>
+<p>在命令行输入：</p>
+<pre><code>curl -i -X GET http://127.0.0.1:8080/order/20011
+</code></pre><p>即可查询主键为20011的数据</p>
+<hr>
+<p>集体查询不需要解析URL，</p>
+<pre><code class="lang-go">func handleMultiGet(w http.ResponseWriter, r *http.Request)(err error){
+    //_, err =strconv.Atoi(path.Base(r.URL.Path))
+    if err!=nil{
+        return
+    }
+    orders, err := QueryMulti()
+    if err!=nil{
+        return
+    }
+    output, err := json.MarshalIndent(&amp;orders, &quot;&quot;, &quot;\t\t&quot;)
+    if err != nil {
+        return
+    }
+    w.Header().Set(&quot;Content-Type&quot;,&quot;application/json&quot;)
+    w.Write(output)
+    w.WriteHeader(200)
+    return
+}
+</code></pre>
+<p>在命令行输入：</p>
+<pre><code>curl -i -X MULTIGET http://127.0.0.1:8080/order/
+</code></pre><p>即可查询所有数据。</p>
+<h2 id="2-2-删除数据"><a href="#2-2-删除数据" class="headerlink" title="2.2 删除数据"></a>2.2 删除数据</h2><p>删除数据不需要返回内容，所以更简单：</p>
+<pre><code class="lang-go">func handleDelete(w http.ResponseWriter, r *http.Request)(err error) {
+    id,err:=strconv.Atoi(path.Base(r.URL.Path))
+    if err!=nil{
+        return
+    }
+    err = Delete(id)
+    if err != nil {
+        return
+    }
+    w.WriteHeader(200)
+    return
+}
+</code></pre>
+<p>使用方法集体查询一样，只是将指令MULTIGET换成DELETE。</p>
+<h2 id="2-3-插入数据"><a href="#2-3-插入数据" class="headerlink" title="2.3 插入数据"></a>2.3 插入数据</h2><p>插入数据有点像查询数据的逆过程：</p>
+<ol>
+<li>解析URL，读取JSON数据</li>
+<li>解析JSON数据，形成order结构体</li>
+<li>调用数据库插入函数</li>
+</ol>
+<pre><code class="lang-go">func handleInsert(w http.ResponseWriter, r *http.Request)(err error){
+    len := r.ContentLength
+    body := make([]byte,len)
+    r.Body.Read(body)
+    var order Orders
+    json.Unmarshal(body,&amp;order)
+    err = Insert(order)
+    if err!=nil{
+        return
+    }
+    w.WriteHeader(200)
+    return
+}
+</code></pre>
+<p>请求包的主体BODY是一个二进制数据，所以我们需要创建一个二进制切片来存储。</p>
+<p>在命令行输入：</p>
+<pre><code>curl -i -X INSERT -H &quot;Content-Type: application/json&quot;  
+    -d &#39;{&quot;order_date&quot;:&quot;2020-01-01 00:00:00&quot;,&quot;cust_id&quot;:&quot;10086&quot;}&#39; http://127.0.0.1:8080/order/
+</code></pre>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+
+        
+        文章发布地址：<a href="/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" target="_blank" rel="external">jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="jiangren.work">
+            <img src="/img/fong.jpg" alt="Jiang Ren">
+            Jiang Ren
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/" rel="tag">go</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&title=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&title=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&source=本节是针对前面学到的数据库操作和Web编程的综合应用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/03/02/GoWeb%E5%AE%9E%E6%88%982-%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E9%A9%AC%E8%B5%9B%E5%85%8B%E5%9B%BE%E7%89%87/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">GoWeb实战2-并发处理马赛克图片</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/02/23/CPP%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE%E6%B1%87%E6%80%BB/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">CPP面试题目汇总</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/true" alt="打赏二维码">
+        </div>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                Jiang Ren &copy;
+                    
+                        2019 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&title=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&pic=jiangren.work/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&title=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&source=本节是针对前面学到的数据库操作和Web编程的综合应用。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《GoWeb实战1-数据库与服务器的结合应用》 — JR's Blog&url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/&via=jiangren.work" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=jiangren.work/2020/03/01/GoWeb%E5%AE%9E%E6%88%981-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BB%93%E5%90%88%E5%BA%94%E7%94%A8/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script> -->
+<!-- <script async src="//cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script> -->
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>
